@@ -1,0 +1,106 @@
+.file-attachment {
+  margin-bottom: 0.5rem;
+}
+
+.attached-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.file-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  max-width: 250px;
+}
+
+.file-icon {
+  font-size: 1.25rem;
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #e0e0e0;
+}
+
+.file-size {
+  color: #9e9e9e;
+  font-size: 0.75rem;
+}
+
+.remove-file {
+  background: none;
+  border: none;
+  color: #9e9e9e;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.remove-file:hover {
+  background: #404040;
+  color: #ff5252;
+}
+
+.drop-zone {
+  border: 2px dashed #404040;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.drop-zone:hover {
+  border-color: #4fc3f7;
+  background: #252525;
+}
+
+.drop-zone.dragging {
+  border-color: #4fc3f7;
+  background: #1565c0;
+  background: linear-gradient(135deg, rgba(79, 195, 247, 0.1) 0%, rgba(25, 118, 210, 0.1) 100%);
+}
+
+.file-input-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.file-input-label .icon {
+  font-size: 1.25rem;
+}
+
+.file-input-label .text {
+  color: #9e9e9e;
+  font-size: 0.875rem;
+}
+
+.drop-zone:hover .file-input-label .text {
+  color: #4fc3f7;
+}
+
+.drop-zone.dragging .file-input-label .text {
+  color: #4fc3f7;
+  font-weight: 600;
+}
