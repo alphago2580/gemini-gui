@@ -21,7 +21,7 @@
     "electron",
     "gui"
   ],
-  "author": "",
+  "author": "alphago2580",
   "license": "MIT",
   "build": {
     "appId": "com.gemini.gui",
