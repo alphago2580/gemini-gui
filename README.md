@@ -1,6 +1,28 @@
 # Gemini GUI
 
-Gemini CLI를 위한 Electron GUI 래퍼입니다. 비기술자도 쉽게 Gemini AI를 사용할 수 있도록 만들어진 데스크톱 애플리케이션입니다.
+> Gemini CLI를 위한 Electron 데스크톱 GUI — 비기술자도 쉽게 Gemini AI를 사용할 수 있는 채팅 애플리케이션
+
+## 🏗️ 아키텍처
+
+```
+┌─────────────────────────────────────────────────┐
+│                  Electron App                    │
+│  ┌───────────────┐     ┌──────────────────────┐ │
+│  │  Main Process  │────▶│  Renderer (React)    │ │
+│  │  (CLI Bridge)  │ IPC │  ┌────────────────┐  │ │
+│  │                │◀────│  │ Chat UI        │  │ │
+│  │  ┌──────────┐  │     │  │ Settings       │  │ │
+│  │  │ Gemini   │  │     │  │ File Attach    │  │ │
+│  │  │ CLI      │  │     │  │ Sidebar Nav    │  │ │
+│  │  │ Wrapper  │  │     │  └────────────────┘  │ │
+│  │  └──────────┘  │     └──────────────────────┘ │
+│  └───────┬────────┘                              │
+│          │ stdin/stdout                          │
+│          ▼                                       │
+│    Gemini CLI Process                            │
+│    (Streaming Response)                          │
+└─────────────────────────────────────────────────┘
+```
 
 ## ✨ 주요 기능
 
