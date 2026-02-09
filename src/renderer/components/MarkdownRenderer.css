@@ -1,0 +1,120 @@
+/* Markdown Renderer Styles */
+.md-rendered {
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.md-rendered > * + * {
+  margin-top: 0.5rem;
+}
+
+/* Headings */
+.md-heading {
+  margin: 0.75rem 0 0.25rem 0;
+  line-height: 1.3;
+}
+
+.md-h1 { font-size: 1.5rem; }
+.md-h2 { font-size: 1.3rem; }
+.md-h3 { font-size: 1.15rem; }
+.md-h4 { font-size: 1.05rem; }
+.md-h5 { font-size: 1rem; }
+.md-h6 { font-size: 0.9rem; color: var(--text-secondary); }
+
+/* Paragraphs */
+.md-paragraph {
+  margin: 0.25rem 0;
+}
+
+/* Code blocks */
+.md-code-block {
+  position: relative;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0.5rem 0;
+}
+
+.md-code-block code {
+  white-space: pre;
+}
+
+.md-code-lang {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border-bottom-left-radius: 6px;
+  border-top-right-radius: 5px;
+  border-left: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  text-transform: lowercase;
+}
+
+/* Inline code */
+.md-inline-code {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 0.875em;
+}
+
+/* User messages: adjust inline code to look good on blue bg */
+.message.user .md-inline-code {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Lists */
+.md-list {
+  margin: 0.25rem 0;
+  padding-left: 1.5rem;
+}
+
+.md-list-item {
+  margin: 0.15rem 0;
+}
+
+/* Blockquote */
+.md-blockquote {
+  border-left: 3px solid var(--accent-highlight);
+  padding-left: 0.75rem;
+  margin: 0.25rem 0;
+  color: var(--text-secondary);
+}
+
+/* Links */
+.md-link {
+  color: var(--accent-highlight);
+  text-decoration: none;
+}
+
+.md-link:hover {
+  text-decoration: underline;
+}
+
+.message.user .md-link {
+  color: var(--user-role-color);
+}
+
+/* Horizontal rule */
+.md-hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 0.5rem 0;
+}
+
+/* Block spacing */
+.md-block > * + * {
+  margin-top: 0.25rem;
+}

@@ -3,6 +3,7 @@ import './App.css';
 import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
 import FileAttachment from './components/FileAttachment';
+import MarkdownRenderer from './components/MarkdownRenderer';
 import { useConversations } from './hooks/useConversations';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from './hooks/useTheme';
@@ -367,7 +368,9 @@ const App: React.FC = () => {
                     &times;
                   </button>
                 </div>
-                <div className="message-content">{message.content}</div>
+                <div className="message-content">
+                  <MarkdownRenderer content={message.content} />
+                </div>
               </div>
             ))}
             {isLoading && (

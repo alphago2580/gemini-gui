@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (215 tests)
+- **Test Status**: Passing (239 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -14,6 +14,7 @@
 - [x] Settings panel
 - [x] File attachment support
 - [x] Dark/Light/System theme system
+- [x] Markdown rendering for messages
 
 ## Agent Activity Log
 <!-- Agents: append your work here -->
@@ -122,3 +123,14 @@
 - Updated placeholder text to document Ctrl+Enter shortcut
 - Added 2 tests: Ctrl+Enter send, Shift+Enter no-send
 - Total tests: 213 → 215 (all passing)
+
+### Agent 2 (Quality) — Markdown Rendering
+- Created `MarkdownRenderer` component for rendering Markdown content in messages
+- Supports: headings (h1-h6), **bold**, *italic*, `inline code`, fenced code blocks with language labels, unordered/ordered lists, blockquotes, horizontal rules, links
+- Code blocks display with language badge and monospace font styling
+- All inline formatting (bold, italic, code, links) works within any block element
+- Applied to all messages via `<MarkdownRenderer content={message.content} />`
+- Added MarkdownRenderer.css with full theme variable support (dark/light)
+- Removed `white-space: pre-wrap` from `.message-content` to work with Markdown blocks
+- Added 24 tests for MarkdownRenderer (plain text, headings, inline formatting, code blocks, lists, blockquotes, horizontal rules, complex content)
+- Total tests: 215 → 239 (all passing)

@@ -5,9 +5,10 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 ## 🔴 High Priority
 
 ### Markdown Rendering
-- [ ] Render assistant responses as Markdown (bold, italic, lists, headers)
-- [ ] Code blocks with syntax highlighting (highlight.js or prism)
-- [ ] Inline code styling
+- [x] Render assistant responses as Markdown (bold, italic, lists, headers)
+- [x] Code blocks with language labels
+- [x] Inline code styling
+- [ ] Syntax highlighting for code blocks (highlight.js or prism)
 - [ ] LaTeX/math rendering support (KaTeX)
 
 ### Conversation Management  
@@ -84,6 +85,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Delete individual messages (209 tests)
 - [x] Clear conversation button + Ctrl+L (213 tests)
 - [x] Ctrl+Enter send + onKeyPress→onKeyDown migration (215 tests)
+- [x] Markdown rendering for messages — headings, bold, italic, code blocks, lists, blockquotes, links (239 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*
