@@ -126,6 +126,42 @@ export function useConversations() {
     }
   }, [currentConversationId]);
 
+  const forkConversation = useCallback((messageIndex: number): string | null => {
+    if (!currentConversationId) return null;
+
+    const currentConv = conversations.find(c => c.id === currentConversationId);
+    if (!currentConv) return null;
+
+    const forkedMessages = messages.slice(0, messageIndex + 1).map(msg => ({
+      ...msg,
+      timestamp: new Date(msg.timestamp),
+    }));
+
+    if (forkedMessages.length === 0) return null;
+
+    const firstUserMsg = forkedMessages.find(m => m.role === 'user');
+    const baseTitle = firstUserMsg
+      ? generateConversationTitle(firstUserMsg.content)
+      : currentConv.title;
+
+    const newConversation: Conversation = {
+      id: Date.now().toString(),
+      title: `${baseTitle} (분기)`,
+      timestamp: new Date(),
+      messages: forkedMessages,
+    };
+
+    setConversations(prev => [newConversation, ...prev]);
+    setCurrentConversationId(newConversation.id);
+    setMessages(forkedMessages);
+
+    if (window.electronAPI && window.electronAPI.newConversation) {
+      window.electronAPI.newConversation();
+    }
+
+    return newConversation.id;
+  }, [currentConversationId, conversations, messages]);
+
   return {
     conversations,
     currentConversationId,
@@ -137,5 +173,6 @@ export function useConversations() {
     deleteMessage,
     editMessage,
     deleteConversation,
+    forkConversation,
   };
 }

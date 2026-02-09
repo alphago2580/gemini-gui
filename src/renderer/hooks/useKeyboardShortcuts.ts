@@ -8,6 +8,8 @@ interface KeyboardShortcutActions {
   onFocusSearch: () => void;
   onToggleSidebar: () => void;
   onToggleCommandPalette?: () => void;
+  onNextTab?: () => void;
+  onPrevTab?: () => void;
   isSettingsOpen: boolean;
 }
 
@@ -19,6 +21,8 @@ export function useKeyboardShortcuts({
   onFocusSearch,
   onToggleSidebar,
   onToggleCommandPalette,
+  onNextTab,
+  onPrevTab,
   isSettingsOpen,
 }: KeyboardShortcutActions) {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -32,6 +36,17 @@ export function useKeyboardShortcuts({
     }
 
     if (!isCtrlOrMeta) return;
+
+    // Ctrl+Tab / Ctrl+Shift+Tab: Tab navigation
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        onPrevTab?.();
+      } else {
+        onNextTab?.();
+      }
+      return;
+    }
 
     // Ctrl+Shift+P: Command Palette
     if (e.shiftKey && (e.key === 'p' || e.key === 'P')) {
@@ -62,7 +77,7 @@ export function useKeyboardShortcuts({
         onToggleSidebar();
         break;
     }
-  }, [onNewChat, onClearConversation, onToggleSettings, onCloseSettings, onFocusSearch, onToggleSidebar, onToggleCommandPalette, isSettingsOpen]);
+  }, [onNewChat, onClearConversation, onToggleSettings, onCloseSettings, onFocusSearch, onToggleSidebar, onToggleCommandPalette, onNextTab, onPrevTab, isSettingsOpen]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);

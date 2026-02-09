@@ -172,6 +172,42 @@ describe('MessageBubble', () => {
     });
   });
 
+  describe('Fork', () => {
+    it('renders fork button when onFork is provided', () => {
+      render(<MessageBubble {...defaultProps} onFork={vi.fn()} />);
+      expect(screen.getByLabelText('여기서 분기')).toBeInTheDocument();
+    });
+
+    it('does not render fork button when onFork is not provided', () => {
+      render(<MessageBubble {...defaultProps} />);
+      expect(screen.queryByLabelText('여기서 분기')).not.toBeInTheDocument();
+    });
+
+    it('calls onFork with index when fork button is clicked', () => {
+      const onFork = vi.fn();
+      render(<MessageBubble {...defaultProps} index={2} onFork={onFork} />);
+      fireEvent.click(screen.getByLabelText('여기서 분기'));
+      expect(onFork).toHaveBeenCalledWith(2);
+    });
+
+    it('renders fork button for both user and assistant messages', () => {
+      const onFork = vi.fn();
+      const { rerender } = render(
+        <MessageBubble {...defaultProps} onFork={onFork} />
+      );
+      expect(screen.getByLabelText('여기서 분기')).toBeInTheDocument();
+
+      rerender(
+        <MessageBubble
+          {...defaultProps}
+          message={createMessage({ role: 'assistant' })}
+          onFork={onFork}
+        />
+      );
+      expect(screen.getByLabelText('여기서 분기')).toBeInTheDocument();
+    });
+  });
+
   describe('Streaming cursor', () => {
     it('shows streaming cursor on last assistant message when streaming', () => {
       const { container } = render(

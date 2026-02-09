@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (590 tests)
+- **Test Status**: Passing (654 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -379,3 +379,34 @@
 - User message tables styled with rgba borders for blue background compatibility
 - Added 9 unit tests (simple table, headers, cells, inline markdown, alignment, empty cells, mixed content, multiple tables)
 - Total tests: 581 → 590 (24 test files, all passing)
+
+### Agent 2 (Quality) — Smart Scroll to Bottom
+- Created `useAutoScroll` custom hook replacing naive scroll-on-every-message behavior
+- Auto-scrolls only when user is near bottom of messages (within 100px threshold)
+- Shows floating "↓" scroll-to-bottom button when user scrolls up and new messages arrive
+- Button positioned as absolute overlay inside chat-container with theme-aware styling
+- Smooth scroll animation via `scrollIntoView({ behavior: 'smooth' })`
+- Button click scrolls to bottom and hides the button
+- Uses `requestAnimationFrame` for proper DOM update timing
+- Tracks previous message count via ref to detect new message additions
+- Removed old `scrollToBottom` function and `useEffect` from App.tsx in favor of hook
+- Added `position: relative` to `.chat-container` for button positioning context
+- Accessible: `aria-label="새 메시지로 이동"` on scroll button
+- Added 10 unit tests for useAutoScroll hook (init state, refs, scroll position detection, button visibility, scrollIntoView call)
+- Total tests: 630 → 640 (27 test files, all passing)
+
+### Agent 2 (Quality) — Conversation Branching (Fork from Any Message)
+- Added `forkConversation` function to `useConversations` hook
+- Creates new conversation with messages up to the fork point (inclusive)
+- Forked conversation title includes `(분기)` suffix for easy identification
+- Switches to the new forked conversation automatically
+- Preserves original conversation untouched
+- Added fork button (⎗) to `MessageBubble` component (hover-reveal, both user and assistant messages)
+- `onFork` prop is optional — fork button only rendered when provided
+- CSS: `.fork-message-btn` with same hover-reveal pattern as edit/delete buttons
+- Calls `electronAPI.newConversation` to start fresh CLI session for forked conversation
+- New forked conversation automatically appears in tabs via existing `ensureTabOpen` effect
+- Added 7 unit tests for `forkConversation` in useConversations (fork messages, switch, naming, null cases, preserve original, IPC call)
+- Added 4 unit tests for MessageBubble fork button (render, callback, both roles)
+- Added 3 integration tests in App (fork buttons visible, fork creates subset, sidebar label)
+- Total tests: 640 → 654 (27 test files, all passing)

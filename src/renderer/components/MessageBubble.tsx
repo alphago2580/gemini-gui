@@ -10,6 +10,7 @@ interface MessageBubbleProps {
   isLastAssistant: boolean;
   onDelete: (index: number) => void;
   onEdit: (index: number, content: string) => void;
+  onFork?: (index: number) => void;
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -19,6 +20,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   isLastAssistant,
   onDelete,
   onEdit,
+  onFork,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
@@ -60,6 +62,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             title="메시지 수정"
           >
             &#9998;
+          </button>
+        )}
+        {onFork && (
+          <button
+            className="fork-message-btn"
+            onClick={() => onFork(index)}
+            aria-label="여기서 분기"
+            title="여기서 대화 분기"
+          >
+            &#9095;
           </button>
         )}
         <button

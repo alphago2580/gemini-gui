@@ -474,6 +474,170 @@ describe('useConversations', () => {
     });
   });
 
+  describe('forkConversation', () => {
+    it('creates a new conversation with messages up to the given index', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const msgs = [
+        { role: 'user' as const, content: 'First', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'Response 1', timestamp: new Date() },
+        { role: 'user' as const, content: 'Second', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'Response 2', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      let newId: string | null = null;
+      act(() => {
+        newId = result.current.forkConversation(1);
+      });
+
+      expect(newId).not.toBeNull();
+      expect(result.current.conversations).toHaveLength(2);
+      expect(result.current.messages).toHaveLength(2);
+      expect(result.current.messages[0].content).toBe('First');
+      expect(result.current.messages[1].content).toBe('Response 1');
+    });
+
+    it('switches to the new forked conversation', () => {
+      const { result } = renderHook(() => useConversations());
+
+      vi.spyOn(Date, 'now').mockReturnValueOnce(1000);
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const originalId = result.current.currentConversationId;
+
+      const msgs = [
+        { role: 'user' as const, content: 'Hello', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'Hi', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      vi.spyOn(Date, 'now').mockReturnValueOnce(2000);
+      let newId: string | null = null;
+      act(() => {
+        newId = result.current.forkConversation(0);
+      });
+
+      expect(result.current.currentConversationId).toBe(newId);
+      expect(result.current.currentConversationId).not.toBe(originalId);
+    });
+
+    it('names the forked conversation with (분기) suffix', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const msgs = [
+        { role: 'user' as const, content: 'Tell me about TypeScript', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'TypeScript is...', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      act(() => {
+        result.current.forkConversation(1);
+      });
+
+      const forkedConv = result.current.conversations[0];
+      expect(forkedConv.title).toContain('(분기)');
+    });
+
+    it('returns null when no current conversation exists', () => {
+      const { result } = renderHook(() => useConversations());
+
+      let newId: string | null = null;
+      act(() => {
+        newId = result.current.forkConversation(0);
+      });
+
+      expect(newId).toBeNull();
+    });
+
+    it('returns null when forking with no messages', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      let newId: string | null = null;
+      act(() => {
+        newId = result.current.forkConversation(-1);
+      });
+
+      expect(newId).toBeNull();
+    });
+
+    it('preserves the original conversation', () => {
+      const { result } = renderHook(() => useConversations());
+
+      vi.spyOn(Date, 'now').mockReturnValueOnce(1000);
+      act(() => {
+        result.current.handleNewChat();
+      });
+      const originalId = result.current.currentConversationId!;
+
+      const msgs = [
+        { role: 'user' as const, content: 'Hello', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'World', timestamp: new Date() },
+        { role: 'user' as const, content: 'More', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      vi.spyOn(Date, 'now').mockReturnValueOnce(2000);
+      act(() => {
+        result.current.forkConversation(0);
+      });
+
+      const originalConv = result.current.conversations.find(c => c.id === originalId);
+      expect(originalConv).toBeDefined();
+      expect(originalConv!.messages).toHaveLength(3);
+    });
+
+    it('calls electronAPI.newConversation when forking', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      mockElectronAPI.newConversation.mockClear();
+
+      const msgs = [
+        { role: 'user' as const, content: 'Test', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      act(() => {
+        result.current.forkConversation(0);
+      });
+
+      expect(mockElectronAPI.newConversation).toHaveBeenCalled();
+    });
+  });
+
   describe('editMessage', () => {
     it('edits a message at the given index', () => {
       const { result } = renderHook(() => useConversations());

@@ -30,10 +30,10 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 ## 🟡 Medium Priority
 
 ### Multi-Tab Support
-- [ ] Tab bar for multiple conversations
-- [ ] New tab button
-- [ ] Close tab with confirmation
-- [ ] Tab switching with keyboard shortcuts (Ctrl+Tab)
+- [x] Tab bar for multiple conversations
+- [x] New tab button
+- [x] Close tab with confirmation
+- [x] Tab switching with keyboard shortcuts (Ctrl+Tab)
 
 ### Keyboard Shortcuts
 - [x] Ctrl+N: New conversation
@@ -53,14 +53,14 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 ### UI Polish
 - [x] Loading spinner during response generation
 - [x] Typing indicator animation
-- [ ] Smooth scroll to bottom on new messages
+- [x] Smooth scroll to bottom on new messages
 - [x] Toast notifications for errors
 - [x] Responsive sidebar (collapsible)
 
 ## 🟢 Low Priority
 
 ### Advanced Features
-- [ ] Conversation branching (fork from any message)
+- [x] Conversation branching (fork from any message)
 - [x] Token usage display
 - [x] Model selection dropdown
 - [x] System prompt editor
@@ -109,6 +109,9 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] useStreamHandler hook extraction — streaming data, errors, token usage, loading state (575 tests)
 - [x] Code block copy button — clipboard API, visual feedback, accessible (581 tests)
 - [x] Markdown table rendering — headers, alignment, inline markdown in cells, theme CSS (590 tests)
+- [x] Multi-tab support — TabBar component, useTabs hook, Ctrl+Tab/Ctrl+Shift+Tab navigation, localStorage persistence (630 tests)
+- [x] Smart scroll to bottom — useAutoScroll hook, auto-scroll when near bottom, scroll-to-bottom button when scrolled up (640 tests)
+- [x] Conversation branching — fork from any message, creates new conversation with messages up to fork point, (분기) suffix in title (654 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

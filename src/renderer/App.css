@@ -235,6 +235,7 @@
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  position: relative;
 }
 
 .messages {
@@ -357,6 +358,26 @@
   color: var(--accent-highlight);
 }
 
+.fork-message-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.message:hover .fork-message-btn {
+  opacity: 1;
+}
+
+.fork-message-btn:hover {
+  color: var(--accent-highlight);
+}
+
 .message.editing {
   border-color: var(--accent-highlight);
 }
@@ -471,6 +492,31 @@
     transform: scale(1);
     opacity: 1;
   }
+}
+
+.scroll-to-bottom-btn {
+  position: absolute;
+  bottom: 120px;
+  right: 2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px var(--shadow-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+  z-index: 10;
+}
+
+.scroll-to-bottom-btn:hover {
+  background: var(--bg-hover);
+  transform: scale(1.1);
 }
 
 .input-container {

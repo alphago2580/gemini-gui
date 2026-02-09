@@ -183,4 +183,30 @@ describe('useKeyboardShortcuts', () => {
     expect(actions.onCloseSettings).toHaveBeenCalledTimes(1);
     expect(actions.onNewChat).not.toHaveBeenCalled();
   });
+
+  it('calls onNextTab on Ctrl+Tab', () => {
+    const actions = { ...defaultActions(), onNextTab: vi.fn(), onPrevTab: vi.fn() };
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('Tab', { ctrlKey: true });
+    expect(actions.onNextTab).toHaveBeenCalledTimes(1);
+    expect(actions.onPrevTab).not.toHaveBeenCalled();
+  });
+
+  it('calls onPrevTab on Ctrl+Shift+Tab', () => {
+    const actions = { ...defaultActions(), onNextTab: vi.fn(), onPrevTab: vi.fn() };
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('Tab', { ctrlKey: true, shiftKey: true });
+    expect(actions.onPrevTab).toHaveBeenCalledTimes(1);
+    expect(actions.onNextTab).not.toHaveBeenCalled();
+  });
+
+  it('calls onNextTab on Meta+Tab (macOS)', () => {
+    const actions = { ...defaultActions(), onNextTab: vi.fn(), onPrevTab: vi.fn() };
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('Tab', { metaKey: true });
+    expect(actions.onNextTab).toHaveBeenCalledTimes(1);
+  });
 });

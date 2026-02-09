@@ -9,6 +9,7 @@ import TypingIndicator from './components/TypingIndicator';
 import CommandPalette from './components/CommandPalette';
 import PromptTemplates from './components/PromptTemplates';
 import TokenUsage from './components/TokenUsage';
+import TabBar from './components/TabBar';
 import type { Command } from './components/CommandPalette';
 import { useConversations } from './hooks/useConversations';
 import { usePromptTemplates } from './hooks/usePromptTemplates';
@@ -18,6 +19,8 @@ import { useAutoResize } from './hooks/useAutoResize';
 import { useToast } from './hooks/useToast';
 import { useStreamHandler } from './hooks/useStreamHandler';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import { useTabs } from './hooks/useTabs';
+import { useAutoScroll } from './hooks/useAutoScroll';
 import { exportToMarkdown, exportToHtml } from './utils/format';
 import type { AppSettings, Message } from '../preload/types';
 
@@ -53,7 +56,34 @@ const App: React.FC = () => {
     deleteMessage,
     editMessage,
     deleteConversation,
+    forkConversation,
   } = useConversations();
+
+  // Tabs
+  const {
+    tabs,
+    selectTab,
+    closeTab,
+    newTab,
+    nextTab,
+    prevTab,
+    ensureTabOpen,
+    cleanupTabs,
+  } = useTabs(currentConversationId, handleSelectConversation, handleNewChat, conversations);
+
+  // Ensure current conversation is in tabs
+  useEffect(() => {
+    if (currentConversationId) {
+      ensureTabOpen(currentConversationId);
+    }
+  }, [currentConversationId, ensureTabOpen]);
+
+  // Clean up tabs when conversations are deleted (only after conversations are loaded)
+  useEffect(() => {
+    if (conversations.length > 0) {
+      cleanupTabs(conversations.map(c => c.id));
+    }
+  }, [conversations, cleanupTabs]);
 
   // Theme
   const { themeMode, setThemeMode } = useTheme();
@@ -91,6 +121,15 @@ const App: React.FC = () => {
     document.documentElement.setAttribute('data-high-contrast', String(highContrast));
   }, [highContrast]);
 
+  // Auto-scroll
+  const {
+    messagesContainerRef,
+    messagesEndRef,
+    showScrollButton,
+    scrollToBottom,
+    handleScroll: handleMessagesScroll,
+  } = useAutoScroll(messages);
+
   // Auto-resize textarea
   const { textareaRef } = useAutoResize(input);
 
@@ -108,7 +147,6 @@ const App: React.FC = () => {
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
 
   // Refs
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Clear current conversation messages
@@ -171,6 +209,8 @@ const App: React.FC = () => {
     onFocusSearch: () => searchInputRef.current?.focus(),
     onToggleSidebar: handleToggleSidebar,
     onToggleCommandPalette: () => setIsCommandPaletteOpen(prev => !prev),
+    onNextTab: nextTab,
+    onPrevTab: prevTab,
     isSettingsOpen,
   });
 
@@ -178,14 +218,6 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
   }, [settings]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   // Handle settings save
   const handleSettingsSave = (newSettings: AppSettings) => {
@@ -395,8 +427,16 @@ const App: React.FC = () => {
           )}
         </header>
 
+        <TabBar
+          tabs={tabs}
+          activeTabId={currentConversationId}
+          onSelectTab={selectTab}
+          onCloseTab={closeTab}
+          onNewTab={newTab}
+        />
+
         <div className="chat-container">
-          <div className="messages" role="log" aria-label="대화 메시지" aria-live="polite">
+          <div className="messages" role="log" aria-label="대화 메시지" aria-live="polite" ref={messagesContainerRef} onScroll={handleMessagesScroll}>
             {messages.length === 0 && (
               <div className="welcome-message">
                 <h2>Gemini에 오신 것을 환영합니다!</h2>
@@ -412,6 +452,7 @@ const App: React.FC = () => {
                 isLastAssistant={message.role === 'assistant' && index === messages.length - 1}
                 onDelete={deleteMessage}
                 onEdit={editMessage}
+                onFork={forkConversation}
               />
             ))}
             {isLoading && (
@@ -422,6 +463,17 @@ const App: React.FC = () => {
             )}
             <div ref={messagesEndRef} />
           </div>
+
+          {showScrollButton && (
+            <button
+              className="scroll-to-bottom-btn"
+              onClick={() => scrollToBottom('smooth')}
+              aria-label="새 메시지로 이동"
+              title="새 메시지로 이동"
+            >
+              ↓
+            </button>
+          )}
 
           <div className="input-container" role="form" aria-label="메시지 입력">
             <FileAttachment

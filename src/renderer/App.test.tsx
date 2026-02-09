@@ -225,7 +225,7 @@ describe('App Component', () => {
         localStorage.setItem('gemini-current-conversation', '123');
 
         render(<App />);
-        expect(screen.getByText('저장된 대화')).toBeInTheDocument();
+        expect(screen.getAllByText('저장된 대화').length).toBeGreaterThanOrEqual(1);
         expect(screen.getByText('Hello')).toBeInTheDocument();
     });
 
@@ -1295,6 +1295,276 @@ describe('App Component', () => {
             expect(screen.getByLabelText('모델 선택')).toBeInTheDocument();
             expect(screen.getByText('Gemini 2.5 Pro')).toBeInTheDocument();
             expect(screen.getByText('Gemini 2.5 Flash')).toBeInTheDocument();
+        });
+    });
+
+    describe('Tab Bar', () => {
+        it('shows tab bar when a conversation exists', async () => {
+            render(<App />);
+            // Create a new conversation by sending a message
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await userEvent.type(input, 'Hello');
+            fireEvent.click(screen.getByLabelText('메시지 전송'));
+
+            await waitFor(() => {
+                expect(screen.getByRole('tablist')).toBeInTheDocument();
+            });
+        });
+
+        it('creates a tab when new conversation is started', async () => {
+            render(<App />);
+            fireEvent.click(screen.getByLabelText('새 대화 시작'));
+
+            await waitFor(() => {
+                const tabs = screen.getAllByRole('tab');
+                expect(tabs.length).toBeGreaterThanOrEqual(1);
+            });
+        });
+
+        it('shows tab for restored conversation from localStorage', () => {
+            const savedConversations = [
+                {
+                    id: '100',
+                    title: '탭 테스트 대화',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Test msg', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '100');
+
+            render(<App />);
+            const tablist = screen.getByRole('tablist');
+            expect(tablist).toBeInTheDocument();
+            // Tab should exist with the conversation title
+            expect(screen.getAllByText('탭 테스트 대화').length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('switches conversation when tab is clicked', async () => {
+            const savedConversations = [
+                {
+                    id: '200',
+                    title: '첫 번째 탭',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'First msg', timestamp: new Date().toISOString() },
+                    ],
+                },
+                {
+                    id: '201',
+                    title: '두 번째 탭',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Second msg', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '200');
+            localStorage.setItem('gemini-open-tabs', JSON.stringify(['200', '201']));
+
+            render(<App />);
+
+            // Wait for tabs to render
+            await waitFor(() => {
+                const tabs = screen.getAllByRole('tab');
+                expect(tabs.length).toBe(2);
+            });
+
+            // Click second tab
+            const tabs = screen.getAllByRole('tab');
+            const secondTab = tabs.find(t => t.getAttribute('aria-label') === '탭: 두 번째 탭');
+            expect(secondTab).toBeTruthy();
+            fireEvent.click(secondTab!);
+
+            // Should display second conversation's message
+            await waitFor(() => {
+                expect(screen.getByText('Second msg')).toBeInTheDocument();
+            });
+        });
+
+        it('new tab button creates a new conversation', async () => {
+            const savedConversations = [
+                {
+                    id: '300',
+                    title: '기존 대화',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Existing', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '300');
+            localStorage.setItem('gemini-open-tabs', JSON.stringify(['300']));
+
+            render(<App />);
+            fireEvent.click(screen.getByLabelText('새 탭'));
+
+            await waitFor(() => {
+                const tabs = screen.getAllByRole('tab');
+                expect(tabs.length).toBeGreaterThanOrEqual(2);
+            });
+        });
+
+        it('Ctrl+Tab switches to next tab', async () => {
+            const savedConversations = [
+                {
+                    id: '400',
+                    title: '탭 A',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Msg A', timestamp: new Date().toISOString() },
+                    ],
+                },
+                {
+                    id: '401',
+                    title: '탭 B',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Msg B', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '400');
+            localStorage.setItem('gemini-open-tabs', JSON.stringify(['400', '401']));
+
+            render(<App />);
+            await waitFor(() => {
+                expect(screen.getByText('Msg A')).toBeInTheDocument();
+            });
+
+            fireEvent.keyDown(document, { key: 'Tab', ctrlKey: true });
+            await waitFor(() => {
+                expect(screen.getByText('Msg B')).toBeInTheDocument();
+            });
+        });
+
+        it('Ctrl+Shift+Tab switches to previous tab', async () => {
+            const savedConversations = [
+                {
+                    id: '500',
+                    title: '탭 X',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Msg X', timestamp: new Date().toISOString() },
+                    ],
+                },
+                {
+                    id: '501',
+                    title: '탭 Y',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Msg Y', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '501');
+            localStorage.setItem('gemini-open-tabs', JSON.stringify(['500', '501']));
+
+            render(<App />);
+            await waitFor(() => {
+                expect(screen.getByText('Msg Y')).toBeInTheDocument();
+            });
+
+            fireEvent.keyDown(document, { key: 'Tab', ctrlKey: true, shiftKey: true });
+            await waitFor(() => {
+                expect(screen.getByText('Msg X')).toBeInTheDocument();
+            });
+        });
+    });
+
+    describe('Conversation Fork', () => {
+        it('renders fork button on messages', async () => {
+            const savedConversations = [
+                {
+                    id: '600',
+                    title: 'Fork Test',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'First message', timestamp: new Date().toISOString() },
+                        { role: 'assistant', content: 'Response', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '600');
+
+            render(<App />);
+            await waitFor(() => {
+                expect(screen.getByText('First message')).toBeInTheDocument();
+            });
+
+            const forkButtons = screen.getAllByLabelText('여기서 분기');
+            expect(forkButtons.length).toBe(2);
+        });
+
+        it('creates a new forked conversation when fork button is clicked', async () => {
+            const savedConversations = [
+                {
+                    id: '700',
+                    title: 'Original Chat',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Hello fork', timestamp: new Date().toISOString() },
+                        { role: 'assistant', content: 'Fork response', timestamp: new Date().toISOString() },
+                        { role: 'user', content: 'Third msg', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '700');
+
+            render(<App />);
+            await waitFor(() => {
+                expect(screen.getByText('Hello fork')).toBeInTheDocument();
+            });
+
+            // Fork from the first message (index 0)
+            const forkButtons = screen.getAllByLabelText('여기서 분기');
+            fireEvent.click(forkButtons[0]);
+
+            // After forking from index 0, only the first message should be in the forked conversation
+            await waitFor(() => {
+                // The forked conversation should have only 1 message
+                expect(screen.getByText('Hello fork')).toBeInTheDocument();
+                expect(screen.queryByText('Fork response')).not.toBeInTheDocument();
+                expect(screen.queryByText('Third msg')).not.toBeInTheDocument();
+            });
+        });
+
+        it('shows forked conversation in sidebar with (분기) suffix', async () => {
+            const savedConversations = [
+                {
+                    id: '800',
+                    title: 'Branch Test',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Branch content', timestamp: new Date().toISOString() },
+                        { role: 'assistant', content: 'Branch reply', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '800');
+
+            render(<App />);
+            await waitFor(() => {
+                expect(screen.getByText('Branch content')).toBeInTheDocument();
+            });
+
+            const forkButtons = screen.getAllByLabelText('여기서 분기');
+            fireEvent.click(forkButtons[1]); // Fork from second message
+
+            await waitFor(() => {
+                const sidebarItems = screen.getAllByRole('listitem');
+                const hasForkLabel = sidebarItems.some(item => item.textContent?.includes('(분기)'));
+                expect(hasForkLabel).toBe(true);
+            });
         });
     });
 });
