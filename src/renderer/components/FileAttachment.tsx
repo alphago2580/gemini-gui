@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './FileAttachment.css';
+import { formatFileSize, getFileIcon } from '../utils/format';
 
 interface FileAttachmentProps {
   onFilesSelected: (files: File[]) => void;
@@ -39,28 +40,13 @@ const FileAttachment: React.FC<FileAttachmentProps> = ({
     }
   };
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  };
-
-  const getFileIcon = (file: File): string => {
-    if (file.type.startsWith('image/')) return '🖼️';
-    if (file.type === 'application/pdf') return '📄';
-    if (file.type.startsWith('text/')) return '📝';
-    if (file.type.startsWith('video/')) return '🎥';
-    if (file.type.startsWith('audio/')) return '🎵';
-    return '📎';
-  };
-
   return (
     <div className="file-attachment">
       {attachedFiles.length > 0 && (
         <div className="attached-files">
           {attachedFiles.map((file, index) => (
             <div key={index} className="file-chip">
-              <span className="file-icon">{getFileIcon(file)}</span>
+              <span className="file-icon">{getFileIcon(file.type)}</span>
               <span className="file-name">{file.name}</span>
               <span className="file-size">{formatFileSize(file.size)}</span>
               <button

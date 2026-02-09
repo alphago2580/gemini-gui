@@ -73,6 +73,8 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [ ] E2E test coverage for critical flows
 - [ ] Performance monitoring (React Profiler)
 - [ ] Error boundary components
+- [x] Comprehensive unit tests for all components (92 tests)
+- [x] Extract shared utility functions to src/renderer/utils/
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

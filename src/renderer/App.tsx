@@ -3,6 +3,7 @@ import './App.css';
 import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
 import FileAttachment from './components/FileAttachment';
+import { generateConversationTitle } from './utils/format';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -120,14 +121,6 @@ const App: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  // Generate conversation title from first user message
-  const generateConversationTitle = (firstMessage: string): string => {
-    const maxLength = 50;
-    return firstMessage.length > maxLength
-      ? firstMessage.substring(0, maxLength) + '...'
-      : firstMessage;
-  };
 
   // Create a new conversation
   const handleNewChat = () => {
