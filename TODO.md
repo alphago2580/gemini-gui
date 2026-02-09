@@ -112,6 +112,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Multi-tab support — TabBar component, useTabs hook, Ctrl+Tab/Ctrl+Shift+Tab navigation, localStorage persistence (630 tests)
 - [x] Smart scroll to bottom — useAutoScroll hook, auto-scroll when near bottom, scroll-to-bottom button when scrolled up (640 tests)
 - [x] Conversation branching — fork from any message, creates new conversation with messages up to fork point, (분기) suffix in title (654 tests)
+- [x] useMessageSend hook extraction — message sending, file handling, paste, key events extracted from App.tsx (672 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

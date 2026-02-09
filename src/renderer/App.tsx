@@ -21,8 +21,9 @@ import { useStreamHandler } from './hooks/useStreamHandler';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useTabs } from './hooks/useTabs';
 import { useAutoScroll } from './hooks/useAutoScroll';
+import { useMessageSend } from './hooks/useMessageSend';
 import { exportToMarkdown, exportToHtml } from './utils/format';
-import type { AppSettings, Message } from '../preload/types';
+import type { AppSettings } from '../preload/types';
 
 const STORAGE_KEY_SETTINGS = 'gemini-settings';
 
@@ -110,7 +111,6 @@ const App: React.FC = () => {
   });
 
   // UI state
-  const [input, setInput] = useState('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage('gemini-sidebar-collapsed', false);
   const [highContrast, setHighContrast] = useLocalStorage('gemini-high-contrast', false);
@@ -130,9 +130,6 @@ const App: React.FC = () => {
     handleScroll: handleMessagesScroll,
   } = useAutoScroll(messages);
 
-  // Auto-resize textarea
-  const { textareaRef } = useAutoResize(input);
-
   // Settings state
   const [settings, setSettings] = useState<AppSettings>(() => {
     try {
@@ -143,8 +140,31 @@ const App: React.FC = () => {
     }
   });
 
-  // File attachment state
-  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  // Message send logic (input, files, send, paste)
+  const {
+    input,
+    setInput,
+    attachedFiles,
+    handleFilesSelected,
+    handleRemoveFile,
+    handleSend,
+    handleKeyDown,
+    handlePaste,
+  } = useMessageSend({
+    currentConversationId,
+    isLoading,
+    settings,
+    setMessages,
+    updateCurrentConversation,
+    handleNewChat,
+    startLoading,
+    stopLoading,
+    clearTokenUsage,
+    addToast,
+  });
+
+  // Auto-resize textarea
+  const { textareaRef } = useAutoResize(input);
 
   // Refs
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -222,159 +242,6 @@ const App: React.FC = () => {
   // Handle settings save
   const handleSettingsSave = (newSettings: AppSettings) => {
     setSettings(newSettings);
-  };
-
-  // Handle file selection from FileAttachment component
-  const handleFilesSelected = (files: File[]) => {
-    setAttachedFiles(prev => [...prev, ...files]);
-  };
-
-  // Handle file removal from attachedFiles
-  const handleRemoveFile = (index: number) => {
-    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  // Convert File to ArrayBuffer for saveTempFile
-  const fileToArrayBuffer = async (file: File): Promise<ArrayBuffer> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as ArrayBuffer);
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(file);
-    });
-  };
-
-  // Save attached files to temp storage
-  const saveTempFiles = async (): Promise<string[]> => {
-    const tempFilePaths: string[] = [];
-
-    for (const file of attachedFiles) {
-      try {
-        const buffer = await fileToArrayBuffer(file);
-        if (window.electronAPI && window.electronAPI.saveTempFile) {
-          const filePath = await window.electronAPI.saveTempFile(file.name, buffer);
-          tempFilePaths.push(filePath);
-          console.log(`Temp file saved: ${filePath}`);
-        }
-      } catch (error) {
-        console.error(`Error saving temp file ${file.name}:`, error);
-      }
-    }
-
-    return tempFilePaths;
-  };
-
-  // Cleanup temp files on component unmount
-  useEffect(() => {
-    return () => {
-      if (window.electronAPI && window.electronAPI.cleanupTempFiles) {
-        window.electronAPI.cleanupTempFiles();
-      }
-    };
-  }, []);
-
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-
-    // Create new conversation if none exists
-    if (!currentConversationId) {
-      handleNewChat();
-    }
-
-    // Prepare message content with file information if files are attached
-    let fullMessageContent = input;
-    if (attachedFiles.length > 0) {
-      const fileNames = attachedFiles.map(f => f.name).join(', ');
-      fullMessageContent = `${input}\n\n[첨부 파일: ${fileNames}]`;
-
-      // Save temp files
-      try {
-        const tempFilePaths = await saveTempFiles();
-        if (tempFilePaths.length > 0) {
-          console.log(`Saved ${tempFilePaths.length} file(s) to temp storage`);
-          fullMessageContent += `\n[파일 경로: ${tempFilePaths.join(', ')}]`;
-        }
-      } catch (error) {
-        console.error('Error saving temp files:', error);
-      }
-    }
-
-    const userMessage: Message = {
-      role: 'user',
-      content: fullMessageContent,
-      timestamp: new Date()
-    };
-
-    // Add user message to state
-    setMessages(prev => {
-      const updated = [...prev, userMessage];
-      updateCurrentConversation(updated);
-      return updated;
-    });
-
-    const messageToSend = input;
-    setInput('');
-    startLoading();
-    clearTokenUsage();
-
-    try {
-      // sendMessage는 Promise를 반환하지만 실제 응답은 스트리밍으로 온다
-      await window.electronAPI.sendMessage(
-        messageToSend,
-        settings.systemPrompt || undefined,
-        settings.model !== 'auto' ? settings.model : undefined
-      );
-      // 성공 시 스트리밍 완료 이벤트에서 isLoading을 false로 설정
-      // Clear attached files after successful send
-      setAttachedFiles([]);
-    } catch (error: unknown) {
-      // 에러 발생 시
-      const errMsg = error instanceof Error
-        ? error.message
-        : typeof error === 'object' && error !== null && 'error' in error
-          ? String((error as { error: unknown }).error)
-          : String(error);
-      addToast('error', `메시지 전송 실패: ${errMsg}`);
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: `오류 발생: ${errMsg}`,
-        timestamp: new Date()
-      };
-      setMessages(prev => {
-        const updated = [...prev, errorMessage];
-        updateCurrentConversation(updated);
-        return updated;
-      });
-      stopLoading();
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-
-    const imageFiles: File[] = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type.startsWith('image/')) {
-        const file = item.getAsFile();
-        if (file) {
-          imageFiles.push(file);
-        }
-      }
-    }
-
-    if (imageFiles.length > 0) {
-      e.preventDefault();
-      handleFilesSelected(imageFiles);
-    }
   };
 
   return (

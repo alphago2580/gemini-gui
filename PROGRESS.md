@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (654 tests)
+- **Test Status**: Passing (672 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -410,3 +410,14 @@
 - Added 4 unit tests for MessageBubble fork button (render, callback, both roles)
 - Added 3 integration tests in App (fork buttons visible, fork creates subset, sidebar label)
 - Total tests: 640 → 654 (27 test files, all passing)
+
+### Agent 2 (Quality) — useMessageSend Hook Extraction
+- Extracted message sending logic from App.tsx into `useMessageSend` custom hook
+- Hook manages: input state, attachedFiles state, handleSend, handleKeyDown, handlePaste
+- Includes: fileToArrayBuffer, saveTempFiles, temp file cleanup on unmount
+- Encapsulates: file attachment (add/remove), clipboard image pasting, Enter/Shift+Enter key handling
+- Passes systemPrompt and model settings through to IPC sendMessage call
+- Error handling: toast notification + error message on send failure
+- App.tsx reduced from ~540 lines to ~406 lines (134 line reduction)
+- Added 18 unit tests for useMessageSend (init state, input, files, send, key handling, paste, errors, cleanup)
+- Total tests: 654 → 672 (28 test files, all passing)
