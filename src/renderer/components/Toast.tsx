@@ -60,4 +60,4 @@ const Toast: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
   );
 };
 
-export default Toast;
+export default React.memo(Toast);

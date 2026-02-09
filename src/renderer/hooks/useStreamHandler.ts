@@ -36,8 +36,6 @@ export function useStreamHandler({
 
     // 스트리밍 데이터 처리
     window.electronAPI.onStreamData((data: StreamData) => {
-      console.log('Stream data received:', data);
-
       if (data.type === 'message' && data.role === 'assistant') {
         setIsStreaming(true);
         setMessages(prev => {

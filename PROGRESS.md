@@ -473,3 +473,9 @@
 - App.tsx reduced from ~385 lines to ~359 lines
 - Added 6 unit tests for useSettings (defaults, load, invalid JSON, save, persistence, function type)
 - Total tests: 690 → 696 (30 test files, all passing)
+
+### Agent 2 (Quality) — Remove Debug Logging + React.memo Remaining Components
+- Removed `console.log('Stream data received:', data)` from useStreamHandler.ts (debug log in production)
+- Applied `React.memo` to CommandPalette, PromptTemplates, FileAttachment, Toast, Settings
+- All 12 components now wrapped with React.memo (except ErrorBoundary which is a class component)
+- Total tests: 696 (30 test files, all passing)

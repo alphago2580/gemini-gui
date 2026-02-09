@@ -174,4 +174,4 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
   );
 };
 
-export default Settings;
+export default React.memo(Settings);

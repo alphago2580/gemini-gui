@@ -89,4 +89,4 @@ const FileAttachment: React.FC<FileAttachmentProps> = ({
   );
 };
 
-export default FileAttachment;
+export default React.memo(FileAttachment);

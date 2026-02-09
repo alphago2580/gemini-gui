@@ -149,4 +149,4 @@ const PromptTemplates: React.FC<PromptTemplatesProps> = ({ templates, onSelect, 
   );
 };
 
-export default PromptTemplates;
+export default React.memo(PromptTemplates);
