@@ -270,6 +270,43 @@
   color: inherit;
 }
 
+/* Tables */
+.md-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.md-table th,
+.md-table td {
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 0.75rem;
+}
+
+.md-table th {
+  background: var(--bg-secondary);
+  font-weight: 600;
+}
+
+.md-table tr:hover {
+  background: var(--bg-hover);
+}
+
+/* User messages: table styling */
+.message.user .md-table th,
+.message.user .md-table td {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.message.user .md-table th {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.message.user .md-table tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 /* Block spacing */
 .md-block > * + * {
   margin-top: 0.25rem;

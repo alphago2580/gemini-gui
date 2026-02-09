@@ -172,8 +172,70 @@ function renderParagraphContent(text: string): React.ReactNode[] {
     listItems = [];
   };
 
+  const flushTable = (tableLines: string[]) => {
+    if (tableLines.length < 2) return; // Need at least header + separator
+
+    const parseRow = (line: string): string[] =>
+      line.split('|').slice(1, -1).map(cell => cell.trim());
+
+    const headers = parseRow(tableLines[0]);
+    // Check for separator row (e.g., |---|---|)
+    const separatorLine = tableLines[1];
+    const isSeparator = /^\|[\s:]*-+[\s:]*(\|[\s:]*-+[\s:]*)*\|?\s*$/.test(separatorLine);
+    if (!isSeparator) return;
+
+    // Parse alignment from separator
+    const separatorCells = parseRow(separatorLine);
+    const alignments = separatorCells.map(cell => {
+      const trimmed = cell.trim();
+      if (trimmed.startsWith(':') && trimmed.endsWith(':')) return 'center';
+      if (trimmed.endsWith(':')) return 'right';
+      return 'left';
+    });
+
+    const bodyRows = tableLines.slice(2).map(parseRow);
+
+    elements.push(
+      <table key={key++} className="md-table">
+        <thead>
+          <tr>
+            {headers.map((header, hi) => (
+              <th key={hi} style={{ textAlign: alignments[hi] || 'left' }}>
+                {renderInlineMarkdown(header)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {bodyRows.map((row, ri) => (
+            <tr key={ri}>
+              {headers.map((_, ci) => (
+                <td key={ci} style={{ textAlign: alignments[ci] || 'left' }}>
+                  {renderInlineMarkdown(row[ci] || '')}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+
+    // Table: | ... | ... |
+    if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+      flushList();
+      const tableLines: string[] = [];
+      while (i < lines.length && lines[i].trim().startsWith('|') && lines[i].trim().endsWith('|')) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+      i--; // Back up since the for loop will increment
+      flushTable(tableLines);
+      continue;
+    }
 
     // Headers: # ## ### #### ##### ######
     const headerMatch = line.match(/^(#{1,6})\s+(.+)$/);

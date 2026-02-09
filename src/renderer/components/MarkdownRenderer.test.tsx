@@ -447,4 +447,83 @@ describe('MarkdownRenderer', () => {
       expect(buttons.length).toBe(2);
     });
   });
+
+  describe('Tables', () => {
+    it('renders a simple table', () => {
+      const content = '| Name | Age |\n|------|-----|\n| Alice | 30 |\n| Bob | 25 |';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const table = container.querySelector('table.md-table');
+      expect(table).toBeInTheDocument();
+    });
+
+    it('renders table headers', () => {
+      const content = '| Name | Age |\n|------|-----|\n| Alice | 30 |';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const headers = container.querySelectorAll('th');
+      expect(headers.length).toBe(2);
+      expect(headers[0].textContent).toBe('Name');
+      expect(headers[1].textContent).toBe('Age');
+    });
+
+    it('renders table body cells', () => {
+      const content = '| Name | Age |\n|------|-----|\n| Alice | 30 |\n| Bob | 25 |';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const cells = container.querySelectorAll('td');
+      expect(cells.length).toBe(4);
+      expect(cells[0].textContent).toBe('Alice');
+      expect(cells[1].textContent).toBe('30');
+      expect(cells[2].textContent).toBe('Bob');
+      expect(cells[3].textContent).toBe('25');
+    });
+
+    it('renders inline markdown in table cells', () => {
+      const content = '| Feature | Status |\n|---------|--------|\n| **Bold** | `done` |';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const bold = container.querySelector('td strong');
+      expect(bold).toBeInTheDocument();
+      expect(bold?.textContent).toBe('Bold');
+      const code = container.querySelector('td .md-inline-code');
+      expect(code).toBeInTheDocument();
+      expect(code?.textContent).toBe('done');
+    });
+
+    it('supports right-aligned columns', () => {
+      const content = '| Name | Price |\n|------|------:|\n| Item | 100 |';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const headers = container.querySelectorAll('th');
+      expect(headers[1].style.textAlign).toBe('right');
+      const cells = container.querySelectorAll('td');
+      expect(cells[1].style.textAlign).toBe('right');
+    });
+
+    it('supports center-aligned columns', () => {
+      const content = '| Name | Score |\n|------|:-----:|\n| Test | 95 |';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const headers = container.querySelectorAll('th');
+      expect(headers[1].style.textAlign).toBe('center');
+    });
+
+    it('handles empty cells', () => {
+      const content = '| A | B |\n|---|---|\n| x |  |';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const cells = container.querySelectorAll('td');
+      expect(cells[0].textContent).toBe('x');
+      expect(cells[1].textContent).toBe('');
+    });
+
+    it('renders table with text before and after', () => {
+      const content = 'Before table\n\n| H1 | H2 |\n|----|----|\n| A | B |\n\nAfter table';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      expect(container.querySelector('table.md-table')).toBeInTheDocument();
+      expect(screen.getByText('Before table')).toBeInTheDocument();
+      expect(screen.getByText('After table')).toBeInTheDocument();
+    });
+
+    it('renders multiple tables', () => {
+      const content = '| A |\n|---|\n| 1 |\n\nText\n\n| B |\n|---|\n| 2 |';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const tables = container.querySelectorAll('table.md-table');
+      expect(tables.length).toBe(2);
+    });
+  });
 });

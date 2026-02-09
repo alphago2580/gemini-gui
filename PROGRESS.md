@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (581 tests)
+- **Test Status**: Passing (590 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -369,3 +369,13 @@
 - Accessible: `aria-label` changes between "코드 복사" and "복사됨"
 - Added 6 unit tests (button rendering, clipboard interaction, feedback, multiple blocks)
 - Total tests: 575 → 581 (24 test files, all passing)
+
+### Agent 2 (Quality) — Markdown Table Rendering
+- Added table parsing in MarkdownRenderer's `renderParagraphContent` function
+- Supports standard Markdown table syntax: `| Header | ... |` with `|---|` separator
+- Column alignment: left (default), right (`:---:`), center (`:---:`)
+- Inline markdown rendered inside table cells (bold, italic, code, links)
+- Table CSS: theme-aware borders, header background, hover row highlight
+- User message tables styled with rgba borders for blue background compatibility
+- Added 9 unit tests (simple table, headers, cells, inline markdown, alignment, empty cells, mixed content, multiple tables)
+- Total tests: 581 → 590 (24 test files, all passing)

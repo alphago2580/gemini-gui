@@ -11,6 +11,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Syntax highlighting for code blocks (lightweight custom tokenizer)
 - [x] LaTeX/math rendering support (lightweight custom renderer, no external deps)
 - [x] Copy button on code blocks (clipboard API)
+- [x] Table rendering (headers, alignment, inline markdown in cells)
 
 ### Conversation Management
 - [x] Search through conversation history
@@ -107,6 +108,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] MessageBubble component extraction — encapsulated message rendering, edit mode, delete, streaming cursor (559 tests)
 - [x] useStreamHandler hook extraction — streaming data, errors, token usage, loading state (575 tests)
 - [x] Code block copy button — clipboard API, visual feedback, accessible (581 tests)
+- [x] Markdown table rendering — headers, alignment, inline markdown in cells, theme CSS (590 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*
