@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import App from './App';
 import React from 'react';
+import type { StreamData } from '../preload/types';
 
 // Mock the Electron API
 const mockElectronAPI = {
@@ -671,8 +672,8 @@ describe('App Component', () => {
         });
 
         it('applies streaming-cursor class when streaming data arrives', async () => {
-            let streamDataCallback: ((data: any) => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+            let streamDataCallback: ((data: StreamData) => void) | null = null;
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
                 streamDataCallback = cb;
             });
 
@@ -699,8 +700,8 @@ describe('App Component', () => {
         });
 
         it('shows "입력 중..." when streaming', async () => {
-            let streamDataCallback: ((data: any) => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+            let streamDataCallback: ((data: StreamData) => void) | null = null;
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
                 streamDataCallback = cb;
             });
 
@@ -979,9 +980,9 @@ describe('App Component', () => {
         });
 
         it('shows token usage after receiving result stats', async () => {
-            let streamDataCallback: ((data: any) => void) | null = null;
+            let streamDataCallback: ((data: StreamData) => void) | null = null;
             let streamCompleteCallback: (() => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
                 streamDataCallback = cb;
             });
             mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
@@ -1031,9 +1032,9 @@ describe('App Component', () => {
         });
 
         it('hides token usage while loading', async () => {
-            let streamDataCallback: ((data: any) => void) | null = null;
+            let streamDataCallback: ((data: StreamData) => void) | null = null;
             let streamCompleteCallback: (() => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
                 streamDataCallback = cb;
             });
             mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
@@ -1078,9 +1079,9 @@ describe('App Component', () => {
         });
 
         it('handles snake_case token stats from CLI', async () => {
-            let streamDataCallback: ((data: any) => void) | null = null;
+            let streamDataCallback: ((data: StreamData) => void) | null = null;
             let streamCompleteCallback: (() => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
                 streamDataCallback = cb;
             });
             mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
@@ -1120,9 +1121,9 @@ describe('App Component', () => {
         });
 
         it('does not show token usage when stats have zero tokens', async () => {
-            let streamDataCallback: ((data: any) => void) | null = null;
+            let streamDataCallback: ((data: StreamData) => void) | null = null;
             let streamCompleteCallback: (() => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
                 streamDataCallback = cb;
             });
             mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {

@@ -4,6 +4,11 @@ import * as fs from 'fs';
 import * as os from 'os';
 import { GeminiProcess } from './GeminiProcess';
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
 let mainWindow: BrowserWindow | null = null;
 let gemini: GeminiProcess = new GeminiProcess();
 let currentSessionId: string | null = null;
@@ -55,11 +60,11 @@ function startGeminiProcess(systemPrompt?: string, model?: string) {
     : path.join(__dirname, '../../../gemini-cli');
 
   gemini.removeAllListeners('json');
-  gemini.on('json', (jsonData: any) => {
+  gemini.on('json', (jsonData: Record<string, unknown>) => {
     console.log(`[JSON parsed] type: ${jsonData.type}, role: ${jsonData.role}`);
 
     if (jsonData.type === 'init' && jsonData.session_id) {
-      currentSessionId = jsonData.session_id;
+      currentSessionId = jsonData.session_id as string;
       console.log(`[Session] Session ID: ${currentSessionId}`);
     }
 
@@ -95,8 +100,8 @@ ipcMain.handle('send-message', async (event, message: string, systemPrompt?: str
       startGeminiProcess(systemPrompt, model);
       gemini.send(message);
       resolve({ success: true, output: '', error: null });
-    } catch (error: any) {
-      const errorMsg = `예외 발생: ${error.message}`;
+    } catch (error) {
+      const errorMsg = `예외 발생: ${getErrorMessage(error)}`;
       reject({ success: false, output: '', error: errorMsg });
     }
   });
@@ -124,8 +129,8 @@ ipcMain.handle('save-temp-file', async (event, fileName: string, fileData: Array
     const buffer = Buffer.from(fileData);
     fs.writeFileSync(filePath, buffer);
     return { success: true, path: filePath };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error) {
+    return { success: false, error: getErrorMessage(error) };
   }
 });
 
@@ -136,8 +141,8 @@ ipcMain.handle('cleanup-temp-files', async () => {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error) {
+    return { success: false, error: getErrorMessage(error) };
   }
 });
 
@@ -187,8 +192,8 @@ ipcMain.handle('export-pdf', async (_event, htmlContent: string, defaultFileName
     } finally {
       pdfWindow.destroy();
     }
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error) {
+    return { success: false, error: getErrorMessage(error) };
   }
 });
 
@@ -209,7 +214,7 @@ ipcMain.handle('export-markdown', async (_event, content: string, defaultFileNam
 
     fs.writeFileSync(result.filePath, content, 'utf-8');
     return { success: true, path: result.filePath };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error) {
+    return { success: false, error: getErrorMessage(error) };
   }
 });

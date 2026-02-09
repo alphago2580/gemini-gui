@@ -5,32 +5,38 @@ import { spawn, ChildProcess } from 'child_process';
 
 // Define Interface for PTY to allow mocking
 export interface IPtyProcess {
-    on(event: string, listener: (data: any) => void): void;
+    on(event: 'data', listener: (data: string) => void): void;
+    on(event: 'exit', listener: (code: number) => void): void;
+    on(event: string, listener: (...args: unknown[]) => void): void;
     write(data: string): void;
     kill(): void;
     resize(cols: number, rows: number): void;
 }
 
-let pty: any;
+export interface PtyModule {
+    spawn(file: string, args: string[], options: Record<string, unknown>): IPtyProcess;
+}
+
+let pty: PtyModule | undefined;
 try {
     pty = require('node-pty');
-} catch (e) {
+} catch {
     console.warn('node-pty not found. Interactive mode might not work.');
 }
 
 export class GeminiProcess extends EventEmitter {
-    private process: IPtyProcess | any | null = null;
+    private process: IPtyProcess | ChildProcess | null = null;
     private buffer: string = '';
     private isPtyAvailable: boolean;
-    private ptyModule: any;
+    private ptyModule: PtyModule | undefined;
 
-    constructor(ptyModule?: any) {
+    constructor(ptyModule?: PtyModule) {
         super();
         this.ptyModule = ptyModule || pty;
         this.isPtyAvailable = !!this.ptyModule;
     }
 
-    public start(cliPath: string, cwd: string, env: any = process.env, systemPrompt?: string, model?: string) {
+    public start(cliPath: string, cwd: string, env: NodeJS.ProcessEnv = process.env, systemPrompt?: string, model?: string) {
         if (this.process) return;
 
         // Use passed CLI path or default
@@ -59,7 +65,7 @@ export class GeminiProcess extends EventEmitter {
         }
     }
 
-    private startSpawn(exe: string, args: string[], cwd: string, env: any) {
+    private startSpawn(exe: string, args: string[], cwd: string, env: NodeJS.ProcessEnv) {
         try {
             // Use pipe for stdio to capture output
             const proc = spawn(exe, args, {
@@ -97,9 +103,9 @@ export class GeminiProcess extends EventEmitter {
         }
     }
 
-    private startPty(exe: string, args: string[], cwd: string, env: any) {
+    private startPty(exe: string, args: string[], cwd: string, env: NodeJS.ProcessEnv) {
         try {
-            this.process = this.ptyModule.spawn(exe, args, {
+            this.process = this.ptyModule!.spawn(exe, args, {
                 name: 'xterm-color',
                 cols: 80,
                 rows: 30,
@@ -160,11 +166,10 @@ export class GeminiProcess extends EventEmitter {
         // Check if it's a PTY or standard child_process
         if (this.isPtyAvailable) {
             // PTY input needs newline or carriage return
-            this.process.write(message + '\r');
+            (this.process as IPtyProcess).write(message + '\r');
         } else {
             // Standard process
-            const proc = this.process as ChildProcess;
-            proc.stdin?.write(message + '\n');
+            (this.process as ChildProcess).stdin?.write(message + '\n');
         }
     }
 

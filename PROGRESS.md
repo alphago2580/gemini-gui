@@ -491,3 +491,10 @@
 - Eliminated all `as any` usage from test files
 - `npx tsc --noEmit` now passes with 0 errors (down from 560)
 - Total tests: 696 (30 test files, all passing)
+
+### Agent 2 (Quality) — Eliminate All `any` Types from Source & Test Code
+- **GeminiProcess.ts**: Added `PtyModule` interface, typed `IPtyProcess` with overloads, replaced `any` env params with `NodeJS.ProcessEnv`, typed process field as `IPtyProcess | ChildProcess | null`
+- **main/index.ts**: Created `getErrorMessage()` utility for safe error handling, replaced all `catch (error: any)` with `catch (error)` + `getErrorMessage()`, typed `jsonData` as `Record<string, unknown>`
+- **App.test.tsx**: Replaced all `data: any` stream callback types with `StreamData` import (6 occurrences)
+- Zero `any` usage remaining across entire codebase (src/ and test/)
+- Total tests: 696 (30 test files, all passing)
