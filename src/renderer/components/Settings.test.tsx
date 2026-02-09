@@ -264,6 +264,30 @@ describe('Settings', () => {
     });
   });
 
+  // Settings reset on re-open tests
+  describe('Settings Reset', () => {
+    it('resets local settings when dialog reopens after cancel', () => {
+      const { rerender } = render(<Settings {...defaultProps} />);
+      // Modify temperature locally
+      const slider = screen.getByLabelText(/Temperature/);
+      fireEvent.change(slider, { target: { value: '0.3' } });
+      // Cancel (close without saving) — sets isOpen to false
+      rerender(<Settings {...defaultProps} isOpen={false} />);
+      // Reopen — isOpen changes back to true, triggering useEffect reset
+      rerender(<Settings {...defaultProps} isOpen={true} />);
+      const resetSlider = screen.getByLabelText(/Temperature/);
+      expect(resetSlider).toHaveValue('1');
+    });
+
+    it('syncs local settings when settings prop changes externally', () => {
+      const { rerender } = render(<Settings {...defaultProps} />);
+      const updatedSettings = { ...defaultSettings, model: 'gemini-2.5-pro' };
+      rerender(<Settings {...defaultProps} settings={updatedSettings} />);
+      const select = screen.getByLabelText('모델 선택');
+      expect(select).toHaveValue('gemini-2.5-pro');
+    });
+  });
+
   // High contrast mode tests
   describe('High Contrast', () => {
     it('does not render high contrast toggle when onHighContrastChange is not provided', () => {

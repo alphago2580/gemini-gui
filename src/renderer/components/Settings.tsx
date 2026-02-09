@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Settings.css';
 import type { AppSettings, ThemeMode } from '../../preload/types';
 
@@ -21,6 +21,13 @@ const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
 
 const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, themeMode, onThemeChange, highContrast = false, onHighContrastChange }) => {
   const [localSettings, setLocalSettings] = useState(settings);
+
+  // Reset local settings when dialog opens or settings change externally
+  useEffect(() => {
+    if (isOpen) {
+      setLocalSettings(settings);
+    }
+  }, [isOpen, settings]);
 
   if (!isOpen) return null;
 

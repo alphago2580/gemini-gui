@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (672 tests)
+- **Test Status**: Passing (674 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -421,3 +421,11 @@
 - App.tsx reduced from ~540 lines to ~406 lines (134 line reduction)
 - Added 18 unit tests for useMessageSend (init state, input, files, send, key handling, paste, errors, cleanup)
 - Total tests: 654 → 672 (28 test files, all passing)
+
+### Agent 2 (Quality) — Settings Local State Sync Bug Fix
+- Fixed bug: Settings dialog local state wasn't reset when reopened after cancel
+- `localSettings` (useState) only set initial value, didn't sync with prop changes
+- Added `useEffect` to reset `localSettings` when dialog opens or settings prop changes
+- Prevents stale/modified values from persisting across open/close cycles
+- Added 2 tests: reset after cancel/reopen, sync on external settings prop change
+- Total tests: 672 → 674 (28 test files, all passing)
