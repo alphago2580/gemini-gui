@@ -48,25 +48,15 @@ export function useStreamHandler({
             ];
             updateCurrentConversation(updated);
             return updated;
-          } else if (!data.delta) {
-            const updated = [...prev, {
-              id: generateMessageId(),
-              role: 'assistant' as const,
-              content: data.content || '',
-              timestamp: new Date()
-            }];
-            updateCurrentConversation(updated);
-            return updated;
-          } else {
-            const updated = [...prev, {
-              id: generateMessageId(),
-              role: 'assistant' as const,
-              content: data.content || '',
-              timestamp: new Date()
-            }];
-            updateCurrentConversation(updated);
-            return updated;
           }
+          const updated = [...prev, {
+            id: generateMessageId(),
+            role: 'assistant' as const,
+            content: data.content || '',
+            timestamp: new Date()
+          }];
+          updateCurrentConversation(updated);
+          return updated;
         });
       } else if (data.type === 'result' && data.stats) {
         const stats = data.stats;
