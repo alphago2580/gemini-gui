@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 import './Settings.css';
+import type { AppSettings } from '../../preload/types';
 
 interface SettingsProps {
   isOpen: boolean;
   onClose: () => void;
-  settings: {
-    model: string;
-    temperature: number;
-    maxTokens: number;
-  };
-  onSave: (settings: any) => void;
+  settings: AppSettings;
+  onSave: (settings: AppSettings) => void;
 }
 
 const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave }) => {

@@ -2,8 +2,8 @@
 
 ## Current Status
 - **Version**: 0.1.0
-- **Total Lines**: ~1230
-- **Test Status**: Passing (92 tests)
+- **Total Lines**: ~1400
+- **Test Status**: Passing (106 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -26,3 +26,16 @@
 - Added 14 unit tests for extracted utility functions
 - Updated FileAttachment.tsx and App.tsx to use shared utilities
 - Total tests: 6 → 92 (all passing)
+
+### Agent 2 (Quality) — Error Boundary, TypeScript Strictness & Custom Hooks
+- Added ErrorBoundary component with default/custom fallback UI and reset functionality
+- Added 6 tests for ErrorBoundary component
+- Wrapped root App component with ErrorBoundary in index.tsx
+- Fixed `any` types throughout codebase:
+  - Settings.tsx: `onSave: (settings: any)` → `onSave: (settings: AppSettings)`
+  - App.tsx: Replaced all `any` with proper types (StreamData, StreamErrorData, unknown)
+  - preload/index.ts: Replaced `any` callbacks with `unknown`
+- Added shared `AppSettings`, `StreamData`, `StreamErrorData` interfaces to `types.d.ts`
+- Added missing `newConversation` method to `ElectronAPI` type definition
+- Created `useLocalStorage` custom hook with 8 tests
+- Total tests: 92 → 106 (all passing)

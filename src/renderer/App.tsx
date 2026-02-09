@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
 import FileAttachment from './components/FileAttachment';
 import { generateConversationTitle } from './utils/format';
+import type { AppSettings, StreamData, StreamErrorData } from '../preload/types';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -16,12 +17,6 @@ interface Conversation {
   title: string;
   timestamp: Date;
   messages: Message[];
-}
-
-interface AppSettings {
-  model: string;
-  temperature: number;
-  maxTokens: number;
 }
 
 const STORAGE_KEY_CONVERSATIONS = 'gemini-conversations';
@@ -64,14 +59,14 @@ const App: React.FC = () => {
       try {
         const parsed = JSON.parse(savedConversations);
         // Restore timestamps as Date objects
-        const conversations = parsed.map((conv: any) => ({
+        const conversations = parsed.map((conv: Record<string, unknown>) => ({
           ...conv,
-          timestamp: new Date(conv.timestamp),
-          messages: conv.messages.map((msg: any) => ({
+          timestamp: new Date(conv.timestamp as string),
+          messages: (conv.messages as Array<Record<string, unknown>>).map((msg) => ({
             ...msg,
-            timestamp: new Date(msg.timestamp)
+            timestamp: new Date(msg.timestamp as string)
           }))
-        }));
+        })) as Conversation[];
         setConversations(conversations);
 
         // Restore current conversation if it exists
@@ -232,7 +227,7 @@ const App: React.FC = () => {
   useEffect(() => {
     if (window.electronAPI) {
       // 스트리밍 데이터 처리
-      window.electronAPI.onStreamData((data: any) => {
+      window.electronAPI.onStreamData((data: StreamData) => {
         console.log('Stream data received:', data);
 
         if (data.type === 'message' && data.role === 'assistant') {
@@ -275,13 +270,12 @@ const App: React.FC = () => {
       });
 
       // 스트리밍 완료 처리
-      window.electronAPI.onStreamComplete((data: any) => {
-        console.log('Stream complete:', data);
+      window.electronAPI.onStreamComplete(() => {
         setIsLoading(false);
       });
 
       // 스트리밍 에러 처리
-      window.electronAPI.onStreamError((data: any) => {
+      window.electronAPI.onStreamError((data: StreamErrorData) => {
         console.error('Stream error:', data);
         setMessages(prev => {
           const updated = [...prev, {
@@ -352,11 +346,16 @@ const App: React.FC = () => {
       // 성공 시 스트리밍 완료 이벤트에서 isLoading을 false로 설정
       // Clear attached files after successful send
       setAttachedFiles([]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // 에러 발생 시
+      const errMsg = error instanceof Error
+        ? error.message
+        : typeof error === 'object' && error !== null && 'error' in error
+          ? String((error as { error: unknown }).error)
+          : String(error);
       const errorMessage: Message = {
         role: 'assistant',
-        content: `오류 발생: ${error.error || error.message || '알 수 없는 오류'}`,
+        content: `오류 발생: ${errMsg}`,
         timestamp: new Date()
       };
       setMessages(prev => {

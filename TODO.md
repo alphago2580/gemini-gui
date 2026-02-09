@@ -72,9 +72,11 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [ ] Storybook for component development
 - [ ] E2E test coverage for critical flows
 - [ ] Performance monitoring (React Profiler)
-- [ ] Error boundary components
-- [x] Comprehensive unit tests for all components (92 tests)
+- [x] Error boundary components (ErrorBoundary with tests)
+- [x] Comprehensive unit tests for all components (106 tests)
 - [x] Extract shared utility functions to src/renderer/utils/
+- [x] Remove `any` types from codebase (AppSettings, StreamData, etc.)
+- [x] Custom hooks extraction (useLocalStorage)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

@@ -12,18 +12,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   newConversation: () => ipcRenderer.invoke('new-conversation'),
 
   // 스트리밍 데이터 수신 리스너
-  onStreamData: (callback: (data: any) => void) => {
-    ipcRenderer.on('stream-data', (event, data) => callback(data));
+  onStreamData: (callback: (data: unknown) => void) => {
+    ipcRenderer.on('stream-data', (_event, data) => callback(data));
   },
 
   // 스트리밍 완료 리스너
-  onStreamComplete: (callback: (data: any) => void) => {
-    ipcRenderer.on('stream-complete', (event, data) => callback(data));
+  onStreamComplete: (callback: (data: unknown) => void) => {
+    ipcRenderer.on('stream-complete', (_event, data) => callback(data));
   },
 
   // 스트리밍 에러 리스너
-  onStreamError: (callback: (data: any) => void) => {
-    ipcRenderer.on('stream-error', (event, data) => callback(data));
+  onStreamError: (callback: (data: unknown) => void) => {
+    ipcRenderer.on('stream-error', (_event, data) => callback(data));
   },
 
   // 리스너 제거
