@@ -185,6 +185,7 @@ describe('App Component', () => {
         expect(parsed.model).toBe('auto');
         expect(parsed.temperature).toBe(1);
         expect(parsed.maxTokens).toBe(2048);
+        expect(parsed.theme).toBe('dark');
     });
 
     it('restores conversations from localStorage', () => {

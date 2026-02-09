@@ -1,7 +1,23 @@
+export interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+export interface Conversation {
+  id: string;
+  title: string;
+  timestamp: Date;
+  messages: Message[];
+}
+
+export type ThemeMode = 'light' | 'dark' | 'system';
+
 export interface AppSettings {
   model: string;
   temperature: number;
   maxTokens: number;
+  theme: ThemeMode;
 }
 
 export interface StreamData {

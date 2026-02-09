@@ -18,10 +18,10 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [ ] Clear conversation
 
 ### Theme System
-- [ ] Dark/Light theme toggle
-- [ ] System theme detection (prefers-color-scheme)
-- [ ] Theme persistence in settings
-- [ ] CSS variables for all colors
+- [x] Dark/Light theme toggle
+- [x] System theme detection (prefers-color-scheme)
+- [x] Theme persistence in settings
+- [x] CSS variables for all colors
 
 ## 🟡 Medium Priority
 
@@ -32,11 +32,11 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [ ] Tab switching with keyboard shortcuts (Ctrl+Tab)
 
 ### Keyboard Shortcuts
-- [ ] Ctrl+N: New conversation
-- [ ] Ctrl+L: Clear conversation
+- [x] Ctrl+N: New conversation
+- [x] Ctrl+L: Clear conversation
 - [ ] Ctrl+F: Search in conversation
-- [ ] Ctrl+,: Open settings
-- [ ] Escape: Close modals/panels
+- [x] Ctrl+,: Open settings
+- [x] Escape: Close modals/panels
 - [ ] Ctrl+Enter: Send message (alternative)
 
 ### Input Enhancements
@@ -76,7 +76,8 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Comprehensive unit tests for all components (106 tests)
 - [x] Extract shared utility functions to src/renderer/utils/
 - [x] Remove `any` types from codebase (AppSettings, StreamData, etc.)
-- [x] Custom hooks extraction (useLocalStorage)
+- [x] Custom hooks extraction (useLocalStorage, useConversations, useKeyboardShortcuts)
+- [x] App.tsx refactored — conversation logic extracted to useConversations hook
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

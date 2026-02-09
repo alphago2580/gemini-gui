@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
 import './Settings.css';
-import type { AppSettings } from '../../preload/types';
+import type { AppSettings, ThemeMode } from '../../preload/types';
 
 interface SettingsProps {
   isOpen: boolean;
   onClose: () => void;
   settings: AppSettings;
   onSave: (settings: AppSettings) => void;
+  themeMode: ThemeMode;
+  onThemeChange: (mode: ThemeMode) => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave }) => {
+const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
+  { value: 'light', label: '라이트' },
+  { value: 'dark', label: '다크' },
+  { value: 'system', label: '시스템' },
+];
+
+const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, themeMode, onThemeChange }) => {
   const [localSettings, setLocalSettings] = useState(settings);
 
   if (!isOpen) return null;
@@ -28,6 +36,21 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave }
         </div>
 
         <div className="settings-content">
+          <div className="setting-group">
+            <label>테마</label>
+            <div className="theme-selector">
+              {THEME_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  className={`theme-option${themeMode === option.value ? ' active' : ''}`}
+                  onClick={() => onThemeChange(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="setting-group">
             <label htmlFor="model">모델 선택</label>
             <select

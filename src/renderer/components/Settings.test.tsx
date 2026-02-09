@@ -8,6 +8,7 @@ describe('Settings', () => {
     model: 'auto',
     temperature: 1,
     maxTokens: 2048,
+    theme: 'dark' as const,
   };
 
   const defaultProps = {
@@ -15,6 +16,8 @@ describe('Settings', () => {
     onClose: vi.fn(),
     settings: defaultSettings,
     onSave: vi.fn(),
+    themeMode: 'dark' as const,
+    onThemeChange: vi.fn(),
   };
 
   beforeEach(() => {
@@ -138,5 +141,33 @@ describe('Settings', () => {
   it('renders hint text for max tokens', () => {
     render(<Settings {...defaultProps} />);
     expect(screen.getByText('응답의 최대 길이')).toBeInTheDocument();
+  });
+
+  it('renders theme selector with three options', () => {
+    render(<Settings {...defaultProps} />);
+    expect(screen.getByText('테마')).toBeInTheDocument();
+    expect(screen.getByText('라이트')).toBeInTheDocument();
+    expect(screen.getByText('다크')).toBeInTheDocument();
+    expect(screen.getByText('시스템')).toBeInTheDocument();
+  });
+
+  it('highlights the active theme option', () => {
+    render(<Settings {...defaultProps} themeMode="dark" />);
+    const darkBtn = screen.getByText('다크');
+    expect(darkBtn.className).toContain('active');
+    const lightBtn = screen.getByText('라이트');
+    expect(lightBtn.className).not.toContain('active');
+  });
+
+  it('calls onThemeChange when a theme option is clicked', () => {
+    render(<Settings {...defaultProps} />);
+    fireEvent.click(screen.getByText('라이트'));
+    expect(defaultProps.onThemeChange).toHaveBeenCalledWith('light');
+  });
+
+  it('calls onThemeChange with system when system option is clicked', () => {
+    render(<Settings {...defaultProps} />);
+    fireEvent.click(screen.getByText('시스템'));
+    expect(defaultProps.onThemeChange).toHaveBeenCalledWith('system');
   });
 });

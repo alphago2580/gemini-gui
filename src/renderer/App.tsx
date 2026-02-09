@@ -3,37 +3,34 @@ import './App.css';
 import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
 import FileAttachment from './components/FileAttachment';
-import { generateConversationTitle } from './utils/format';
-import type { AppSettings, StreamData, StreamErrorData } from '../preload/types';
+import { useConversations } from './hooks/useConversations';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useTheme } from './hooks/useTheme';
+import type { AppSettings, StreamData, StreamErrorData, Message } from '../preload/types';
 
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
-
-interface Conversation {
-  id: string;
-  title: string;
-  timestamp: Date;
-  messages: Message[];
-}
-
-const STORAGE_KEY_CONVERSATIONS = 'gemini-conversations';
 const STORAGE_KEY_SETTINGS = 'gemini-settings';
-const STORAGE_KEY_CURRENT_CONVERSATION = 'gemini-current-conversation';
 
 const DEFAULT_SETTINGS: AppSettings = {
   model: 'auto',
   temperature: 1,
-  maxTokens: 2048
+  maxTokens: 2048,
+  theme: 'dark'
 };
 
 const App: React.FC = () => {
-  // Conversation state
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  // Conversation state (extracted to custom hook)
+  const {
+    conversations,
+    currentConversationId,
+    messages,
+    setMessages,
+    handleNewChat,
+    handleSelectConversation,
+    updateCurrentConversation,
+  } = useConversations();
+
+  // Theme
+  const { themeMode, setThemeMode } = useTheme();
 
   // UI state
   const [input, setInput] = useState('');
@@ -41,7 +38,14 @@ const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Settings state
-  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_SETTINGS);
+      return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+    } catch {
+      return DEFAULT_SETTINGS;
+    }
+  });
 
   // File attachment state
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -49,60 +53,21 @@ const App: React.FC = () => {
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Load conversations and settings from localStorage on mount
-  useEffect(() => {
-    const savedConversations = localStorage.getItem(STORAGE_KEY_CONVERSATIONS);
-    const savedSettings = localStorage.getItem(STORAGE_KEY_SETTINGS);
-    const savedCurrentConversationId = localStorage.getItem(STORAGE_KEY_CURRENT_CONVERSATION);
-
-    if (savedConversations) {
-      try {
-        const parsed = JSON.parse(savedConversations);
-        // Restore timestamps as Date objects
-        const conversations = parsed.map((conv: Record<string, unknown>) => ({
-          ...conv,
-          timestamp: new Date(conv.timestamp as string),
-          messages: (conv.messages as Array<Record<string, unknown>>).map((msg) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp as string)
-          }))
-        })) as Conversation[];
-        setConversations(conversations);
-
-        // Restore current conversation if it exists
-        if (savedCurrentConversationId) {
-          const conversation = conversations.find((c: Conversation) => c.id === savedCurrentConversationId);
-          if (conversation) {
-            setCurrentConversationId(savedCurrentConversationId);
-            setMessages(conversation.messages);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to parse saved conversations:', error);
-      }
-    }
-
-    if (savedSettings) {
-      try {
-        const parsed = JSON.parse(savedSettings);
-        setSettings(parsed);
-      } catch (error) {
-        console.error('Failed to parse saved settings:', error);
-      }
-    }
-  }, []);
-
-  // Save conversations to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_CONVERSATIONS, JSON.stringify(conversations));
-  }, [conversations]);
-
-  // Save current conversation ID to localStorage
-  useEffect(() => {
+  // Clear current conversation messages
+  const handleClearConversation = () => {
     if (currentConversationId) {
-      localStorage.setItem(STORAGE_KEY_CURRENT_CONVERSATION, currentConversationId);
+      updateCurrentConversation([]);
     }
-  }, [currentConversationId]);
+  };
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onNewChat: handleNewChat,
+    onClearConversation: handleClearConversation,
+    onToggleSettings: () => setIsSettingsOpen(prev => !prev),
+    onCloseSettings: () => setIsSettingsOpen(false),
+    isSettingsOpen,
+  });
 
   // Save settings to localStorage whenever they change
   useEffect(() => {
@@ -116,58 +81,6 @@ const App: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  // Create a new conversation
-  const handleNewChat = () => {
-    const newConversation: Conversation = {
-      id: Date.now().toString(),
-      title: '새로운 대화',
-      timestamp: new Date(),
-      messages: []
-    };
-
-    setConversations(prev => [newConversation, ...prev]);
-    setCurrentConversationId(newConversation.id);
-    setMessages([]);
-
-    // 세션 초기화 (새 대화는 새 세션으로 시작)
-    if (window.electronAPI && window.electronAPI.newConversation) {
-      window.electronAPI.newConversation();
-    }
-  };
-
-  // Select an existing conversation
-  const handleSelectConversation = (id: string) => {
-    const conversation = conversations.find(c => c.id === id);
-    if (conversation) {
-      setCurrentConversationId(id);
-      setMessages(conversation.messages);
-    }
-  };
-
-  // Update current conversation with new messages
-  const updateCurrentConversation = (updatedMessages: Message[]) => {
-    setMessages(updatedMessages);
-
-    if (currentConversationId) {
-      setConversations(prev => prev.map(conv => {
-        if (conv.id === currentConversationId) {
-          // Update title if this is the first message
-          const title = updatedMessages.length === 1 && updatedMessages[0].role === 'user'
-            ? generateConversationTitle(updatedMessages[0].content)
-            : conv.title;
-
-          return {
-            ...conv,
-            messages: updatedMessages,
-            title,
-            timestamp: new Date()
-          };
-        }
-        return conv;
-      }));
-    }
-  };
 
   // Handle settings save
   const handleSettingsSave = (newSettings: AppSettings) => {
@@ -246,7 +159,7 @@ const App: React.FC = () => {
             } else if (!data.delta) {
               // 완전한 메시지 (delta가 false인 경우)
               const updated = [...prev, {
-                role: 'assistant',
+                role: 'assistant' as const,
                 content: data.content || '',
                 timestamp: new Date()
               }];
@@ -255,7 +168,7 @@ const App: React.FC = () => {
             } else {
               // 첫 delta 메시지: 새 어시스턴트 메시지 시작
               const updated = [...prev, {
-                role: 'assistant',
+                role: 'assistant' as const,
                 content: data.content || '',
                 timestamp: new Date()
               }];
@@ -279,7 +192,7 @@ const App: React.FC = () => {
         console.error('Stream error:', data);
         setMessages(prev => {
           const updated = [...prev, {
-            role: 'assistant',
+            role: 'assistant' as const,
             content: `오류: ${data.error}`,
             timestamp: new Date()
           }];
@@ -295,7 +208,7 @@ const App: React.FC = () => {
         window.electronAPI.removeAllListeners();
       }
     };
-  }, [currentConversationId]);
+  }, [currentConversationId, setMessages, updateCurrentConversation]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -455,6 +368,8 @@ const App: React.FC = () => {
         onClose={() => setIsSettingsOpen(false)}
         settings={settings}
         onSave={handleSettingsSave}
+        themeMode={themeMode}
+        onThemeChange={setThemeMode}
       />
     </div>
   );
