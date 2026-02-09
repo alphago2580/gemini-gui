@@ -504,3 +504,10 @@
 - These functions are dependencies of the `commands` useMemo and passed to child components
 - Without useCallback, they were recreated every render, causing commands array to also recreate
 - Total tests: 696 (30 test files, all passing)
+
+### Agent 2 (Quality) — Extract Shared Test Utility for Stream Mocking
+- Created `setupStreamCallbacks()` helper in App.test.tsx to replace 6 duplicated mock setups
+- Each setup was 4-8 lines of identical `let` + `mockImplementation` boilerplate
+- Helper captures both `streamData` and `streamComplete` callbacks in a single call
+- Reduced ~40 lines of duplicated code to 6 one-liner calls
+- Total tests: 696 (30 test files, all passing)

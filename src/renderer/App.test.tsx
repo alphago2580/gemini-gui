@@ -22,6 +22,24 @@ const mockElectronAPI = {
 
 global.window.electronAPI = mockElectronAPI as unknown as typeof window.electronAPI;
 
+/**
+ * Helper to capture stream callbacks that mockElectronAPI registers.
+ * Returns an object with nullable callback refs for streamData and streamComplete.
+ */
+function setupStreamCallbacks() {
+    const callbacks = {
+        streamData: null as ((data: StreamData) => void) | null,
+        streamComplete: null as (() => void) | null,
+    };
+    mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
+        callbacks.streamData = cb;
+    });
+    mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
+        callbacks.streamComplete = cb;
+    });
+    return callbacks;
+}
+
 describe('App Component', () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -672,10 +690,7 @@ describe('App Component', () => {
         });
 
         it('applies streaming-cursor class when streaming data arrives', async () => {
-            let streamDataCallback: ((data: StreamData) => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
-                streamDataCallback = cb;
-            });
+            const callbacks = setupStreamCallbacks();
 
             const user = userEvent.setup();
             const { container } = render(<App />);
@@ -685,8 +700,8 @@ describe('App Component', () => {
 
             // Simulate streaming data arriving
             await act(() => {
-                if (streamDataCallback) {
-                    streamDataCallback({
+                if (callbacks.streamData) {
+                    callbacks.streamData({
                         type: 'message',
                         role: 'assistant',
                         content: 'Hi',
@@ -700,10 +715,7 @@ describe('App Component', () => {
         });
 
         it('shows "입력 중..." when streaming', async () => {
-            let streamDataCallback: ((data: StreamData) => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
-                streamDataCallback = cb;
-            });
+            const callbacks = setupStreamCallbacks();
 
             const user = userEvent.setup();
             render(<App />);
@@ -713,8 +725,8 @@ describe('App Component', () => {
 
             // Simulate streaming
             await act(() => {
-                if (streamDataCallback) {
-                    streamDataCallback({
+                if (callbacks.streamData) {
+                    callbacks.streamData({
                         type: 'message',
                         role: 'assistant',
                         content: 'Response',
@@ -980,14 +992,7 @@ describe('App Component', () => {
         });
 
         it('shows token usage after receiving result stats', async () => {
-            let streamDataCallback: ((data: StreamData) => void) | null = null;
-            let streamCompleteCallback: (() => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
-                streamDataCallback = cb;
-            });
-            mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
-                streamCompleteCallback = cb;
-            });
+            const callbacks = setupStreamCallbacks();
 
             const user = userEvent.setup();
             render(<App />);
@@ -997,8 +1002,8 @@ describe('App Component', () => {
 
             // Simulate streaming message
             await act(() => {
-                if (streamDataCallback) {
-                    streamDataCallback({
+                if (callbacks.streamData) {
+                    callbacks.streamData({
                         type: 'message',
                         role: 'assistant',
                         content: 'Hi there',
@@ -1009,8 +1014,8 @@ describe('App Component', () => {
 
             // Simulate result with token stats
             await act(() => {
-                if (streamDataCallback) {
-                    streamDataCallback({
+                if (callbacks.streamData) {
+                    callbacks.streamData({
                         type: 'result',
                         stats: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
                     });
@@ -1019,8 +1024,8 @@ describe('App Component', () => {
 
             // Simulate stream complete
             await act(() => {
-                if (streamCompleteCallback) {
-                    streamCompleteCallback();
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
                 }
             });
 
@@ -1032,14 +1037,7 @@ describe('App Component', () => {
         });
 
         it('hides token usage while loading', async () => {
-            let streamDataCallback: ((data: StreamData) => void) | null = null;
-            let streamCompleteCallback: (() => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
-                streamDataCallback = cb;
-            });
-            mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
-                streamCompleteCallback = cb;
-            });
+            const callbacks = setupStreamCallbacks();
 
             const user = userEvent.setup();
             render(<App />);
@@ -1049,22 +1047,22 @@ describe('App Component', () => {
 
             // Complete first exchange with stats
             await act(() => {
-                if (streamDataCallback) {
-                    streamDataCallback({
+                if (callbacks.streamData) {
+                    callbacks.streamData({
                         type: 'message',
                         role: 'assistant',
                         content: 'Response',
                         delta: true,
                     });
-                    streamDataCallback({
+                    callbacks.streamData({
                         type: 'result',
                         stats: { inputTokens: 20, outputTokens: 10, totalTokens: 30 },
                     });
                 }
             });
             await act(() => {
-                if (streamCompleteCallback) {
-                    streamCompleteCallback();
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
                 }
             });
 
@@ -1079,14 +1077,7 @@ describe('App Component', () => {
         });
 
         it('handles snake_case token stats from CLI', async () => {
-            let streamDataCallback: ((data: StreamData) => void) | null = null;
-            let streamCompleteCallback: (() => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
-                streamDataCallback = cb;
-            });
-            mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
-                streamCompleteCallback = cb;
-            });
+            const callbacks = setupStreamCallbacks();
 
             const user = userEvent.setup();
             render(<App />);
@@ -1095,22 +1086,22 @@ describe('App Component', () => {
             await user.click(screen.getByText('전송'));
 
             await act(() => {
-                if (streamDataCallback) {
-                    streamDataCallback({
+                if (callbacks.streamData) {
+                    callbacks.streamData({
                         type: 'message',
                         role: 'assistant',
                         content: 'Hi',
                         delta: true,
                     });
-                    streamDataCallback({
+                    callbacks.streamData({
                         type: 'result',
                         stats: { input_tokens: 25, output_tokens: 15, total_tokens: 40 },
                     });
                 }
             });
             await act(() => {
-                if (streamCompleteCallback) {
-                    streamCompleteCallback();
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
                 }
             });
 
@@ -1121,14 +1112,7 @@ describe('App Component', () => {
         });
 
         it('does not show token usage when stats have zero tokens', async () => {
-            let streamDataCallback: ((data: StreamData) => void) | null = null;
-            let streamCompleteCallback: (() => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
-                streamDataCallback = cb;
-            });
-            mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
-                streamCompleteCallback = cb;
-            });
+            const callbacks = setupStreamCallbacks();
 
             const user = userEvent.setup();
             render(<App />);
@@ -1137,22 +1121,22 @@ describe('App Component', () => {
             await user.click(screen.getByText('전송'));
 
             await act(() => {
-                if (streamDataCallback) {
-                    streamDataCallback({
+                if (callbacks.streamData) {
+                    callbacks.streamData({
                         type: 'message',
                         role: 'assistant',
                         content: 'Hi',
                         delta: true,
                     });
-                    streamDataCallback({
+                    callbacks.streamData({
                         type: 'result',
                         stats: { someOtherField: 'value' },
                     });
                 }
             });
             await act(() => {
-                if (streamCompleteCallback) {
-                    streamCompleteCallback();
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
                 }
             });
 
