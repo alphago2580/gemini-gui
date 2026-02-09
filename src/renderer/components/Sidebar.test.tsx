@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import Sidebar from './Sidebar';
 
@@ -7,6 +8,12 @@ const mockConversations = [
   { id: '1', title: '첫 번째 대화', timestamp: new Date('2024-01-15') },
   { id: '2', title: '두 번째 대화', timestamp: new Date('2024-01-16') },
   { id: '3', title: '세 번째 대화', timestamp: new Date('2024-01-17') },
+];
+
+const mockConversationsWithMessages = [
+  { id: '1', title: '인사', timestamp: new Date('2024-01-15'), messages: [{ content: 'Hello world' }] },
+  { id: '2', title: '질문', timestamp: new Date('2024-01-16'), messages: [{ content: '오늘 날씨 어때?' }] },
+  { id: '3', title: 'React 관련', timestamp: new Date('2024-01-17'), messages: [{ content: 'React hooks 설명해줘' }] },
 ];
 
 describe('Sidebar', () => {
@@ -174,6 +181,72 @@ describe('Sidebar', () => {
       const { container } = render(<Sidebar {...defaultProps} />);
       const icons = container.querySelectorAll('[aria-hidden="true"]');
       expect(icons.length).toBeGreaterThanOrEqual(2); // + icon and ⚙ icon
+    });
+
+    it('search input has aria-label', () => {
+      render(<Sidebar {...defaultProps} />);
+      expect(screen.getByRole('textbox', { name: '대화 검색' })).toBeInTheDocument();
+    });
+  });
+
+  // Search tests
+  describe('Search', () => {
+    it('renders search input', () => {
+      render(<Sidebar {...defaultProps} />);
+      expect(screen.getByPlaceholderText('대화 검색...')).toBeInTheDocument();
+    });
+
+    it('filters conversations by title', async () => {
+      const user = userEvent.setup();
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const searchInput = screen.getByPlaceholderText('대화 검색...');
+      await user.type(searchInput, '첫 번째');
+      expect(screen.getByText('첫 번째 대화')).toBeInTheDocument();
+      expect(screen.queryByText('두 번째 대화')).not.toBeInTheDocument();
+      expect(screen.queryByText('세 번째 대화')).not.toBeInTheDocument();
+    });
+
+    it('filters conversations by message content', async () => {
+      const user = userEvent.setup();
+      render(<Sidebar {...defaultProps} conversations={mockConversationsWithMessages} />);
+      const searchInput = screen.getByPlaceholderText('대화 검색...');
+      await user.type(searchInput, 'React');
+      expect(screen.getByText('React 관련')).toBeInTheDocument();
+      expect(screen.queryByText('인사')).not.toBeInTheDocument();
+      expect(screen.queryByText('질문')).not.toBeInTheDocument();
+    });
+
+    it('search is case-insensitive', async () => {
+      const user = userEvent.setup();
+      render(<Sidebar {...defaultProps} conversations={mockConversationsWithMessages} />);
+      const searchInput = screen.getByPlaceholderText('대화 검색...');
+      await user.type(searchInput, 'hello');
+      expect(screen.getByText('인사')).toBeInTheDocument();
+    });
+
+    it('shows "검색 결과가 없습니다" when no match', async () => {
+      const user = userEvent.setup();
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const searchInput = screen.getByPlaceholderText('대화 검색...');
+      await user.type(searchInput, 'zzzzzzz');
+      expect(screen.getByText('검색 결과가 없습니다')).toBeInTheDocument();
+    });
+
+    it('shows all conversations when search is empty', async () => {
+      const user = userEvent.setup();
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const searchInput = screen.getByPlaceholderText('대화 검색...');
+      await user.type(searchInput, '첫');
+      expect(screen.queryByText('두 번째 대화')).not.toBeInTheDocument();
+      await user.clear(searchInput);
+      expect(screen.getByText('첫 번째 대화')).toBeInTheDocument();
+      expect(screen.getByText('두 번째 대화')).toBeInTheDocument();
+      expect(screen.getByText('세 번째 대화')).toBeInTheDocument();
+    });
+
+    it('shows "대화 기록이 없습니다" when no conversations and no search query', () => {
+      render(<Sidebar {...defaultProps} conversations={[]} />);
+      expect(screen.getByText('대화 기록이 없습니다')).toBeInTheDocument();
     });
   });
 });

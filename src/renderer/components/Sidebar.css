@@ -43,6 +43,31 @@
   font-weight: bold;
 }
 
+.search-container {
+  padding: 0 1rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  border-color: var(--accent-highlight);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
 .conversations-list {
   flex: 1;
   overflow-y: auto;

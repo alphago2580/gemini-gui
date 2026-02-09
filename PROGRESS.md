@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (195 tests)
+- **Test Status**: Passing (203 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -88,3 +88,13 @@
 - Added 8 tests for `exportToMarkdown` function
 - Added 5 tests for export UI in App component
 - Total tests: 182 → 195 (all passing)
+
+### Agent 2 (Quality) — Search Through Conversation History
+- Added search input to Sidebar component with real-time filtering
+- Search filters by conversation title and message content (case-insensitive)
+- Shows "검색 결과가 없습니다" when no matches found
+- Used `useMemo` for efficient filtering
+- Added search input CSS with theme variable support
+- Added `aria-label` on search input for accessibility
+- Added 8 tests for search functionality (title search, content search, case-insensitive, empty results, clear search)
+- Total tests: 195 → 203 (all passing)

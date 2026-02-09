@@ -11,7 +11,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [ ] LaTeX/math rendering support (KaTeX)
 
 ### Conversation Management  
-- [ ] Search through conversation history
+- [x] Search through conversation history
 - [x] Export conversation as Markdown file
 - [ ] Export conversation as PDF
 - [ ] Delete individual messages
@@ -80,6 +80,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] App.tsx refactored — conversation logic extracted to useConversations hook
 - [x] Comprehensive accessibility (ARIA) improvements across all components (182 tests)
 - [x] Export conversation as Markdown (195 tests)
+- [x] Search through conversation history in sidebar (203 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

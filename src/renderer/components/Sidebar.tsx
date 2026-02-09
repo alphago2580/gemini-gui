@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import './Sidebar.css';
 
 interface SidebarProps {
   onNewChat: () => void;
   onOpenSettings: () => void;
-  conversations: Array<{ id: string; title: string; timestamp: Date }>;
+  conversations: Array<{ id: string; title: string; timestamp: Date; messages?: Array<{ content: string }> }>;
   currentConversationId: string | null;
   onSelectConversation: (id: string) => void;
 }
@@ -16,6 +16,20 @@ const Sidebar: React.FC<SidebarProps> = ({
   currentConversationId,
   onSelectConversation
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredConversations = useMemo(() => {
+    if (!searchQuery.trim()) return conversations;
+    const query = searchQuery.toLowerCase();
+    return conversations.filter(conv => {
+      if (conv.title.toLowerCase().includes(query)) return true;
+      if (conv.messages) {
+        return conv.messages.some(msg => msg.content.toLowerCase().includes(query));
+      }
+      return false;
+    });
+  }, [conversations, searchQuery]);
+
   return (
     <nav className="sidebar" aria-label="사이드바">
       <div className="sidebar-header">
@@ -27,12 +41,27 @@ const Sidebar: React.FC<SidebarProps> = ({
         새 대화
       </button>
 
+      <div className="search-container">
+        <label htmlFor="sidebar-search" className="sr-only">대화 검색</label>
+        <input
+          id="sidebar-search"
+          className="search-input"
+          type="text"
+          placeholder="대화 검색..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="대화 검색"
+        />
+      </div>
+
       <div className="conversations-list" role="list" aria-label="대화 기록 목록">
         <h3>대화 기록</h3>
-        {conversations.length === 0 ? (
-          <div className="empty-state" role="listitem">대화 기록이 없습니다</div>
+        {filteredConversations.length === 0 ? (
+          <div className="empty-state" role="listitem">
+            {searchQuery.trim() ? '검색 결과가 없습니다' : '대화 기록이 없습니다'}
+          </div>
         ) : (
-          conversations.map(conv => (
+          filteredConversations.map(conv => (
             <div
               key={conv.id}
               className={`conversation-item ${currentConversationId === conv.id ? 'active' : ''}`}
