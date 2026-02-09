@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatFileSize, getFileIcon, generateConversationTitle, exportToMarkdown, exportToHtml, ExportableMessage } from './format';
+import { formatFileSize, getFileIcon, generateConversationTitle, generateMessageId, exportToMarkdown, exportToHtml, ExportableMessage } from './format';
 
 describe('formatFileSize', () => {
   it('formats bytes', () => {
@@ -263,5 +263,29 @@ describe('exportToHtml', () => {
     const result = exportToHtml('Chat', messages);
     expect(result).toContain('class="time"');
     expect(result).toContain(mockDateString);
+  });
+});
+
+describe('generateMessageId', () => {
+  it('returns a string starting with msg-', () => {
+    const id = generateMessageId();
+    expect(id).toMatch(/^msg-/);
+  });
+
+  it('generates unique IDs on successive calls', () => {
+    const id1 = generateMessageId();
+    const id2 = generateMessageId();
+    expect(id1).not.toBe(id2);
+  });
+
+  it('includes timestamp in the ID', () => {
+    const before = Date.now();
+    const id = generateMessageId();
+    const after = Date.now();
+    // Extract timestamp part: msg-{timestamp}-{counter}
+    const parts = id.split('-');
+    const ts = parseInt(parts[1], 10);
+    expect(ts).toBeGreaterThanOrEqual(before);
+    expect(ts).toBeLessThanOrEqual(after);
   });
 });

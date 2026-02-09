@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Message } from '../../preload/types';
+import { generateMessageId } from '../utils/format';
 
 interface UseMessageSendOptions {
   currentConversationId: string | null;
@@ -96,6 +97,7 @@ export function useMessageSend({
     }
 
     const userMessage: Message = {
+      id: generateMessageId(),
       role: 'user',
       content: fullMessageContent,
       timestamp: new Date()
@@ -127,6 +129,7 @@ export function useMessageSend({
           : String(error);
       addToast('error', `메시지 전송 실패: ${errMsg}`);
       const errorMessage: Message = {
+        id: generateMessageId(),
         role: 'assistant',
         content: `오류 발생: ${errMsg}`,
         timestamp: new Date()

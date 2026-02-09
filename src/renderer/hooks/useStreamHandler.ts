@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { StreamData, StreamErrorData, Message, TokenUsage } from '../../preload/types';
+import { generateMessageId } from '../utils/format';
 
 interface UseStreamHandlerOptions {
   currentConversationId: string | null;
@@ -51,6 +52,7 @@ export function useStreamHandler({
             return updated;
           } else if (!data.delta) {
             const updated = [...prev, {
+              id: generateMessageId(),
               role: 'assistant' as const,
               content: data.content || '',
               timestamp: new Date()
@@ -59,6 +61,7 @@ export function useStreamHandler({
             return updated;
           } else {
             const updated = [...prev, {
+              id: generateMessageId(),
               role: 'assistant' as const,
               content: data.content || '',
               timestamp: new Date()
@@ -94,6 +97,7 @@ export function useStreamHandler({
       addToast('error', data.error);
       setMessages(prev => {
         const updated = [...prev, {
+          id: generateMessageId(),
           role: 'assistant' as const,
           content: `오류: ${data.error}`,
           timestamp: new Date()

@@ -312,7 +312,7 @@ const App: React.FC = () => {
             )}
             {messages.map((message, index) => (
               <MessageBubble
-                key={index}
+                key={message.id || index}
                 message={message}
                 index={index}
                 isStreaming={isStreaming}

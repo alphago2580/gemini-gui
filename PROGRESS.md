@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (674 tests)
+- **Test Status**: Passing (677 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -429,3 +429,14 @@
 - Prevents stale/modified values from persisting across open/close cycles
 - Added 2 tests: reset after cancel/reopen, sync on external settings prop change
 - Total tests: 672 → 674 (28 test files, all passing)
+
+### Agent 2 (Quality) — Stable Message IDs for React Keys
+- Added optional `id` field to `Message` interface in `types.d.ts`
+- Created `generateMessageId()` utility in `format.ts` (timestamp + counter for uniqueness)
+- User messages in `useMessageSend` now get unique IDs at creation
+- Assistant messages in `useStreamHandler` now get unique IDs at creation
+- Legacy messages loaded from localStorage get IDs assigned in `useConversations`
+- App.tsx uses `key={message.id || index}` for stable React reconciliation
+- Prevents incorrect component reuse when messages are deleted or reordered
+- Added 3 tests for `generateMessageId` (format, uniqueness, timestamp)
+- Total tests: 674 → 677 (28 test files, all passing)

@@ -167,6 +167,7 @@ describe('useMessageSend', () => {
     expect(updated).toHaveLength(1);
     expect(updated[0].role).toBe('user');
     expect(updated[0].content).toBe('Test message');
+    expect(updated[0].id).toMatch(/^msg-/);
   });
 
   it('calls handleNewChat when no currentConversationId', async () => {

@@ -13,6 +13,12 @@ export function getFileIcon(type: string): string {
   return '📎';
 }
 
+let messageIdCounter = 0;
+
+export function generateMessageId(): string {
+  return `msg-${Date.now()}-${messageIdCounter++}`;
+}
+
 export function generateConversationTitle(firstMessage: string, maxLength = 50): string {
   return firstMessage.length > maxLength
     ? firstMessage.substring(0, maxLength) + '...'

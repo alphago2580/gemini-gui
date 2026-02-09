@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { generateConversationTitle } from '../utils/format';
+import { generateConversationTitle, generateMessageId } from '../utils/format';
 import type { Message, Conversation } from '../../preload/types';
 
 const STORAGE_KEY_CONVERSATIONS = 'gemini-conversations';
@@ -23,6 +23,7 @@ export function useConversations() {
           timestamp: new Date(conv.timestamp as string),
           messages: (conv.messages as Array<Record<string, unknown>>).map((msg) => ({
             ...msg,
+            id: (msg.id as string) || generateMessageId(),
             timestamp: new Date(msg.timestamp as string)
           }))
         })) as Conversation[];
