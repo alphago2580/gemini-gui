@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (213 tests)
+- **Test Status**: Passing (215 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -114,3 +114,11 @@
 - Refactored single export button to header-actions group with shared CSS class
 - Added 4 tests for Clear button (visibility, clearing, welcome message restore, aria-label)
 - Total tests: 209 → 213 (all passing)
+
+### Agent 2 (Quality) — Ctrl+Enter Send & KeyDown Migration
+- Migrated textarea from deprecated `onKeyPress` to `onKeyDown`
+- Ctrl+Enter now sends messages (alongside plain Enter)
+- Shift+Enter preserved as newline behavior
+- Updated placeholder text to document Ctrl+Enter shortcut
+- Added 2 tests: Ctrl+Enter send, Shift+Enter no-send
+- Total tests: 213 → 215 (all passing)

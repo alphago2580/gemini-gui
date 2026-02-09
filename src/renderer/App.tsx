@@ -300,7 +300,7 @@ const App: React.FC = () => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -400,8 +400,8 @@ const App: React.FC = () => {
               className="input-field"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="메시지를 입력하세요... (Enter: 전송, Shift+Enter: 줄바꿈)"
+              onKeyDown={handleKeyDown}
+              placeholder="메시지를 입력하세요... (Enter/Ctrl+Enter: 전송, Shift+Enter: 줄바꿈)"
               disabled={isLoading}
               rows={1}
               aria-label="메시지 입력"

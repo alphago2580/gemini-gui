@@ -37,7 +37,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [ ] Ctrl+F: Search in conversation
 - [x] Ctrl+,: Open settings
 - [x] Escape: Close modals/panels
-- [ ] Ctrl+Enter: Send message (alternative)
+- [x] Ctrl+Enter: Send message (alternative)
 
 ### Input Enhancements
 - [x] Auto-resize textarea (useAutoResize hook)
@@ -83,6 +83,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Search through conversation history in sidebar (203 tests)
 - [x] Delete individual messages (209 tests)
 - [x] Clear conversation button + Ctrl+L (213 tests)
+- [x] Ctrl+Enter send + onKeyPress→onKeyDown migration (215 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

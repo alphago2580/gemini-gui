@@ -129,6 +129,26 @@ describe('App Component', () => {
         expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Test message');
     });
 
+    it('sends message with Ctrl+Enter', async () => {
+        const user = userEvent.setup();
+        render(<App />);
+        const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+        await user.type(input, 'Ctrl Enter test');
+        fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true });
+        await waitFor(() => {
+            expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Ctrl Enter test');
+        });
+    });
+
+    it('does not send on Shift+Enter (newline)', async () => {
+        const user = userEvent.setup();
+        render(<App />);
+        const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+        await user.type(input, 'Should not send');
+        fireEvent.keyDown(input, { key: 'Enter', shiftKey: true });
+        expect(mockElectronAPI.sendMessage).not.toHaveBeenCalled();
+    });
+
     it('does not send empty messages', async () => {
         const user = userEvent.setup();
         render(<App />);
