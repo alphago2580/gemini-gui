@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 import React from 'react';
@@ -16,6 +16,7 @@ const mockElectronAPI = {
     removeAllListeners: vi.fn(),
     stopGemini: vi.fn(),
     exportMarkdown: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.md' }),
+    exportPdf: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.pdf' }),
 };
 
 global.window.electronAPI = mockElectronAPI as any;
@@ -35,7 +36,7 @@ describe('App Component', () => {
     it('renders app header', () => {
         render(<App />);
         expect(screen.getByText('Gemini GUI', { selector: 'h1' })).toBeInTheDocument();
-        expect(screen.getByText('Powered by Gemini CLI')).toBeInTheDocument();
+        expect(screen.getByText('모델: Auto')).toBeInTheDocument();
     });
 
     it('renders sidebar', () => {
@@ -126,7 +127,7 @@ describe('App Component', () => {
         const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
         await user.type(input, 'Test message');
         await user.click(screen.getByText('전송'));
-        expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Test message');
+        expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Test message', undefined, undefined);
     });
 
     it('sends message with Ctrl+Enter', async () => {
@@ -136,7 +137,7 @@ describe('App Component', () => {
         await user.type(input, 'Ctrl Enter test');
         fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true });
         await waitFor(() => {
-            expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Ctrl Enter test');
+            expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Ctrl Enter test', undefined, undefined);
         });
     });
 
@@ -378,6 +379,59 @@ describe('App Component', () => {
         });
     });
 
+    // Export PDF tests
+    describe('Export PDF', () => {
+        it('does not show PDF button when no messages', () => {
+            render(<App />);
+            expect(screen.queryByText('PDF')).not.toBeInTheDocument();
+        });
+
+        it('shows PDF button when there are messages', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(screen.getByText('PDF')).toBeInTheDocument();
+        });
+
+        it('PDF button has correct aria-label', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(screen.getByRole('button', { name: 'PDF로 내보내기' })).toBeInTheDocument();
+        });
+
+        it('calls exportPdf when PDF button is clicked', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            await user.click(screen.getByText('PDF'));
+            await waitFor(() => {
+                expect(mockElectronAPI.exportPdf).toHaveBeenCalled();
+            });
+        });
+
+        it('passes HTML content and .pdf filename to exportPdf', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            await user.click(screen.getByText('PDF'));
+            await waitFor(() => {
+                const [content, fileName] = mockElectronAPI.exportPdf.mock.calls[0];
+                expect(content).toContain('<!DOCTYPE html>');
+                expect(content).toContain('Hello');
+                expect(fileName).toMatch(/\.pdf$/);
+            });
+        });
+    });
+
     // Delete message tests
     describe('Delete Message', () => {
         it('shows delete button on messages', async () => {
@@ -585,6 +639,93 @@ describe('App Component', () => {
         });
     });
 
+    // Typing indicator tests
+    describe('Typing Indicator', () => {
+        it('shows typing indicator with "생각하는 중..." when loading', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(screen.getByText('생각하는 중...')).toBeInTheDocument();
+        });
+
+        it('shows typing indicator with role="status" during loading', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            const statusEl = screen.getByRole('status');
+            expect(statusEl).toHaveAttribute('aria-label', '응답 생성 중');
+        });
+
+        it('shows three animated dots in typing indicator', async () => {
+            const user = userEvent.setup();
+            const { container } = render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            const dots = container.querySelectorAll('.typing-dots span');
+            expect(dots.length).toBe(3);
+        });
+
+        it('applies streaming-cursor class when streaming data arrives', async () => {
+            let streamDataCallback: ((data: any) => void) | null = null;
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+                streamDataCallback = cb;
+            });
+
+            const user = userEvent.setup();
+            const { container } = render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            // Simulate streaming data arriving
+            await act(() => {
+                if (streamDataCallback) {
+                    streamDataCallback({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Hi',
+                        delta: true,
+                    });
+                }
+            });
+
+            const streamingContent = container.querySelector('.streaming-cursor');
+            expect(streamingContent).toBeInTheDocument();
+        });
+
+        it('shows "입력 중..." when streaming', async () => {
+            let streamDataCallback: ((data: any) => void) | null = null;
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+                streamDataCallback = cb;
+            });
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            // Simulate streaming
+            await act(() => {
+                if (streamDataCallback) {
+                    streamDataCallback({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Response',
+                        delta: true,
+                    });
+                }
+            });
+
+            expect(screen.getByText('입력 중...')).toBeInTheDocument();
+        });
+    });
+
     // Paste image tests
     describe('Paste Image from Clipboard', () => {
         function createPasteEvent(files: File[]) {
@@ -748,6 +889,412 @@ describe('App Component', () => {
             expect(screen.getByText('Keep this')).toBeInTheDocument();
             expect(screen.queryByText('Changed')).not.toBeInTheDocument();
             expect(screen.queryByLabelText('메시지 수정 입력')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Prompt Templates', () => {
+        it('renders prompt templates trigger button', () => {
+            render(<App />);
+            expect(screen.getByRole('button', { name: '프롬프트 템플릿' })).toBeInTheDocument();
+        });
+
+        it('opens template dropdown and shows default templates', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            await user.click(screen.getByRole('button', { name: '프롬프트 템플릿' }));
+            expect(screen.getByRole('listbox', { name: '프롬프트 템플릿 목록' })).toBeInTheDocument();
+            expect(screen.getByText('번역 (한→영)')).toBeInTheDocument();
+            expect(screen.getByText('코드 리뷰')).toBeInTheDocument();
+            expect(screen.getByText('요약')).toBeInTheDocument();
+        });
+
+        it('inserts template content into input when selected', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            await user.click(screen.getByRole('button', { name: '프롬프트 템플릿' }));
+            await user.click(screen.getByRole('option', { name: '번역 (한→영)' }));
+            const textarea = screen.getByPlaceholderText(/메시지를 입력하세요/) as HTMLTextAreaElement;
+            expect(textarea.value).toContain('번역');
+        });
+
+        it('appends template content to existing input', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const textarea = screen.getByPlaceholderText(/메시지를 입력하세요/) as HTMLTextAreaElement;
+            await user.type(textarea, 'Hello ');
+            await user.click(screen.getByRole('button', { name: '프롬프트 템플릿' }));
+            await user.click(screen.getByRole('option', { name: '요약' }));
+            expect(textarea.value).toContain('Hello ');
+            expect(textarea.value).toContain('요약');
+        });
+
+        it('template trigger button is in input row', () => {
+            render(<App />);
+            const trigger = screen.getByRole('button', { name: '프롬프트 템플릿' });
+            expect(trigger.closest('.input-row')).toBeTruthy();
+        });
+    });
+
+    describe('System Prompt', () => {
+        it('sends system prompt with message when configured', async () => {
+            // Set system prompt in settings localStorage
+            const settingsWithPrompt = {
+                model: 'auto',
+                temperature: 1,
+                maxTokens: 2048,
+                theme: 'dark',
+                systemPrompt: 'You are a helpful tutor'
+            };
+            localStorage.setItem('gemini-settings', JSON.stringify(settingsWithPrompt));
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Hello', 'You are a helpful tutor', undefined);
+        });
+
+        it('sends undefined system prompt when not configured', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Hello', undefined, undefined);
+        });
+
+        it('opens settings and shows system prompt editor', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            fireEvent.keyDown(document, { key: ',', ctrlKey: true });
+            expect(screen.getByLabelText('시스템 프롬프트')).toBeInTheDocument();
+        });
+    });
+
+    describe('Token Usage Display', () => {
+        it('does not show token usage initially', () => {
+            render(<App />);
+            expect(screen.queryByRole('status', { name: '토큰 사용량' })).not.toBeInTheDocument();
+        });
+
+        it('shows token usage after receiving result stats', async () => {
+            let streamDataCallback: ((data: any) => void) | null = null;
+            let streamCompleteCallback: (() => void) | null = null;
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+                streamDataCallback = cb;
+            });
+            mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
+                streamCompleteCallback = cb;
+            });
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            // Simulate streaming message
+            await act(() => {
+                if (streamDataCallback) {
+                    streamDataCallback({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Hi there',
+                        delta: true,
+                    });
+                }
+            });
+
+            // Simulate result with token stats
+            await act(() => {
+                if (streamDataCallback) {
+                    streamDataCallback({
+                        type: 'result',
+                        stats: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+                    });
+                }
+            });
+
+            // Simulate stream complete
+            await act(() => {
+                if (streamCompleteCallback) {
+                    streamCompleteCallback();
+                }
+            });
+
+            const tokenDisplay = screen.getByRole('status', { name: '토큰 사용량' });
+            expect(tokenDisplay).toBeInTheDocument();
+            expect(tokenDisplay).toHaveTextContent('10');
+            expect(tokenDisplay).toHaveTextContent('5');
+            expect(tokenDisplay).toHaveTextContent('15');
+        });
+
+        it('hides token usage while loading', async () => {
+            let streamDataCallback: ((data: any) => void) | null = null;
+            let streamCompleteCallback: (() => void) | null = null;
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+                streamDataCallback = cb;
+            });
+            mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
+                streamCompleteCallback = cb;
+            });
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'First');
+            await user.click(screen.getByText('전송'));
+
+            // Complete first exchange with stats
+            await act(() => {
+                if (streamDataCallback) {
+                    streamDataCallback({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Response',
+                        delta: true,
+                    });
+                    streamDataCallback({
+                        type: 'result',
+                        stats: { inputTokens: 20, outputTokens: 10, totalTokens: 30 },
+                    });
+                }
+            });
+            await act(() => {
+                if (streamCompleteCallback) {
+                    streamCompleteCallback();
+                }
+            });
+
+            expect(screen.getByRole('status', { name: '토큰 사용량' })).toBeInTheDocument();
+
+            // Now send another message — token usage should be hidden during loading
+            const input2 = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input2, 'Second');
+            await user.click(screen.getByText('전송'));
+
+            expect(screen.queryByRole('status', { name: '토큰 사용량' })).not.toBeInTheDocument();
+        });
+
+        it('handles snake_case token stats from CLI', async () => {
+            let streamDataCallback: ((data: any) => void) | null = null;
+            let streamCompleteCallback: (() => void) | null = null;
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+                streamDataCallback = cb;
+            });
+            mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
+                streamCompleteCallback = cb;
+            });
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            await act(() => {
+                if (streamDataCallback) {
+                    streamDataCallback({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Hi',
+                        delta: true,
+                    });
+                    streamDataCallback({
+                        type: 'result',
+                        stats: { input_tokens: 25, output_tokens: 15, total_tokens: 40 },
+                    });
+                }
+            });
+            await act(() => {
+                if (streamCompleteCallback) {
+                    streamCompleteCallback();
+                }
+            });
+
+            const tokenDisplay = screen.getByRole('status', { name: '토큰 사용량' });
+            expect(tokenDisplay).toHaveTextContent('25');
+            expect(tokenDisplay).toHaveTextContent('15');
+            expect(tokenDisplay).toHaveTextContent('40');
+        });
+
+        it('does not show token usage when stats have zero tokens', async () => {
+            let streamDataCallback: ((data: any) => void) | null = null;
+            let streamCompleteCallback: (() => void) | null = null;
+            mockElectronAPI.onStreamData.mockImplementation((cb: (data: any) => void) => {
+                streamDataCallback = cb;
+            });
+            mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
+                streamCompleteCallback = cb;
+            });
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            await act(() => {
+                if (streamDataCallback) {
+                    streamDataCallback({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Hi',
+                        delta: true,
+                    });
+                    streamDataCallback({
+                        type: 'result',
+                        stats: { someOtherField: 'value' },
+                    });
+                }
+            });
+            await act(() => {
+                if (streamCompleteCallback) {
+                    streamCompleteCallback();
+                }
+            });
+
+            expect(screen.queryByRole('status', { name: '토큰 사용량' })).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Delete Conversation', () => {
+        it('shows delete buttons on conversation items in sidebar', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            // Create a conversation with a message
+            await user.click(screen.getByText('새 대화'));
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            // Delete button should be present on the conversation item
+            expect(screen.getByRole('button', { name: /대화 삭제:/ })).toBeInTheDocument();
+        });
+
+        it('removes conversation from sidebar when delete is clicked', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+
+            // Create first conversation
+            vi.spyOn(Date, 'now').mockReturnValueOnce(1000);
+            await user.click(screen.getByText('새 대화'));
+
+            // Create second conversation
+            vi.spyOn(Date, 'now').mockReturnValueOnce(2000);
+            await user.click(screen.getByText('새 대화'));
+
+            const convItems = screen.getAllByRole('listitem');
+            const realConvItems = convItems.filter(item => item.classList.contains('conversation-item'));
+            expect(realConvItems).toHaveLength(2);
+
+            // Delete the first one (not currently selected)
+            const deleteButtons = screen.getAllByRole('button', { name: /대화 삭제:/ });
+            await user.click(deleteButtons[1]); // second in DOM = older conversation
+
+            const remainingItems = screen.getAllByRole('listitem').filter(item => item.classList.contains('conversation-item'));
+            expect(remainingItems).toHaveLength(1);
+        });
+
+        it('clears messages when deleting the current conversation', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+
+            // Create conversation and add message
+            await user.click(screen.getByText('새 대화'));
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Test message for deletion');
+            await user.click(screen.getByText('전송'));
+
+            // Verify message appears in message area (article)
+            const articles = screen.getAllByRole('article');
+            expect(articles.some(a => a.textContent?.includes('Test message for deletion'))).toBe(true);
+
+            // Delete the current conversation
+            const deleteBtn = screen.getByRole('button', { name: /대화 삭제:/ });
+            await user.click(deleteBtn);
+
+            // Messages should be cleared and welcome message should appear
+            expect(screen.queryByRole('article')).not.toBeInTheDocument();
+            expect(screen.getByText('Gemini에 오신 것을 환영합니다!')).toBeInTheDocument();
+        });
+    });
+
+    describe('Model Selection', () => {
+        it('shows default model name in header', () => {
+            render(<App />);
+            expect(screen.getByText('모델: Auto')).toBeInTheDocument();
+        });
+
+        it('shows selected model name in header after settings change', async () => {
+            const settingsWithModel = {
+                model: 'gemini-2.5-pro',
+                temperature: 1,
+                maxTokens: 2048,
+                theme: 'dark',
+                systemPrompt: ''
+            };
+            localStorage.setItem('gemini-settings', JSON.stringify(settingsWithModel));
+
+            render(<App />);
+            expect(screen.getByText('모델: Gemini 2.5 Pro')).toBeInTheDocument();
+        });
+
+        it('sends model with message when non-auto model is selected', async () => {
+            const settingsWithModel = {
+                model: 'gemini-2.5-flash',
+                temperature: 1,
+                maxTokens: 2048,
+                theme: 'dark',
+                systemPrompt: ''
+            };
+            localStorage.setItem('gemini-settings', JSON.stringify(settingsWithModel));
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Hello', undefined, 'gemini-2.5-flash');
+        });
+
+        it('sends undefined model when auto is selected', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Hello', undefined, undefined);
+        });
+
+        it('updates model via settings and sends with new model', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+
+            // Open settings
+            fireEvent.keyDown(document, { key: ',', ctrlKey: true });
+
+            // Change model
+            const modelSelect = screen.getByLabelText('모델 선택');
+            fireEvent.change(modelSelect, { target: { value: 'gemini-2.0-flash' } });
+
+            // Save settings
+            await user.click(screen.getByText('저장'));
+
+            // Send a message
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Test');
+            await user.click(screen.getByText('전송'));
+            expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Test', undefined, 'gemini-2.0-flash');
+        });
+
+        it('displays model selection in settings with all options', async () => {
+            render(<App />);
+            fireEvent.keyDown(document, { key: ',', ctrlKey: true });
+            expect(screen.getByLabelText('모델 선택')).toBeInTheDocument();
+            expect(screen.getByText('Gemini 2.5 Pro')).toBeInTheDocument();
+            expect(screen.getByText('Gemini 2.5 Flash')).toBeInTheDocument();
         });
     });
 });

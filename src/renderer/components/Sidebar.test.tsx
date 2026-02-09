@@ -255,6 +255,75 @@ describe('Sidebar', () => {
     });
   });
 
+  // Delete conversation tests
+  describe('Delete Conversation', () => {
+    it('shows delete button on conversation items when onDeleteConversation is provided', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onDeleteConversation={vi.fn()}
+        />
+      );
+      const deleteButtons = screen.getAllByRole('button', { name: /대화 삭제:/ });
+      expect(deleteButtons).toHaveLength(3);
+    });
+
+    it('does not show delete button when onDeleteConversation is not provided', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+        />
+      );
+      expect(screen.queryByRole('button', { name: /대화 삭제:/ })).not.toBeInTheDocument();
+    });
+
+    it('calls onDeleteConversation with correct id when delete button is clicked', async () => {
+      const onDeleteConversation = vi.fn();
+      const user = userEvent.setup();
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onDeleteConversation={onDeleteConversation}
+        />
+      );
+      const deleteBtn = screen.getByRole('button', { name: '대화 삭제: 두 번째 대화' });
+      await user.click(deleteBtn);
+      expect(onDeleteConversation).toHaveBeenCalledWith('2');
+    });
+
+    it('does not trigger onSelectConversation when delete button is clicked', async () => {
+      const onDeleteConversation = vi.fn();
+      const user = userEvent.setup();
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onDeleteConversation={onDeleteConversation}
+        />
+      );
+      const deleteBtn = screen.getByRole('button', { name: '대화 삭제: 첫 번째 대화' });
+      await user.click(deleteBtn);
+      expect(onDeleteConversation).toHaveBeenCalledWith('1');
+      expect(defaultProps.onSelectConversation).not.toHaveBeenCalled();
+    });
+
+    it('delete button has correct aria-label with conversation title', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onDeleteConversation={vi.fn()}
+        />
+      );
+      expect(screen.getByRole('button', { name: '대화 삭제: 첫 번째 대화' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '대화 삭제: 두 번째 대화' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '대화 삭제: 세 번째 대화' })).toBeInTheDocument();
+    });
+  });
+
   // Search tests
   describe('Search', () => {
     it('renders search input', () => {

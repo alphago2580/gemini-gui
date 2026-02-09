@@ -9,6 +9,7 @@ describe('Settings', () => {
     temperature: 1,
     maxTokens: 2048,
     theme: 'dark' as const,
+    systemPrompt: '',
   };
 
   const defaultProps = {
@@ -38,9 +39,16 @@ describe('Settings', () => {
     render(<Settings {...defaultProps} />);
     expect(screen.getByLabelText('모델 선택')).toBeInTheDocument();
     expect(screen.getByText('자동 (Auto)')).toBeInTheDocument();
-    expect(screen.getByText('Gemini 2.0 Flash (Experimental)')).toBeInTheDocument();
+    expect(screen.getByText('Gemini 2.5 Pro')).toBeInTheDocument();
+    expect(screen.getByText('Gemini 2.5 Flash')).toBeInTheDocument();
+    expect(screen.getByText('Gemini 2.0 Flash')).toBeInTheDocument();
     expect(screen.getByText('Gemini 1.5 Pro')).toBeInTheDocument();
     expect(screen.getByText('Gemini 1.5 Flash')).toBeInTheDocument();
+  });
+
+  it('renders hint text for model selection', () => {
+    render(<Settings {...defaultProps} />);
+    expect(screen.getByText('사용할 Gemini 모델을 선택합니다')).toBeInTheDocument();
   });
 
   it('renders temperature slider with current value', () => {
@@ -188,6 +196,71 @@ describe('Settings', () => {
     it('overlay has role="presentation"', () => {
       const { container } = render(<Settings {...defaultProps} />);
       expect(container.querySelector('[role="presentation"]')).toBeInTheDocument();
+    });
+  });
+
+  // System prompt editor tests
+  describe('System Prompt Editor', () => {
+    it('renders system prompt textarea', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByLabelText('시스템 프롬프트')).toBeInTheDocument();
+    });
+
+    it('displays placeholder text in system prompt textarea', () => {
+      render(<Settings {...defaultProps} />);
+      const textarea = screen.getByLabelText('시스템 프롬프트');
+      expect(textarea).toHaveAttribute('placeholder', '예: 당신은 친절한 한국어 튜터입니다...');
+    });
+
+    it('shows hint text for system prompt', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByText('AI의 동작을 지시하는 시스템 메시지')).toBeInTheDocument();
+    });
+
+    it('shows current system prompt value', () => {
+      const settingsWithPrompt = { ...defaultSettings, systemPrompt: 'You are a helpful assistant' };
+      render(<Settings {...defaultProps} settings={settingsWithPrompt} />);
+      const textarea = screen.getByLabelText('시스템 프롬프트');
+      expect(textarea).toHaveValue('You are a helpful assistant');
+    });
+
+    it('updates system prompt and saves correctly', () => {
+      render(<Settings {...defaultProps} />);
+      const textarea = screen.getByLabelText('시스템 프롬프트');
+      fireEvent.change(textarea, { target: { value: 'New system prompt' } });
+      fireEvent.click(screen.getByText('저장'));
+      expect(defaultProps.onSave).toHaveBeenCalledWith(
+        expect.objectContaining({ systemPrompt: 'New system prompt' })
+      );
+    });
+
+    it('does not show clear button when system prompt is empty', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.queryByRole('button', { name: '시스템 프롬프트 초기화' })).not.toBeInTheDocument();
+    });
+
+    it('shows clear button when system prompt has content', () => {
+      const settingsWithPrompt = { ...defaultSettings, systemPrompt: 'Some prompt' };
+      render(<Settings {...defaultProps} settings={settingsWithPrompt} />);
+      expect(screen.getByRole('button', { name: '시스템 프롬프트 초기화' })).toBeInTheDocument();
+    });
+
+    it('clears system prompt when clear button is clicked', () => {
+      const settingsWithPrompt = { ...defaultSettings, systemPrompt: 'Some prompt' };
+      render(<Settings {...defaultProps} settings={settingsWithPrompt} />);
+      fireEvent.click(screen.getByRole('button', { name: '시스템 프롬프트 초기화' }));
+      const textarea = screen.getByLabelText('시스템 프롬프트');
+      expect(textarea).toHaveValue('');
+    });
+
+    it('saves empty system prompt after clearing', () => {
+      const settingsWithPrompt = { ...defaultSettings, systemPrompt: 'Some prompt' };
+      render(<Settings {...defaultProps} settings={settingsWithPrompt} />);
+      fireEvent.click(screen.getByRole('button', { name: '시스템 프롬프트 초기화' }));
+      fireEvent.click(screen.getByText('저장'));
+      expect(defaultProps.onSave).toHaveBeenCalledWith(
+        expect.objectContaining({ systemPrompt: '' })
+      );
     });
   });
 

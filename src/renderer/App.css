@@ -475,10 +475,17 @@
 
 .input-container {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
   padding: 1.5rem 2rem;
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
+}
+
+.input-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
 }
 
 .input-field {

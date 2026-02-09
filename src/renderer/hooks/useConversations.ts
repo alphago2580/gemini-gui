@@ -118,6 +118,14 @@ export function useConversations() {
     });
   }, [updateCurrentConversation]);
 
+  const deleteConversation = useCallback((id: string) => {
+    setConversations(prev => prev.filter(conv => conv.id !== id));
+    if (currentConversationId === id) {
+      setCurrentConversationId(null);
+      setMessages([]);
+    }
+  }, [currentConversationId]);
+
   return {
     conversations,
     currentConversationId,
@@ -128,5 +136,6 @@ export function useConversations() {
     updateCurrentConversation,
     deleteMessage,
     editMessage,
+    deleteConversation,
   };
 }

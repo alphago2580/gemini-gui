@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatFileSize, getFileIcon, generateConversationTitle, exportToMarkdown, ExportableMessage } from './format';
+import { formatFileSize, getFileIcon, generateConversationTitle, exportToMarkdown, exportToHtml, ExportableMessage } from './format';
 
 describe('formatFileSize', () => {
   it('formats bytes', () => {
@@ -170,5 +170,98 @@ describe('exportToMarkdown', () => {
     const messages = [makeMessage('user', 'Hello')];
     const result = exportToMarkdown('Chat', messages);
     expect(result.endsWith('\n')).toBe(true);
+  });
+});
+
+describe('exportToHtml', () => {
+  let mockDateString: string;
+
+  beforeEach(() => {
+    mockDateString = '2025/1/15 12:00:00';
+    vi.spyOn(Date.prototype, 'toLocaleString').mockReturnValue(mockDateString);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const makeMessage = (role: 'user' | 'assistant', content: string): ExportableMessage => ({
+    role,
+    content,
+    timestamp: new Date('2025-01-15T12:00:00Z'),
+  });
+
+  it('returns valid HTML document', () => {
+    const result = exportToHtml('Test Chat', []);
+    expect(result).toContain('<!DOCTYPE html>');
+    expect(result).toContain('<html>');
+    expect(result).toContain('</html>');
+    expect(result).toContain('<meta charset="utf-8">');
+  });
+
+  it('includes title in heading and HTML title', () => {
+    const result = exportToHtml('My Chat', []);
+    expect(result).toContain('<title>My Chat</title>');
+    expect(result).toContain('<h1>My Chat</h1>');
+  });
+
+  it('includes exported date', () => {
+    const result = exportToHtml('Chat', []);
+    expect(result).toContain('Exported on');
+    expect(result).toContain(mockDateString);
+  });
+
+  it('renders user message with user class', () => {
+    const messages = [makeMessage('user', 'Hello!')];
+    const result = exportToHtml('Chat', messages);
+    expect(result).toContain('class="message user"');
+    expect(result).toContain('<strong>User</strong>');
+    expect(result).toContain('Hello!');
+  });
+
+  it('renders assistant message with assistant class', () => {
+    const messages = [makeMessage('assistant', 'Hi there!')];
+    const result = exportToHtml('Chat', messages);
+    expect(result).toContain('class="message assistant"');
+    expect(result).toContain('<strong>Gemini</strong>');
+    expect(result).toContain('Hi there!');
+  });
+
+  it('escapes HTML special characters in content', () => {
+    const messages = [makeMessage('user', '<script>alert("xss")</script>')];
+    const result = exportToHtml('Chat', messages);
+    expect(result).toContain('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+    expect(result).not.toContain('<script>alert("xss")</script>');
+  });
+
+  it('escapes HTML special characters in title', () => {
+    const result = exportToHtml('Chat about <HTML> & "stuff"', []);
+    expect(result).toContain('Chat about &lt;HTML&gt; &amp; &quot;stuff&quot;');
+  });
+
+  it('renders multiple messages in order', () => {
+    const messages = [
+      makeMessage('user', 'Question'),
+      makeMessage('assistant', 'Answer'),
+    ];
+    const result = exportToHtml('Chat', messages);
+    const questionIdx = result.indexOf('Question');
+    const answerIdx = result.indexOf('Answer');
+    expect(questionIdx).toBeLessThan(answerIdx);
+  });
+
+  it('includes CSS styling', () => {
+    const result = exportToHtml('Chat', []);
+    expect(result).toContain('<style>');
+    expect(result).toContain('.message');
+    expect(result).toContain('.message.user');
+    expect(result).toContain('.message.assistant');
+  });
+
+  it('includes timestamp for each message', () => {
+    const messages = [makeMessage('user', 'Hello')];
+    const result = exportToHtml('Chat', messages);
+    expect(result).toContain('class="time"');
+    expect(result).toContain(mockDateString);
   });
 });

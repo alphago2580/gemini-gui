@@ -373,6 +373,107 @@ describe('useConversations', () => {
     });
   });
 
+  describe('deleteConversation', () => {
+    it('deletes a conversation by id', () => {
+      const { result } = renderHook(() => useConversations());
+
+      vi.spyOn(Date, 'now').mockReturnValueOnce(1000);
+      act(() => {
+        result.current.handleNewChat();
+      });
+      const firstId = result.current.currentConversationId!;
+
+      vi.spyOn(Date, 'now').mockReturnValueOnce(2000);
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      expect(result.current.conversations).toHaveLength(2);
+
+      act(() => {
+        result.current.deleteConversation(firstId);
+      });
+
+      expect(result.current.conversations).toHaveLength(1);
+      expect(result.current.conversations[0].id).not.toBe(firstId);
+    });
+
+    it('clears messages when deleting the current conversation', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      act(() => {
+        result.current.updateCurrentConversation([
+          { role: 'user' as const, content: 'Hello', timestamp: new Date() },
+        ]);
+      });
+
+      expect(result.current.messages).toHaveLength(1);
+      const currentId = result.current.currentConversationId!;
+
+      act(() => {
+        result.current.deleteConversation(currentId);
+      });
+
+      expect(result.current.messages).toEqual([]);
+      expect(result.current.currentConversationId).toBeNull();
+    });
+
+    it('does not clear messages when deleting a non-current conversation', () => {
+      const { result } = renderHook(() => useConversations());
+
+      vi.spyOn(Date, 'now').mockReturnValueOnce(1000);
+      act(() => {
+        result.current.handleNewChat();
+      });
+      const firstId = result.current.currentConversationId!;
+
+      vi.spyOn(Date, 'now').mockReturnValueOnce(2000);
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      act(() => {
+        result.current.updateCurrentConversation([
+          { role: 'user' as const, content: 'Current chat', timestamp: new Date() },
+        ]);
+      });
+
+      expect(result.current.messages).toHaveLength(1);
+
+      act(() => {
+        result.current.deleteConversation(firstId);
+      });
+
+      expect(result.current.conversations).toHaveLength(1);
+      expect(result.current.messages).toHaveLength(1);
+      expect(result.current.messages[0].content).toBe('Current chat');
+    });
+
+    it('updates localStorage after deleting conversation', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const convId = result.current.currentConversationId!;
+      expect(result.current.conversations).toHaveLength(1);
+
+      act(() => {
+        result.current.deleteConversation(convId);
+      });
+
+      const stored = localStorage.getItem('gemini-conversations');
+      expect(stored).not.toBeNull();
+      const parsed = JSON.parse(stored!);
+      expect(parsed).toHaveLength(0);
+    });
+  });
+
   describe('editMessage', () => {
     it('edits a message at the given index', () => {
       const { result } = renderHook(() => useConversations());

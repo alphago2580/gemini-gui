@@ -9,14 +9,15 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Code blocks with language labels
 - [x] Inline code styling
 - [x] Syntax highlighting for code blocks (lightweight custom tokenizer)
-- [ ] LaTeX/math rendering support (KaTeX)
+- [x] LaTeX/math rendering support (lightweight custom renderer, no external deps)
 
-### Conversation Management  
+### Conversation Management
 - [x] Search through conversation history
 - [x] Export conversation as Markdown file
-- [ ] Export conversation as PDF
+- [x] Export conversation as PDF
 - [x] Delete individual messages
 - [x] Clear conversation
+- [x] Delete conversation from sidebar
 
 ### Theme System
 - [x] Dark/Light theme toggle
@@ -49,7 +50,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 
 ### UI Polish
 - [x] Loading spinner during response generation
-- [ ] Typing indicator animation
+- [x] Typing indicator animation
 - [ ] Smooth scroll to bottom on new messages
 - [x] Toast notifications for errors
 - [x] Responsive sidebar (collapsible)
@@ -58,10 +59,10 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 
 ### Advanced Features
 - [ ] Conversation branching (fork from any message)
-- [ ] Token usage display
-- [ ] Model selection dropdown
-- [ ] System prompt editor
-- [ ] Prompt templates/presets
+- [x] Token usage display
+- [x] Model selection dropdown
+- [x] System prompt editor
+- [x] Prompt templates/presets
 
 ### Accessibility
 - [x] ARIA labels on all interactive elements
@@ -94,6 +95,15 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Command palette (Ctrl+Shift+P) with search, keyboard nav, 6 commands (349 tests)
 - [x] Paste image from clipboard — detect image MIME types, attach to file list (353 tests)
 - [x] Message edit — inline edit for user messages with save/cancel (361 tests)
+- [x] Typing indicator animation — TypingIndicator component with streaming cursor (376 tests)
+- [x] System prompt editor — textarea in Settings, --system-instruction CLI flag (388 tests)
+- [x] Prompt templates/presets — PromptTemplates component with add/delete/select, usePromptTemplates hook (423 tests)
+- [x] Model selection dropdown — updated model list, --model CLI flag, header display, full IPC wiring (434 tests)
+- [x] Token usage display — TokenUsage component, camelCase/snake_case stats parsing, accessible (449 tests)
+- [x] Export conversation as PDF — exportToHtml utility, hidden BrowserWindow printToPDF, header PDF button (464 tests)
+- [x] Delete conversation from sidebar — hover-reveal × button, deleteConversation in useConversations, clears messages on current delete (476 tests)
+- [x] LaTeX/math rendering — lightweight renderer, Greek letters, fractions, sqrt, sup/sub, math symbols, inline $...$ and block $$...$$ (535 tests)
+- [x] MessageBubble component extraction — encapsulated message rendering, edit mode, delete, streaming cursor (559 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

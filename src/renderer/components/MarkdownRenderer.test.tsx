@@ -258,4 +258,138 @@ describe('MarkdownRenderer', () => {
       expect(code?.textContent).toBe('const sum = (a, b) => a + b;');
     });
   });
+
+  describe('Math rendering', () => {
+    describe('Inline math', () => {
+      it('renders inline math with $...$ delimiters', () => {
+        const { container } = render(
+          <MarkdownRenderer content="The formula $E = mc^2$ is famous" />
+        );
+        const mathSpan = container.querySelector('.math-inline');
+        expect(mathSpan).toBeInTheDocument();
+      });
+
+      it('renders Greek letters in inline math', () => {
+        const { container } = render(
+          <MarkdownRenderer content={"The angle $\\alpha$ is small"} />
+        );
+        const mathSpan = container.querySelector('.math-inline');
+        expect(mathSpan).toBeInTheDocument();
+        expect(mathSpan?.textContent).toContain('\u03B1');
+      });
+
+      it('renders superscripts in inline math', () => {
+        const { container } = render(
+          <MarkdownRenderer content="Calculate $x^2$" />
+        );
+        const mathSpan = container.querySelector('.math-inline');
+        expect(mathSpan).toBeInTheDocument();
+        expect(mathSpan?.textContent).toContain('\u00B2');
+      });
+
+      it('renders math symbols in inline math', () => {
+        const { container } = render(
+          <MarkdownRenderer content={"For all $x \\leq y$"} />
+        );
+        const mathSpan = container.querySelector('.math-inline');
+        expect(mathSpan).toBeInTheDocument();
+        expect(mathSpan?.textContent).toContain('\u2264');
+      });
+
+      it('adds aria-label for accessibility', () => {
+        const { container } = render(
+          <MarkdownRenderer content="Value $x^2$" />
+        );
+        const mathSpan = container.querySelector('.math-inline');
+        expect(mathSpan?.getAttribute('aria-label')).toBe('수식: x^2');
+      });
+
+      it('does not render $5 as math (lone dollar)', () => {
+        const { container } = render(
+          <MarkdownRenderer content="Price is $5" />
+        );
+        const mathSpan = container.querySelector('.math-inline');
+        // $5 is a single char after $, but our regex requires non-space non-$ start
+        // $5 should not match because there's no closing $
+        expect(mathSpan).not.toBeInTheDocument();
+      });
+    });
+
+    describe('Block math', () => {
+      it('renders block math with $$ delimiters', () => {
+        const content = '$$\nx^2 + y^2 = z^2\n$$';
+        const { container } = render(<MarkdownRenderer content={content} />);
+        const mathBlock = container.querySelector('.math-block');
+        expect(mathBlock).toBeInTheDocument();
+      });
+
+      it('renders single-line block math', () => {
+        const content = '$$ E = mc^2 $$';
+        const { container } = render(<MarkdownRenderer content={content} />);
+        const mathBlock = container.querySelector('.math-block');
+        expect(mathBlock).toBeInTheDocument();
+      });
+
+      it('renders fraction in block math', () => {
+        const content = '$$\n\\frac{a}{b}\n$$';
+        const { container } = render(<MarkdownRenderer content={content} />);
+        const mathBlock = container.querySelector('.math-block');
+        expect(mathBlock).toBeInTheDocument();
+        expect(mathBlock?.querySelector('.math-frac')).toBeInTheDocument();
+      });
+
+      it('renders sqrt in block math', () => {
+        const content = '$$\n\\sqrt{x}\n$$';
+        const { container } = render(<MarkdownRenderer content={content} />);
+        const mathBlock = container.querySelector('.math-block');
+        expect(mathBlock).toBeInTheDocument();
+        expect(mathBlock?.textContent).toContain('\u221A');
+      });
+
+      it('adds role="math" for accessibility', () => {
+        const content = '$$\nx^2\n$$';
+        const { container } = render(<MarkdownRenderer content={content} />);
+        const mathBlock = container.querySelector('[role="math"]');
+        expect(mathBlock).toBeInTheDocument();
+      });
+
+      it('adds aria-label with original LaTeX', () => {
+        const content = '$$\nx^2 + y^2 = z^2\n$$';
+        const { container } = render(<MarkdownRenderer content={content} />);
+        const mathBlock = container.querySelector('.math-block');
+        expect(mathBlock?.getAttribute('aria-label')).toBe('수식: x^2 + y^2 = z^2');
+      });
+    });
+
+    describe('Math with other Markdown', () => {
+      it('renders math alongside text and code', () => {
+        const content = [
+          '# Quadratic Formula',
+          '',
+          'The solution is $x = \\frac{-b}{2a}$.',
+          '',
+          '```python',
+          'import math',
+          '```',
+          '',
+          '$$',
+          'x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}',
+          '$$',
+        ].join('\n');
+
+        const { container } = render(<MarkdownRenderer content={content} />);
+        expect(container.querySelector('h1')).toBeInTheDocument();
+        expect(container.querySelector('.math-inline')).toBeInTheDocument();
+        expect(container.querySelector('pre.md-code-block')).toBeInTheDocument();
+        expect(container.querySelector('.math-block')).toBeInTheDocument();
+      });
+
+      it('does not parse math inside code blocks', () => {
+        const content = '```\n$x^2$\n```';
+        const { container } = render(<MarkdownRenderer content={content} />);
+        expect(container.querySelector('.math-inline')).not.toBeInTheDocument();
+        expect(container.querySelector('pre code')?.textContent).toBe('$x^2$');
+      });
+    });
+  });
 });

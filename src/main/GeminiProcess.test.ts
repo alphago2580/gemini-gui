@@ -80,4 +80,41 @@ describe('GeminiProcess', () => {
         // Expect \r appended for terminal enter
         expect(writeSpy).toHaveBeenCalledWith('hello\r');
     });
+
+    it('passes --model flag when model is specified', () => {
+        gemini.start('dummy/path', '/tmp', process.env, undefined, 'gemini-2.5-pro');
+
+        expect(mockSpawn).toHaveBeenCalledWith(
+            'node',
+            expect.arrayContaining(['--model', 'gemini-2.5-pro']),
+            expect.objectContaining({ cwd: '/tmp' })
+        );
+    });
+
+    it('does not pass --model flag when model is auto', () => {
+        gemini.start('dummy/path', '/tmp', process.env, undefined, 'auto');
+
+        const args = mockSpawn.mock.calls[0][1];
+        expect(args).not.toContain('--model');
+    });
+
+    it('does not pass --model flag when model is undefined', () => {
+        gemini.start('dummy/path', '/tmp');
+
+        const args = mockSpawn.mock.calls[0][1];
+        expect(args).not.toContain('--model');
+    });
+
+    it('passes both --system-instruction and --model when both are set', () => {
+        gemini.start('dummy/path', '/tmp', process.env, 'Be helpful', 'gemini-2.5-flash');
+
+        expect(mockSpawn).toHaveBeenCalledWith(
+            'node',
+            expect.arrayContaining([
+                '--system-instruction', 'Be helpful',
+                '--model', 'gemini-2.5-flash'
+            ]),
+            expect.objectContaining({ cwd: '/tmp' })
+        );
+    });
 });

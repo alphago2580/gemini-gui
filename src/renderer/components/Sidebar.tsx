@@ -7,6 +7,7 @@ interface SidebarProps {
   conversations: Array<{ id: string; title: string; timestamp: Date; messages?: Array<{ content: string }> }>;
   currentConversationId: string | null;
   onSelectConversation: (id: string) => void;
+  onDeleteConversation?: (id: string) => void;
   searchInputRef?: React.RefObject<HTMLInputElement | null>;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
@@ -18,6 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   conversations,
   currentConversationId,
   onSelectConversation,
+  onDeleteConversation,
   searchInputRef,
   isCollapsed = false,
   onToggleCollapse,
@@ -100,6 +102,19 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <div className="conversation-time">
                     {conv.timestamp.toLocaleDateString()}
                   </div>
+                  {onDeleteConversation && (
+                    <button
+                      className="delete-conversation-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteConversation(conv.id);
+                      }}
+                      aria-label={`대화 삭제: ${conv.title}`}
+                      title="대화 삭제"
+                    >
+                      &times;
+                    </button>
+                  )}
                 </div>
               ))
             )}

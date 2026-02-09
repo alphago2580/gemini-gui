@@ -48,7 +48,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-function startGeminiProcess() {
+function startGeminiProcess(systemPrompt?: string, model?: string) {
   const cliPath = process.env.GEMINI_CLI_PATH || path.join(__dirname, '../../../gemini-cli/bundle/gemini.js');
   const cliDir = process.env.GEMINI_CLI_PATH
     ? path.dirname(process.env.GEMINI_CLI_PATH)
@@ -86,13 +86,13 @@ function startGeminiProcess() {
     console.error(`[Process] Error:`, error);
   });
 
-  gemini.start(cliPath, cliDir);
+  gemini.start(cliPath, cliDir, undefined, systemPrompt, model);
 }
 
-ipcMain.handle('send-message', async (event, message: string) => {
+ipcMain.handle('send-message', async (event, message: string, systemPrompt?: string, model?: string) => {
   return new Promise((resolve, reject) => {
     try {
-      startGeminiProcess();
+      startGeminiProcess(systemPrompt, model);
       gemini.send(message);
       resolve({ success: true, output: '', error: null });
     } catch (error: any) {
@@ -136,6 +136,57 @@ ipcMain.handle('cleanup-temp-files', async () => {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
     return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('export-pdf', async (_event, htmlContent: string, defaultFileName: string) => {
+  try {
+    const result = await dialog.showSaveDialog({
+      title: 'Export Conversation as PDF',
+      defaultPath: defaultFileName,
+      filters: [
+        { name: 'PDF', extensions: ['pdf'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+    });
+
+    if (result.canceled || !result.filePath) {
+      return { success: false, canceled: true };
+    }
+
+    // Create hidden BrowserWindow to render HTML and print to PDF
+    const pdfWindow = new BrowserWindow({
+      show: false,
+      width: 800,
+      height: 600,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+      },
+    });
+
+    try {
+      // Write HTML to temp file and load it
+      const tempHtmlPath = path.join(os.tmpdir(), 'gemini-gui-export.html');
+      fs.writeFileSync(tempHtmlPath, htmlContent, 'utf-8');
+      await pdfWindow.loadFile(tempHtmlPath);
+
+      const pdfData = await pdfWindow.webContents.printToPDF({
+        printBackground: true,
+        margins: { marginType: 'default' },
+      });
+
+      fs.writeFileSync(result.filePath, pdfData);
+
+      // Clean up temp HTML file
+      try { fs.unlinkSync(tempHtmlPath); } catch { /* ignore */ }
+
+      return { success: true, path: result.filePath };
+    } finally {
+      pdfWindow.destroy();
+    }
   } catch (error: any) {
     return { success: false, error: error.message };
   }

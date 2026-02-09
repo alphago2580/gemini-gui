@@ -166,6 +166,89 @@
   color: #795e26;
 }
 
+/* Math rendering */
+.math-inline {
+  font-family: 'Cambria Math', 'Latin Modern Math', 'STIX Two Math', 'Times New Roman', serif;
+  font-style: italic;
+  padding: 0 0.1em;
+  white-space: nowrap;
+}
+
+.math-block {
+  display: block;
+  text-align: center;
+  font-family: 'Cambria Math', 'Latin Modern Math', 'STIX Two Math', 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 1.15em;
+  padding: 0.75rem 0;
+  margin: 0.5rem 0;
+  overflow-x: auto;
+}
+
+.math-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  padding: 0 0.15em;
+}
+
+.math-frac-num {
+  border-bottom: 1px solid currentColor;
+  padding: 0 0.2em 0.1em;
+  font-size: 0.85em;
+  line-height: 1.2;
+}
+
+.math-frac-den {
+  padding: 0.1em 0.2em 0;
+  font-size: 0.85em;
+  line-height: 1.2;
+}
+
+.math-sqrt {
+  white-space: nowrap;
+}
+
+.math-sqrt-content {
+  border-top: 1px solid currentColor;
+  padding: 0 0.15em;
+}
+
+.math-func {
+  font-style: normal;
+  font-weight: 500;
+  margin-right: 0.15em;
+}
+
+.math-text {
+  font-style: normal;
+}
+
+.math-bold {
+  font-weight: bold;
+}
+
+.math-overline {
+  text-decoration: overline;
+}
+
+.math-sup {
+  font-size: 0.75em;
+  vertical-align: super;
+}
+
+.math-sub {
+  font-size: 0.75em;
+  vertical-align: sub;
+}
+
+/* User messages: math styling */
+.message.user .math-inline,
+.message.user .math-block {
+  color: inherit;
+}
+
 /* Block spacing */
 .md-block > * + * {
   margin-top: 0.25rem;

@@ -11,6 +11,12 @@ export interface Conversation {
   messages: Message[];
 }
 
+export interface PromptTemplate {
+  id: string;
+  name: string;
+  content: string;
+}
+
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 export interface AppSettings {
@@ -18,6 +24,13 @@ export interface AppSettings {
   temperature: number;
   maxTokens: number;
   theme: ThemeMode;
+  systemPrompt: string;
+}
+
+export interface TokenUsage {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
 }
 
 export interface StreamData {
@@ -37,7 +50,7 @@ export interface StreamErrorData {
 }
 
 export interface ElectronAPI {
-  sendMessage: (message: string) => Promise<{ success: boolean; output: string; error: string | null }>;
+  sendMessage: (message: string, systemPrompt?: string, model?: string) => Promise<{ success: boolean; output: string; error: string | null }>;
   stopGemini: () => Promise<{ success: boolean; error?: string }>;
   newConversation: () => Promise<{ success: boolean }>;
   onStreamData: (callback: (data: StreamData) => void) => void;
@@ -47,6 +60,7 @@ export interface ElectronAPI {
   saveTempFile: (fileName: string, fileData: ArrayBuffer) => Promise<string>;
   cleanupTempFiles: () => Promise<{ success: boolean; error?: string }>;
   exportMarkdown: (content: string, defaultFileName: string) => Promise<{ success: boolean; canceled?: boolean; path?: string; error?: string }>;
+  exportPdf: (htmlContent: string, defaultFileName: string) => Promise<{ success: boolean; canceled?: boolean; path?: string; error?: string }>;
 }
 
 declare global {

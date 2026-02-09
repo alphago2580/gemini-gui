@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (361 tests)
+- **Test Status**: Passing (559 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -223,3 +223,130 @@
 - Added 3 unit tests for `editMessage` in useConversations hook
 - Added 5 integration tests in App (show button, enter edit, populate, save, cancel)
 - Total tests: 353 → 361 (17 test files, all passing)
+
+### Agent 2 (Quality) — Typing Indicator Animation
+- Created `TypingIndicator` component replacing inline loading-dots in App.tsx
+- Shows "생각하는 중..." before streaming starts, "입력 중..." during streaming
+- Bounce dots animation with configurable `isStreaming` prop
+- Added blinking streaming cursor (`▋`) on last assistant message during streaming
+- Cursor applied via `.streaming-cursor::after` CSS pseudo-element
+- Added `isStreaming` state to App.tsx: set true on stream data, false on complete/error
+- Full accessibility: `role="status"`, `aria-label="응답 생성 중"`, `aria-hidden="true"` on dots
+- Added 10 unit tests for TypingIndicator (render, props, dots, accessibility)
+- Added 5 integration tests in App (loading text, role status, dots, streaming cursor, streaming text)
+- Total tests: 361 → 376 (18 test files, all passing)
+
+### Agent 2 (Quality) — System Prompt Editor
+- Added `systemPrompt` field to `AppSettings` interface in `types.d.ts`
+- Created system prompt textarea editor in Settings component with placeholder text
+- Added "초기화" (clear) button that appears when system prompt has content
+- System prompt persisted via existing settings localStorage mechanism
+- Wired system prompt through IPC: renderer → preload → main → GeminiProcess
+- GeminiProcess passes `--system-instruction` flag to CLI when system prompt is set
+- `sendMessage` IPC handler now accepts optional `systemPrompt` parameter
+- Empty system prompts are sent as `undefined` (not passed to CLI)
+- Added `.system-prompt-input` and `.clear-prompt-btn` CSS with theme variable support
+- Added 9 unit tests for Settings (textarea, placeholder, hint, value, save, clear button visibility, clear action)
+- Added 3 integration tests in App (send with prompt, send without prompt, editor visibility in settings)
+- Total tests: 376 → 388 (18 test files, all passing)
+
+### Agent 2 (Quality) — Prompt Templates/Presets
+- Created `PromptTemplate` interface in `types.d.ts` (id, name, content)
+- Created `usePromptTemplates` hook with CRUD operations (add, delete, update) and localStorage persistence
+- 3 default templates: 번역 (한→영), 코드 리뷰, 요약
+- Created `PromptTemplates` component with dropdown trigger (📋), template list, and inline add form
+- Click-outside-to-close behavior via mousedown event listener
+- Template selection appends content to textarea input
+- Delete button on each template (hover-reveal, stopPropagation to avoid triggering select)
+- Add form with name/content inputs, save disabled when empty, cancel to dismiss
+- Full accessibility: `aria-expanded`, `aria-haspopup="listbox"`, `role="listbox"`/`role="option"`, `role="form"` on add form
+- CSS with theme variables, slide-up animation, scrollable dropdown, hover effects
+- Integrated into App.tsx input row (next to textarea and send button)
+- Added `.input-row` flex container and refactored `.input-container` to column layout
+- Added 10 unit tests for `usePromptTemplates` hook (defaults, CRUD, persistence, edge cases)
+- Added 21 unit tests for `PromptTemplates` component (rendering, interactions, add/delete, accessibility, outside click)
+- Added 5 integration tests in App (trigger visibility, dropdown, template selection, append, layout)
+- Total tests: 388 → 423 (20 test files, all passing)
+
+### Agent 2 (Quality) — Model Selection Dropdown
+- Updated model list in Settings: added Gemini 2.5 Pro, 2.5 Flash, 2.0 Flash; removed deprecated 2.0 Flash Experimental
+- Added `--model` flag support to GeminiProcess CLI args (skipped when 'auto')
+- Wired model through full IPC chain: renderer `sendMessage` → preload → main → GeminiProcess
+- Added `MODEL_DISPLAY_NAMES` map in App.tsx for user-friendly model names
+- Header subtitle now shows current model name (e.g., "모델: Gemini 2.5 Pro")
+- Added hint text and `aria-label` to model select in Settings
+- Added 4 tests for GeminiProcess (--model flag, auto skip, undefined skip, combined flags)
+- Added 1 test for Settings (hint text)
+- Added 6 integration tests in App (header display, model in sendMessage, settings change, auto model)
+- Updated 4 existing tests for new sendMessage signature (3rd model param)
+- Total tests: 423 → 434 (20 test files, all passing)
+
+### Agent 2 (Quality) — Token Usage Display
+- Added `TokenUsage` interface to `types.d.ts` (inputTokens, outputTokens, totalTokens)
+- Created `TokenUsage` component showing input/output/total token counts with arrow icons
+- Component displays as compact pill below last assistant message after stream completes
+- Parses both camelCase (`inputTokens`) and snake_case (`input_tokens`) stats from CLI
+- Token usage auto-clears when sending a new message, hidden during loading
+- Only displays when actual token counts are present (> 0)
+- CSS with theme variable support, `role="status"` for accessibility
+- Added 10 unit tests for TokenUsage component (rendering, formatting, accessibility, edge cases)
+- Added 5 integration tests in App (result stats display, loading hide, snake_case, zero tokens)
+- Total tests: 434 → 449 (21 test files, all passing)
+
+### Agent 2 (Quality) — Export Conversation as PDF
+- Created `exportToHtml` utility function in `src/renderer/utils/format.ts`
+- Generates styled HTML document from messages with proper CSS for print
+- HTML escaping for XSS prevention (escapeHtml helper)
+- Added `export-pdf` IPC handler in main process using hidden BrowserWindow + `printToPDF()`
+- Creates temp HTML file, loads in hidden window, generates PDF buffer, saves via native dialog
+- Automatic cleanup of temp HTML file and hidden window
+- Added `exportPdf` to ElectronAPI type in `types.d.ts` and preload bridge
+- Added PDF export button in header actions (alongside Clear and Export)
+- Added `handleExportPdf` in App.tsx with conversation title → safe filename conversion
+- Added 'PDF로 내보내기' command to CommandPalette (now 7 commands)
+- Added 10 unit tests for `exportToHtml` (HTML structure, escaping, messages, styling, timestamps)
+- Added 5 integration tests in App (button visibility, aria-label, click handler, HTML content, filename)
+- Total tests: 449 → 464 (21 test files, all passing)
+
+### Agent 2 (Quality) — Delete Conversation from Sidebar
+- Added `deleteConversation` function to `useConversations` hook
+- Removes conversation from list by ID, clears messages/currentId if deleting the active conversation
+- Added hover-reveal delete button (×) on each conversation item in Sidebar
+- `stopPropagation` prevents triggering `onSelectConversation` when clicking delete
+- `onDeleteConversation` is optional prop — delete buttons only shown when provided
+- CSS: positioned absolute top-right, opacity 0→1 on hover, error color on button hover
+- Active conversation delete button uses white color scheme to match active background
+- Added 4 unit tests for `deleteConversation` in useConversations hook (delete, clear current, preserve non-current, localStorage)
+- Added 5 unit tests for Sidebar delete button (rendering, callback, stopPropagation, accessibility)
+- Added 3 integration tests in App (button visibility, remove from sidebar, clear messages on delete)
+- Total tests: 464 → 476 (21 test files, all passing)
+
+### Agent 2 (Quality) — LaTeX/Math Rendering Support
+- Created lightweight `mathRenderer.ts` utility (no external dependencies)
+- `renderMathToHtml`: converts LaTeX math expressions to HTML using Unicode math symbols
+- Supports: Greek letters (α-ω, Α-Ω), math operators (×, ÷, ±, ≤, ≥, ≠, ≈), arrows (→, ←, ⇒)
+- Supports: big operators (∑, ∏, ∫), set theory (∈, ⊂, ∪, ∩, ∅), logic (∀, ∃, ∞)
+- Supports: `\frac{num}{den}` fractions with CSS flexbox layout
+- Supports: `\sqrt{x}` square root with Unicode √ and overline
+- Supports: superscripts (`^`) and subscripts (`_`) — Unicode characters for simple cases, `<sup>`/`<sub>` HTML for complex ones
+- Supports: `\text{}`, `\mathrm{}`, `\mathbf{}`, `\overline{}`, `\hat{}`, `\vec{}` decorators
+- Supports: trig/log/lim math functions rendered in upright (non-italic) style
+- Integrated into MarkdownRenderer: inline math `$...$` and block math `$$...$$`
+- Block math: centered, larger font, `role="math"` for accessibility
+- Inline math: `aria-label` with original LaTeX for screen readers
+- Math inside code blocks is not parsed (preserved as literal text)
+- Added `parseMathSegments` and `containsMath` utility functions
+- CSS: serif math font family, fraction layout, sqrt, superscript/subscript sizing, function styling
+- Added 45 unit tests for mathRenderer (Greek, symbols, sup/sub, frac, sqrt, functions, text, complex expressions, containsMath, parseMathSegments)
+- Added 14 integration tests for MarkdownRenderer math (inline, block, fractions, sqrt, accessibility, mixed content, code block isolation)
+- Total tests: 476 → 535 (22 test files, all passing)
+
+### Agent 2 (Quality) — MessageBubble Component Extraction
+- Extracted inline message rendering from App.tsx into reusable `MessageBubble` component
+- MessageBubble encapsulates: message display, edit mode (local state), delete, streaming cursor
+- Moved `editingIndex` and `editContent` state from App.tsx into MessageBubble's local state
+- App.tsx reduced from ~620 lines to ~560 lines (cleaner, more maintainable)
+- MessageBubble props: message, index, isStreaming, isLastAssistant, onDelete, onEdit
+- Added 24 unit tests for MessageBubble (rendering, roles, CSS classes, delete, edit flow, streaming cursor)
+- All existing App.tsx integration tests continue to pass (behavior unchanged)
+- Total tests: 535 → 559 (23 test files, all passing)

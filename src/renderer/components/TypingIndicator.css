@@ -1,0 +1,86 @@
+.typing-indicator {
+  align-self: flex-start;
+  max-width: 80%;
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--assistant-msg-bg);
+  border: 1px solid var(--assistant-msg-border);
+  animation: slideIn 0.3s ease-out;
+}
+
+.typing-indicator-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.typing-indicator-header .role {
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-heading);
+}
+
+.typing-indicator-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  background: var(--accent-highlight);
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typingBounce {
+  0%, 80%, 100% {
+    transform: scale(0.4);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.typing-text {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Streaming cursor — appended after last assistant message content */
+.streaming-cursor::after {
+  content: '▋';
+  display: inline;
+  animation: cursorBlink 1s step-end infinite;
+  color: var(--accent-highlight);
+  font-weight: bold;
+}
+
+@keyframes cursorBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}

@@ -30,7 +30,7 @@ export class GeminiProcess extends EventEmitter {
         this.isPtyAvailable = !!this.ptyModule;
     }
 
-    public start(cliPath: string, cwd: string, env: any = process.env) {
+    public start(cliPath: string, cwd: string, env: any = process.env, systemPrompt?: string, model?: string) {
         if (this.process) return;
 
         // Use passed CLI path or default
@@ -40,6 +40,14 @@ export class GeminiProcess extends EventEmitter {
             '--output-format', 'stream-json',
             '--yolo' // Skip confirmations
         ];
+
+        if (systemPrompt) {
+            args.push('--system-instruction', systemPrompt);
+        }
+
+        if (model && model !== 'auto') {
+            args.push('--model', model);
+        }
 
         console.log(`[GeminiProcess] Starting at ${cliPath}`);
 

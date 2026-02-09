@@ -3,7 +3,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 // Renderer에서 안전하게 사용할 수 있는 API 노출
 contextBridge.exposeInMainWorld('electronAPI', {
   // 메시지를 Gemini CLI로 전송
-  sendMessage: (message: string) => ipcRenderer.invoke('send-message', message),
+  sendMessage: (message: string, systemPrompt?: string, model?: string) => ipcRenderer.invoke('send-message', message, systemPrompt, model),
 
   // Gemini CLI 프로세스 중지
   stopGemini: () => ipcRenderer.invoke('stop-gemini'),
@@ -40,5 +40,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   cleanupTempFiles: () => ipcRenderer.invoke('cleanup-temp-files'),
 
   exportMarkdown: (content: string, defaultFileName: string) =>
-    ipcRenderer.invoke('export-markdown', content, defaultFileName)
+    ipcRenderer.invoke('export-markdown', content, defaultFileName),
+
+  exportPdf: (htmlContent: string, defaultFileName: string) =>
+    ipcRenderer.invoke('export-pdf', htmlContent, defaultFileName)
 });

@@ -1,13 +1,14 @@
 import React from 'react';
 import './MarkdownRenderer.css';
 import { tokenize } from '../utils/syntaxHighlight';
+import { renderMathToHtml, parseMathSegments } from '../utils/mathRenderer';
 
 interface MarkdownRendererProps {
   content: string;
 }
 
 interface ParsedBlock {
-  type: 'code-block' | 'paragraph';
+  type: 'code-block' | 'paragraph' | 'math-block';
   content: string;
   language?: string;
 }
@@ -35,10 +36,39 @@ function parseBlocks(text: string): ParsedBlock[] {
         language,
       });
       i++; // skip closing ```
+    } else if (line.trim().startsWith('$$')) {
+      // Block math: $$ on its own line
+      const mathLines: string[] = [];
+      const firstLineContent = line.trim().slice(2);
+      if (firstLineContent.endsWith('$$')) {
+        // Single-line block math: $$ ... $$
+        blocks.push({
+          type: 'math-block',
+          content: firstLineContent.slice(0, -2).trim(),
+        });
+        i++;
+      } else {
+        if (firstLineContent) mathLines.push(firstLineContent);
+        i++;
+        while (i < lines.length && !lines[i].trim().endsWith('$$')) {
+          mathLines.push(lines[i]);
+          i++;
+        }
+        if (i < lines.length) {
+          const lastLine = lines[i].trim();
+          const lastContent = lastLine.slice(0, -2);
+          if (lastContent) mathLines.push(lastContent);
+          i++; // skip closing $$
+        }
+        blocks.push({
+          type: 'math-block',
+          content: mathLines.join('\n').trim(),
+        });
+      }
     } else {
-      // Collect consecutive non-code lines into a paragraph block
+      // Collect consecutive non-code, non-math lines into a paragraph block
       const paraLines: string[] = [];
-      while (i < lines.length && !lines[i].match(/^```/)) {
+      while (i < lines.length && !lines[i].match(/^```/) && !lines[i].trim().startsWith('$$')) {
         paraLines.push(lines[i]);
         i++;
       }
@@ -54,9 +84,9 @@ function parseBlocks(text: string): ParsedBlock[] {
 
 function renderInlineMarkdown(text: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
-  // Match: inline code, bold, italic, links
-  // Order matters: bold before italic (** before *)
-  const regex = /(`[^`]+`)|(\*\*[^*]+\*\*)|(\*[^*]+\*)|(\[[^\]]+\]\([^)]+\))/g;
+  // Match: inline math, inline code, bold, italic, links
+  // Order matters: bold before italic (** before *), inline math before others
+  const regex = /(\$[^\s$][^$]*?\$)|(`[^`]+`)|(\*\*[^*]+\*\*)|(\*[^*]+\*)|(\[[^\]]+\]\([^)]+\))/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   let key = 0;
@@ -69,23 +99,35 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
 
     const full = match[0];
     if (match[1]) {
+      // Inline math: $...$
+      const mathContent = full.slice(1, -1);
+      const html = renderMathToHtml(mathContent);
+      nodes.push(
+        <span
+          key={key++}
+          className="math-inline"
+          aria-label={`수식: ${mathContent}`}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      );
+    } else if (match[2]) {
       // Inline code: `code`
       nodes.push(
         <code key={key++} className="md-inline-code">
           {full.slice(1, -1)}
         </code>
       );
-    } else if (match[2]) {
+    } else if (match[3]) {
       // Bold: **text**
       nodes.push(
         <strong key={key++}>{full.slice(2, -2)}</strong>
       );
-    } else if (match[3]) {
+    } else if (match[4]) {
       // Italic: *text*
       nodes.push(
         <em key={key++}>{full.slice(1, -1)}</em>
       );
-    } else if (match[4]) {
+    } else if (match[5]) {
       // Link: [text](url)
       const linkMatch = full.match(/\[([^\]]+)\]\(([^)]+)\)/);
       if (linkMatch) {
@@ -231,6 +273,18 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
                 }
               </code>
             </pre>
+          );
+        }
+        if (block.type === 'math-block') {
+          const html = renderMathToHtml(block.content);
+          return (
+            <div
+              key={index}
+              className="math-block"
+              role="math"
+              aria-label={`수식: ${block.content}`}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
           );
         }
         return (

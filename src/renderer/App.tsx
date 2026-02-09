@@ -3,18 +3,22 @@ import './App.css';
 import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
 import FileAttachment from './components/FileAttachment';
-import MarkdownRenderer from './components/MarkdownRenderer';
+import MessageBubble from './components/MessageBubble';
 import Toast from './components/Toast';
+import TypingIndicator from './components/TypingIndicator';
 import CommandPalette from './components/CommandPalette';
+import PromptTemplates from './components/PromptTemplates';
+import TokenUsage from './components/TokenUsage';
 import type { Command } from './components/CommandPalette';
 import { useConversations } from './hooks/useConversations';
+import { usePromptTemplates } from './hooks/usePromptTemplates';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from './hooks/useTheme';
 import { useAutoResize } from './hooks/useAutoResize';
 import { useToast } from './hooks/useToast';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import { exportToMarkdown } from './utils/format';
-import type { AppSettings, StreamData, StreamErrorData, Message } from '../preload/types';
+import { exportToMarkdown, exportToHtml } from './utils/format';
+import type { AppSettings, StreamData, StreamErrorData, Message, TokenUsage as TokenUsageType } from '../preload/types';
 
 const STORAGE_KEY_SETTINGS = 'gemini-settings';
 
@@ -22,7 +26,17 @@ const DEFAULT_SETTINGS: AppSettings = {
   model: 'auto',
   temperature: 1,
   maxTokens: 2048,
-  theme: 'dark'
+  theme: 'dark',
+  systemPrompt: ''
+};
+
+const MODEL_DISPLAY_NAMES: Record<string, string> = {
+  'auto': 'Auto',
+  'gemini-2.5-pro': 'Gemini 2.5 Pro',
+  'gemini-2.5-flash': 'Gemini 2.5 Flash',
+  'gemini-2.0-flash': 'Gemini 2.0 Flash',
+  'gemini-1.5-pro': 'Gemini 1.5 Pro',
+  'gemini-1.5-flash': 'Gemini 1.5 Flash',
 };
 
 const App: React.FC = () => {
@@ -37,6 +51,7 @@ const App: React.FC = () => {
     updateCurrentConversation,
     deleteMessage,
     editMessage,
+    deleteConversation,
   } = useConversations();
 
   // Theme
@@ -45,15 +60,18 @@ const App: React.FC = () => {
   // Toast notifications
   const { toasts, addToast, dismissToast } = useToast();
 
+  // Prompt templates
+  const { templates, addTemplate, deleteTemplate } = usePromptTemplates();
+
   // UI state
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage('gemini-sidebar-collapsed', false);
   const [highContrast, setHighContrast] = useLocalStorage('gemini-high-contrast', false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editContent, setEditContent] = useState('');
+  const [tokenUsage, setTokenUsage] = useState<TokenUsageType | null>(null);
 
   // Apply high contrast attribute
   useEffect(() => {
@@ -106,6 +124,20 @@ const App: React.FC = () => {
     }
   };
 
+  const handleExportPdf = async () => {
+    if (messages.length === 0) return;
+
+    const currentConv = conversations.find(c => c.id === currentConversationId);
+    const title = currentConv?.title || 'Untitled Conversation';
+    const html = exportToHtml(title, messages);
+    const safeTitle = title.replace(/[^a-zA-Z0-9가-힣\s-]/g, '').replace(/\s+/g, '-');
+    const defaultFileName = `${safeTitle}.pdf`;
+
+    if (window.electronAPI?.exportPdf) {
+      await window.electronAPI.exportPdf(html, defaultFileName);
+    }
+  };
+
   // Command palette commands
   const commands: Command[] = useMemo(() => [
     { id: 'new-chat', label: '새 대화', shortcut: 'Ctrl+N', action: handleNewChat },
@@ -114,7 +146,8 @@ const App: React.FC = () => {
     { id: 'settings', label: '설정 열기', shortcut: 'Ctrl+,', action: () => setIsSettingsOpen(true) },
     { id: 'toggle-sidebar', label: '사이드바 토글', shortcut: 'Ctrl+B', action: handleToggleSidebar },
     { id: 'export', label: 'Markdown으로 내보내기', action: handleExport },
-  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport]);
+    { id: 'export-pdf', label: 'PDF로 내보내기', action: handleExportPdf },
+  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf]);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -203,6 +236,7 @@ const App: React.FC = () => {
         console.log('Stream data received:', data);
 
         if (data.type === 'message' && data.role === 'assistant') {
+          setIsStreaming(true);
           // 어시스턴트 메시지 스트리밍
           setMessages(prev => {
             const lastMessage = prev[prev.length - 1];
@@ -235,15 +269,26 @@ const App: React.FC = () => {
               return updated;
             }
           });
-        } else if (data.type === 'result') {
-          // 결과 통계 (선택적으로 표시 가능)
-          console.log('Result stats:', data.stats);
+        } else if (data.type === 'result' && data.stats) {
+          // 토큰 사용량 추출
+          const stats = data.stats;
+          const inputTokens = typeof stats.inputTokens === 'number' ? stats.inputTokens
+            : typeof stats.input_tokens === 'number' ? stats.input_tokens : 0;
+          const outputTokens = typeof stats.outputTokens === 'number' ? stats.outputTokens
+            : typeof stats.output_tokens === 'number' ? stats.output_tokens : 0;
+          const totalTokens = typeof stats.totalTokens === 'number' ? stats.totalTokens
+            : typeof stats.total_tokens === 'number' ? stats.total_tokens
+            : inputTokens + outputTokens;
+          if (inputTokens > 0 || outputTokens > 0) {
+            setTokenUsage({ inputTokens, outputTokens, totalTokens });
+          }
         }
       });
 
       // 스트리밍 완료 처리
       window.electronAPI.onStreamComplete(() => {
         setIsLoading(false);
+        setIsStreaming(false);
       });
 
       // 스트리밍 에러 처리
@@ -260,6 +305,7 @@ const App: React.FC = () => {
           return updated;
         });
         setIsLoading(false);
+        setIsStreaming(false);
       });
     }
 
@@ -312,10 +358,15 @@ const App: React.FC = () => {
     const messageToSend = input;
     setInput('');
     setIsLoading(true);
+    setTokenUsage(null);
 
     try {
       // sendMessage는 Promise를 반환하지만 실제 응답은 스트리밍으로 온다
-      await window.electronAPI.sendMessage(messageToSend);
+      await window.electronAPI.sendMessage(
+        messageToSend,
+        settings.systemPrompt || undefined,
+        settings.model !== 'auto' ? settings.model : undefined
+      );
       // 성공 시 스트리밍 완료 이벤트에서 isLoading을 false로 설정
       // Clear attached files after successful send
       setAttachedFiles([]);
@@ -377,6 +428,7 @@ const App: React.FC = () => {
         conversations={conversations}
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
+        onDeleteConversation={deleteConversation}
         searchInputRef={searchInputRef}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={handleToggleSidebar}
@@ -386,7 +438,7 @@ const App: React.FC = () => {
         <header className="app-header">
           <div className="header-title">
             <h1>Gemini GUI</h1>
-            <p>Powered by Gemini CLI</p>
+            <p>모델: {MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
           </div>
           {messages.length > 0 && (
             <div className="header-actions">
@@ -406,6 +458,14 @@ const App: React.FC = () => {
               >
                 Export
               </button>
+              <button
+                className="header-action-btn"
+                onClick={handleExportPdf}
+                aria-label="PDF로 내보내기"
+                title="PDF로 내보내기"
+              >
+                PDF
+              </button>
             </div>
           )}
         </header>
@@ -419,87 +479,21 @@ const App: React.FC = () => {
               </div>
             )}
             {messages.map((message, index) => (
-              <div key={index} className={`message ${message.role}${editingIndex === index ? ' editing' : ''}`} role="article" aria-label={`${message.role === 'user' ? '사용자' : 'Gemini'} 메시지`}>
-                <div className="message-header">
-                  <span className="role">{message.role === 'user' ? '사용자' : 'Gemini'}</span>
-                  <span className="timestamp">{message.timestamp.toLocaleTimeString()}</span>
-                  {message.role === 'user' && editingIndex !== index && (
-                    <button
-                      className="edit-message-btn"
-                      onClick={() => {
-                        setEditingIndex(index);
-                        setEditContent(message.content);
-                      }}
-                      aria-label="메시지 수정"
-                      title="메시지 수정"
-                    >
-                      &#9998;
-                    </button>
-                  )}
-                  <button
-                    className="delete-message-btn"
-                    onClick={() => deleteMessage(index)}
-                    aria-label={`메시지 삭제`}
-                    title="메시지 삭제"
-                  >
-                    &times;
-                  </button>
-                </div>
-                <div className="message-content">
-                  {editingIndex === index ? (
-                    <div className="edit-message-form">
-                      <textarea
-                        className="edit-message-input"
-                        value={editContent}
-                        onChange={e => setEditContent(e.target.value)}
-                        aria-label="메시지 수정 입력"
-                        rows={3}
-                      />
-                      <div className="edit-message-actions">
-                        <button
-                          className="edit-save-btn"
-                          onClick={() => {
-                            if (editContent.trim()) {
-                              editMessage(index, editContent);
-                            }
-                            setEditingIndex(null);
-                            setEditContent('');
-                          }}
-                          aria-label="수정 저장"
-                        >
-                          저장
-                        </button>
-                        <button
-                          className="edit-cancel-btn"
-                          onClick={() => {
-                            setEditingIndex(null);
-                            setEditContent('');
-                          }}
-                          aria-label="수정 취소"
-                        >
-                          취소
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <MarkdownRenderer content={message.content} />
-                  )}
-                </div>
-              </div>
+              <MessageBubble
+                key={index}
+                message={message}
+                index={index}
+                isStreaming={isStreaming}
+                isLastAssistant={message.role === 'assistant' && index === messages.length - 1}
+                onDelete={deleteMessage}
+                onEdit={editMessage}
+              />
             ))}
             {isLoading && (
-              <div className="message assistant loading" role="status" aria-label="응답 생성 중">
-                <div className="message-header">
-                  <span className="role">Gemini</span>
-                </div>
-                <div className="message-content">
-                  <div className="loading-dots" aria-hidden="true">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-              </div>
+              <TypingIndicator isStreaming={isStreaming} />
+            )}
+            {tokenUsage && !isLoading && (
+              <TokenUsage usage={tokenUsage} />
             )}
             <div ref={messagesEndRef} />
           </div>
@@ -509,6 +503,13 @@ const App: React.FC = () => {
               onFilesSelected={handleFilesSelected}
               attachedFiles={attachedFiles}
               onRemoveFile={handleRemoveFile}
+            />
+            <div className="input-row">
+            <PromptTemplates
+              templates={templates}
+              onSelect={(content) => setInput(prev => prev + content)}
+              onAdd={addTemplate}
+              onDelete={deleteTemplate}
             />
             <label htmlFor="message-input" className="sr-only">메시지 입력</label>
             <textarea
@@ -532,6 +533,7 @@ const App: React.FC = () => {
             >
               {isLoading ? '전송 중...' : '전송'}
             </button>
+            </div>
           </div>
         </div>
       </main>

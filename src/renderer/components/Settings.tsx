@@ -73,14 +73,46 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
           )}
 
           <div className="setting-group">
-            <label htmlFor="model">모델 선택</label>
+            <label htmlFor="system-prompt">
+              시스템 프롬프트
+              <span className="hint">AI의 동작을 지시하는 시스템 메시지</span>
+            </label>
+            <textarea
+              id="system-prompt"
+              className="system-prompt-input"
+              value={localSettings.systemPrompt}
+              onChange={(e) => setLocalSettings({ ...localSettings, systemPrompt: e.target.value })}
+              placeholder="예: 당신은 친절한 한국어 튜터입니다..."
+              rows={4}
+              aria-label="시스템 프롬프트"
+            />
+            {localSettings.systemPrompt && (
+              <button
+                className="clear-prompt-btn"
+                onClick={() => setLocalSettings({ ...localSettings, systemPrompt: '' })}
+                aria-label="시스템 프롬프트 초기화"
+                type="button"
+              >
+                초기화
+              </button>
+            )}
+          </div>
+
+          <div className="setting-group">
+            <label htmlFor="model">
+              모델 선택
+              <span className="hint">사용할 Gemini 모델을 선택합니다</span>
+            </label>
             <select
               id="model"
               value={localSettings.model}
               onChange={(e) => setLocalSettings({ ...localSettings, model: e.target.value })}
+              aria-label="모델 선택"
             >
               <option value="auto">자동 (Auto)</option>
-              <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+              <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
               <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
               <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
             </select>

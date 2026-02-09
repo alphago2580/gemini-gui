@@ -204,6 +204,49 @@
   border-color: var(--accent-primary);
 }
 
+.system-prompt-input {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  max-height: 200px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.system-prompt-input:focus {
+  outline: none;
+  border-color: var(--accent-highlight);
+}
+
+.system-prompt-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.clear-prompt-btn {
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clear-prompt-btn:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
 .info-section {
   margin-top: 2rem;
   padding: 1rem;
