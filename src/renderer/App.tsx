@@ -4,10 +4,12 @@ import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
 import FileAttachment from './components/FileAttachment';
 import MarkdownRenderer from './components/MarkdownRenderer';
+import Toast from './components/Toast';
 import { useConversations } from './hooks/useConversations';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from './hooks/useTheme';
 import { useAutoResize } from './hooks/useAutoResize';
+import { useToast } from './hooks/useToast';
 import { exportToMarkdown } from './utils/format';
 import type { AppSettings, StreamData, StreamErrorData, Message } from '../preload/types';
 
@@ -35,6 +37,9 @@ const App: React.FC = () => {
 
   // Theme
   const { themeMode, setThemeMode } = useTheme();
+
+  // Toast notifications
+  const { toasts, addToast, dismissToast } = useToast();
 
   // UI state
   const [input, setInput] = useState('');
@@ -199,6 +204,7 @@ const App: React.FC = () => {
       // 스트리밍 에러 처리
       window.electronAPI.onStreamError((data: StreamErrorData) => {
         console.error('Stream error:', data);
+        addToast('error', data.error);
         setMessages(prev => {
           const updated = [...prev, {
             role: 'assistant' as const,
@@ -217,7 +223,7 @@ const App: React.FC = () => {
         window.electronAPI.removeAllListeners();
       }
     };
-  }, [currentConversationId, setMessages, updateCurrentConversation]);
+  }, [currentConversationId, setMessages, updateCurrentConversation, addToast]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -275,6 +281,7 @@ const App: React.FC = () => {
         : typeof error === 'object' && error !== null && 'error' in error
           ? String((error as { error: unknown }).error)
           : String(error);
+      addToast('error', `메시지 전송 실패: ${errMsg}`);
       const errorMessage: Message = {
         role: 'assistant',
         content: `오류 발생: ${errMsg}`,
@@ -432,6 +439,8 @@ const App: React.FC = () => {
         themeMode={themeMode}
         onThemeChange={setThemeMode}
       />
+
+      <Toast toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
 };

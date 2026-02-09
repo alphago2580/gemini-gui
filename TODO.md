@@ -51,7 +51,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [ ] Loading spinner during response generation
 - [ ] Typing indicator animation
 - [ ] Smooth scroll to bottom on new messages
-- [ ] Toast notifications for errors
+- [x] Toast notifications for errors
 - [ ] Responsive sidebar (collapsible)
 
 ## 🟢 Low Priority
@@ -87,6 +87,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Ctrl+Enter send + onKeyPress→onKeyDown migration (215 tests)
 - [x] Markdown rendering for messages — headings, bold, italic, code blocks, lists, blockquotes, links (239 tests)
 - [x] Ctrl+F: Focus sidebar search shortcut (242 tests)
+- [x] Toast notifications for errors with auto-dismiss (260 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

@@ -254,6 +254,19 @@ describe('App Component', () => {
         });
     });
 
+    it('shows toast notification on send error', async () => {
+        mockElectronAPI.sendMessage.mockRejectedValueOnce({ error: '타임아웃' });
+        const user = userEvent.setup();
+        render(<App />);
+        const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+        await user.type(input, 'Hello');
+        await user.click(screen.getByText('전송'));
+        await waitFor(() => {
+            expect(screen.getByRole('alert')).toBeInTheDocument();
+            expect(screen.getByText(/메시지 전송 실패: 타임아웃/)).toBeInTheDocument();
+        });
+    });
+
     // Accessibility tests
     describe('Accessibility', () => {
         it('has role="application" on root element', () => {

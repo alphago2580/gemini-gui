@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (242 tests)
+- **Test Status**: Passing (260 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -143,3 +143,15 @@
 - Added 2 tests for useKeyboardShortcuts (Ctrl+F, Meta+F)
 - Added 1 integration test for App (Ctrl+F focuses sidebar search)
 - Total tests: 239 → 242 (all passing)
+
+### Agent 2 (Quality) — Toast Notifications
+- Created `Toast` component with auto-dismiss (5s), manual dismiss, and exit animation
+- Supports error/success/info types with distinct colors
+- Created `useToast` hook for managing toast state (addToast, dismissToast)
+- Integrated into App.tsx: shows toast on stream errors and send errors
+- Toast positioned fixed top-right with slide-in/out animations
+- Full accessibility: `role="alert"`, `aria-live="assertive"`, `aria-label` on close button
+- Added 11 tests for Toast component (rendering, types, accessibility, auto-dismiss, manual dismiss)
+- Added 6 tests for useToast hook (add, dismiss, unique IDs)
+- Added 1 integration test in App (toast shown on send error)
+- Total tests: 242 → 260 (all passing)
