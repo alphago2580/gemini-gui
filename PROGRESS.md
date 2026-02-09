@@ -440,3 +440,11 @@
 - Prevents incorrect component reuse when messages are deleted or reordered
 - Added 3 tests for `generateMessageId` (format, uniqueness, timestamp)
 - Total tests: 674 → 677 (28 test files, all passing)
+
+### Agent 2 (Quality) — React.memo and useMemo Performance Optimization
+- Applied `React.memo` to `MessageBubble` component — prevents re-render when props haven't changed
+- Applied `React.memo` to `MarkdownRenderer` component — prevents re-parsing when content is unchanged
+- Added `useMemo` for `parseBlocks` in MarkdownRenderer — caches parsing result per content value
+- Used Inner/Wrapper pattern for React.memo compatibility with esbuild
+- No test changes needed — behavior is identical, only rendering performance is improved
+- Total tests: 677 (28 test files, all passing)

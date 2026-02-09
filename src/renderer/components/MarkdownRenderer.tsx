@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import './MarkdownRenderer.css';
 import { tokenize } from '../utils/syntaxHighlight';
 import { renderMathToHtml, parseMathSegments } from '../utils/mathRenderer';
@@ -334,8 +334,8 @@ const CopyButton: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
-  const blocks = parseBlocks(content);
+const MarkdownRendererInner: React.FC<MarkdownRendererProps> = ({ content }) => {
+  const blocks = useMemo(() => parseBlocks(content), [content]);
 
   return (
     <div className="md-rendered">
@@ -386,5 +386,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
     </div>
   );
 };
+
+const MarkdownRenderer = React.memo(MarkdownRendererInner);
 
 export default MarkdownRenderer;

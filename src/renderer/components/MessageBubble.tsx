@@ -13,7 +13,7 @@ interface MessageBubbleProps {
   onFork?: (index: number) => void;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({
+const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
   message,
   index,
   isStreaming,
@@ -117,5 +117,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     </div>
   );
 };
+
+const MessageBubble = React.memo(MessageBubbleInner);
 
 export default MessageBubble;
