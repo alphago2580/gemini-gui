@@ -1,5 +1,6 @@
 import React from 'react';
 import './MarkdownRenderer.css';
+import { tokenize } from '../utils/syntaxHighlight';
 
 interface MarkdownRendererProps {
   content: string;
@@ -211,12 +212,24 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
     <div className="md-rendered">
       {blocks.map((block, index) => {
         if (block.type === 'code-block') {
+          const tokens = block.language
+            ? tokenize(block.content, block.language)
+            : null;
           return (
             <pre key={index} className="md-code-block">
               {block.language && (
                 <span className="md-code-lang">{block.language}</span>
               )}
-              <code>{block.content}</code>
+              <code>
+                {tokens
+                  ? tokens.map((token, ti) =>
+                      token.type === 'text'
+                        ? token.value
+                        : <span key={ti} className={`sh-${token.type}`}>{token.value}</span>
+                    )
+                  : block.content
+                }
+              </code>
             </pre>
           );
         }

@@ -219,4 +219,43 @@ describe('MarkdownRenderer', () => {
       expect(container.querySelector('pre code')?.textContent).toBe(code);
     });
   });
+
+  describe('Syntax highlighting', () => {
+    it('applies syntax highlighting spans to code blocks with language', () => {
+      const content = '```javascript\nconst x = 1;\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const keywordSpan = container.querySelector('.sh-keyword');
+      expect(keywordSpan).toBeInTheDocument();
+      expect(keywordSpan?.textContent).toBe('const');
+    });
+
+    it('highlights numbers in code blocks', () => {
+      const content = '```js\nconst x = 42;\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const numberSpan = container.querySelector('.sh-number');
+      expect(numberSpan).toBeInTheDocument();
+      expect(numberSpan?.textContent).toBe('42');
+    });
+
+    it('highlights strings in code blocks', () => {
+      const content = '```python\nprint("hello")\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const stringSpan = container.querySelector('.sh-string');
+      expect(stringSpan).toBeInTheDocument();
+    });
+
+    it('does not apply highlighting when no language specified', () => {
+      const content = '```\nconst x = 1;\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const highlightSpan = container.querySelector('[class^="sh-"]');
+      expect(highlightSpan).not.toBeInTheDocument();
+    });
+
+    it('preserves code text content with highlighting', () => {
+      const content = '```js\nconst sum = (a, b) => a + b;\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const code = container.querySelector('code');
+      expect(code?.textContent).toBe('const sum = (a, b) => a + b;');
+    });
+  });
 });

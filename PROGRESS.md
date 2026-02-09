@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (287 tests)
+- **Test Status**: Passing (314 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -178,3 +178,14 @@
 - Added 6 tests in Settings (toggle rendering, state, callbacks)
 - Added 3 integration tests in App (attribute, enable via settings, persistence)
 - Total tests: 278 → 287 (all passing)
+
+### Agent 2 (Quality) — Syntax Highlighting for Code Blocks
+- Created lightweight `syntaxHighlight.ts` tokenizer (no external deps)
+- Supports JS/TS, Python, Bash, JSON, CSS language families
+- Tokenizes: keywords, strings, comments, numbers, function calls, punctuation
+- Tokens rendered as `<span class="sh-{type}">` in MarkdownRenderer code blocks
+- CSS colors inspired by VS Code theme (dark + light variants)
+- Only applied when language is specified; plain code blocks unchanged
+- Added 22 unit tests for tokenizer (keywords, strings, comments, numbers, etc.)
+- Added 5 integration tests in MarkdownRenderer (highlighting, no-lang fallback, text preservation)
+- Total tests: 287 → 314 (16 test files, all passing)

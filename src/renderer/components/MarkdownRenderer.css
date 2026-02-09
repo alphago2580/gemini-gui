@@ -114,6 +114,58 @@
   margin: 0.5rem 0;
 }
 
+/* Syntax Highlighting */
+.sh-keyword {
+  color: #c586c0;
+  font-weight: 500;
+}
+
+.sh-string {
+  color: #ce9178;
+}
+
+.sh-comment {
+  color: #6a9955;
+  font-style: italic;
+}
+
+.sh-number {
+  color: #b5cea8;
+}
+
+.sh-punctuation {
+  color: #d4d4d4;
+}
+
+.sh-function {
+  color: #dcdcaa;
+}
+
+/* Light theme syntax colors */
+[data-theme="light"] .sh-keyword {
+  color: #af00db;
+}
+
+[data-theme="light"] .sh-string {
+  color: #a31515;
+}
+
+[data-theme="light"] .sh-comment {
+  color: #008000;
+}
+
+[data-theme="light"] .sh-number {
+  color: #098658;
+}
+
+[data-theme="light"] .sh-punctuation {
+  color: #393a34;
+}
+
+[data-theme="light"] .sh-function {
+  color: #795e26;
+}
+
 /* Block spacing */
 .md-block > * + * {
   margin-top: 0.25rem;

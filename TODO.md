@@ -8,7 +8,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Render assistant responses as Markdown (bold, italic, lists, headers)
 - [x] Code blocks with language labels
 - [x] Inline code styling
-- [ ] Syntax highlighting for code blocks (highlight.js or prism)
+- [x] Syntax highlighting for code blocks (lightweight custom tokenizer)
 - [ ] LaTeX/math rendering support (KaTeX)
 
 ### Conversation Management  
@@ -90,6 +90,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Toast notifications for errors with auto-dismiss (260 tests)
 - [x] Responsive collapsible sidebar with Ctrl+B shortcut (278 tests)
 - [x] High contrast mode with dark/light variants (287 tests)
+- [x] Syntax highlighting for code blocks — JS/TS, Python, Bash, JSON, CSS (314 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*
