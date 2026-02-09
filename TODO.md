@@ -35,7 +35,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 ### Keyboard Shortcuts
 - [x] Ctrl+N: New conversation
 - [x] Ctrl+L: Clear conversation
-- [ ] Ctrl+F: Search in conversation
+- [x] Ctrl+F: Search in conversation (focuses sidebar search)
 - [x] Ctrl+,: Open settings
 - [x] Escape: Close modals/panels
 - [x] Ctrl+Enter: Send message (alternative)
@@ -86,6 +86,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Clear conversation button + Ctrl+L (213 tests)
 - [x] Ctrl+Enter send + onKeyPress→onKeyDown migration (215 tests)
 - [x] Markdown rendering for messages — headings, bold, italic, code blocks, lists, blockquotes, links (239 tests)
+- [x] Ctrl+F: Focus sidebar search shortcut (242 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

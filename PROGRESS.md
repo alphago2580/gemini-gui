@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (239 tests)
+- **Test Status**: Passing (242 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -134,3 +134,12 @@
 - Removed `white-space: pre-wrap` from `.message-content` to work with Markdown blocks
 - Added 24 tests for MarkdownRenderer (plain text, headings, inline formatting, code blocks, lists, blockquotes, horizontal rules, complex content)
 - Total tests: 215 → 239 (all passing)
+
+### Agent 2 (Quality) — Ctrl+F Search Focus Shortcut
+- Added `onFocusSearch` callback to `useKeyboardShortcuts` hook
+- Ctrl+F / Cmd+F focuses the sidebar search input
+- Added `searchInputRef` prop to Sidebar component for ref-based focus control
+- App.tsx creates ref and passes it to Sidebar, wired to keyboard shortcut
+- Added 2 tests for useKeyboardShortcuts (Ctrl+F, Meta+F)
+- Added 1 integration test for App (Ctrl+F focuses sidebar search)
+- Total tests: 239 → 242 (all passing)

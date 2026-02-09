@@ -19,6 +19,7 @@ describe('useKeyboardShortcuts', () => {
     onClearConversation: vi.fn(),
     onToggleSettings: vi.fn(),
     onCloseSettings: vi.fn(),
+    onFocusSearch: vi.fn(),
     isSettingsOpen: false,
   });
 
@@ -100,6 +101,22 @@ describe('useKeyboardShortcuts', () => {
     expect(actions.onClearConversation).not.toHaveBeenCalled();
     expect(actions.onToggleSettings).not.toHaveBeenCalled();
     expect(actions.onCloseSettings).not.toHaveBeenCalled();
+  });
+
+  it('calls onFocusSearch on Ctrl+F', () => {
+    const actions = defaultActions();
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('f', { ctrlKey: true });
+    expect(actions.onFocusSearch).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onFocusSearch on Meta+F (macOS)', () => {
+    const actions = defaultActions();
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('f', { metaKey: true });
+    expect(actions.onFocusSearch).toHaveBeenCalledTimes(1);
   });
 
   it('cleans up event listener on unmount', () => {

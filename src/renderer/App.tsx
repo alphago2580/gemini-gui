@@ -59,6 +59,7 @@ const App: React.FC = () => {
 
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Clear current conversation messages
   const handleClearConversation = () => {
@@ -73,6 +74,7 @@ const App: React.FC = () => {
     onClearConversation: handleClearConversation,
     onToggleSettings: () => setIsSettingsOpen(prev => !prev),
     onCloseSettings: () => setIsSettingsOpen(false),
+    onFocusSearch: () => searchInputRef.current?.focus(),
     isSettingsOpen,
   });
 
@@ -316,6 +318,7 @@ const App: React.FC = () => {
         conversations={conversations}
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
+        searchInputRef={searchInputRef}
       />
 
       <main className="main-content">

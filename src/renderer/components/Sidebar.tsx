@@ -7,6 +7,7 @@ interface SidebarProps {
   conversations: Array<{ id: string; title: string; timestamp: Date; messages?: Array<{ content: string }> }>;
   currentConversationId: string | null;
   onSelectConversation: (id: string) => void;
+  searchInputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -14,7 +15,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenSettings,
   conversations,
   currentConversationId,
-  onSelectConversation
+  onSelectConversation,
+  searchInputRef,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -44,6 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="search-container">
         <label htmlFor="sidebar-search" className="sr-only">대화 검색</label>
         <input
+          ref={searchInputRef}
           id="sidebar-search"
           className="search-input"
           type="text"

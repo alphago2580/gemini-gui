@@ -389,6 +389,18 @@ describe('App Component', () => {
         });
     });
 
+    // Ctrl+F search focus test
+    describe('Search Focus', () => {
+        it('focuses sidebar search on Ctrl+F', async () => {
+            render(<App />);
+            const searchInput = screen.getByPlaceholderText('대화 검색...');
+            expect(document.activeElement).not.toBe(searchInput);
+
+            fireEvent.keyDown(document, { key: 'f', ctrlKey: true });
+            expect(document.activeElement).toBe(searchInput);
+        });
+    });
+
     // Clear conversation tests
     describe('Clear Conversation', () => {
         it('does not show clear button when no messages', () => {
