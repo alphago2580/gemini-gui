@@ -15,7 +15,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Export conversation as Markdown file
 - [ ] Export conversation as PDF
 - [x] Delete individual messages
-- [ ] Clear conversation
+- [x] Clear conversation
 
 ### Theme System
 - [x] Dark/Light theme toggle
@@ -82,6 +82,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Export conversation as Markdown (195 tests)
 - [x] Search through conversation history in sidebar (203 tests)
 - [x] Delete individual messages (209 tests)
+- [x] Clear conversation button + Ctrl+L (213 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

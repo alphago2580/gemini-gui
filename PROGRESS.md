@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (209 tests)
+- **Test Status**: Passing (213 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -107,3 +107,10 @@
 - Added 4 tests for `deleteMessage` in useConversations hook
 - Added 2 tests for delete UI in App component
 - Total tests: 203 → 209 (all passing)
+
+### Agent 2 (Quality) — Clear Conversation Button
+- Added Clear button in header alongside Export (grouped in `.header-actions`)
+- Clear button visible only when messages exist, triggers `handleClearConversation`
+- Refactored single export button to header-actions group with shared CSS class
+- Added 4 tests for Clear button (visibility, clearing, welcome message restore, aria-label)
+- Total tests: 209 → 213 (all passing)

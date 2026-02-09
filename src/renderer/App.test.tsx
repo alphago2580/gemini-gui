@@ -368,4 +368,43 @@ describe('App Component', () => {
             expect(screen.queryByText('Test message to delete')).not.toBeInTheDocument();
         });
     });
+
+    // Clear conversation tests
+    describe('Clear Conversation', () => {
+        it('does not show clear button when no messages', () => {
+            render(<App />);
+            expect(screen.queryByText('Clear')).not.toBeInTheDocument();
+        });
+
+        it('shows clear button when there are messages', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(screen.getByText('Clear')).toBeInTheDocument();
+        });
+
+        it('clears all messages when clear button is clicked', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Message to clear');
+            await user.click(screen.getByText('전송'));
+            expect(screen.getByText('Message to clear')).toBeInTheDocument();
+
+            await user.click(screen.getByText('Clear'));
+            expect(screen.queryByText('Message to clear')).not.toBeInTheDocument();
+            expect(screen.getByText('Gemini에 오신 것을 환영합니다!')).toBeInTheDocument();
+        });
+
+        it('clear button has correct aria-label', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(screen.getByRole('button', { name: '대화 지우기' })).toBeInTheDocument();
+        });
+    });
 });

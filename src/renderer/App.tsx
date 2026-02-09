@@ -324,14 +324,24 @@ const App: React.FC = () => {
             <p>Powered by Gemini CLI</p>
           </div>
           {messages.length > 0 && (
-            <button
-              className="export-btn"
-              onClick={handleExport}
-              aria-label="대화 내보내기"
-              title="Markdown으로 내보내기"
-            >
-              Export
-            </button>
+            <div className="header-actions">
+              <button
+                className="header-action-btn"
+                onClick={handleClearConversation}
+                aria-label="대화 지우기"
+                title="대화 지우기 (Ctrl+L)"
+              >
+                Clear
+              </button>
+              <button
+                className="header-action-btn"
+                onClick={handleExport}
+                aria-label="대화 내보내기"
+                title="Markdown으로 내보내기"
+              >
+                Export
+              </button>
+            </div>
           )}
         </header>
 
