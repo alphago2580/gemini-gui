@@ -518,4 +518,236 @@ describe('App Component', () => {
             expect(JSON.parse(localStorage.getItem('gemini-high-contrast') || 'false')).toBe(true);
         });
     });
+
+    // Command palette integration tests
+    describe('Command Palette', () => {
+        it('opens command palette with Ctrl+Shift+P', () => {
+            render(<App />);
+            expect(screen.queryByRole('dialog', { name: '명령 팔레트' })).not.toBeInTheDocument();
+
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+            expect(screen.getByRole('dialog', { name: '명령 팔레트' })).toBeInTheDocument();
+        });
+
+        it('closes command palette with Escape', () => {
+            render(<App />);
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+            expect(screen.getByRole('dialog', { name: '명령 팔레트' })).toBeInTheDocument();
+
+            fireEvent.keyDown(screen.getByPlaceholderText('명령어 검색...'), { key: 'Escape' });
+            expect(screen.queryByRole('dialog', { name: '명령 팔레트' })).not.toBeInTheDocument();
+        });
+
+        it('shows all commands in palette', () => {
+            render(<App />);
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+
+            const palette = screen.getByRole('dialog', { name: '명령 팔레트' });
+            expect(palette).toBeInTheDocument();
+            // Check the listbox has all commands
+            const options = screen.getAllByRole('option');
+            expect(options.length).toBeGreaterThanOrEqual(5);
+        });
+
+        it('executes new chat command from palette', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+
+            // Use the option role to target the palette item specifically
+            const newChatOption = screen.getByRole('option', { name: /새 대화/ });
+            await user.click(newChatOption);
+            expect(mockElectronAPI.newConversation).toHaveBeenCalled();
+            // Palette should close after executing
+            expect(screen.queryByRole('dialog', { name: '명령 팔레트' })).not.toBeInTheDocument();
+        });
+
+        it('opens settings from palette', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+
+            const settingsOption = screen.getByRole('option', { name: /설정 열기/ });
+            await user.click(settingsOption);
+            // Settings should be open
+            expect(screen.getByText('모델 선택')).toBeInTheDocument();
+            // Palette should close
+            expect(screen.queryByRole('dialog', { name: '명령 팔레트' })).not.toBeInTheDocument();
+        });
+
+        it('toggles command palette off with second Ctrl+Shift+P', () => {
+            render(<App />);
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+            expect(screen.getByRole('dialog', { name: '명령 팔레트' })).toBeInTheDocument();
+
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+            expect(screen.queryByRole('dialog', { name: '명령 팔레트' })).not.toBeInTheDocument();
+        });
+    });
+
+    // Paste image tests
+    describe('Paste Image from Clipboard', () => {
+        function createPasteEvent(files: File[]) {
+            const items = files.map(file => ({
+                kind: 'file' as const,
+                type: file.type,
+                getAsFile: () => file,
+                getAsString: vi.fn(),
+                webkitGetAsEntry: vi.fn(),
+            }));
+
+            return {
+                clipboardData: {
+                    items,
+                    files,
+                    getData: vi.fn(),
+                    setData: vi.fn(),
+                    clearData: vi.fn(),
+                    types: [],
+                },
+                preventDefault: vi.fn(),
+            };
+        }
+
+        it('attaches pasted image to file list', () => {
+            render(<App />);
+            const textarea = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            const imageFile = new File(['fake-image'], 'screenshot.png', { type: 'image/png' });
+            const pasteEvent = createPasteEvent([imageFile]);
+
+            fireEvent.paste(textarea, pasteEvent);
+
+            expect(screen.getByText('screenshot.png')).toBeInTheDocument();
+        });
+
+        it('attaches jpeg image from paste', () => {
+            render(<App />);
+            const textarea = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            const imageFile = new File(['fake-image'], 'photo.jpg', { type: 'image/jpeg' });
+            const pasteEvent = createPasteEvent([imageFile]);
+
+            fireEvent.paste(textarea, pasteEvent);
+
+            expect(screen.getByText('photo.jpg')).toBeInTheDocument();
+        });
+
+        it('does not attach non-image files from paste', () => {
+            render(<App />);
+            const textarea = screen.getByPlaceholderText(/메시지를 입력하세요/);
+
+            const pasteEvent = {
+                clipboardData: {
+                    items: [{
+                        kind: 'string' as const,
+                        type: 'text/plain',
+                        getAsFile: () => null,
+                        getAsString: vi.fn(),
+                        webkitGetAsEntry: vi.fn(),
+                    }],
+                    files: [],
+                    getData: vi.fn(),
+                    setData: vi.fn(),
+                    clearData: vi.fn(),
+                    types: [],
+                },
+            };
+
+            fireEvent.paste(textarea, pasteEvent);
+            // No file chips should appear in the file attachment area
+            expect(screen.queryByText(/\.png$/)).not.toBeInTheDocument();
+            expect(screen.queryByText(/\.jpg$/)).not.toBeInTheDocument();
+        });
+
+        it('handles multiple pasted images', () => {
+            render(<App />);
+            const textarea = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            const image1 = new File(['img1'], 'img1.png', { type: 'image/png' });
+            const image2 = new File(['img2'], 'img2.jpg', { type: 'image/jpeg' });
+            const pasteEvent = createPasteEvent([image1, image2]);
+
+            fireEvent.paste(textarea, pasteEvent);
+
+            expect(screen.getByText('img1.png')).toBeInTheDocument();
+            expect(screen.getByText('img2.jpg')).toBeInTheDocument();
+        });
+    });
+
+    // Message edit tests
+    describe('Edit Message', () => {
+        it('shows edit button on user messages', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Editable message');
+            await user.click(screen.getByText('전송'));
+            expect(screen.getByRole('button', { name: '메시지 수정' })).toBeInTheDocument();
+        });
+
+        it('enters edit mode when edit button is clicked', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Original message');
+            await user.click(screen.getByText('전송'));
+
+            await user.click(screen.getByRole('button', { name: '메시지 수정' }));
+            expect(screen.getByLabelText('메시지 수정 입력')).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: '수정 저장' })).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: '수정 취소' })).toBeInTheDocument();
+        });
+
+        it('populates edit textarea with original content', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Original message');
+            await user.click(screen.getByText('전송'));
+
+            await user.click(screen.getByRole('button', { name: '메시지 수정' }));
+            const editInput = screen.getByLabelText('메시지 수정 입력') as HTMLTextAreaElement;
+            expect(editInput.value).toBe('Original message');
+        });
+
+        it('saves edited message content', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Before edit');
+            await user.click(screen.getByText('전송'));
+
+            await user.click(screen.getByRole('button', { name: '메시지 수정' }));
+            const editInput = screen.getByLabelText('메시지 수정 입력');
+            await user.clear(editInput);
+            await user.type(editInput, 'After edit');
+            await user.click(screen.getByRole('button', { name: '수정 저장' }));
+
+            // Should exit edit mode
+            expect(screen.queryByLabelText('메시지 수정 입력')).not.toBeInTheDocument();
+            // The message content should be updated (check within article element)
+            await waitFor(() => {
+                const articles = screen.getAllByRole('article');
+                const userArticle = articles.find(a => a.getAttribute('aria-label') === '사용자 메시지');
+                expect(userArticle).toBeTruthy();
+                expect(userArticle!.textContent).toContain('After edit');
+            });
+        });
+
+        it('cancels edit and keeps original content', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Keep this');
+            await user.click(screen.getByText('전송'));
+
+            await user.click(screen.getByRole('button', { name: '메시지 수정' }));
+            const editInput = screen.getByLabelText('메시지 수정 입력');
+            await user.clear(editInput);
+            await user.type(editInput, 'Changed');
+            await user.click(screen.getByRole('button', { name: '수정 취소' }));
+
+            expect(screen.getByText('Keep this')).toBeInTheDocument();
+            expect(screen.queryByText('Changed')).not.toBeInTheDocument();
+            expect(screen.queryByLabelText('메시지 수정 입력')).not.toBeInTheDocument();
+        });
+    });
 });

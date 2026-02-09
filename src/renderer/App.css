@@ -337,6 +337,90 @@
   color: var(--remove-hover);
 }
 
+.edit-message-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.message:hover .edit-message-btn {
+  opacity: 1;
+}
+
+.edit-message-btn:hover {
+  color: var(--accent-highlight);
+}
+
+.message.editing {
+  border-color: var(--accent-highlight);
+}
+
+.edit-message-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.edit-message-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  resize: vertical;
+  outline: none;
+  min-height: 60px;
+}
+
+.edit-message-input:focus {
+  border-color: var(--accent-highlight);
+}
+
+.edit-message-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.edit-save-btn,
+.edit-cancel-btn {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.edit-save-btn {
+  background: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+}
+
+.edit-save-btn:hover {
+  background: var(--accent-primary-hover);
+}
+
+.edit-cancel-btn {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.edit-cancel-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
 .message-header .role {
   font-weight: bold;
   text-transform: uppercase;

@@ -21,6 +21,7 @@ describe('useKeyboardShortcuts', () => {
     onCloseSettings: vi.fn(),
     onFocusSearch: vi.fn(),
     onToggleSidebar: vi.fn(),
+    onToggleCommandPalette: vi.fn(),
     isSettingsOpen: false,
   });
 
@@ -144,6 +145,32 @@ describe('useKeyboardShortcuts', () => {
 
     fireKeyDown('n', { ctrlKey: true });
     expect(actions.onNewChat).not.toHaveBeenCalled();
+  });
+
+  it('calls onToggleCommandPalette on Ctrl+Shift+P', () => {
+    const actions = defaultActions();
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('p', { ctrlKey: true, shiftKey: true });
+    expect(actions.onToggleCommandPalette).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onToggleCommandPalette on Meta+Shift+P (macOS)', () => {
+    const actions = defaultActions();
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('p', { metaKey: true, shiftKey: true });
+    expect(actions.onToggleCommandPalette).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call other shortcuts when Ctrl+Shift+P is pressed', () => {
+    const actions = defaultActions();
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('p', { ctrlKey: true, shiftKey: true });
+    expect(actions.onNewChat).not.toHaveBeenCalled();
+    expect(actions.onClearConversation).not.toHaveBeenCalled();
+    expect(actions.onToggleSettings).not.toHaveBeenCalled();
   });
 
   it('Escape takes priority over Ctrl shortcuts when settings is open', () => {

@@ -7,6 +7,7 @@ interface KeyboardShortcutActions {
   onCloseSettings: () => void;
   onFocusSearch: () => void;
   onToggleSidebar: () => void;
+  onToggleCommandPalette?: () => void;
   isSettingsOpen: boolean;
 }
 
@@ -17,6 +18,7 @@ export function useKeyboardShortcuts({
   onCloseSettings,
   onFocusSearch,
   onToggleSidebar,
+  onToggleCommandPalette,
   isSettingsOpen,
 }: KeyboardShortcutActions) {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -30,6 +32,13 @@ export function useKeyboardShortcuts({
     }
 
     if (!isCtrlOrMeta) return;
+
+    // Ctrl+Shift+P: Command Palette
+    if (e.shiftKey && (e.key === 'p' || e.key === 'P')) {
+      e.preventDefault();
+      onToggleCommandPalette?.();
+      return;
+    }
 
     switch (e.key) {
       case 'n':
@@ -53,7 +62,7 @@ export function useKeyboardShortcuts({
         onToggleSidebar();
         break;
     }
-  }, [onNewChat, onClearConversation, onToggleSettings, onCloseSettings, onFocusSearch, onToggleSidebar, isSettingsOpen]);
+  }, [onNewChat, onClearConversation, onToggleSettings, onCloseSettings, onFocusSearch, onToggleSidebar, onToggleCommandPalette, isSettingsOpen]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);

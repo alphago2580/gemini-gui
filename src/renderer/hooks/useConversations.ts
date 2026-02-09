@@ -108,6 +108,16 @@ export function useConversations() {
     });
   }, [updateCurrentConversation]);
 
+  const editMessage = useCallback((index: number, newContent: string) => {
+    setMessages(prev => {
+      const updated = prev.map((msg, i) =>
+        i === index ? { ...msg, content: newContent } : msg
+      );
+      updateCurrentConversation(updated);
+      return updated;
+    });
+  }, [updateCurrentConversation]);
+
   return {
     conversations,
     currentConversationId,
@@ -117,5 +127,6 @@ export function useConversations() {
     handleSelectConversation,
     updateCurrentConversation,
     deleteMessage,
+    editMessage,
   };
 }

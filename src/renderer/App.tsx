@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './App.css';
 import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
 import FileAttachment from './components/FileAttachment';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import Toast from './components/Toast';
+import CommandPalette from './components/CommandPalette';
+import type { Command } from './components/CommandPalette';
 import { useConversations } from './hooks/useConversations';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from './hooks/useTheme';
@@ -34,6 +36,7 @@ const App: React.FC = () => {
     handleSelectConversation,
     updateCurrentConversation,
     deleteMessage,
+    editMessage,
   } = useConversations();
 
   // Theme
@@ -48,6 +51,9 @@ const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage('gemini-sidebar-collapsed', false);
   const [highContrast, setHighContrast] = useLocalStorage('gemini-high-contrast', false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editContent, setEditContent] = useState('');
 
   // Apply high contrast attribute
   useEffect(() => {
@@ -86,6 +92,30 @@ const App: React.FC = () => {
     setIsSidebarCollapsed(prev => !prev);
   };
 
+  const handleExport = async () => {
+    if (messages.length === 0) return;
+
+    const currentConv = conversations.find(c => c.id === currentConversationId);
+    const title = currentConv?.title || 'Untitled Conversation';
+    const markdown = exportToMarkdown(title, messages);
+    const safeTitle = title.replace(/[^a-zA-Z0-9가-힣\s-]/g, '').replace(/\s+/g, '-');
+    const defaultFileName = `${safeTitle}.md`;
+
+    if (window.electronAPI?.exportMarkdown) {
+      await window.electronAPI.exportMarkdown(markdown, defaultFileName);
+    }
+  };
+
+  // Command palette commands
+  const commands: Command[] = useMemo(() => [
+    { id: 'new-chat', label: '새 대화', shortcut: 'Ctrl+N', action: handleNewChat },
+    { id: 'clear', label: '대화 지우기', shortcut: 'Ctrl+L', action: handleClearConversation },
+    { id: 'search', label: '대화 검색', shortcut: 'Ctrl+F', action: () => searchInputRef.current?.focus() },
+    { id: 'settings', label: '설정 열기', shortcut: 'Ctrl+,', action: () => setIsSettingsOpen(true) },
+    { id: 'toggle-sidebar', label: '사이드바 토글', shortcut: 'Ctrl+B', action: handleToggleSidebar },
+    { id: 'export', label: 'Markdown으로 내보내기', action: handleExport },
+  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport]);
+
   // Keyboard shortcuts
   useKeyboardShortcuts({
     onNewChat: handleNewChat,
@@ -94,6 +124,7 @@ const App: React.FC = () => {
     onCloseSettings: () => setIsSettingsOpen(false),
     onFocusSearch: () => searchInputRef.current?.focus(),
     onToggleSidebar: handleToggleSidebar,
+    onToggleCommandPalette: () => setIsCommandPaletteOpen(prev => !prev),
     isSettingsOpen,
   });
 
@@ -310,24 +341,31 @@ const App: React.FC = () => {
     }
   };
 
-  const handleExport = async () => {
-    if (messages.length === 0) return;
-
-    const currentConv = conversations.find(c => c.id === currentConversationId);
-    const title = currentConv?.title || 'Untitled Conversation';
-    const markdown = exportToMarkdown(title, messages);
-    const safeTitle = title.replace(/[^a-zA-Z0-9가-힣\s-]/g, '').replace(/\s+/g, '-');
-    const defaultFileName = `${safeTitle}.md`;
-
-    if (window.electronAPI?.exportMarkdown) {
-      await window.electronAPI.exportMarkdown(markdown, defaultFileName);
-    }
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    const imageFiles: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          imageFiles.push(file);
+        }
+      }
+    }
+
+    if (imageFiles.length > 0) {
+      e.preventDefault();
+      handleFilesSelected(imageFiles);
     }
   };
 
@@ -381,10 +419,23 @@ const App: React.FC = () => {
               </div>
             )}
             {messages.map((message, index) => (
-              <div key={index} className={`message ${message.role}`} role="article" aria-label={`${message.role === 'user' ? '사용자' : 'Gemini'} 메시지`}>
+              <div key={index} className={`message ${message.role}${editingIndex === index ? ' editing' : ''}`} role="article" aria-label={`${message.role === 'user' ? '사용자' : 'Gemini'} 메시지`}>
                 <div className="message-header">
                   <span className="role">{message.role === 'user' ? '사용자' : 'Gemini'}</span>
                   <span className="timestamp">{message.timestamp.toLocaleTimeString()}</span>
+                  {message.role === 'user' && editingIndex !== index && (
+                    <button
+                      className="edit-message-btn"
+                      onClick={() => {
+                        setEditingIndex(index);
+                        setEditContent(message.content);
+                      }}
+                      aria-label="메시지 수정"
+                      title="메시지 수정"
+                    >
+                      &#9998;
+                    </button>
+                  )}
                   <button
                     className="delete-message-btn"
                     onClick={() => deleteMessage(index)}
@@ -395,7 +446,44 @@ const App: React.FC = () => {
                   </button>
                 </div>
                 <div className="message-content">
-                  <MarkdownRenderer content={message.content} />
+                  {editingIndex === index ? (
+                    <div className="edit-message-form">
+                      <textarea
+                        className="edit-message-input"
+                        value={editContent}
+                        onChange={e => setEditContent(e.target.value)}
+                        aria-label="메시지 수정 입력"
+                        rows={3}
+                      />
+                      <div className="edit-message-actions">
+                        <button
+                          className="edit-save-btn"
+                          onClick={() => {
+                            if (editContent.trim()) {
+                              editMessage(index, editContent);
+                            }
+                            setEditingIndex(null);
+                            setEditContent('');
+                          }}
+                          aria-label="수정 저장"
+                        >
+                          저장
+                        </button>
+                        <button
+                          className="edit-cancel-btn"
+                          onClick={() => {
+                            setEditingIndex(null);
+                            setEditContent('');
+                          }}
+                          aria-label="수정 취소"
+                        >
+                          취소
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <MarkdownRenderer content={message.content} />
+                  )}
                 </div>
               </div>
             ))}
@@ -430,6 +518,7 @@ const App: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
+              onPaste={handlePaste}
               placeholder="메시지를 입력하세요... (Enter/Ctrl+Enter: 전송, Shift+Enter: 줄바꿈)"
               disabled={isLoading}
               rows={1}
@@ -459,6 +548,11 @@ const App: React.FC = () => {
       />
 
       <Toast toasts={toasts} onDismiss={dismissToast} />
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        commands={commands}
+      />
     </div>
   );
 };

@@ -42,13 +42,13 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 
 ### Input Enhancements
 - [x] Auto-resize textarea (useAutoResize hook)
-- [ ] Drag & drop file attachment
-- [ ] Paste image from clipboard
-- [ ] Message edit (click to edit sent message)
-- [ ] Command palette (Ctrl+Shift+P)
+- [x] Drag & drop file attachment
+- [x] Paste image from clipboard
+- [x] Message edit (click to edit sent message)
+- [x] Command palette (Ctrl+Shift+P)
 
 ### UI Polish
-- [ ] Loading spinner during response generation
+- [x] Loading spinner during response generation
 - [ ] Typing indicator animation
 - [ ] Smooth scroll to bottom on new messages
 - [x] Toast notifications for errors
@@ -91,6 +91,9 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Responsive collapsible sidebar with Ctrl+B shortcut (278 tests)
 - [x] High contrast mode with dark/light variants (287 tests)
 - [x] Syntax highlighting for code blocks — JS/TS, Python, Bash, JSON, CSS (314 tests)
+- [x] Command palette (Ctrl+Shift+P) with search, keyboard nav, 6 commands (349 tests)
+- [x] Paste image from clipboard — detect image MIME types, attach to file list (353 tests)
+- [x] Message edit — inline edit for user messages with save/cancel (361 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

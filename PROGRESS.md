@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (314 tests)
+- **Test Status**: Passing (361 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -189,3 +189,37 @@
 - Added 22 unit tests for tokenizer (keywords, strings, comments, numbers, etc.)
 - Added 5 integration tests in MarkdownRenderer (highlighting, no-lang fallback, text preservation)
 - Total tests: 287 → 314 (16 test files, all passing)
+
+### Agent 2 (Quality) — Command Palette (Ctrl+Shift+P)
+- Created `CommandPalette` component with fuzzy search, keyboard navigation, and command execution
+- Supports: search input with filtering, ArrowUp/Down navigation, Enter to execute, Escape to close
+- 6 built-in commands: New Chat, Clear, Search, Settings, Toggle Sidebar, Export Markdown
+- Each command displays label and optional keyboard shortcut badge
+- Added Ctrl+Shift+P / Cmd+Shift+P to `useKeyboardShortcuts` hook (toggles palette)
+- Overlay click to dismiss, click-through prevention on palette body
+- Full accessibility: `role="dialog"` + `aria-modal`, `role="combobox"` input, `role="listbox"` + `role="option"` items, `aria-activedescendant`
+- CSS: overlay with centered top-positioned palette, scrollable list, selected item highlight, theme vars
+- Added 26 unit tests for CommandPalette (rendering, filtering, keyboard nav, execution, accessibility)
+- Added 3 tests for Ctrl+Shift+P in useKeyboardShortcuts
+- Added 6 integration tests in App (open/close, command execution, toggle)
+- Total tests: 314 → 349 (17 test files, all passing)
+
+### Agent 2 (Quality) — Paste Image from Clipboard
+- Added `handlePaste` event handler on textarea for clipboard image pasting
+- Detects `image/*` MIME types in `clipboardData.items`, converts to File objects
+- Prevents default behavior for image pastes (allows text paste through)
+- Pasted images appear in FileAttachment file chip list
+- Added 4 integration tests in App (attach PNG, attach JPEG, skip text, multiple images)
+- Total tests: 349 → 353 (17 test files, all passing)
+
+### Agent 2 (Quality) — Message Edit (Click to Edit Sent Message)
+- Added `editMessage` function to `useConversations` hook
+- Edit button (pencil icon &#9998;) appears on hover for user messages only
+- Click edit: inline textarea replaces message content with save/cancel buttons
+- Save: updates message content in state and localStorage
+- Cancel: reverts to original content, exits edit mode
+- CSS: edit-message-btn, edit-message-form, edit-message-input, edit-save-btn, edit-cancel-btn
+- `.editing` class on message bubble highlights border during edit
+- Added 3 unit tests for `editMessage` in useConversations hook
+- Added 5 integration tests in App (show button, enter edit, populate, save, cancel)
+- Total tests: 353 → 361 (17 test files, all passing)

@@ -372,4 +372,80 @@ describe('useConversations', () => {
       expect(conv.messages[0].content).toBe('Hi');
     });
   });
+
+  describe('editMessage', () => {
+    it('edits a message at the given index', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const msgs = [
+        { role: 'user' as const, content: 'Original', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'Response', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      act(() => {
+        result.current.editMessage(0, 'Edited content');
+      });
+
+      expect(result.current.messages[0].content).toBe('Edited content');
+      expect(result.current.messages[1].content).toBe('Response');
+    });
+
+    it('updates the conversation in conversations list', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const msgs = [
+        { role: 'user' as const, content: 'Hello', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      act(() => {
+        result.current.editMessage(0, 'Modified');
+      });
+
+      const conv = result.current.conversations[0];
+      expect(conv.messages[0].content).toBe('Modified');
+    });
+
+    it('preserves other messages when editing one', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const msgs = [
+        { role: 'user' as const, content: 'First', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'Second', timestamp: new Date() },
+        { role: 'user' as const, content: 'Third', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      act(() => {
+        result.current.editMessage(2, 'Third edited');
+      });
+
+      expect(result.current.messages).toHaveLength(3);
+      expect(result.current.messages[0].content).toBe('First');
+      expect(result.current.messages[1].content).toBe('Second');
+      expect(result.current.messages[2].content).toBe('Third edited');
+    });
+  });
 });
