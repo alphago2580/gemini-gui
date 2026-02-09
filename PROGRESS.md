@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (682 tests)
+- **Test Status**: Passing (690 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -455,3 +455,12 @@
 - Reduced code duplication in `handleExport` and `handleExportPdf` with shared `getCurrentTitle` helper
 - Added 5 tests for `sanitizeFileName` (special chars, spaces, Korean, alphanumeric, multiple spaces)
 - Total tests: 677 → 682 (28 test files, all passing)
+
+### Agent 2 (Quality) — useExport Hook Extraction
+- Extracted export logic (handleExport, handleExportPdf, getCurrentTitle) from App.tsx into `useExport` custom hook
+- Hook receives messages, conversations, currentConversationId and returns memoized export handlers
+- All functions wrapped with `useCallback` for stable references
+- App.tsx reduced from ~403 lines to ~385 lines
+- Removed `exportToMarkdown`, `exportToHtml`, `sanitizeFileName` imports from App.tsx (now in hook)
+- Added 8 unit tests for useExport (return values, getCurrentTitle, empty messages, export args, PDF args, filename sanitization)
+- Total tests: 682 → 690 (29 test files, all passing)

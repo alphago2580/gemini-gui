@@ -117,6 +117,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Stable message IDs — unique IDs for React keys, legacy message backfill, generateMessageId utility (677 tests)
 - [x] React.memo optimization — MessageBubble, MarkdownRenderer, Sidebar, TokenUsage, TypingIndicator, TabBar (677 tests)
 - [x] sanitizeFileName utility — extracted from App.tsx export handlers, reduced duplication (682 tests)
+- [x] useExport hook extraction — export handlers extracted from App.tsx, useCallback memoization (690 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

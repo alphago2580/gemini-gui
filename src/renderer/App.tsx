@@ -22,7 +22,7 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { useTabs } from './hooks/useTabs';
 import { useAutoScroll } from './hooks/useAutoScroll';
 import { useMessageSend } from './hooks/useMessageSend';
-import { exportToMarkdown, exportToHtml, sanitizeFileName } from './utils/format';
+import { useExport } from './hooks/useExport';
 import type { AppSettings } from '../preload/types';
 
 const STORAGE_KEY_SETTINGS = 'gemini-settings';
@@ -181,30 +181,12 @@ const App: React.FC = () => {
     setIsSidebarCollapsed(prev => !prev);
   };
 
-  const getCurrentTitle = () => {
-    const currentConv = conversations.find(c => c.id === currentConversationId);
-    return currentConv?.title || 'Untitled Conversation';
-  };
-
-  const handleExport = async () => {
-    if (messages.length === 0) return;
-    const title = getCurrentTitle();
-    const markdown = exportToMarkdown(title, messages);
-    const defaultFileName = `${sanitizeFileName(title)}.md`;
-    if (window.electronAPI?.exportMarkdown) {
-      await window.electronAPI.exportMarkdown(markdown, defaultFileName);
-    }
-  };
-
-  const handleExportPdf = async () => {
-    if (messages.length === 0) return;
-    const title = getCurrentTitle();
-    const html = exportToHtml(title, messages);
-    const defaultFileName = `${sanitizeFileName(title)}.pdf`;
-    if (window.electronAPI?.exportPdf) {
-      await window.electronAPI.exportPdf(html, defaultFileName);
-    }
-  };
+  // Export handlers (extracted to custom hook)
+  const { handleExport, handleExportPdf } = useExport({
+    messages,
+    conversations,
+    currentConversationId,
+  });
 
   // Command palette commands
   const commands: Command[] = useMemo(() => [
