@@ -232,4 +232,62 @@ describe('App Component', () => {
             expect(screen.getByText(/오류 발생: 연결 실패/)).toBeInTheDocument();
         });
     });
+
+    // Accessibility tests
+    describe('Accessibility', () => {
+        it('has role="application" on root element', () => {
+            const { container } = render(<App />);
+            expect(container.querySelector('[role="application"]')).toBeInTheDocument();
+        });
+
+        it('uses <main> element for main content', () => {
+            const { container } = render(<App />);
+            expect(container.querySelector('main')).toBeInTheDocument();
+        });
+
+        it('messages area has role="log" and aria-label', () => {
+            render(<App />);
+            const messagesArea = screen.getByRole('log');
+            expect(messagesArea).toHaveAttribute('aria-label', '대화 메시지');
+            expect(messagesArea).toHaveAttribute('aria-live', 'polite');
+        });
+
+        it('input container has role="form"', () => {
+            render(<App />);
+            expect(screen.getByRole('form')).toHaveAttribute('aria-label', '메시지 입력');
+        });
+
+        it('textarea has id and associated label', () => {
+            render(<App />);
+            const textarea = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            expect(textarea).toHaveAttribute('id', 'message-input');
+            expect(textarea).toHaveAttribute('aria-label', '메시지 입력');
+        });
+
+        it('send button has appropriate aria-label', () => {
+            render(<App />);
+            expect(screen.getByRole('button', { name: '메시지 전송' })).toBeInTheDocument();
+        });
+
+        it('loading indicator has role="status"', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            const loadingEl = screen.getByRole('status');
+            expect(loadingEl).toHaveAttribute('aria-label', '응답 생성 중');
+        });
+
+        it('message bubbles have role="article"', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            const articles = screen.getAllByRole('article');
+            expect(articles.length).toBeGreaterThan(0);
+            expect(articles[0]).toHaveAttribute('aria-label', '사용자 메시지');
+        });
+    });
 });

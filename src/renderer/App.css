@@ -96,6 +96,19 @@
   --drop-zone-active: linear-gradient(135deg, rgba(21, 101, 192, 0.08) 0%, rgba(25, 118, 210, 0.08) 100%);
 }
 
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* App Layout */
 .app {
   display: flex;
@@ -289,6 +302,9 @@
   resize: none;
   outline: none;
   transition: border-color 0.2s;
+  min-height: 44px;
+  max-height: 200px;
+  overflow-y: hidden;
 }
 
 .input-field:focus {

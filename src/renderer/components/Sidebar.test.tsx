@@ -107,4 +107,73 @@ describe('Sidebar', () => {
     render(<Sidebar {...defaultProps} />);
     expect(screen.getByText('대화 기록')).toBeInTheDocument();
   });
+
+  // Accessibility tests
+  describe('Accessibility', () => {
+    it('uses <nav> element with aria-label', () => {
+      render(<Sidebar {...defaultProps} />);
+      const nav = screen.getByRole('navigation');
+      expect(nav).toHaveAttribute('aria-label', '사이드바');
+    });
+
+    it('new chat button has aria-label', () => {
+      render(<Sidebar {...defaultProps} />);
+      expect(screen.getByRole('button', { name: '새 대화 시작' })).toBeInTheDocument();
+    });
+
+    it('settings button has aria-label', () => {
+      render(<Sidebar {...defaultProps} />);
+      expect(screen.getByRole('button', { name: '설정 열기' })).toBeInTheDocument();
+    });
+
+    it('conversations list has role="list"', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      expect(screen.getByRole('list')).toHaveAttribute('aria-label', '대화 기록 목록');
+    });
+
+    it('conversation items have role="listitem" and aria-label', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const items = screen.getAllByRole('listitem');
+      expect(items).toHaveLength(3);
+      expect(items[0]).toHaveAttribute('aria-label', '대화: 첫 번째 대화');
+    });
+
+    it('active conversation has aria-current="true"', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          currentConversationId="2"
+        />
+      );
+      const activeItem = screen.getByLabelText('대화: 두 번째 대화');
+      expect(activeItem).toHaveAttribute('aria-current', 'true');
+    });
+
+    it('conversation items are keyboard navigable', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const items = screen.getAllByRole('listitem');
+      expect(items[0]).toHaveAttribute('tabIndex', '0');
+    });
+
+    it('conversation items respond to Enter key', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const item = screen.getByLabelText('대화: 첫 번째 대화');
+      fireEvent.keyDown(item, { key: 'Enter' });
+      expect(defaultProps.onSelectConversation).toHaveBeenCalledWith('1');
+    });
+
+    it('conversation items respond to Space key', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const item = screen.getByLabelText('대화: 두 번째 대화');
+      fireEvent.keyDown(item, { key: ' ' });
+      expect(defaultProps.onSelectConversation).toHaveBeenCalledWith('2');
+    });
+
+    it('icons are hidden from screen readers', () => {
+      const { container } = render(<Sidebar {...defaultProps} />);
+      const icons = container.querySelectorAll('[aria-hidden="true"]');
+      expect(icons.length).toBeGreaterThanOrEqual(2); // + icon and ⚙ icon
+    });
+  });
 });

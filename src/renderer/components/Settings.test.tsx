@@ -170,4 +170,24 @@ describe('Settings', () => {
     fireEvent.click(screen.getByText('시스템'));
     expect(defaultProps.onThemeChange).toHaveBeenCalledWith('system');
   });
+
+  // Accessibility tests
+  describe('Accessibility', () => {
+    it('modal has role="dialog" and aria-modal', () => {
+      render(<Settings {...defaultProps} />);
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toHaveAttribute('aria-label', '설정');
+      expect(dialog).toHaveAttribute('aria-modal', 'true');
+    });
+
+    it('close button has aria-label', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByRole('button', { name: '설정 닫기' })).toBeInTheDocument();
+    });
+
+    it('overlay has role="presentation"', () => {
+      const { container } = render(<Settings {...defaultProps} />);
+      expect(container.querySelector('[role="presentation"]')).toBeInTheDocument();
+    });
+  });
 });

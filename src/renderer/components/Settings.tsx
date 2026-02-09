@@ -28,11 +28,11 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
   };
 
   return (
-    <div className="settings-overlay" onClick={onClose}>
-      <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="settings-overlay" onClick={onClose} role="presentation">
+      <div className="settings-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="설정" aria-modal="true">
         <div className="settings-header">
           <h2>설정</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className="close-btn" onClick={onClose} aria-label="설정 닫기">×</button>
         </div>
 
         <div className="settings-content">

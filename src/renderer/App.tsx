@@ -6,6 +6,7 @@ import FileAttachment from './components/FileAttachment';
 import { useConversations } from './hooks/useConversations';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from './hooks/useTheme';
+import { useAutoResize } from './hooks/useAutoResize';
 import type { AppSettings, StreamData, StreamErrorData, Message } from '../preload/types';
 
 const STORAGE_KEY_SETTINGS = 'gemini-settings';
@@ -36,6 +37,9 @@ const App: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Auto-resize textarea
+  const { textareaRef } = useAutoResize(input);
 
   // Settings state
   const [settings, setSettings] = useState<AppSettings>(() => {
@@ -288,7 +292,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="app">
+    <div className="app" role="application">
       <Sidebar
         onNewChat={handleNewChat}
         onOpenSettings={() => setIsSettingsOpen(true)}
@@ -297,14 +301,14 @@ const App: React.FC = () => {
         onSelectConversation={handleSelectConversation}
       />
 
-      <div className="main-content">
+      <main className="main-content">
         <header className="app-header">
           <h1>Gemini GUI</h1>
           <p>Powered by Gemini CLI</p>
         </header>
 
         <div className="chat-container">
-          <div className="messages">
+          <div className="messages" role="log" aria-label="대화 메시지" aria-live="polite">
             {messages.length === 0 && (
               <div className="welcome-message">
                 <h2>Gemini에 오신 것을 환영합니다!</h2>
@@ -312,7 +316,7 @@ const App: React.FC = () => {
               </div>
             )}
             {messages.map((message, index) => (
-              <div key={index} className={`message ${message.role}`}>
+              <div key={index} className={`message ${message.role}`} role="article" aria-label={`${message.role === 'user' ? '사용자' : 'Gemini'} 메시지`}>
                 <div className="message-header">
                   <span className="role">{message.role === 'user' ? '사용자' : 'Gemini'}</span>
                   <span className="timestamp">{message.timestamp.toLocaleTimeString()}</span>
@@ -321,12 +325,12 @@ const App: React.FC = () => {
               </div>
             ))}
             {isLoading && (
-              <div className="message assistant loading">
+              <div className="message assistant loading" role="status" aria-label="응답 생성 중">
                 <div className="message-header">
                   <span className="role">Gemini</span>
                 </div>
                 <div className="message-content">
-                  <div className="loading-dots">
+                  <div className="loading-dots" aria-hidden="true">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -337,31 +341,36 @@ const App: React.FC = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="input-container">
+          <div className="input-container" role="form" aria-label="메시지 입력">
             <FileAttachment
               onFilesSelected={handleFilesSelected}
               attachedFiles={attachedFiles}
               onRemoveFile={handleRemoveFile}
             />
+            <label htmlFor="message-input" className="sr-only">메시지 입력</label>
             <textarea
+              ref={textareaRef}
+              id="message-input"
               className="input-field"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="메시지를 입력하세요... (Enter: 전송, Shift+Enter: 줄바꿈)"
               disabled={isLoading}
-              rows={3}
+              rows={1}
+              aria-label="메시지 입력"
             />
             <button
               className="send-button"
               onClick={handleSend}
               disabled={isLoading || !input.trim()}
+              aria-label={isLoading ? '전송 중' : '메시지 전송'}
             >
               {isLoading ? '전송 중...' : '전송'}
             </button>
           </div>
         </div>
-      </div>
+      </main>
 
       <Settings
         isOpen={isSettingsOpen}

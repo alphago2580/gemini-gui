@@ -41,17 +41,18 @@ const FileAttachment: React.FC<FileAttachmentProps> = ({
   };
 
   return (
-    <div className="file-attachment">
+    <div className="file-attachment" role="region" aria-label="파일 첨부">
       {attachedFiles.length > 0 && (
-        <div className="attached-files">
+        <div className="attached-files" role="list" aria-label="첨부된 파일 목록">
           {attachedFiles.map((file, index) => (
-            <div key={index} className="file-chip">
-              <span className="file-icon">{getFileIcon(file.type)}</span>
+            <div key={index} className="file-chip" role="listitem">
+              <span className="file-icon" aria-hidden="true">{getFileIcon(file.type)}</span>
               <span className="file-name">{file.name}</span>
               <span className="file-size">{formatFileSize(file.size)}</span>
               <button
                 className="remove-file"
                 onClick={() => onRemoveFile(index)}
+                aria-label={`${file.name} 제거`}
                 title="파일 제거"
               >
                 ×
@@ -66,6 +67,7 @@ const FileAttachment: React.FC<FileAttachmentProps> = ({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        aria-label="파일 드래그 앤 드롭 영역"
       >
         <input
           type="file"
@@ -74,9 +76,10 @@ const FileAttachment: React.FC<FileAttachmentProps> = ({
           onChange={handleFileInput}
           accept="image/*,.pdf,.txt,.doc,.docx"
           style={{ display: 'none' }}
+          aria-label="파일 선택"
         />
         <label htmlFor="file-input" className="file-input-label">
-          <span className="icon">📎</span>
+          <span className="icon" aria-hidden="true">📎</span>
           <span className="text">
             {isDragging ? '파일을 여기에 놓으세요' : '파일 첨부 (클릭 또는 드래그)'}
           </span>

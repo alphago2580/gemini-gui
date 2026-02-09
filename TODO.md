@@ -40,7 +40,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [ ] Ctrl+Enter: Send message (alternative)
 
 ### Input Enhancements
-- [ ] Auto-resize textarea
+- [x] Auto-resize textarea (useAutoResize hook)
 - [ ] Drag & drop file attachment
 - [ ] Paste image from clipboard
 - [ ] Message edit (click to edit sent message)
@@ -63,9 +63,9 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [ ] Prompt templates/presets
 
 ### Accessibility
-- [ ] ARIA labels on all interactive elements
-- [ ] Screen reader announcements for new messages
-- [ ] Focus management for keyboard navigation
+- [x] ARIA labels on all interactive elements
+- [x] Screen reader announcements for new messages (aria-live="polite")
+- [x] Focus management for keyboard navigation (tabIndex + Enter/Space on conversation items)
 - [ ] High contrast mode
 
 ### Developer Experience
@@ -76,8 +76,9 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Comprehensive unit tests for all components (106 tests)
 - [x] Extract shared utility functions to src/renderer/utils/
 - [x] Remove `any` types from codebase (AppSettings, StreamData, etc.)
-- [x] Custom hooks extraction (useLocalStorage, useConversations, useKeyboardShortcuts)
+- [x] Custom hooks extraction (useLocalStorage, useConversations, useKeyboardShortcuts, useAutoResize)
 - [x] App.tsx refactored — conversation logic extracted to useConversations hook
+- [x] Comprehensive accessibility (ARIA) improvements across all components (182 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

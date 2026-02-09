@@ -172,4 +172,53 @@ describe('FileAttachment', () => {
     render(<FileAttachment {...defaultProps} attachedFiles={files} />);
     expect(screen.getByTitle('파일 제거')).toBeInTheDocument();
   });
+
+  // Accessibility tests
+  describe('Accessibility', () => {
+    it('has role="region" with aria-label on root', () => {
+      render(<FileAttachment {...defaultProps} />);
+      expect(screen.getByRole('region')).toHaveAttribute('aria-label', '파일 첨부');
+    });
+
+    it('attached files list has role="list"', () => {
+      const files = [createMockFile('test.txt', 100, 'text/plain')];
+      render(<FileAttachment {...defaultProps} attachedFiles={files} />);
+      expect(screen.getByRole('list')).toHaveAttribute('aria-label', '첨부된 파일 목록');
+    });
+
+    it('file chips have role="listitem"', () => {
+      const files = [
+        createMockFile('a.txt', 100, 'text/plain'),
+        createMockFile('b.pdf', 200, 'application/pdf'),
+      ];
+      render(<FileAttachment {...defaultProps} attachedFiles={files} />);
+      const items = screen.getAllByRole('listitem');
+      expect(items).toHaveLength(2);
+    });
+
+    it('remove button has descriptive aria-label with filename', () => {
+      const files = [createMockFile('report.pdf', 500, 'application/pdf')];
+      render(<FileAttachment {...defaultProps} attachedFiles={files} />);
+      expect(screen.getByRole('button', { name: 'report.pdf 제거' })).toBeInTheDocument();
+    });
+
+    it('drop zone has aria-label', () => {
+      const { container } = render(<FileAttachment {...defaultProps} />);
+      const dropZone = container.querySelector('.drop-zone');
+      expect(dropZone).toHaveAttribute('aria-label', '파일 드래그 앤 드롭 영역');
+    });
+
+    it('file input has aria-label', () => {
+      render(<FileAttachment {...defaultProps} />);
+      const input = document.querySelector('#file-input') as HTMLInputElement;
+      expect(input).toHaveAttribute('aria-label', '파일 선택');
+    });
+
+    it('file icons are hidden from screen readers', () => {
+      const files = [createMockFile('test.txt', 100, 'text/plain')];
+      const { container } = render(<FileAttachment {...defaultProps} attachedFiles={files} />);
+      const icons = container.querySelectorAll('.file-icon[aria-hidden="true"]');
+      expect(icons.length).toBeGreaterThanOrEqual(1);
+    });
+  });
 });

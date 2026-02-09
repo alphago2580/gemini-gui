@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (147 tests)
+- **Test Status**: Passing (182 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -61,3 +61,19 @@
 - Added 12 tests for `useTheme` hook
 - Added 4 tests for theme selector in Settings
 - Total tests: 131 → 147 (all passing)
+
+### Agent 2 (Quality) — Accessibility & Auto-Resize Textarea
+- Added ARIA labels, roles, and landmarks to all components (App, Sidebar, Settings, FileAttachment)
+- App.tsx: `role="application"`, `<main>` landmark, `role="log"` with `aria-live="polite"` on messages, `role="form"` on input area, `role="article"` on messages, `role="status"` on loading indicator
+- Sidebar.tsx: Changed to `<nav>` element, added `role="list"`/`role="listitem"`, `aria-current` on active conversation, keyboard navigation (Enter/Space) on conversation items, `tabIndex={0}` for focusability
+- Settings.tsx: Added `role="dialog"`, `aria-modal="true"`, `aria-label` on close button
+- FileAttachment.tsx: Added `role="region"`, `role="list"`/`role="listitem"` on file chips, descriptive `aria-label` on remove buttons with filename, `aria-hidden` on decorative icons
+- Added `sr-only` CSS utility class for screen reader labels
+- Created `useAutoResize` hook for auto-resizing textarea (min 44px, max 200px)
+- Textarea auto-grows with content and shows scrollbar when exceeding max height
+- Added 7 tests for `useAutoResize` hook
+- Added 8 accessibility tests for App component
+- Added 10 accessibility tests for Sidebar component
+- Added 3 accessibility tests for Settings component
+- Added 7 accessibility tests for FileAttachment component
+- Total tests: 147 → 182 (all passing)
