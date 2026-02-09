@@ -269,4 +269,107 @@ describe('useConversations', () => {
     expect(firstConv).toBeDefined();
     expect(firstConv!.messages).toEqual([]);
   });
+
+  describe('deleteMessage', () => {
+    it('deletes a message by index', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const msgs = [
+        { role: 'user' as const, content: 'First', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'Second', timestamp: new Date() },
+        { role: 'user' as const, content: 'Third', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      expect(result.current.messages).toHaveLength(3);
+
+      act(() => {
+        result.current.deleteMessage(1);
+      });
+
+      expect(result.current.messages).toHaveLength(2);
+      expect(result.current.messages[0].content).toBe('First');
+      expect(result.current.messages[1].content).toBe('Third');
+    });
+
+    it('deletes the first message', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const msgs = [
+        { role: 'user' as const, content: 'Hello', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'Hi', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      act(() => {
+        result.current.deleteMessage(0);
+      });
+
+      expect(result.current.messages).toHaveLength(1);
+      expect(result.current.messages[0].content).toBe('Hi');
+    });
+
+    it('deletes the last message', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const msgs = [
+        { role: 'user' as const, content: 'Hello', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'Hi', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      act(() => {
+        result.current.deleteMessage(1);
+      });
+
+      expect(result.current.messages).toHaveLength(1);
+      expect(result.current.messages[0].content).toBe('Hello');
+    });
+
+    it('updates the conversation in conversations list', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const msgs = [
+        { role: 'user' as const, content: 'Hello', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'Hi', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      act(() => {
+        result.current.deleteMessage(0);
+      });
+
+      const conv = result.current.conversations[0];
+      expect(conv.messages).toHaveLength(1);
+      expect(conv.messages[0].content).toBe('Hi');
+    });
+  });
 });

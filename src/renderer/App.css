@@ -240,9 +240,35 @@
 
 .message-header {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 0.5rem;
   font-size: 0.75rem;
+}
+
+.message-header .timestamp {
+  margin-left: auto;
+  color: var(--text-secondary);
+}
+
+.delete-message-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.message:hover .delete-message-btn {
+  opacity: 1;
+}
+
+.delete-message-btn:hover {
+  color: var(--remove-hover);
 }
 
 .message-header .role {
@@ -257,10 +283,6 @@
 
 .message.assistant .role {
   color: var(--text-heading);
-}
-
-.message-header .timestamp {
-  color: var(--text-secondary);
 }
 
 .message-content {

@@ -344,4 +344,28 @@ describe('App Component', () => {
             });
         });
     });
+
+    // Delete message tests
+    describe('Delete Message', () => {
+        it('shows delete button on messages', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(screen.getByRole('button', { name: '메시지 삭제' })).toBeInTheDocument();
+        });
+
+        it('removes message when delete button is clicked', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Test message to delete');
+            await user.click(screen.getByText('전송'));
+            expect(screen.getByText('Test message to delete')).toBeInTheDocument();
+
+            await user.click(screen.getByRole('button', { name: '메시지 삭제' }));
+            expect(screen.queryByText('Test message to delete')).not.toBeInTheDocument();
+        });
+    });
 });

@@ -100,6 +100,14 @@ export function useConversations() {
     }
   }, [conversations]);
 
+  const deleteMessage = useCallback((index: number) => {
+    setMessages(prev => {
+      const updated = prev.filter((_, i) => i !== index);
+      updateCurrentConversation(updated);
+      return updated;
+    });
+  }, [updateCurrentConversation]);
+
   return {
     conversations,
     currentConversationId,
@@ -108,5 +116,6 @@ export function useConversations() {
     handleNewChat,
     handleSelectConversation,
     updateCurrentConversation,
+    deleteMessage,
   };
 }

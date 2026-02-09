@@ -29,6 +29,7 @@ const App: React.FC = () => {
     handleNewChat,
     handleSelectConversation,
     updateCurrentConversation,
+    deleteMessage,
   } = useConversations();
 
   // Theme
@@ -347,6 +348,14 @@ const App: React.FC = () => {
                 <div className="message-header">
                   <span className="role">{message.role === 'user' ? '사용자' : 'Gemini'}</span>
                   <span className="timestamp">{message.timestamp.toLocaleTimeString()}</span>
+                  <button
+                    className="delete-message-btn"
+                    onClick={() => deleteMessage(index)}
+                    aria-label={`메시지 삭제`}
+                    title="메시지 삭제"
+                  >
+                    &times;
+                  </button>
                 </div>
                 <div className="message-content">{message.content}</div>
               </div>

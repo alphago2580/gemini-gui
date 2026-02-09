@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (203 tests)
+- **Test Status**: Passing (209 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -98,3 +98,12 @@
 - Added `aria-label` on search input for accessibility
 - Added 8 tests for search functionality (title search, content search, case-insensitive, empty results, clear search)
 - Total tests: 195 → 203 (all passing)
+
+### Agent 2 (Quality) — Delete Individual Messages
+- Added `deleteMessage` function to `useConversations` hook
+- Added delete button (×) on each message bubble, visible on hover
+- Button hidden by default, appears on message hover for clean UI
+- Updates both local state and conversation storage
+- Added 4 tests for `deleteMessage` in useConversations hook
+- Added 2 tests for delete UI in App component
+- Total tests: 203 → 209 (all passing)
