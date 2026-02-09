@@ -16,9 +16,10 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from './hooks/useTheme';
 import { useAutoResize } from './hooks/useAutoResize';
 import { useToast } from './hooks/useToast';
+import { useStreamHandler } from './hooks/useStreamHandler';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { exportToMarkdown, exportToHtml } from './utils/format';
-import type { AppSettings, StreamData, StreamErrorData, Message, TokenUsage as TokenUsageType } from '../preload/types';
+import type { AppSettings, Message } from '../preload/types';
 
 const STORAGE_KEY_SETTINGS = 'gemini-settings';
 
@@ -63,15 +64,27 @@ const App: React.FC = () => {
   // Prompt templates
   const { templates, addTemplate, deleteTemplate } = usePromptTemplates();
 
+  // Stream handler
+  const {
+    isLoading,
+    isStreaming,
+    tokenUsage,
+    clearTokenUsage,
+    startLoading,
+    stopLoading,
+  } = useStreamHandler({
+    currentConversationId,
+    setMessages,
+    updateCurrentConversation,
+    addToast,
+  });
+
   // UI state
   const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isStreaming, setIsStreaming] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage('gemini-sidebar-collapsed', false);
   const [highContrast, setHighContrast] = useLocalStorage('gemini-high-contrast', false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [tokenUsage, setTokenUsage] = useState<TokenUsageType | null>(null);
 
   // Apply high contrast attribute
   useEffect(() => {
@@ -228,94 +241,6 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // 스트리밍 데이터 수신 리스너 설정
-  useEffect(() => {
-    if (window.electronAPI) {
-      // 스트리밍 데이터 처리
-      window.electronAPI.onStreamData((data: StreamData) => {
-        console.log('Stream data received:', data);
-
-        if (data.type === 'message' && data.role === 'assistant') {
-          setIsStreaming(true);
-          // 어시스턴트 메시지 스트리밍
-          setMessages(prev => {
-            const lastMessage = prev[prev.length - 1];
-
-            if (lastMessage && lastMessage.role === 'assistant' && data.delta) {
-              // 스트리밍 중: 마지막 메시지에 추가
-              const updated = [
-                ...prev.slice(0, -1),
-                { ...lastMessage, content: lastMessage.content + (data.content || '') }
-              ];
-              updateCurrentConversation(updated);
-              return updated;
-            } else if (!data.delta) {
-              // 완전한 메시지 (delta가 false인 경우)
-              const updated = [...prev, {
-                role: 'assistant' as const,
-                content: data.content || '',
-                timestamp: new Date()
-              }];
-              updateCurrentConversation(updated);
-              return updated;
-            } else {
-              // 첫 delta 메시지: 새 어시스턴트 메시지 시작
-              const updated = [...prev, {
-                role: 'assistant' as const,
-                content: data.content || '',
-                timestamp: new Date()
-              }];
-              updateCurrentConversation(updated);
-              return updated;
-            }
-          });
-        } else if (data.type === 'result' && data.stats) {
-          // 토큰 사용량 추출
-          const stats = data.stats;
-          const inputTokens = typeof stats.inputTokens === 'number' ? stats.inputTokens
-            : typeof stats.input_tokens === 'number' ? stats.input_tokens : 0;
-          const outputTokens = typeof stats.outputTokens === 'number' ? stats.outputTokens
-            : typeof stats.output_tokens === 'number' ? stats.output_tokens : 0;
-          const totalTokens = typeof stats.totalTokens === 'number' ? stats.totalTokens
-            : typeof stats.total_tokens === 'number' ? stats.total_tokens
-            : inputTokens + outputTokens;
-          if (inputTokens > 0 || outputTokens > 0) {
-            setTokenUsage({ inputTokens, outputTokens, totalTokens });
-          }
-        }
-      });
-
-      // 스트리밍 완료 처리
-      window.electronAPI.onStreamComplete(() => {
-        setIsLoading(false);
-        setIsStreaming(false);
-      });
-
-      // 스트리밍 에러 처리
-      window.electronAPI.onStreamError((data: StreamErrorData) => {
-        console.error('Stream error:', data);
-        addToast('error', data.error);
-        setMessages(prev => {
-          const updated = [...prev, {
-            role: 'assistant' as const,
-            content: `오류: ${data.error}`,
-            timestamp: new Date()
-          }];
-          updateCurrentConversation(updated);
-          return updated;
-        });
-        setIsLoading(false);
-        setIsStreaming(false);
-      });
-    }
-
-    return () => {
-      if (window.electronAPI) {
-        window.electronAPI.removeAllListeners();
-      }
-    };
-  }, [currentConversationId, setMessages, updateCurrentConversation, addToast]);
-
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -357,8 +282,8 @@ const App: React.FC = () => {
 
     const messageToSend = input;
     setInput('');
-    setIsLoading(true);
-    setTokenUsage(null);
+    startLoading();
+    clearTokenUsage();
 
     try {
       // sendMessage는 Promise를 반환하지만 실제 응답은 스트리밍으로 온다
@@ -388,7 +313,7 @@ const App: React.FC = () => {
         updateCurrentConversation(updated);
         return updated;
       });
-      setIsLoading(false);
+      stopLoading();
     }
   };
 

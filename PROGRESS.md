@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (559 tests)
+- **Test Status**: Passing (575 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -350,3 +350,12 @@
 - Added 24 unit tests for MessageBubble (rendering, roles, CSS classes, delete, edit flow, streaming cursor)
 - All existing App.tsx integration tests continue to pass (behavior unchanged)
 - Total tests: 535 → 559 (23 test files, all passing)
+
+### Agent 2 (Quality) — useStreamHandler Hook Extraction
+- Extracted streaming data handling from App.tsx into `useStreamHandler` custom hook
+- Hook manages: isLoading, isStreaming, tokenUsage state + stream listener setup/teardown
+- Provides: startLoading, stopLoading, clearTokenUsage helper callbacks
+- App.tsx reduced from ~560 lines to ~487 lines (total reduction: 620 → 487)
+- Removed direct dependency on StreamData, StreamErrorData types from App.tsx
+- Added 16 unit tests for useStreamHandler (init state, listeners, streaming, errors, token parsing)
+- Total tests: 559 → 575 (24 test files, all passing)

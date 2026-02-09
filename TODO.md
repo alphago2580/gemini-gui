@@ -104,6 +104,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Delete conversation from sidebar — hover-reveal × button, deleteConversation in useConversations, clears messages on current delete (476 tests)
 - [x] LaTeX/math rendering — lightweight renderer, Greek letters, fractions, sqrt, sup/sub, math symbols, inline $...$ and block $$...$$ (535 tests)
 - [x] MessageBubble component extraction — encapsulated message rendering, edit mode, delete, streaming cursor (559 tests)
+- [x] useStreamHandler hook extraction — streaming data, errors, token usage, loading state (575 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*
