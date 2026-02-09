@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import './App.css';
 import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
@@ -153,16 +153,16 @@ const App: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Clear current conversation messages
-  const handleClearConversation = () => {
+  const handleClearConversation = useCallback(() => {
     if (currentConversationId) {
       updateCurrentConversation([]);
     }
-  };
+  }, [currentConversationId, updateCurrentConversation]);
 
   // Toggle sidebar collapse
-  const handleToggleSidebar = () => {
+  const handleToggleSidebar = useCallback(() => {
     setIsSidebarCollapsed(prev => !prev);
-  };
+  }, [setIsSidebarCollapsed]);
 
   // Export handlers (extracted to custom hook)
   const { handleExport, handleExportPdf } = useExport({

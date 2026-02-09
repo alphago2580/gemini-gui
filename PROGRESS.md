@@ -498,3 +498,9 @@
 - **App.test.tsx**: Replaced all `data: any` stream callback types with `StreamData` import (6 occurrences)
 - Zero `any` usage remaining across entire codebase (src/ and test/)
 - Total tests: 696 (30 test files, all passing)
+
+### Agent 2 (Quality) — useCallback Optimization in App.tsx
+- Wrapped `handleClearConversation` and `handleToggleSidebar` with `useCallback`
+- These functions are dependencies of the `commands` useMemo and passed to child components
+- Without useCallback, they were recreated every render, causing commands array to also recreate
+- Total tests: 696 (30 test files, all passing)
