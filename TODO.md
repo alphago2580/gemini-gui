@@ -113,6 +113,10 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Smart scroll to bottom — useAutoScroll hook, auto-scroll when near bottom, scroll-to-bottom button when scrolled up (640 tests)
 - [x] Conversation branching — fork from any message, creates new conversation with messages up to fork point, (분기) suffix in title (654 tests)
 - [x] useMessageSend hook extraction — message sending, file handling, paste, key events extracted from App.tsx (672 tests)
+- [x] Settings local state sync bug fix — reset localSettings on reopen, external settings sync (674 tests)
+- [x] Stable message IDs — unique IDs for React keys, legacy message backfill, generateMessageId utility (677 tests)
+- [x] React.memo optimization — MessageBubble, MarkdownRenderer, Sidebar, TokenUsage, TypingIndicator, TabBar (677 tests)
+- [x] sanitizeFileName utility — extracted from App.tsx export handlers, reduced duplication (682 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

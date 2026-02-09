@@ -19,6 +19,10 @@ export function generateMessageId(): string {
   return `msg-${Date.now()}-${messageIdCounter++}`;
 }
 
+export function sanitizeFileName(title: string): string {
+  return title.replace(/[^a-zA-Z0-9가-힣\s-]/g, '').replace(/\s+/g, '-');
+}
+
 export function generateConversationTitle(firstMessage: string, maxLength = 50): string {
   return firstMessage.length > maxLength
     ? firstMessage.substring(0, maxLength) + '...'

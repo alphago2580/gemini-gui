@@ -22,7 +22,7 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { useTabs } from './hooks/useTabs';
 import { useAutoScroll } from './hooks/useAutoScroll';
 import { useMessageSend } from './hooks/useMessageSend';
-import { exportToMarkdown, exportToHtml } from './utils/format';
+import { exportToMarkdown, exportToHtml, sanitizeFileName } from './utils/format';
 import type { AppSettings } from '../preload/types';
 
 const STORAGE_KEY_SETTINGS = 'gemini-settings';
@@ -181,15 +181,16 @@ const App: React.FC = () => {
     setIsSidebarCollapsed(prev => !prev);
   };
 
+  const getCurrentTitle = () => {
+    const currentConv = conversations.find(c => c.id === currentConversationId);
+    return currentConv?.title || 'Untitled Conversation';
+  };
+
   const handleExport = async () => {
     if (messages.length === 0) return;
-
-    const currentConv = conversations.find(c => c.id === currentConversationId);
-    const title = currentConv?.title || 'Untitled Conversation';
+    const title = getCurrentTitle();
     const markdown = exportToMarkdown(title, messages);
-    const safeTitle = title.replace(/[^a-zA-Z0-9가-힣\s-]/g, '').replace(/\s+/g, '-');
-    const defaultFileName = `${safeTitle}.md`;
-
+    const defaultFileName = `${sanitizeFileName(title)}.md`;
     if (window.electronAPI?.exportMarkdown) {
       await window.electronAPI.exportMarkdown(markdown, defaultFileName);
     }
@@ -197,13 +198,9 @@ const App: React.FC = () => {
 
   const handleExportPdf = async () => {
     if (messages.length === 0) return;
-
-    const currentConv = conversations.find(c => c.id === currentConversationId);
-    const title = currentConv?.title || 'Untitled Conversation';
+    const title = getCurrentTitle();
     const html = exportToHtml(title, messages);
-    const safeTitle = title.replace(/[^a-zA-Z0-9가-힣\s-]/g, '').replace(/\s+/g, '-');
-    const defaultFileName = `${safeTitle}.pdf`;
-
+    const defaultFileName = `${sanitizeFileName(title)}.pdf`;
     if (window.electronAPI?.exportPdf) {
       await window.electronAPI.exportPdf(html, defaultFileName);
     }

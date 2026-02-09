@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatFileSize, getFileIcon, generateConversationTitle, generateMessageId, exportToMarkdown, exportToHtml, ExportableMessage } from './format';
+import { formatFileSize, getFileIcon, generateConversationTitle, generateMessageId, sanitizeFileName, exportToMarkdown, exportToHtml, ExportableMessage } from './format';
 
 describe('formatFileSize', () => {
   it('formats bytes', () => {
@@ -287,5 +287,27 @@ describe('generateMessageId', () => {
     const ts = parseInt(parts[1], 10);
     expect(ts).toBeGreaterThanOrEqual(before);
     expect(ts).toBeLessThanOrEqual(after);
+  });
+});
+
+describe('sanitizeFileName', () => {
+  it('removes special characters', () => {
+    expect(sanitizeFileName('Hello <World>')).toBe('Hello-World');
+  });
+
+  it('replaces spaces with hyphens', () => {
+    expect(sanitizeFileName('My Chat Title')).toBe('My-Chat-Title');
+  });
+
+  it('preserves Korean characters', () => {
+    expect(sanitizeFileName('대화 제목')).toBe('대화-제목');
+  });
+
+  it('preserves alphanumeric and hyphens', () => {
+    expect(sanitizeFileName('chat-123')).toBe('chat-123');
+  });
+
+  it('handles multiple consecutive spaces', () => {
+    expect(sanitizeFileName('hello   world')).toBe('hello-world');
   });
 });

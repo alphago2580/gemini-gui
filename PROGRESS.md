@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (677 tests)
+- **Test Status**: Passing (682 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -448,3 +448,10 @@
 - Used Inner/Wrapper pattern for React.memo compatibility with esbuild
 - No test changes needed — behavior is identical, only rendering performance is improved
 - Total tests: 677 (28 test files, all passing)
+
+### Agent 2 (Quality) — Additional React.memo + sanitizeFileName Utility
+- Applied `React.memo` to Sidebar, TokenUsage, TypingIndicator, TabBar components
+- Extracted `sanitizeFileName` utility from duplicated inline regex in App.tsx export handlers
+- Reduced code duplication in `handleExport` and `handleExportPdf` with shared `getCurrentTitle` helper
+- Added 5 tests for `sanitizeFileName` (special chars, spaces, Korean, alphanumeric, multiple spaces)
+- Total tests: 677 → 682 (28 test files, all passing)
