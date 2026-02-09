@@ -4,13 +4,13 @@ import { GeminiProcess } from './GeminiProcess';
 import { EventEmitter } from 'events';
 
 // Mock node-pty
-const mockPtyProcess = new EventEmitter();
-// Add required pty methods (which EventEmitter doesn't have)
-(mockPtyProcess as any).write = vi.fn();
-(mockPtyProcess as any).kill = vi.fn();
-(mockPtyProcess as any).resize = vi.fn();
+const mockPtyProcess = Object.assign(new EventEmitter(), {
+  write: vi.fn(),
+  kill: vi.fn(),
+  resize: vi.fn(),
+});
 
-const mockSpawn = vi.fn(() => mockPtyProcess);
+const mockSpawn = vi.fn((..._args: unknown[]) => mockPtyProcess);
 
 // Important: Return the mock object directly, do NOT use actual factory
 vi.mock('node-pty', () => {
@@ -94,14 +94,14 @@ describe('GeminiProcess', () => {
     it('does not pass --model flag when model is auto', () => {
         gemini.start('dummy/path', '/tmp', process.env, undefined, 'auto');
 
-        const args = mockSpawn.mock.calls[0][1];
+        const args = mockSpawn.mock.calls[0][1] as string[];
         expect(args).not.toContain('--model');
     });
 
     it('does not pass --model flag when model is undefined', () => {
         gemini.start('dummy/path', '/tmp');
 
-        const args = mockSpawn.mock.calls[0][1];
+        const args = mockSpawn.mock.calls[0][1] as string[];
         expect(args).not.toContain('--model');
     });
 

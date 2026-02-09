@@ -479,3 +479,15 @@
 - Applied `React.memo` to CommandPalette, PromptTemplates, FileAttachment, Toast, Settings
 - All 12 components now wrapped with React.memo (except ErrorBoundary which is a class component)
 - Total tests: 696 (30 test files, all passing)
+
+### Agent 2 (Quality) — Fix TypeScript Type Checking (560 → 0 errors)
+- Added `vitest/globals` and `@testing-library/jest-dom` to tsconfig `types` array
+- Fixed `MarkdownRenderer.tsx` HeadingTag type: `keyof JSX.IntrinsicElements` → explicit union type
+- Fixed `GeminiProcess.test.ts`: `mockSpawn` variadic args typing, `Object.assign` for mock pty methods
+- Fixed `CommandPalette.test.tsx`: explicit `vi.fn<() => void>()` type parameters for Command actions
+- Fixed `useExport.test.ts`: double-cast `window as unknown as Record` for mock assignment
+- Fixed `App.test.tsx`: `as unknown as typeof window.electronAPI` replacing `as any`
+- Fixed `test/setup.ts`: replaced `as any` with typed cast for window.require mock
+- Eliminated all `as any` usage from test files
+- `npx tsc --noEmit` now passes with 0 errors (down from 560)
+- Total tests: 696 (30 test files, all passing)

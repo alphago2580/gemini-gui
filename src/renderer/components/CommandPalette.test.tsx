@@ -6,20 +6,20 @@ import CommandPalette from './CommandPalette';
 import type { Command } from './CommandPalette';
 
 const createCommands = (): Command[] => [
-  { id: 'new-chat', label: '새 대화', shortcut: 'Ctrl+N', action: vi.fn() },
-  { id: 'clear', label: '대화 지우기', shortcut: 'Ctrl+L', action: vi.fn() },
-  { id: 'search', label: '대화 검색', shortcut: 'Ctrl+F', action: vi.fn() },
-  { id: 'settings', label: '설정 열기', shortcut: 'Ctrl+,', action: vi.fn() },
-  { id: 'export', label: 'Markdown으로 내보내기', action: vi.fn() },
+  { id: 'new-chat', label: '새 대화', shortcut: 'Ctrl+N', action: vi.fn<() => void>() },
+  { id: 'clear', label: '대화 지우기', shortcut: 'Ctrl+L', action: vi.fn<() => void>() },
+  { id: 'search', label: '대화 검색', shortcut: 'Ctrl+F', action: vi.fn<() => void>() },
+  { id: 'settings', label: '설정 열기', shortcut: 'Ctrl+,', action: vi.fn<() => void>() },
+  { id: 'export', label: 'Markdown으로 내보내기', action: vi.fn<() => void>() },
 ];
 
 describe('CommandPalette', () => {
   let commands: Command[];
-  let onClose: ReturnType<typeof vi.fn>;
+  let onClose: () => void;
 
   beforeEach(() => {
     commands = createCommands();
-    onClose = vi.fn();
+    onClose = vi.fn<() => void>();
   });
 
   it('renders nothing when closed', () => {

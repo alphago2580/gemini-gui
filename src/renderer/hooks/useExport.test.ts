@@ -8,7 +8,7 @@ const mockExportPdf = vi.fn().mockResolvedValue({ success: true });
 
 beforeEach(() => {
   vi.clearAllMocks();
-  (window as Record<string, unknown>).electronAPI = {
+  (window as unknown as Record<string, unknown>).electronAPI = {
     exportMarkdown: mockExportMarkdown,
     exportPdf: mockExportPdf,
   };

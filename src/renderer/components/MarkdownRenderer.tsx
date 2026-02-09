@@ -242,7 +242,7 @@ function renderParagraphContent(text: string): React.ReactNode[] {
     if (headerMatch) {
       flushList();
       const level = headerMatch[1].length as 1 | 2 | 3 | 4 | 5 | 6;
-      const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
+      const HeadingTag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
       elements.push(
         <HeadingTag key={key++} className={`md-heading md-h${level}`}>
           {renderInlineMarkdown(headerMatch[2])}

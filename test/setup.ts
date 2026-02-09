@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 
 // Global mocks if needed
-(window as any).require = (window as any).require || function () {
+(window as unknown as Record<string, unknown>).require = (window as unknown as Record<string, unknown>).require || function () {
     return {
         ipcRenderer: {
             on: () => { },

@@ -19,7 +19,7 @@ const mockElectronAPI = {
     exportPdf: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.pdf' }),
 };
 
-global.window.electronAPI = mockElectronAPI as any;
+global.window.electronAPI = mockElectronAPI as unknown as typeof window.electronAPI;
 
 describe('App Component', () => {
     beforeEach(() => {
