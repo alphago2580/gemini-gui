@@ -10,6 +10,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from './hooks/useTheme';
 import { useAutoResize } from './hooks/useAutoResize';
 import { useToast } from './hooks/useToast';
+import { useLocalStorage } from './hooks/useLocalStorage';
 import { exportToMarkdown } from './utils/format';
 import type { AppSettings, StreamData, StreamErrorData, Message } from '../preload/types';
 
@@ -45,6 +46,7 @@ const App: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage('gemini-sidebar-collapsed', false);
 
   // Auto-resize textarea
   const { textareaRef } = useAutoResize(input);
@@ -73,6 +75,11 @@ const App: React.FC = () => {
     }
   };
 
+  // Toggle sidebar collapse
+  const handleToggleSidebar = () => {
+    setIsSidebarCollapsed(prev => !prev);
+  };
+
   // Keyboard shortcuts
   useKeyboardShortcuts({
     onNewChat: handleNewChat,
@@ -80,6 +87,7 @@ const App: React.FC = () => {
     onToggleSettings: () => setIsSettingsOpen(prev => !prev),
     onCloseSettings: () => setIsSettingsOpen(false),
     onFocusSearch: () => searchInputRef.current?.focus(),
+    onToggleSidebar: handleToggleSidebar,
     isSettingsOpen,
   });
 
@@ -326,6 +334,8 @@ const App: React.FC = () => {
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
         searchInputRef={searchInputRef}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
       />
 
       <main className="main-content">

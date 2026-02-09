@@ -20,6 +20,7 @@ describe('useKeyboardShortcuts', () => {
     onToggleSettings: vi.fn(),
     onCloseSettings: vi.fn(),
     onFocusSearch: vi.fn(),
+    onToggleSidebar: vi.fn(),
     isSettingsOpen: false,
   });
 
@@ -117,6 +118,22 @@ describe('useKeyboardShortcuts', () => {
 
     fireKeyDown('f', { metaKey: true });
     expect(actions.onFocusSearch).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onToggleSidebar on Ctrl+B', () => {
+    const actions = defaultActions();
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('b', { ctrlKey: true });
+    expect(actions.onToggleSidebar).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onToggleSidebar on Meta+B (macOS)', () => {
+    const actions = defaultActions();
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('b', { metaKey: true });
+    expect(actions.onToggleSidebar).toHaveBeenCalledTimes(1);
   });
 
   it('cleans up event listener on unmount', () => {

@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (260 tests)
+- **Test Status**: Passing (278 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -155,3 +155,15 @@
 - Added 6 tests for useToast hook (add, dismiss, unique IDs)
 - Added 1 integration test in App (toast shown on send error)
 - Total tests: 242 → 260 (all passing)
+
+### Agent 2 (Quality) — Responsive Collapsible Sidebar
+- Added `isCollapsed` and `onToggleCollapse` props to Sidebar component
+- Collapsed state hides title, search, conversations list; shows only icon buttons
+- Toggle button with ◀/▶ indicators and accessible aria-labels
+- CSS transition animation (width 260px ↔ 60px, 0.2s ease)
+- State persisted via `useLocalStorage('gemini-sidebar-collapsed')`
+- Added Ctrl+B / Cmd+B keyboard shortcut to toggle sidebar (useKeyboardShortcuts)
+- Added 11 tests for Sidebar collapse (toggle, class, hiding, accessibility)
+- Added 2 tests for Ctrl+B in useKeyboardShortcuts
+- Added 5 integration tests in App (toggle, Ctrl+B, persistence)
+- Total tests: 260 → 278 (all passing)

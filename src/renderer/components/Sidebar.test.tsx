@@ -189,6 +189,72 @@ describe('Sidebar', () => {
     });
   });
 
+  // Collapse tests
+  describe('Collapse', () => {
+    it('renders collapse toggle button when onToggleCollapse is provided', () => {
+      render(<Sidebar {...defaultProps} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByRole('button', { name: '사이드바 접기' })).toBeInTheDocument();
+    });
+
+    it('does not render collapse toggle when onToggleCollapse is not provided', () => {
+      render(<Sidebar {...defaultProps} />);
+      expect(screen.queryByRole('button', { name: '사이드바 접기' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: '사이드바 펼치기' })).not.toBeInTheDocument();
+    });
+
+    it('adds collapsed class when isCollapsed is true', () => {
+      render(<Sidebar {...defaultProps} isCollapsed={true} onToggleCollapse={vi.fn()} />);
+      const nav = screen.getByRole('navigation');
+      expect(nav).toHaveClass('collapsed');
+    });
+
+    it('does not add collapsed class when isCollapsed is false', () => {
+      render(<Sidebar {...defaultProps} isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      const nav = screen.getByRole('navigation');
+      expect(nav).not.toHaveClass('collapsed');
+    });
+
+    it('calls onToggleCollapse when collapse button is clicked', () => {
+      const onToggleCollapse = vi.fn();
+      render(<Sidebar {...defaultProps} onToggleCollapse={onToggleCollapse} />);
+      fireEvent.click(screen.getByRole('button', { name: '사이드바 접기' }));
+      expect(onToggleCollapse).toHaveBeenCalledTimes(1);
+    });
+
+    it('hides header title when collapsed', () => {
+      render(<Sidebar {...defaultProps} isCollapsed={true} onToggleCollapse={vi.fn()} />);
+      expect(screen.queryByText('Gemini GUI')).not.toBeInTheDocument();
+    });
+
+    it('shows expand button label when collapsed', () => {
+      render(<Sidebar {...defaultProps} isCollapsed={true} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByRole('button', { name: '사이드바 펼치기' })).toBeInTheDocument();
+    });
+
+    it('hides search input when collapsed', () => {
+      render(<Sidebar {...defaultProps} isCollapsed={true} onToggleCollapse={vi.fn()} />);
+      expect(screen.queryByPlaceholderText('대화 검색...')).not.toBeInTheDocument();
+    });
+
+    it('hides conversations list when collapsed', () => {
+      render(<Sidebar {...defaultProps} isCollapsed={true} onToggleCollapse={vi.fn()} conversations={mockConversations} />);
+      expect(screen.queryByText('첫 번째 대화')).not.toBeInTheDocument();
+    });
+
+    it('hides "새 대화" text but keeps button when collapsed', () => {
+      render(<Sidebar {...defaultProps} isCollapsed={true} onToggleCollapse={vi.fn()} />);
+      // Button should still exist (by aria-label) but text should be hidden
+      expect(screen.getByRole('button', { name: '새 대화 시작' })).toBeInTheDocument();
+      expect(screen.queryByText('새 대화')).not.toBeInTheDocument();
+    });
+
+    it('hides "설정" text but keeps button when collapsed', () => {
+      render(<Sidebar {...defaultProps} isCollapsed={true} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByRole('button', { name: '설정 열기' })).toBeInTheDocument();
+      expect(screen.queryByText('설정')).not.toBeInTheDocument();
+    });
+  });
+
   // Search tests
   describe('Search', () => {
     it('renders search input', () => {

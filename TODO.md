@@ -52,7 +52,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [ ] Typing indicator animation
 - [ ] Smooth scroll to bottom on new messages
 - [x] Toast notifications for errors
-- [ ] Responsive sidebar (collapsible)
+- [x] Responsive sidebar (collapsible)
 
 ## 🟢 Low Priority
 
@@ -88,6 +88,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Markdown rendering for messages — headings, bold, italic, code blocks, lists, blockquotes, links (239 tests)
 - [x] Ctrl+F: Focus sidebar search shortcut (242 tests)
 - [x] Toast notifications for errors with auto-dismiss (260 tests)
+- [x] Responsive collapsible sidebar with Ctrl+B shortcut (278 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

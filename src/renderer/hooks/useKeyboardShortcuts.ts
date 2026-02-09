@@ -6,6 +6,7 @@ interface KeyboardShortcutActions {
   onToggleSettings: () => void;
   onCloseSettings: () => void;
   onFocusSearch: () => void;
+  onToggleSidebar: () => void;
   isSettingsOpen: boolean;
 }
 
@@ -15,6 +16,7 @@ export function useKeyboardShortcuts({
   onToggleSettings,
   onCloseSettings,
   onFocusSearch,
+  onToggleSidebar,
   isSettingsOpen,
 }: KeyboardShortcutActions) {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -46,8 +48,12 @@ export function useKeyboardShortcuts({
         e.preventDefault();
         onFocusSearch();
         break;
+      case 'b':
+        e.preventDefault();
+        onToggleSidebar();
+        break;
     }
-  }, [onNewChat, onClearConversation, onToggleSettings, onCloseSettings, onFocusSearch, isSettingsOpen]);
+  }, [onNewChat, onClearConversation, onToggleSettings, onCloseSettings, onFocusSearch, onToggleSidebar, isSettingsOpen]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);

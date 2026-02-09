@@ -452,4 +452,42 @@ describe('App Component', () => {
             expect(screen.getByRole('button', { name: '대화 지우기' })).toBeInTheDocument();
         });
     });
+
+    // Sidebar collapse tests
+    describe('Sidebar Collapse', () => {
+        it('renders collapse toggle button', () => {
+            render(<App />);
+            expect(screen.getByRole('button', { name: '사이드바 접기' })).toBeInTheDocument();
+        });
+
+        it('collapses sidebar on Ctrl+B', () => {
+            render(<App />);
+            expect(screen.getByText('대화 기록')).toBeInTheDocument();
+
+            fireEvent.keyDown(document, { key: 'b', ctrlKey: true });
+            expect(screen.queryByText('대화 기록')).not.toBeInTheDocument();
+        });
+
+        it('expands sidebar on second Ctrl+B', () => {
+            render(<App />);
+            fireEvent.keyDown(document, { key: 'b', ctrlKey: true });
+            expect(screen.queryByText('대화 기록')).not.toBeInTheDocument();
+
+            fireEvent.keyDown(document, { key: 'b', ctrlKey: true });
+            expect(screen.getByText('대화 기록')).toBeInTheDocument();
+        });
+
+        it('collapses sidebar when collapse button is clicked', () => {
+            render(<App />);
+            fireEvent.click(screen.getByRole('button', { name: '사이드바 접기' }));
+            expect(screen.queryByText('대화 기록')).not.toBeInTheDocument();
+            expect(screen.getByRole('button', { name: '사이드바 펼치기' })).toBeInTheDocument();
+        });
+
+        it('persists collapse state to localStorage', () => {
+            render(<App />);
+            fireEvent.click(screen.getByRole('button', { name: '사이드바 접기' }));
+            expect(JSON.parse(localStorage.getItem('gemini-sidebar-collapsed') || 'false')).toBe(true);
+        });
+    });
 });
