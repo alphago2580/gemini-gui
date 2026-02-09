@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (690 tests)
+- **Test Status**: Passing (696 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -464,3 +464,12 @@
 - Removed `exportToMarkdown`, `exportToHtml`, `sanitizeFileName` imports from App.tsx (now in hook)
 - Added 8 unit tests for useExport (return values, getCurrentTitle, empty messages, export args, PDF args, filename sanitization)
 - Total tests: 682 → 690 (29 test files, all passing)
+
+### Agent 2 (Quality) — useSettings Hook Extraction
+- Extracted settings state management from App.tsx into `useSettings` custom hook
+- Hook manages: settings state, localStorage load/save, handleSettingsSave
+- Includes DEFAULT_SETTINGS constant and STORAGE_KEY_SETTINGS
+- Removed `AppSettings` type import from App.tsx (now in hook)
+- App.tsx reduced from ~385 lines to ~359 lines
+- Added 6 unit tests for useSettings (defaults, load, invalid JSON, save, persistence, function type)
+- Total tests: 690 → 696 (30 test files, all passing)

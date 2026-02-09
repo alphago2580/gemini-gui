@@ -23,17 +23,7 @@ import { useTabs } from './hooks/useTabs';
 import { useAutoScroll } from './hooks/useAutoScroll';
 import { useMessageSend } from './hooks/useMessageSend';
 import { useExport } from './hooks/useExport';
-import type { AppSettings } from '../preload/types';
-
-const STORAGE_KEY_SETTINGS = 'gemini-settings';
-
-const DEFAULT_SETTINGS: AppSettings = {
-  model: 'auto',
-  temperature: 1,
-  maxTokens: 2048,
-  theme: 'dark',
-  systemPrompt: ''
-};
+import { useSettings } from './hooks/useSettings';
 
 const MODEL_DISPLAY_NAMES: Record<string, string> = {
   'auto': 'Auto',
@@ -130,15 +120,8 @@ const App: React.FC = () => {
     handleScroll: handleMessagesScroll,
   } = useAutoScroll(messages);
 
-  // Settings state
-  const [settings, setSettings] = useState<AppSettings>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_SETTINGS);
-      return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
-    } catch {
-      return DEFAULT_SETTINGS;
-    }
-  });
+  // Settings state (extracted to custom hook)
+  const { settings, handleSettingsSave } = useSettings();
 
   // Message send logic (input, files, send, paste)
   const {
@@ -213,15 +196,6 @@ const App: React.FC = () => {
     isSettingsOpen,
   });
 
-  // Save settings to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
-  }, [settings]);
-
-  // Handle settings save
-  const handleSettingsSave = (newSettings: AppSettings) => {
-    setSettings(newSettings);
-  };
 
   return (
     <div className="app" role="application">
