@@ -29,4 +29,4 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({ isStreaming = false }
   );
 };
 
-export default TypingIndicator;
+export default React.memo(TypingIndicator);

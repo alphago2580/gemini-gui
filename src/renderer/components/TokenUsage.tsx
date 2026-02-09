@@ -25,4 +25,4 @@ const TokenUsage: React.FC<TokenUsageProps> = ({ usage }) => {
   );
 };
 
-export default TokenUsage;
+export default React.memo(TokenUsage);

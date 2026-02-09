@@ -69,4 +69,4 @@ const TabBar: React.FC<TabBarProps> = ({
   );
 };
 
-export default TabBar;
+export default React.memo(TabBar);
