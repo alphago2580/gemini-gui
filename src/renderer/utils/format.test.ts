@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { formatFileSize, getFileIcon, generateConversationTitle } from './format';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { formatFileSize, getFileIcon, generateConversationTitle, exportToMarkdown, ExportableMessage } from './format';
 
 describe('formatFileSize', () => {
   it('formats bytes', () => {
@@ -85,5 +85,90 @@ describe('generateConversationTitle', () => {
     const message = 'Hello World';
     expect(generateConversationTitle(message, 5)).toBe('Hello...');
     expect(generateConversationTitle(message, 100)).toBe('Hello World');
+  });
+});
+
+describe('exportToMarkdown', () => {
+  let mockDateString: string;
+
+  beforeEach(() => {
+    // Fix the export date so tests are deterministic
+    mockDateString = '2025/1/15 12:00:00';
+    vi.spyOn(Date.prototype, 'toLocaleString').mockReturnValue(mockDateString);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const makeMessage = (role: 'user' | 'assistant', content: string): ExportableMessage => ({
+    role,
+    content,
+    timestamp: new Date('2025-01-15T12:00:00Z'),
+  });
+
+  it('exports empty conversation', () => {
+    const result = exportToMarkdown('Test Chat', []);
+    expect(result).toContain('# Test Chat');
+    expect(result).toContain('*Exported on');
+    expect(result).toContain('---');
+  });
+
+  it('exports single user message', () => {
+    const messages = [makeMessage('user', 'Hello!')];
+    const result = exportToMarkdown('Chat', messages);
+    expect(result).toContain('### User');
+    expect(result).toContain('Hello!');
+  });
+
+  it('exports single assistant message', () => {
+    const messages = [makeMessage('assistant', 'Hi there!')];
+    const result = exportToMarkdown('Chat', messages);
+    expect(result).toContain('### Gemini');
+    expect(result).toContain('Hi there!');
+  });
+
+  it('exports a full conversation in order', () => {
+    const messages = [
+      makeMessage('user', 'What is 2+2?'),
+      makeMessage('assistant', '2+2 equals 4.'),
+      makeMessage('user', 'Thanks!'),
+      makeMessage('assistant', "You're welcome!"),
+    ];
+    const result = exportToMarkdown('Math Chat', messages);
+    expect(result).toContain('# Math Chat');
+
+    const userIdx = result.indexOf('### User');
+    const geminiIdx = result.indexOf('### Gemini');
+    expect(userIdx).toBeLessThan(geminiIdx);
+
+    expect(result).toContain('What is 2+2?');
+    expect(result).toContain('2+2 equals 4.');
+    expect(result).toContain('Thanks!');
+    expect(result).toContain("You're welcome!");
+  });
+
+  it('preserves multiline content', () => {
+    const messages = [makeMessage('assistant', 'Line 1\nLine 2\nLine 3')];
+    const result = exportToMarkdown('Chat', messages);
+    expect(result).toContain('Line 1\nLine 2\nLine 3');
+  });
+
+  it('includes timestamp for each message', () => {
+    const messages = [makeMessage('user', 'Hello')];
+    const result = exportToMarkdown('Chat', messages);
+    // The mock returns the same string for toLocaleString
+    expect(result).toContain(mockDateString);
+  });
+
+  it('includes title with special characters', () => {
+    const result = exportToMarkdown('Chat about **markdown** & <HTML>', []);
+    expect(result).toContain('# Chat about **markdown** & <HTML>');
+  });
+
+  it('returns a string ending with newline after last message', () => {
+    const messages = [makeMessage('user', 'Hello')];
+    const result = exportToMarkdown('Chat', messages);
+    expect(result.endsWith('\n')).toBe(true);
   });
 });

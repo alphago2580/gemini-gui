@@ -12,7 +12,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 
 ### Conversation Management  
 - [ ] Search through conversation history
-- [ ] Export conversation as Markdown file
+- [x] Export conversation as Markdown file
 - [ ] Export conversation as PDF
 - [ ] Delete individual messages
 - [ ] Clear conversation
@@ -79,6 +79,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Custom hooks extraction (useLocalStorage, useConversations, useKeyboardShortcuts, useAutoResize)
 - [x] App.tsx refactored — conversation logic extracted to useConversations hook
 - [x] Comprehensive accessibility (ARIA) improvements across all components (182 tests)
+- [x] Export conversation as Markdown (195 tests)
 
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*

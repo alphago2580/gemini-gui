@@ -46,6 +46,7 @@ export interface ElectronAPI {
   removeAllListeners: () => void;
   saveTempFile: (fileName: string, fileData: ArrayBuffer) => Promise<string>;
   cleanupTempFiles: () => Promise<{ success: boolean; error?: string }>;
+  exportMarkdown: (content: string, defaultFileName: string) => Promise<{ success: boolean; canceled?: boolean; path?: string; error?: string }>;
 }
 
 declare global {

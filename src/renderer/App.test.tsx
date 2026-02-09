@@ -15,6 +15,7 @@ const mockElectronAPI = {
     cleanupTempFiles: vi.fn(),
     removeAllListeners: vi.fn(),
     stopGemini: vi.fn(),
+    exportMarkdown: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.md' }),
 };
 
 global.window.electronAPI = mockElectronAPI as any;
@@ -288,6 +289,59 @@ describe('App Component', () => {
             const articles = screen.getAllByRole('article');
             expect(articles.length).toBeGreaterThan(0);
             expect(articles[0]).toHaveAttribute('aria-label', '사용자 메시지');
+        });
+    });
+
+    // Export conversation tests
+    describe('Export Conversation', () => {
+        it('does not show export button when no messages', () => {
+            render(<App />);
+            expect(screen.queryByText('Export')).not.toBeInTheDocument();
+        });
+
+        it('shows export button when there are messages', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(screen.getByText('Export')).toBeInTheDocument();
+        });
+
+        it('export button has correct aria-label', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(screen.getByRole('button', { name: '대화 내보내기' })).toBeInTheDocument();
+        });
+
+        it('calls exportMarkdown when export button is clicked', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            await user.click(screen.getByText('Export'));
+            await waitFor(() => {
+                expect(mockElectronAPI.exportMarkdown).toHaveBeenCalled();
+            });
+        });
+
+        it('passes markdown content and filename to exportMarkdown', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            await user.click(screen.getByText('Export'));
+            await waitFor(() => {
+                const [content, fileName] = mockElectronAPI.exportMarkdown.mock.calls[0];
+                expect(content).toContain('Hello');
+                expect(content).toContain('### User');
+                expect(fileName).toMatch(/\.md$/);
+            });
         });
     });
 });

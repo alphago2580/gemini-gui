@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (182 tests)
+- **Test Status**: Passing (195 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -77,3 +77,14 @@
 - Added 3 accessibility tests for Settings component
 - Added 7 accessibility tests for FileAttachment component
 - Total tests: 147 → 182 (all passing)
+
+### Agent 2 (Quality) — Export Conversation as Markdown
+- Created `exportToMarkdown` utility function in `src/renderer/utils/format.ts`
+- Added `ExportableMessage` interface for type-safe message export
+- Added IPC handler `export-markdown` in main process with native save dialog
+- Added `exportMarkdown` to ElectronAPI type and preload bridge
+- Added Export button in app header (visible only when messages exist)
+- Styled export button with CSS variables for theme support
+- Added 8 tests for `exportToMarkdown` function
+- Added 5 tests for export UI in App component
+- Total tests: 182 → 195 (all passing)

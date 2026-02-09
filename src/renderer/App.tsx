@@ -7,6 +7,7 @@ import { useConversations } from './hooks/useConversations';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from './hooks/useTheme';
 import { useAutoResize } from './hooks/useAutoResize';
+import { exportToMarkdown } from './utils/format';
 import type { AppSettings, StreamData, StreamErrorData, Message } from '../preload/types';
 
 const STORAGE_KEY_SETTINGS = 'gemini-settings';
@@ -284,6 +285,20 @@ const App: React.FC = () => {
     }
   };
 
+  const handleExport = async () => {
+    if (messages.length === 0) return;
+
+    const currentConv = conversations.find(c => c.id === currentConversationId);
+    const title = currentConv?.title || 'Untitled Conversation';
+    const markdown = exportToMarkdown(title, messages);
+    const safeTitle = title.replace(/[^a-zA-Z0-9가-힣\s-]/g, '').replace(/\s+/g, '-');
+    const defaultFileName = `${safeTitle}.md`;
+
+    if (window.electronAPI?.exportMarkdown) {
+      await window.electronAPI.exportMarkdown(markdown, defaultFileName);
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -303,8 +318,20 @@ const App: React.FC = () => {
 
       <main className="main-content">
         <header className="app-header">
-          <h1>Gemini GUI</h1>
-          <p>Powered by Gemini CLI</p>
+          <div className="header-title">
+            <h1>Gemini GUI</h1>
+            <p>Powered by Gemini CLI</p>
+          </div>
+          {messages.length > 0 && (
+            <button
+              className="export-btn"
+              onClick={handleExport}
+              aria-label="대화 내보내기"
+              title="Markdown으로 내보내기"
+            >
+              Export
+            </button>
+          )}
         </header>
 
         <div className="chat-container">

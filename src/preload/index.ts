@@ -37,5 +37,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveTempFile: (fileName: string, fileData: ArrayBuffer) =>
     ipcRenderer.invoke('save-temp-file', fileName, fileData),
 
-  cleanupTempFiles: () => ipcRenderer.invoke('cleanup-temp-files')
+  cleanupTempFiles: () => ipcRenderer.invoke('cleanup-temp-files'),
+
+  exportMarkdown: (content: string, defaultFileName: string) =>
+    ipcRenderer.invoke('export-markdown', content, defaultFileName)
 });

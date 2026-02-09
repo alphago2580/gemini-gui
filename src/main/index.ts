@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -136,6 +136,28 @@ ipcMain.handle('cleanup-temp-files', async () => {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
     return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('export-markdown', async (_event, content: string, defaultFileName: string) => {
+  try {
+    const result = await dialog.showSaveDialog({
+      title: 'Export Conversation as Markdown',
+      defaultPath: defaultFileName,
+      filters: [
+        { name: 'Markdown', extensions: ['md'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+    });
+
+    if (result.canceled || !result.filePath) {
+      return { success: false, canceled: true };
+    }
+
+    fs.writeFileSync(result.filePath, content, 'utf-8');
+    return { success: true, path: result.filePath };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

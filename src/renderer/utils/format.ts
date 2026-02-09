@@ -18,3 +18,30 @@ export function generateConversationTitle(firstMessage: string, maxLength = 50):
     ? firstMessage.substring(0, maxLength) + '...'
     : firstMessage;
 }
+
+export interface ExportableMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+export function exportToMarkdown(title: string, messages: ExportableMessage[]): string {
+  const lines: string[] = [];
+  lines.push(`# ${title}`);
+  lines.push('');
+  lines.push(`*Exported on ${new Date().toLocaleString()}*`);
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  for (const message of messages) {
+    const roleName = message.role === 'user' ? 'User' : 'Gemini';
+    const time = message.timestamp.toLocaleString();
+    lines.push(`### ${roleName} — ${time}`);
+    lines.push('');
+    lines.push(message.content);
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
