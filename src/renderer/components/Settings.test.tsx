@@ -190,4 +190,45 @@ describe('Settings', () => {
       expect(container.querySelector('[role="presentation"]')).toBeInTheDocument();
     });
   });
+
+  // High contrast mode tests
+  describe('High Contrast', () => {
+    it('does not render high contrast toggle when onHighContrastChange is not provided', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.queryByRole('switch', { name: '고대비 모드' })).not.toBeInTheDocument();
+    });
+
+    it('renders high contrast toggle when onHighContrastChange is provided', () => {
+      render(<Settings {...defaultProps} highContrast={false} onHighContrastChange={vi.fn()} />);
+      expect(screen.getByRole('switch', { name: '고대비 모드' })).toBeInTheDocument();
+    });
+
+    it('shows OFF when high contrast is disabled', () => {
+      render(<Settings {...defaultProps} highContrast={false} onHighContrastChange={vi.fn()} />);
+      const toggle = screen.getByRole('switch', { name: '고대비 모드' });
+      expect(toggle).toHaveTextContent('OFF');
+      expect(toggle).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('shows ON when high contrast is enabled', () => {
+      render(<Settings {...defaultProps} highContrast={true} onHighContrastChange={vi.fn()} />);
+      const toggle = screen.getByRole('switch', { name: '고대비 모드' });
+      expect(toggle).toHaveTextContent('ON');
+      expect(toggle).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('calls onHighContrastChange when toggle is clicked', () => {
+      const onHighContrastChange = vi.fn();
+      render(<Settings {...defaultProps} highContrast={false} onHighContrastChange={onHighContrastChange} />);
+      fireEvent.click(screen.getByRole('switch', { name: '고대비 모드' }));
+      expect(onHighContrastChange).toHaveBeenCalledWith(true);
+    });
+
+    it('calls onHighContrastChange with false when disabling', () => {
+      const onHighContrastChange = vi.fn();
+      render(<Settings {...defaultProps} highContrast={true} onHighContrastChange={onHighContrastChange} />);
+      fireEvent.click(screen.getByRole('switch', { name: '고대비 모드' }));
+      expect(onHighContrastChange).toHaveBeenCalledWith(false);
+    });
+  });
 });

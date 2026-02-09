@@ -47,6 +47,12 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage('gemini-sidebar-collapsed', false);
+  const [highContrast, setHighContrast] = useLocalStorage('gemini-high-contrast', false);
+
+  // Apply high contrast attribute
+  useEffect(() => {
+    document.documentElement.setAttribute('data-high-contrast', String(highContrast));
+  }, [highContrast]);
 
   // Auto-resize textarea
   const { textareaRef } = useAutoResize(input);
@@ -448,6 +454,8 @@ const App: React.FC = () => {
         onSave={handleSettingsSave}
         themeMode={themeMode}
         onThemeChange={setThemeMode}
+        highContrast={highContrast}
+        onHighContrastChange={setHighContrast}
       />
 
       <Toast toasts={toasts} onDismiss={dismissToast} />

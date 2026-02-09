@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (278 tests)
+- **Test Status**: Passing (287 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -167,3 +167,14 @@
 - Added 2 tests for Ctrl+B in useKeyboardShortcuts
 - Added 5 integration tests in App (toggle, Ctrl+B, persistence)
 - Total tests: 260 → 278 (all passing)
+
+### Agent 2 (Quality) — High Contrast Mode
+- Added `[data-high-contrast="true"]` CSS variable overrides for both dark and light themes
+- High contrast dark: pure black background, white text, stronger borders
+- High contrast light: pure white background, black text, thick dark borders
+- Toggle in Settings: ON/OFF button with `role="switch"` and `aria-checked`
+- State persisted via `useLocalStorage('gemini-high-contrast')`
+- Applied as `data-high-contrast` attribute on `document.documentElement`
+- Added 6 tests in Settings (toggle rendering, state, callbacks)
+- Added 3 integration tests in App (attribute, enable via settings, persistence)
+- Total tests: 278 → 287 (all passing)

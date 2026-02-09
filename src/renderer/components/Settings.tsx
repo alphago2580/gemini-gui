@@ -9,6 +9,8 @@ interface SettingsProps {
   onSave: (settings: AppSettings) => void;
   themeMode: ThemeMode;
   onThemeChange: (mode: ThemeMode) => void;
+  highContrast?: boolean;
+  onHighContrastChange?: (enabled: boolean) => void;
 }
 
 const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
@@ -17,7 +19,7 @@ const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
   { value: 'system', label: '시스템' },
 ];
 
-const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, themeMode, onThemeChange }) => {
+const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, themeMode, onThemeChange, highContrast = false, onHighContrastChange }) => {
   const [localSettings, setLocalSettings] = useState(settings);
 
   if (!isOpen) return null;
@@ -50,6 +52,25 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
               ))}
             </div>
           </div>
+
+          {onHighContrastChange && (
+            <div className="setting-group">
+              <label htmlFor="high-contrast">
+                고대비 모드
+                <span className="hint">가독성을 높인 고대비 색상</span>
+              </label>
+              <button
+                id="high-contrast"
+                className={`toggle-btn${highContrast ? ' active' : ''}`}
+                onClick={() => onHighContrastChange(!highContrast)}
+                role="switch"
+                aria-checked={highContrast}
+                aria-label="고대비 모드"
+              >
+                {highContrast ? 'ON' : 'OFF'}
+              </button>
+            </div>
+          )}
 
           <div className="setting-group">
             <label htmlFor="model">모델 선택</label>

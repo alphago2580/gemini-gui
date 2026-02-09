@@ -490,4 +490,32 @@ describe('App Component', () => {
             expect(JSON.parse(localStorage.getItem('gemini-sidebar-collapsed') || 'false')).toBe(true);
         });
     });
+
+    // High contrast mode tests
+    describe('High Contrast', () => {
+        it('sets data-high-contrast attribute on document', () => {
+            render(<App />);
+            expect(document.documentElement.getAttribute('data-high-contrast')).toBe('false');
+        });
+
+        it('enables high contrast via settings toggle', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            // Open settings
+            fireEvent.keyDown(document, { key: ',', ctrlKey: true });
+            // Click high contrast toggle
+            const toggle = screen.getByRole('switch', { name: '고대비 모드' });
+            await user.click(toggle);
+            expect(document.documentElement.getAttribute('data-high-contrast')).toBe('true');
+        });
+
+        it('persists high contrast state to localStorage', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            fireEvent.keyDown(document, { key: ',', ctrlKey: true });
+            const toggle = screen.getByRole('switch', { name: '고대비 모드' });
+            await user.click(toggle);
+            expect(JSON.parse(localStorage.getItem('gemini-high-contrast') || 'false')).toBe(true);
+        });
+    });
 });
