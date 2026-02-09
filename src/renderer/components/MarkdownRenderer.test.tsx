@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
 
@@ -390,6 +390,61 @@ describe('MarkdownRenderer', () => {
         expect(container.querySelector('.math-inline')).not.toBeInTheDocument();
         expect(container.querySelector('pre code')?.textContent).toBe('$x^2$');
       });
+    });
+  });
+
+  describe('Copy button', () => {
+    const mockWriteText = vi.fn().mockResolvedValue(undefined);
+
+    beforeEach(() => {
+      Object.assign(navigator, {
+        clipboard: { writeText: mockWriteText },
+      });
+      mockWriteText.mockClear();
+    });
+
+    it('renders copy button on code blocks', () => {
+      const content = '```js\nconst x = 1;\n```';
+      render(<MarkdownRenderer content={content} />);
+      expect(screen.getByLabelText('코드 복사')).toBeInTheDocument();
+    });
+
+    it('renders copy button on code blocks without language', () => {
+      const content = '```\nplain code\n```';
+      render(<MarkdownRenderer content={content} />);
+      expect(screen.getByLabelText('코드 복사')).toBeInTheDocument();
+    });
+
+    it('copies code to clipboard on click', async () => {
+      const content = '```js\nconst x = 1;\n```';
+      render(<MarkdownRenderer content={content} />);
+      fireEvent.click(screen.getByLabelText('코드 복사'));
+      await waitFor(() => {
+        expect(mockWriteText).toHaveBeenCalledWith('const x = 1;');
+      });
+    });
+
+    it('shows copied feedback after clicking', async () => {
+      const content = '```js\nconst x = 1;\n```';
+      render(<MarkdownRenderer content={content} />);
+      fireEvent.click(screen.getByLabelText('코드 복사'));
+      await waitFor(() => {
+        expect(screen.getByLabelText('복사됨')).toBeInTheDocument();
+      });
+    });
+
+    it('shows copy text initially, not checkmark', () => {
+      const content = '```python\nprint("hi")\n```';
+      render(<MarkdownRenderer content={content} />);
+      const btn = screen.getByLabelText('코드 복사');
+      expect(btn.textContent).toBe('복사');
+    });
+
+    it('renders copy button on each code block when multiple exist', () => {
+      const content = '```js\na\n```\n\ntext\n\n```py\nb\n```';
+      render(<MarkdownRenderer content={content} />);
+      const buttons = screen.getAllByLabelText('코드 복사');
+      expect(buttons.length).toBe(2);
     });
   });
 });

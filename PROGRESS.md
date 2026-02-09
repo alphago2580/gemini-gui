@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (575 tests)
+- **Test Status**: Passing (581 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -359,3 +359,13 @@
 - Removed direct dependency on StreamData, StreamErrorData types from App.tsx
 - Added 16 unit tests for useStreamHandler (init state, listeners, streaming, errors, token parsing)
 - Total tests: 559 → 575 (24 test files, all passing)
+
+### Agent 2 (Quality) — Code Block Copy Button
+- Added copy-to-clipboard button on all code blocks in MarkdownRenderer
+- CopyButton component uses `navigator.clipboard.writeText` API
+- Visual feedback: button text changes to "✓" for 2s after successful copy
+- Button positioned in code block header alongside language label
+- Code block header layout refactored from absolute positioning to flex layout
+- Accessible: `aria-label` changes between "코드 복사" and "복사됨"
+- Added 6 unit tests (button rendering, clipboard interaction, feedback, multiple blocks)
+- Total tests: 575 → 581 (24 test files, all passing)

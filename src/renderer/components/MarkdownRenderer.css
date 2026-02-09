@@ -44,19 +44,40 @@
   white-space: pre;
 }
 
+.md-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: -0.75rem -1rem 0.5rem -1rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 5px 5px 0 0;
+  min-height: 1.5rem;
+}
+
 .md-code-lang {
-  position: absolute;
-  top: 0;
-  right: 0;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: lowercase;
+}
+
+.md-copy-btn {
+  margin-left: auto;
   padding: 0.125rem 0.5rem;
   font-size: 0.7rem;
   color: var(--text-muted);
-  background: var(--bg-secondary);
-  border-bottom-left-radius: 6px;
-  border-top-right-radius: 5px;
-  border-left: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  text-transform: lowercase;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.md-copy-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+  background: var(--bg-hover);
 }
 
 /* Inline code */

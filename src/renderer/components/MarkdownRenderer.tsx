@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import './MarkdownRenderer.css';
 import { tokenize } from '../utils/syntaxHighlight';
 import { renderMathToHtml, parseMathSegments } from '../utils/mathRenderer';
@@ -247,6 +247,31 @@ function renderParagraphContent(text: string): React.ReactNode[] {
   return elements;
 }
 
+const CopyButton: React.FC<{ text: string }> = ({ text }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback: do nothing if clipboard API is unavailable
+    }
+  }, [text]);
+
+  return (
+    <button
+      className="md-copy-btn"
+      onClick={handleCopy}
+      aria-label={copied ? '복사됨' : '코드 복사'}
+      title={copied ? '복사됨!' : '코드 복사'}
+    >
+      {copied ? '✓' : '복사'}
+    </button>
+  );
+};
+
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   const blocks = parseBlocks(content);
 
@@ -259,9 +284,12 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
             : null;
           return (
             <pre key={index} className="md-code-block">
-              {block.language && (
-                <span className="md-code-lang">{block.language}</span>
-              )}
+              <div className="md-code-header">
+                {block.language && (
+                  <span className="md-code-lang">{block.language}</span>
+                )}
+                <CopyButton text={block.content} />
+              </div>
               <code>
                 {tokens
                   ? tokens.map((token, ti) =>
