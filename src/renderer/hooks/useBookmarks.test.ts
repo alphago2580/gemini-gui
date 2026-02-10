@@ -2,19 +2,37 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useBookmarks, BookmarkedMessage } from './useBookmarks';
 
+const mockBookmark: BookmarkedMessage = {
+  conversationId: 'conv-1',
+  conversationTitle: 'Test Conversation',
+  messageIndex: 0,
+  role: 'user',
+  content: 'Hello world',
+  timestamp: new Date('2026-01-01'),
+};
+
+const mockBookmark2: BookmarkedMessage = {
+  conversationId: 'conv-1',
+  conversationTitle: 'Test Conversation',
+  messageIndex: 2,
+  role: 'assistant',
+  content: 'Hi there',
+  timestamp: new Date('2026-01-01'),
+};
+
+const makeBookmark = (overrides: Partial<BookmarkedMessage> = {}): BookmarkedMessage => ({
+  conversationId: 'conv-1',
+  conversationTitle: 'Test Conversation',
+  messageIndex: 0,
+  role: 'user',
+  content: 'Hello world',
+  timestamp: new Date('2025-01-01'),
+  ...overrides,
+});
+
 describe('useBookmarks', () => {
   beforeEach(() => {
     localStorage.clear();
-  });
-
-  const makeBookmark = (overrides: Partial<BookmarkedMessage> = {}): BookmarkedMessage => ({
-    conversationId: 'conv-1',
-    conversationTitle: 'Test Conversation',
-    messageIndex: 0,
-    role: 'user',
-    content: 'Hello world',
-    timestamp: new Date('2025-01-01'),
-    ...overrides,
   });
 
   it('returns empty bookmarks initially', () => {
@@ -63,15 +81,12 @@ describe('useBookmarks', () => {
 
   it('removes a bookmark', () => {
     const { result } = renderHook(() => useBookmarks());
-
-    act(() => {
-      result.current.addBookmark(makeBookmark());
-    });
-    act(() => {
-      result.current.removeBookmark('conv-1', 0);
-    });
-
-    expect(result.current.bookmarks).toHaveLength(0);
+    act(() => result.current.addBookmark(mockBookmark));
+    act(() => result.current.addBookmark(mockBookmark2));
+    expect(result.current.bookmarks).toHaveLength(2);
+    act(() => result.current.removeBookmark('conv-1', 0));
+    expect(result.current.bookmarks).toHaveLength(1);
+    expect(result.current.bookmarks[0].messageIndex).toBe(2);
   });
 
   it('removeBookmark is no-op for non-existent bookmark', () => {
@@ -85,6 +100,19 @@ describe('useBookmarks', () => {
     });
 
     expect(result.current.bookmarks).toHaveLength(1);
+  });
+
+  it('toggleBookmark adds when not bookmarked', () => {
+    const { result } = renderHook(() => useBookmarks());
+    act(() => result.current.toggleBookmark(mockBookmark));
+    expect(result.current.bookmarks).toHaveLength(1);
+  });
+
+  it('toggleBookmark removes when already bookmarked', () => {
+    const { result } = renderHook(() => useBookmarks());
+    act(() => result.current.addBookmark(mockBookmark));
+    act(() => result.current.toggleBookmark(mockBookmark));
+    expect(result.current.bookmarks).toHaveLength(0);
   });
 
   it('isBookmarked returns true for existing bookmark', () => {
