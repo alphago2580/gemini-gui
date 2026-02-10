@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (985 tests)
+- **Test Status**: Passing (1092 tests)
 - **Last Agent Run**: Agent 1 (Feature)
 
 ## Completed Features
@@ -580,3 +580,13 @@
 - Added `MESSAGE_COUNT_SUFFIX` to string constants
 - Added 5 unit tests for message count badge
 - Total tests: 990 (55 test files, all passing)
+
+### Agent 1 (Feature) — UI Component Library Part 2 (Accordion, Switch, Chip, AvatarGroup, Divider)
+- Created `Accordion` component with expand/collapse, single/multiple mode, disabled items, defaultExpanded
+- Created `Switch` component with toggle switch, 3 sizes, label support, keyboard navigation (Space/Enter)
+- Created `Chip` component with selectable/removable tags, 5 variants, icon support, aria-pressed
+- Created `AvatarGroup` component with stacked avatars, overflow count (+N), deterministic colors from name
+- Created `Divider` component with horizontal/vertical, 3 line styles, label with centered text
+- All components: React.memo, CSS variables, ARIA accessibility, comprehensive tests
+- Added 18 tests for Accordion, 24 for Switch, 25 for Chip, 16 for AvatarGroup, 16 for Divider
+- Total tests: 1092 (60 test files, all passing)

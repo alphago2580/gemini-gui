@@ -75,6 +75,11 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Tooltip — hover/focus tooltip with delay and 4 positions
 - [x] Badge — notification count/dot indicator with wrapper and inline modes
 - [x] Skeleton — loading placeholder with shimmer animation for text/circular/rectangular
+- [x] Accordion — expandable/collapsible content sections with single/multiple mode
+- [x] Switch — accessible toggle switch with sizes and labels
+- [x] Chip — selectable/removable tag chips with variants and icons
+- [x] AvatarGroup — stacked avatar display with overflow count
+- [x] Divider — horizontal/vertical separator with label support
 
 ### Accessibility
 - [x] ARIA labels on all interactive elements
