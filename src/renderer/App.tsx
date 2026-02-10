@@ -17,6 +17,13 @@ import FormattingToolbar from './components/FormattingToolbar';
 import MessageContextMenu from './components/MessageContextMenu';
 import type { ContextMenuItem } from './components/MessageContextMenu';
 import CodeSnippets from './components/CodeSnippets';
+import KeyboardShortcutHelp from './components/KeyboardShortcutHelp';
+import ReadingProgressBar from './components/ReadingProgressBar';
+import EmojiReactionPicker from './components/EmojiReactionPicker';
+import LinkCollection from './components/LinkCollection';
+import ConversationStats from './components/ConversationStats';
+import BookmarkedMessages from './components/BookmarkedMessages';
+import { calculateConversationStats } from './utils/conversationStats';
 import { insertBold, insertItalic, insertInlineCode, insertStrikethrough, insertLink, insertCodeBlock } from './utils/textFormatting';
 import type { Command } from './components/CommandPalette';
 import { useInlineSearch } from './hooks/useInlineSearch';
@@ -109,6 +116,10 @@ const App: React.FC = () => {
   const [isQuickSwitcherOpen, setIsQuickSwitcherOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; messageIndex: number } | null>(null);
   const [isCodeSnippetsOpen, setIsCodeSnippetsOpen] = useState(false);
+  const [isShortcutHelpOpen, setIsShortcutHelpOpen] = useState(false);
+  const [isLinkCollectionOpen, setIsLinkCollectionOpen] = useState(false);
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
+  const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
 
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
@@ -126,6 +137,25 @@ const App: React.FC = () => {
     scrollToBottom,
     handleScroll: handleMessagesScroll,
   } = useAutoScroll(messages);
+
+  // Reading progress
+  const [readingProgress, setReadingProgress] = useState(0);
+  const handleScrollWithProgress = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    handleMessagesScroll();
+    const el = e.currentTarget;
+    if (el.scrollHeight <= el.clientHeight) {
+      setReadingProgress(100);
+    } else {
+      const pct = Math.round((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100);
+      setReadingProgress(pct);
+    }
+  }, [handleMessagesScroll]);
+
+  // Conversation stats (computed)
+  const conversationStatsData = useMemo(
+    () => calculateConversationStats(conversations),
+    [conversations]
+  );
 
   // Settings state (extracted to custom hook)
   const { settings, handleSettingsSave } = useSettings();
@@ -262,6 +292,7 @@ const App: React.FC = () => {
     onToggleQuickSwitcher: () => setIsQuickSwitcherOpen(prev => !prev),
     onNextTab: nextTab,
     onPrevTab: prevTab,
+    onToggleShortcutHelp: () => setIsShortcutHelpOpen(prev => !prev),
     isSettingsOpen,
   });
 
@@ -320,6 +351,22 @@ const App: React.FC = () => {
               >
                 Code
               </button>
+              <button
+                className="header-action-btn"
+                onClick={() => setIsLinkCollectionOpen(true)}
+                aria-label="링크 모음"
+                title="링크 모음 보기"
+              >
+                Links
+              </button>
+              <button
+                className="header-action-btn"
+                onClick={() => setIsStatsOpen(true)}
+                aria-label="대화 통계"
+                title="대화 통계 보기"
+              >
+                Stats
+              </button>
             </div>
           )}
         </header>
@@ -343,7 +390,8 @@ const App: React.FC = () => {
             onPrev={inlineSearch.goToPrev}
             onClose={inlineSearch.close}
           />
-          <div className="messages" role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleMessagesScroll}>
+          <div className="messages" role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleScrollWithProgress}>
+            <ReadingProgressBar progress={readingProgress} isVisible={messages.length > 0} />
             {messages.length === 0 && (
               <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
             )}
@@ -450,6 +498,28 @@ const App: React.FC = () => {
         onClose={() => setIsCodeSnippetsOpen(false)}
         messages={messages}
         onNavigateToMessage={handleNavigateToMessage}
+      />
+      <KeyboardShortcutHelp
+        isOpen={isShortcutHelpOpen}
+        onClose={() => setIsShortcutHelpOpen(false)}
+      />
+      <LinkCollection
+        isOpen={isLinkCollectionOpen}
+        onClose={() => setIsLinkCollectionOpen(false)}
+        messages={messages}
+        onNavigateToMessage={handleNavigateToMessage}
+      />
+      <ConversationStats
+        isOpen={isStatsOpen}
+        onClose={() => setIsStatsOpen(false)}
+        stats={conversationStatsData}
+      />
+      <BookmarkedMessages
+        isOpen={isBookmarksOpen}
+        onClose={() => setIsBookmarksOpen(false)}
+        bookmarks={[]}
+        onNavigateToMessage={() => {}}
+        onRemoveBookmark={() => {}}
       />
       {contextMenu && (
         <MessageContextMenu
