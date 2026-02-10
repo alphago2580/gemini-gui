@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 import type { Tab } from '../components/TabBar';
 
@@ -14,12 +14,12 @@ export function useTabs(
   const [closedCurrentTab, setClosedCurrentTab] = useState(false);
 
   // Build tab objects from open tab IDs
-  const tabs: Tab[] = openTabIds
+  const tabs: Tab[] = useMemo(() => openTabIds
     .map(id => {
       const conv = conversations.find(c => c.id === id);
       return conv ? { id: conv.id, title: conv.title } : null;
     })
-    .filter((tab): tab is Tab => tab !== null);
+    .filter((tab): tab is Tab => tab !== null), [openTabIds, conversations]);
 
   // Ensure current conversation is in tabs
   const ensureTabOpen = useCallback((id: string) => {

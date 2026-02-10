@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { AppSettings } from '../../preload/types';
 
 const STORAGE_KEY_SETTINGS = 'gemini-settings';
@@ -25,9 +25,9 @@ export function useSettings() {
     localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
   }, [settings]);
 
-  const handleSettingsSave = (newSettings: AppSettings) => {
+  const handleSettingsSave = useCallback((newSettings: AppSettings) => {
     setSettings(newSettings);
-  };
+  }, []);
 
   return {
     settings,
