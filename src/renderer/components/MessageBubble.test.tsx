@@ -259,6 +259,80 @@ describe('MessageBubble', () => {
     });
   });
 
+  describe('Reactions', () => {
+    it('renders reaction add button when onToggleReaction is provided', () => {
+      render(<MessageBubble {...defaultProps} onToggleReaction={vi.fn()} />);
+      expect(screen.getByLabelText('리액션 추가')).toBeInTheDocument();
+    });
+
+    it('does not render reaction add button when onToggleReaction is not provided', () => {
+      render(<MessageBubble {...defaultProps} />);
+      expect(screen.queryByLabelText('리액션 추가')).not.toBeInTheDocument();
+    });
+
+    it('displays existing reactions as chips', () => {
+      render(
+        <MessageBubble
+          {...defaultProps}
+          reactions={{ '👍': 1, '❤️': 1 }}
+          onToggleReaction={vi.fn()}
+        />
+      );
+      expect(screen.getByText(/👍/)).toBeInTheDocument();
+      expect(screen.getByText(/❤️/)).toBeInTheDocument();
+    });
+
+    it('does not display reactions area when reactions is empty', () => {
+      const { container } = render(
+        <MessageBubble
+          {...defaultProps}
+          reactions={{}}
+          onToggleReaction={vi.fn()}
+        />
+      );
+      expect(container.querySelector('.message-reactions')).not.toBeInTheDocument();
+    });
+
+    it('calls onToggleReaction when reaction chip is clicked', () => {
+      const onToggleReaction = vi.fn();
+      render(
+        <MessageBubble
+          {...defaultProps}
+          index={3}
+          reactions={{ '👍': 1 }}
+          onToggleReaction={onToggleReaction}
+        />
+      );
+      fireEvent.click(screen.getByLabelText('👍 1'));
+      expect(onToggleReaction).toHaveBeenCalledWith(3, '👍');
+    });
+
+    it('opens emoji picker when reaction button is clicked', () => {
+      render(
+        <MessageBubble
+          {...defaultProps}
+          onToggleReaction={vi.fn()}
+        />
+      );
+      fireEvent.click(screen.getByLabelText('리액션 추가'));
+      expect(screen.getByRole('listbox')).toBeInTheDocument();
+    });
+
+    it('calls onToggleReaction when emoji is selected from picker', () => {
+      const onToggleReaction = vi.fn();
+      render(
+        <MessageBubble
+          {...defaultProps}
+          index={2}
+          onToggleReaction={onToggleReaction}
+        />
+      );
+      fireEvent.click(screen.getByLabelText('리액션 추가'));
+      fireEvent.click(screen.getByLabelText('반응 👍'));
+      expect(onToggleReaction).toHaveBeenCalledWith(2, '👍');
+    });
+  });
+
   describe('Streaming cursor', () => {
     it('shows streaming cursor on last assistant message when streaming', () => {
       const { container } = render(

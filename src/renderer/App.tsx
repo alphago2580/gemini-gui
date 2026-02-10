@@ -19,7 +19,6 @@ import type { ContextMenuItem } from './components/MessageContextMenu';
 import CodeSnippets from './components/CodeSnippets';
 import KeyboardShortcutHelp from './components/KeyboardShortcutHelp';
 import ReadingProgressBar from './components/ReadingProgressBar';
-import EmojiReactionPicker from './components/EmojiReactionPicker';
 import LinkCollection from './components/LinkCollection';
 import ConversationStats from './components/ConversationStats';
 import BookmarkedMessages from './components/BookmarkedMessages';
@@ -44,6 +43,7 @@ import { useExport } from './hooks/useExport';
 import { useSettings } from './hooks/useSettings';
 import { useBookmarks } from './hooks/useBookmarks';
 import { useNotificationSound } from './hooks/useNotificationSound';
+import { useReactions } from './hooks/useReactions';
 import * as S from './constants/strings';
 
 const App: React.FC = () => {
@@ -177,6 +177,9 @@ const App: React.FC = () => {
   // Bookmarks
   const { bookmarks, toggleBookmark, removeBookmark, isBookmarked } = useBookmarks();
 
+  // Reactions
+  const { toggleReaction, getReactions } = useReactions();
+
   // Message send logic (input, files, send, paste)
   const {
     input,
@@ -268,6 +271,11 @@ const App: React.FC = () => {
       timestamp: message.timestamp,
     });
   }, [currentConversationId, messages, conversations, toggleBookmark]);
+
+  const handleToggleReaction = useCallback((messageIndex: number, emoji: string) => {
+    if (!currentConversationId) return;
+    toggleReaction(currentConversationId, messageIndex, emoji);
+  }, [currentConversationId, toggleReaction]);
 
   const handleNavigateToBookmark = useCallback((conversationId: string, messageIndex: number) => {
     if (conversationId !== currentConversationId) {
@@ -463,6 +471,8 @@ const App: React.FC = () => {
                   onFork={forkConversation}
                   isBookmarked={currentConversationId ? isBookmarked(currentConversationId, index) : false}
                   onToggleBookmark={handleToggleBookmark}
+                  reactions={currentConversationId ? getReactions(currentConversationId, index) : {}}
+                  onToggleReaction={handleToggleReaction}
                 />
               </div>
             ))}

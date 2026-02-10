@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
+import EmojiReactionPicker from './EmojiReactionPicker';
 import './MessageBubble.css';
 import type { Message } from '../../preload/types';
+import type { ReactionMap } from '../hooks/useReactions';
 import * as S from '../constants/strings';
 
 interface MessageBubbleProps {
@@ -14,6 +16,8 @@ interface MessageBubbleProps {
   onFork?: (index: number) => void;
   isBookmarked?: boolean;
   onToggleBookmark?: (index: number) => void;
+  reactions?: ReactionMap;
+  onToggleReaction?: (index: number, emoji: string) => void;
 }
 
 const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
@@ -26,9 +30,12 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
   onFork,
   isBookmarked = false,
   onToggleBookmark,
+  reactions = {},
+  onToggleReaction,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
+  const [isReactionPickerOpen, setIsReactionPickerOpen] = useState(false);
 
   const handleStartEdit = () => {
     setIsEditing(true);
@@ -80,6 +87,26 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
             {isBookmarked ? '\u2605' : '\u2606'}
           </button>
         )}
+        {onToggleReaction && (
+          <div className="reaction-btn-wrapper">
+            <button
+              className="reaction-add-btn"
+              onClick={() => setIsReactionPickerOpen(prev => !prev)}
+              aria-label={S.ARIA_ADD_REACTION}
+              title={S.TITLE_ADD_REACTION}
+            >
+              &#9786;
+            </button>
+            <EmojiReactionPicker
+              isOpen={isReactionPickerOpen}
+              onSelect={(emoji) => {
+                onToggleReaction(index, emoji);
+                setIsReactionPickerOpen(false);
+              }}
+              onClose={() => setIsReactionPickerOpen(false)}
+            />
+          </div>
+        )}
         {onFork && (
           <button
             className="fork-message-btn"
@@ -130,6 +157,20 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
           <MarkdownRenderer content={message.content} />
         )}
       </div>
+      {onToggleReaction && Object.keys(reactions).length > 0 && (
+        <div className="message-reactions" role="group" aria-label="리액션">
+          {Object.entries(reactions).map(([emoji, count]) => (
+            <button
+              key={emoji}
+              className="reaction-chip"
+              onClick={() => onToggleReaction(index, emoji)}
+              aria-label={`${emoji} ${count}`}
+            >
+              {emoji} {count}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

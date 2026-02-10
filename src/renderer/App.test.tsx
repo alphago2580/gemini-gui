@@ -1642,4 +1642,45 @@ describe('App Component', () => {
             expect(screen.getByRole('dialog', { name: '북마크된 메시지' })).toBeInTheDocument();
         });
     });
+
+    describe('Message reactions', () => {
+        it('shows reaction add button on messages', async () => {
+            const callbacks = setupStreamCallbacks();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            fireEvent.change(input, { target: { value: 'Hello' } });
+            fireEvent.click(screen.getByLabelText('메시지 전송'));
+
+            await waitFor(() => {
+                expect(screen.getByText('Hello')).toBeInTheDocument();
+            });
+
+            expect(screen.getAllByLabelText('리액션 추가').length).toBeGreaterThan(0);
+        });
+
+        it('opens emoji picker and adds reaction', async () => {
+            const callbacks = setupStreamCallbacks();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            fireEvent.change(input, { target: { value: 'React to me' } });
+            fireEvent.click(screen.getByLabelText('메시지 전송'));
+
+            await waitFor(() => {
+                expect(screen.getByText('React to me')).toBeInTheDocument();
+            });
+
+            const reactionBtn = screen.getAllByLabelText('리액션 추가')[0];
+            fireEvent.click(reactionBtn);
+
+            await waitFor(() => {
+                expect(screen.getByRole('listbox')).toBeInTheDocument();
+            });
+
+            fireEvent.click(screen.getByLabelText('반응 👍'));
+
+            await waitFor(() => {
+                expect(screen.getByText(/👍/)).toBeInTheDocument();
+            });
+        });
+    });
 });

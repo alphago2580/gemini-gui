@@ -613,3 +613,55 @@
   color: var(--btn-disabled-text);
   cursor: not-allowed;
 }
+
+/* Message Reactions */
+.reaction-btn-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.reaction-add-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.message:hover .reaction-add-btn {
+  opacity: 1;
+}
+
+.reaction-add-btn:hover {
+  color: var(--accent-highlight);
+}
+
+.message-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.reaction-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 8px;
+  font-size: 0.8125rem;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  color: var(--text-primary);
+}
+
+.reaction-chip:hover {
+  background: var(--bg-secondary);
+  border-color: var(--accent-highlight);
+}

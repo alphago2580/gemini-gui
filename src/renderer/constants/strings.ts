@@ -230,6 +230,12 @@ export const TITLE_BOOKMARK = '북마크 추가';
 export const TITLE_UNBOOKMARK = '북마크 해제';
 export const STORAGE_KEY_BOOKMARKS = 'gemini-bookmarks';
 
+// Reactions
+export const ARIA_ADD_REACTION = '리액션 추가';
+export const TITLE_ADD_REACTION = '리액션 추가';
+export const ARIA_REMOVE_REACTION = '리액션 제거';
+export const STORAGE_KEY_REACTIONS = 'gemini-reactions';
+
 // localStorage keys
 export const STORAGE_KEY_CONVERSATIONS = 'gemini-conversations';
 export const STORAGE_KEY_CURRENT_CONVERSATION = 'gemini-current-conversation';
