@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (696 tests)
+- **Test Status**: Passing (699 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -532,3 +532,16 @@
 - Wrapped `handleSettingsSave` with `useCallback` for stable reference
 - Memoized `tabs` array in useTabs with `useMemo` to avoid re-creation on every render
 - Total tests: 696 (30 test files, all passing)
+
+### Agent 2 (Quality) — Centralize localStorage Keys, Unify ID Generation, Improve Type Safety
+- Centralized all 8 localStorage key strings from 6 hooks/components to `constants/strings.ts`
+- Keys: conversations, current-conversation, settings, theme, prompt-templates, sidebar-collapsed, high-contrast, open-tabs
+- Replaced `Date.now().toString()` with `generateUniqueId(prefix)` in useConversations, usePromptTemplates, useToast
+- New `generateUniqueId()` uses monotonic counter to prevent same-millisecond ID collisions
+- `generateMessageId()` now delegates to `generateUniqueId('msg')` (no behavior change)
+- Fixed `useAutoScroll` parameter type from `unknown[]` to `Message[]` for proper type safety
+- Replaced inline type definitions with shared `Conversation` interface in Sidebar.tsx and useTabs.ts
+- Updated Sidebar.test.tsx, useTabs.test.ts, useAutoScroll.test.ts to use proper typed test data
+- Added 3 unit tests for `generateUniqueId` (prefix, default, uniqueness)
+- TypeScript: 0 errors (`npx tsc --noEmit` passes)
+- Total tests: 699 (30 test files, all passing)
