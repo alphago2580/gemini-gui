@@ -41,7 +41,7 @@ const mockSpeechSynthesis = {
   cancel: vi.fn(),
   pause: vi.fn(),
   resume: vi.fn(),
-  getVoices: vi.fn(() => []),
+  getVoices: vi.fn((): SpeechSynthesisVoice[] => []),
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
 };

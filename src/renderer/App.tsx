@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import './App.css';
 import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
@@ -15,7 +15,6 @@ import InlineSearch from './components/InlineSearch';
 import QuickSwitcher from './components/QuickSwitcher';
 import FormattingToolbar from './components/FormattingToolbar';
 import MessageContextMenu from './components/MessageContextMenu';
-import type { ContextMenuItem } from './components/MessageContextMenu';
 import CodeSnippets from './components/CodeSnippets';
 import KeyboardShortcutHelp from './components/KeyboardShortcutHelp';
 import ReadingProgressBar from './components/ReadingProgressBar';
@@ -26,15 +25,13 @@ import PerformancePanel from './components/PerformancePanel';
 import MessageSearch from './components/MessageSearch';
 import InputPreview from './components/InputPreview';
 import PinnedMessages from './components/PinnedMessages';
-import type { PinnedMessage } from './components/PinnedMessages';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
-import { useBookmarks } from './hooks/useBookmarks';
-import { useEmojiReactions } from './hooks/useEmojiReactions';
 import EmojiReactionPicker from './components/EmojiReactionPicker';
 import { insertBold, insertItalic, insertInlineCode, insertStrikethrough, insertLink, insertCodeBlock } from './utils/textFormatting';
 import type { Command } from './components/CommandPalette';
 import { useInlineSearch } from './hooks/useInlineSearch';
+import { useMessageActions } from './hooks/useMessageActions';
 import { useConversations } from './hooks/useConversations';
 import { usePromptTemplates } from './hooks/usePromptTemplates';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
@@ -123,18 +120,9 @@ const App: React.FC = () => {
   // UI state (localStorage-persisted)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage(S.STORAGE_KEY_SIDEBAR_COLLAPSED, false);
   const [highContrast, setHighContrast] = useLocalStorage(S.STORAGE_KEY_HIGH_CONTRAST, false);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; messageIndex: number } | null>(null);
-  const [pinnedMessages, setPinnedMessages] = useLocalStorage<PinnedMessage[]>(S.STORAGE_KEY_PINNED_MESSAGES, []);
 
   // Performance monitor
   const perfMonitor = usePerformanceMonitor();
-
-  // Bookmarks
-  const { bookmarks, addBookmark, removeBookmark } = useBookmarks();
-
-  // Emoji reactions
-  const { toggleReaction, getReactions } = useEmojiReactions();
-  const [emojiPickerTarget, setEmojiPickerTarget] = useState<{ index: number; x: number; y: number } | null>(null);
 
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
@@ -152,6 +140,18 @@ const App: React.FC = () => {
     scrollToBottom,
     handleScroll: handleMessagesScroll,
   } = useAutoScroll(messages);
+
+  // Message actions (context menu, pin, bookmark, emoji, navigation)
+  const msgActions = useMessageActions({
+    messages,
+    conversations,
+    currentConversationId,
+    editMessage,
+    deleteMessage,
+    forkConversation,
+    messagesContainerRef,
+    handleSelectConversation,
+  });
 
   // Reading progress
   const [readingProgress, setReadingProgress] = useState(0);
@@ -223,101 +223,6 @@ const App: React.FC = () => {
       ta.setSelectionRange(result.selectionStart, result.selectionEnd);
     });
   }, [input, setInput, textareaRef]);
-
-  // Pin/unpin message handlers
-  const handlePinMessage = useCallback((messageIndex: number) => {
-    const msg = messages[messageIndex];
-    if (!msg) return;
-    setPinnedMessages(prev => {
-      if (prev.some(p => p.index === messageIndex)) return prev;
-      return [...prev, { index: messageIndex, role: msg.role, content: msg.content }];
-    });
-  }, [messages, setPinnedMessages]);
-
-  const handleUnpinMessage = useCallback((messageIndex: number) => {
-    setPinnedMessages(prev => prev.filter(p => p.index !== messageIndex));
-  }, [setPinnedMessages]);
-
-  // Context menu items and handler
-  const contextMenuItems: ContextMenuItem[] = useMemo(() => [
-    { id: 'copy', label: S.CTX_COPY, icon: S.CTX_COPY_ICON },
-    { id: 'edit', label: S.CTX_EDIT, icon: S.CTX_EDIT_ICON },
-    { id: 'pin', label: S.CTX_PIN, icon: S.CTX_PIN_ICON },
-    { id: 'bookmark', label: S.CTX_BOOKMARK, icon: S.CTX_BOOKMARK_ICON },
-    { id: 'emoji', label: S.CTX_REACTION, icon: S.CTX_REACTION_ICON },
-    { id: 'fork', label: S.CTX_FORK, icon: S.CTX_FORK_ICON },
-    { id: 'delete', label: S.CTX_DELETE, icon: S.CTX_DELETE_ICON, danger: true },
-  ], []);
-
-  const handleContextMenuAction = useCallback((actionId: string) => {
-    if (contextMenu === null) return;
-    const idx = contextMenu.messageIndex;
-    switch (actionId) {
-      case 'copy':
-        navigator.clipboard.writeText(messages[idx]?.content || '');
-        break;
-      case 'edit':
-        editMessage(idx, messages[idx]?.content || '');
-        break;
-      case 'pin':
-        handlePinMessage(idx);
-        break;
-      case 'bookmark': {
-        const msg = messages[idx];
-        if (msg) {
-          const conv = conversations.find(c => c.id === currentConversationId);
-          addBookmark({
-            conversationId: currentConversationId || '',
-            conversationTitle: conv?.title || S.CTX_NO_TITLE,
-            messageIndex: idx,
-            role: msg.role,
-            content: msg.content,
-            timestamp: new Date(),
-          });
-        }
-        break;
-      }
-      case 'emoji':
-        setEmojiPickerTarget({ index: idx, x: contextMenu.x, y: contextMenu.y });
-        break;
-      case 'fork':
-        forkConversation(idx);
-        break;
-      case 'delete':
-        deleteMessage(idx);
-        break;
-    }
-    setContextMenu(null);
-  }, [contextMenu, messages, editMessage, handlePinMessage, forkConversation, deleteMessage, conversations, currentConversationId, addBookmark]);
-
-  const handleNavigateToMessage = useCallback((messageIndex: number) => {
-    const container = messagesContainerRef.current;
-    if (!container) return;
-    const messageElements = container.querySelectorAll('[data-message-index]');
-    const target = messageElements[messageIndex];
-    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [messagesContainerRef]);
-
-  const handleMessageContextMenu = useCallback((e: React.MouseEvent, index: number) => {
-    e.preventDefault();
-    setContextMenu({ x: e.clientX, y: e.clientY, messageIndex: index });
-  }, []);
-
-  // Emoji reaction handler
-  const handleEmojiSelect = useCallback((emoji: string) => {
-    if (emojiPickerTarget && currentConversationId) {
-      toggleReaction(currentConversationId, emojiPickerTarget.index, emoji);
-    }
-    setEmojiPickerTarget(null);
-  }, [emojiPickerTarget, currentConversationId, toggleReaction]);
-
-  // MessageSearch navigation: switch to conversation and scroll to message
-  const handleSearchNavigate = useCallback((conversationId: string, messageIndex: number) => {
-    if (conversationId !== currentConversationId) {
-      handleSelectConversation(conversationId);
-    }
-    setTimeout(() => handleNavigateToMessage(messageIndex), 100);
-  }, [currentConversationId, handleSelectConversation, handleNavigateToMessage]);
 
   // Performance data (computed)
   const perfData = useMemo(
@@ -470,9 +375,9 @@ const App: React.FC = () => {
             onClose={inlineSearch.close}
           />
           <PinnedMessages
-            messages={pinnedMessages}
-            onNavigate={handleNavigateToMessage}
-            onUnpin={handleUnpinMessage}
+            messages={msgActions.pinnedMessages}
+            onNavigate={msgActions.handleNavigateToMessage}
+            onUnpin={msgActions.handleUnpinMessage}
           />
           <div className="messages" role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleScrollWithProgress}>
             <ReadingProgressBar progress={readingProgress} isVisible={messages.length > 0} />
@@ -480,9 +385,9 @@ const App: React.FC = () => {
               <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
             )}
             {messages.map((message, index) => {
-              const msgReactions = currentConversationId ? getReactions(currentConversationId, index) : [];
+              const msgReactions = currentConversationId ? msgActions.getReactions(currentConversationId, index) : [];
               return (
-                <div key={message.id || index} data-message-index={index} onContextMenu={(e) => handleMessageContextMenu(e, index)}>
+                <div key={message.id || index} data-message-index={index} onContextMenu={(e) => msgActions.handleMessageContextMenu(e, index)}>
                   <MessageBubble
                     message={message}
                     index={index}
@@ -594,7 +499,7 @@ const App: React.FC = () => {
         isOpen={dialogs.isCodeSnippetsOpen}
         onClose={dialogs.closeCodeSnippets}
         messages={messages}
-        onNavigateToMessage={handleNavigateToMessage}
+        onNavigateToMessage={msgActions.handleNavigateToMessage}
       />
       <KeyboardShortcutHelp
         isOpen={dialogs.isShortcutHelpOpen}
@@ -604,7 +509,7 @@ const App: React.FC = () => {
         isOpen={dialogs.isLinkCollectionOpen}
         onClose={dialogs.closeLinkCollection}
         messages={messages}
-        onNavigateToMessage={handleNavigateToMessage}
+        onNavigateToMessage={msgActions.handleNavigateToMessage}
       />
       <ConversationStats
         isOpen={dialogs.isStatsOpen}
@@ -614,9 +519,9 @@ const App: React.FC = () => {
       <BookmarkedMessages
         isOpen={dialogs.isBookmarksOpen}
         onClose={dialogs.closeBookmarks}
-        bookmarks={bookmarks}
-        onNavigateToMessage={handleSearchNavigate}
-        onRemoveBookmark={removeBookmark}
+        bookmarks={msgActions.bookmarks}
+        onNavigateToMessage={msgActions.handleSearchNavigate}
+        onRemoveBookmark={msgActions.removeBookmark}
       />
       <PerformancePanel
         isOpen={dialogs.isPerfPanelOpen}
@@ -630,24 +535,24 @@ const App: React.FC = () => {
         isOpen={dialogs.isMessageSearchOpen}
         onClose={dialogs.closeMessageSearch}
         conversations={conversations}
-        onNavigateToResult={handleSearchNavigate}
+        onNavigateToResult={msgActions.handleSearchNavigate}
       />
-      {contextMenu && (
+      {msgActions.contextMenu && (
         <MessageContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          items={contextMenuItems}
-          onSelect={handleContextMenuAction}
-          onClose={() => setContextMenu(null)}
+          x={msgActions.contextMenu.x}
+          y={msgActions.contextMenu.y}
+          items={msgActions.contextMenuItems}
+          onSelect={msgActions.handleContextMenuAction}
+          onClose={msgActions.closeContextMenu}
         />
       )}
-      {emojiPickerTarget && (
-        <div className="emoji-picker-overlay" onClick={() => setEmojiPickerTarget(null)}>
-          <div style={{ position: 'fixed', left: emojiPickerTarget.x, top: emojiPickerTarget.y }} onClick={(e) => e.stopPropagation()}>
+      {msgActions.emojiPickerTarget && (
+        <div className="emoji-picker-overlay" onClick={msgActions.closeEmojiPicker}>
+          <div style={{ position: 'fixed', left: msgActions.emojiPickerTarget.x, top: msgActions.emojiPickerTarget.y }} onClick={(e) => e.stopPropagation()}>
             <EmojiReactionPicker
               isOpen={true}
-              onSelect={handleEmojiSelect}
-              onClose={() => setEmojiPickerTarget(null)}
+              onSelect={msgActions.handleEmojiSelect}
+              onClose={msgActions.closeEmojiPicker}
             />
           </div>
         </div>

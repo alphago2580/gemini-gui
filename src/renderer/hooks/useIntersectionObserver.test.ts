@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useIntersectionObserver } from './useIntersectionObserver';
+import { useIntersectionObserver, UseIntersectionObserverOptions } from './useIntersectionObserver';
 
 let observeCallbacks: ((entries: Partial<IntersectionObserverEntry>[]) => void)[] = [];
 let observedElements: Element[] = [];
@@ -126,7 +126,7 @@ describe('useIntersectionObserver', () => {
   it('freezes state once visible when freezeOnceVisible is true', () => {
     const { result, rerender } = renderHook(
       ({ opts }) => useIntersectionObserver(opts),
-      { initialProps: { opts: { freezeOnceVisible: true } } }
+      { initialProps: { opts: { freezeOnceVisible: true } as UseIntersectionObserverOptions } }
     );
 
     const element = document.createElement('div');
