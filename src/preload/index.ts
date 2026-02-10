@@ -55,4 +55,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('show-notification', title, body),
 
   isWindowFocused: () => ipcRenderer.invoke('is-window-focused'),
+
+  setWindowTitle: (title: string) => ipcRenderer.invoke('set-window-title', title),
 });

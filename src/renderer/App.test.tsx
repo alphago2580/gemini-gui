@@ -21,6 +21,7 @@ const mockElectronAPI = {
     onMenuAction: vi.fn(),
     showNotification: vi.fn().mockResolvedValue({ success: true }),
     isWindowFocused: vi.fn().mockResolvedValue(true),
+    setWindowTitle: vi.fn().mockResolvedValue(undefined),
 };
 
 global.window.electronAPI = mockElectronAPI as unknown as typeof window.electronAPI;
@@ -1501,6 +1502,33 @@ describe('App Component', () => {
             fireEvent.keyDown(document, { key: 'Tab', ctrlKey: true, shiftKey: true });
             await waitFor(() => {
                 expect(screen.getByText('Msg X')).toBeInTheDocument();
+            });
+        });
+    });
+
+    describe('Window Title Sync', () => {
+        it('sets window title to app name when no conversation', () => {
+            render(<App />);
+            expect(mockElectronAPI.setWindowTitle).toHaveBeenCalledWith('Gemini GUI');
+        });
+
+        it('sets window title with conversation title when conversation is active', async () => {
+            const savedConversations = [
+                {
+                    id: '900',
+                    title: '테스트 대화',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Hello', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '900');
+
+            render(<App />);
+            await waitFor(() => {
+                expect(mockElectronAPI.setWindowTitle).toHaveBeenCalledWith('테스트 대화 — Gemini GUI');
             });
         });
     });

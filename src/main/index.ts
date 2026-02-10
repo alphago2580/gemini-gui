@@ -387,3 +387,9 @@ ipcMain.handle('show-notification', async (_event, title: string, body: string) 
 ipcMain.handle('is-window-focused', async () => {
   return mainWindow?.isFocused() ?? false;
 });
+
+ipcMain.handle('set-window-title', async (_event, title: string) => {
+  if (mainWindow) {
+    mainWindow.setTitle(title);
+  }
+});

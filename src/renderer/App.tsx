@@ -179,6 +179,16 @@ const App: React.FC = () => {
     return conv?.title || S.UNTITLED_CONVERSATION;
   }, [conversations, currentConversationId]);
 
+  // Sync window title with current conversation
+  useEffect(() => {
+    const api = window.electronAPI;
+    if (!api?.setWindowTitle) return;
+    const title = currentConversationId
+      ? `${currentConvTitle} — ${S.APP_TITLE}`
+      : S.APP_TITLE;
+    api.setWindowTitle(title);
+  }, [currentConvTitle, currentConversationId]);
+
   const {
     bookmarks,
     isBookmarked,
