@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (869 tests)
+- **Test Status**: Passing (909 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -562,3 +562,12 @@
 - Exported `Props` interfaces from all 22 component files (were private, now importable by tests and other modules)
 - Exported `Options`/`Actions` interfaces from 4 hooks: useExport, useMessageSend, useStreamHandler, useKeyboardShortcuts
 - TypeScript: 0 errors, 869 tests all passing
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 2 (+40 tests)
+- **GeminiProcess.test.ts**: Added 10 tests — stop/nullify, send-without-start throws, exit event, non-JSON line ignored, empty lines ignored, `\r\n` handling, malformed JSON silent fail, `--system-instruction` flag, double-start prevention
+- **conversationStats.test.ts**: Added 5 tests — totalCharacters calculation, averageMessageLength, 0 avg when all empty, single conversation stats, same-length longest/shortest
+- **syntaxHighlight.test.ts**: Added 11 tests — CSS/SCSS/LESS/jsonc languages, block comments in CSS, shell/zsh/py/tsx/jsx aliases, decimal starting with dot
+- **KeyboardShortcutHelp.test.tsx**: Added 4 tests — modal click propagation stop, kbd elements count, shortcut rows count, Ctrl+F search shortcut
+- **LinkCollection.test.tsx**: Added 5 tests — panel click propagation stop, copy/nav button aria-labels, zero link count display, non-Escape key ignored
+- **QuickSwitcher.test.tsx**: Added 5 tests — ArrowUp/Down keyboard wrap, panel click propagation stop, aria-selected attribute, query reset on reopen
+- Total tests: 869 → 909 (47 test files, all passing)
