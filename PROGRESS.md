@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (938 tests)
-- **Last Agent Run**: Agent 2 (Quality)
+- **Test Status**: Passing (1217 tests)
+- **Last Agent Run**: Agent 2 (Hooks & Utils)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -589,3 +589,33 @@
 - Added 30 unit tests for wordCount (words, lines, sentences, paragraphs, stats, reading time)
 - Total tests: 996 (58 test files, all passing)
 - TypeScript: 0 errors, Build: passes successfully
+
+### Agent 2 (Hooks & Utils) — useThrottle, useUndoRedo, useWindowSize, stringUtils
+- Created `useThrottle` hook — throttle rapidly changing values with configurable delay (9 tests)
+- Created `useUndoRedo` hook — undo/redo state management with history limit (12 tests)
+- Created `useWindowSize` hook — reactive window dimensions tracking (4 tests)
+- Created `stringUtils` utility — truncate, capitalize, slugify, escapeHtml, stripHtml, highlightMatches, excerpt, countOccurrences, isBlank, pluralize (38 tests)
+- Total: 63 new tests, all passing
+
+### Agent 2 (Hooks & Utils) — usePrevious, useMediaQuery, useInterval, dateUtils
+- Created `usePrevious` hook — track previous value of any state/prop (7 tests)
+- Created `useMediaQuery` hook — reactive CSS media query matching with change listener (6 tests)
+- Created `useInterval` hook — declarative setInterval with dynamic delay and null pause (8 tests)
+- Created `dateUtils` utility — formatDate, formatTime, formatDateTime, timeAgo (Korean), isToday, isSameDay, formatDuration (27 tests)
+- Total: 48 new tests, all passing
+
+### Agent 2 (Hooks & Utils) — useEventListener, useFocus, useToggle, arrayUtils
+- Created `useEventListener` hook — declarative event listener with auto-cleanup, custom element support (7 tests)
+- Created `useFocus` hook — track focus state with ref, focus/blur controls (8 tests)
+- Created `useToggle` hook — boolean state with toggle/setTrue/setFalse helpers (7 tests)
+- Created `arrayUtils` utility — unique, groupBy, chunk, moveItem, range, shuffle, findLast, flatten (33 tests)
+- Total: 55 new tests, all passing
+
+### Agent 2 (Hooks & Utils) — useHover, useOnClickOutside, useCountdown, numberUtils
+- Created `useHover` hook — track hover state with callbacks (5 tests)
+- Created `useOnClickOutside` hook — detect clicks outside element via mousedown (6 tests)
+- Created `useCountdown` hook — countdown timer with start/pause/resume/reset and onComplete callback (10 tests)
+- Created `numberUtils` utility — clamp, formatBytes, formatPercent, roundTo, lerp, mapRange, formatCompact (31 tests)
+- Total: 52 new tests, all passing
+- Cumulative total: 1217 tests (74 test files, all passing)
+- TypeScript: 0 errors
