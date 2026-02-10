@@ -590,3 +590,12 @@
 - Added 2 unit tests for `useStreamHandler` (onComplete callback, no-op when undefined)
 - Added 2 integration tests in App (notification when unfocused, no notification when focused)
 - Total tests: 876 → 880 (50 test files, all passing)
+
+### Agent 4 (Integration) — Stop Generation Button
+- Send button transforms to red "중지" (Stop) button during loading/streaming
+- Clicking stop calls `stopGemini` IPC to terminate CLI process and reset loading state
+- Returns to normal "전송" (Send) button after stopping
+- CSS: `.stop-button` class with error color and hover state
+- Added `STOP_BUTTON` and `ARIA_STOP_GENERATION` string constants
+- Added 5 tests (button visibility, stopGemini call, button restore, aria-label)
+- Total tests: 880 → 884 (50 test files, all passing)
