@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1416 tests)
+- **Test Status**: Passing (1511 tests)
 - **Last Agent Run**: Agent 2 (Hooks & Utils)
 
 ## Completed Features
@@ -643,4 +643,16 @@
 - Created `colorUtils` utility — hexToRgb, rgbToHex, rgbToHsl, hslToRgb, lighten, darken, luminance, contrastRatio, mix, getContrastText, rgbToCss, rgbaToCss (42 tests)
 - Total: 82 new tests, all passing
 - Cumulative total: 1416 tests (86 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
+
+### Agent 2 (Hooks & Utils) — useDialogs, useQueue, useSelection, useMutationObserver, useRetry, domUtils, storageUtils
+- Created `useDialogs` hook — consolidates 11 dialog/panel open states for App.tsx with open/close/toggle actions (15 tests)
+- Created `useQueue` hook — FIFO queue state management with enqueue, dequeue, peek, clear, contains, toArray (11 tests)
+- Created `useSelection` hook — text selection tracking with targetRef filtering, offsets, clear (9 tests)
+- Created `useMutationObserver` hook — declarative MutationObserver with auto-cleanup, latest callback ref pattern (6 tests)
+- Created `useRetry` hook — async retry with configurable maxRetries, delay, exponential/fixed backoff, cancel, reset (8 tests)
+- Created `domUtils` utility — isElementVisible, isElementFullyVisible, getScrollPercent, isNearBottom, getFocusableElements, trapFocus, scrollIntoViewIfNeeded, copyToClipboard, data attributes, matchesSelector, closestAncestor (31 tests)
+- Created `storageUtils` utility — type-safe getItem/setItem, hasItem, prefix operations, getStorageSize, expiry (TTL), createNamespace (27 tests)
+- Total: 95 new tests (added tests for 4 previously untested files + 2 new modules)
+- Cumulative total: 1511 tests (92 test files, all passing)
 - TypeScript: 0 errors, Build: passes successfully
