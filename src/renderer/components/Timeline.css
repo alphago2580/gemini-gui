@@ -1,0 +1,133 @@
+/* Vertical timeline */
+.timeline--vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline--vertical .timeline__item {
+  display: flex;
+  gap: 12px;
+  position: relative;
+}
+
+.timeline--vertical .timeline__marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.timeline__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.timeline__dot--default {
+  background: var(--text-secondary, #aaa);
+}
+
+.timeline__dot--success {
+  background: var(--success-color, #4caf50);
+}
+
+.timeline__dot--warning {
+  background: var(--warning-color, #ff9800);
+}
+
+.timeline__dot--error {
+  background: var(--error-color, #f44336);
+}
+
+.timeline__dot--info {
+  background: var(--info-color, #2196f3);
+}
+
+.timeline__icon {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.timeline--vertical .timeline__line {
+  width: 2px;
+  flex: 1;
+  min-height: 24px;
+  background: var(--border-color, #404040);
+}
+
+.timeline--vertical .timeline__content {
+  padding-bottom: 20px;
+  flex: 1;
+  min-width: 0;
+}
+
+.timeline--vertical .timeline__item--last .timeline__content {
+  padding-bottom: 0;
+}
+
+.timeline__header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.timeline__title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color, #e0e0e0);
+  line-height: 1.3;
+}
+
+.timeline__timestamp {
+  font-size: 12px;
+  color: var(--text-secondary, #aaa);
+  white-space: nowrap;
+}
+
+.timeline__description {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: var(--text-secondary, #aaa);
+  line-height: 1.5;
+}
+
+/* Horizontal timeline */
+.timeline--horizontal {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+}
+
+.timeline--horizontal .timeline__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+  position: relative;
+}
+
+.timeline--horizontal .timeline__marker {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+}
+
+.timeline--horizontal .timeline__line {
+  height: 2px;
+  flex: 1;
+  background: var(--border-color, #404040);
+}
+
+.timeline--horizontal .timeline__content {
+  text-align: center;
+  padding-top: 8px;
+}
