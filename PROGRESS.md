@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1217 tests)
+- **Test Status**: Passing (1252 tests)
 - **Last Agent Run**: Agent 2 (Hooks & Utils)
 
 ## Completed Features
@@ -619,3 +619,10 @@
 - Total: 52 new tests, all passing
 - Cumulative total: 1217 tests (74 test files, all passing)
 - TypeScript: 0 errors
+
+### Agent 2 (Hooks & Utils) — useDocumentTitle, useScrollPosition, validationUtils
+- Created `useDocumentTitle` hook — dynamically set document.title with restore-on-unmount (7 tests)
+- Created `useScrollPosition` hook — track scroll position, direction, isAtTop/isAtBottom with throttling (8 tests)
+- Created `validationUtils` utility — isValidEmail, isValidUrl, isNotEmpty, hasMinLength, hasMaxLength, isInRange, isAlphanumeric, isNumeric, matchesPattern, validateAll (20 tests)
+- Total: 35 new tests, all passing
+- Cumulative total: 1252 tests (77 test files, all passing)
