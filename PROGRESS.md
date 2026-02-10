@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1092 tests)
+- **Test Status**: Passing (1143 tests)
 - **Last Agent Run**: Agent 1 (Feature)
 
 ## Completed Features
@@ -590,3 +590,30 @@
 - All components: React.memo, CSS variables, ARIA accessibility, comprehensive tests
 - Added 18 tests for Accordion, 24 for Switch, 25 for Chip, 16 for AvatarGroup, 16 for Divider
 - Total tests: 1092 (60 test files, all passing)
+
+### Agent 1 (Feature) — ConfirmDialog Component
+- Created `ConfirmDialog` component — modal confirmation dialog for destructive/important actions
+- 3 variants: danger (red), warning (orange), info (blue) with matching icons (⚠, ⚡, ℹ)
+- Overlay click dismiss, Escape key dismiss, focus management (auto-focus confirm button)
+- Custom confirm/cancel button labels, default Korean labels (확인/취소)
+- Smooth animations: overlay fade-in, dialog scale-in
+- Full accessibility: `role="dialog"`, `aria-modal`, `aria-labelledby`, `aria-describedby`, `aria-label` on buttons
+- CSS with theme variables for dark/light support, focus-visible outline
+- React.memo for performance optimization
+- Added 19 unit tests (rendering, variants, callbacks, keyboard, overlay click, ARIA, focus)
+- Total tests: 1123 (63 test files, all passing)
+
+### Agent 1 (Feature) — Message Bookmarking
+- Created `useBookmarks` hook with localStorage persistence (add, remove, toggle, isBookmarked)
+- Added bookmark toggle button (★/☆) to `MessageBubble` component — hover-reveal, gold color when bookmarked
+- Wired bookmarks into App.tsx: replaced empty BookmarkedMessages placeholders with real data
+- Added `handleToggleBookmark` callback: creates BookmarkedMessage from current conversation context
+- Added `handleNavigateToBookmark` callback: switches conversation + scrolls to bookmarked message
+- Added "Bookmarks" header button to open BookmarkedMessages panel from conversation view
+- Bookmark state persisted via `useLocalStorage('gemini-bookmarks')` key
+- Added `ARIA_BOOKMARK`, `ARIA_UNBOOKMARK`, `TITLE_BOOKMARK`, `TITLE_UNBOOKMARK` string constants
+- CSS: `.bookmark-message-btn` with hover-reveal, `.bookmarked` class with gold (#f5a623) color
+- Added 10 unit tests for useBookmarks hook (CRUD, toggle, persistence, dedup, isBookmarked)
+- Added 6 unit tests for MessageBubble bookmark button (render, toggle, star display, both roles)
+- Added 4 integration tests in App (bookmark buttons visible, toggle, header button, panel open)
+- Total tests: 1143 (64 test files, all passing)

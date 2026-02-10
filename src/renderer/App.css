@@ -385,6 +385,31 @@
   color: var(--accent-highlight);
 }
 
+.bookmark-message-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.message:hover .bookmark-message-btn {
+  opacity: 1;
+}
+
+.bookmark-message-btn:hover {
+  color: var(--accent-highlight);
+}
+
+.bookmark-message-btn.bookmarked {
+  opacity: 1;
+  color: #f5a623;
+}
+
 .message.editing {
   border-color: var(--accent-highlight);
 }

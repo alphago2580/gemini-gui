@@ -80,6 +80,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Chip — selectable/removable tag chips with variants and icons
 - [x] AvatarGroup — stacked avatar display with overflow count
 - [x] Divider — horizontal/vertical separator with label support
+- [x] Message bookmarking — star/unstar messages with persistent storage and bookmarks panel
 
 ### Accessibility
 - [x] ARIA labels on all interactive elements

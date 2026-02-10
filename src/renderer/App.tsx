@@ -24,6 +24,7 @@ import LinkCollection from './components/LinkCollection';
 import ConversationStats from './components/ConversationStats';
 import BookmarkedMessages from './components/BookmarkedMessages';
 import SessionIndicator from './components/SessionIndicator';
+import CharacterCounter from './components/CharacterCounter';
 import { calculateConversationStats } from './utils/conversationStats';
 import { insertBold, insertItalic, insertInlineCode, insertStrikethrough, insertLink, insertCodeBlock } from './utils/textFormatting';
 import type { Command } from './components/CommandPalette';
@@ -41,6 +42,7 @@ import { useAutoScroll } from './hooks/useAutoScroll';
 import { useMessageSend } from './hooks/useMessageSend';
 import { useExport } from './hooks/useExport';
 import { useSettings } from './hooks/useSettings';
+import { useBookmarks } from './hooks/useBookmarks';
 import * as S from './constants/strings';
 
 const App: React.FC = () => {
@@ -162,6 +164,9 @@ const App: React.FC = () => {
   // Settings state (extracted to custom hook)
   const { settings, handleSettingsSave } = useSettings();
 
+  // Bookmarks
+  const { bookmarks, toggleBookmark, removeBookmark, isBookmarked } = useBookmarks();
+
   // Message send logic (input, files, send, paste)
   const {
     input,
@@ -238,6 +243,34 @@ const App: React.FC = () => {
     }
     setContextMenu(null);
   }, [contextMenu, messages, editMessage, forkConversation, deleteMessage]);
+
+  const handleToggleBookmark = useCallback((messageIndex: number) => {
+    if (!currentConversationId) return;
+    const message = messages[messageIndex];
+    if (!message) return;
+    const conv = conversations.find(c => c.id === currentConversationId);
+    toggleBookmark({
+      conversationId: currentConversationId,
+      conversationTitle: conv?.title || S.UNTITLED_CONVERSATION,
+      messageIndex,
+      role: message.role,
+      content: message.content,
+      timestamp: message.timestamp,
+    });
+  }, [currentConversationId, messages, conversations, toggleBookmark]);
+
+  const handleNavigateToBookmark = useCallback((conversationId: string, messageIndex: number) => {
+    if (conversationId !== currentConversationId) {
+      handleSelectConversation(conversationId);
+    }
+    setTimeout(() => {
+      const container = messagesContainerRef.current;
+      if (!container) return;
+      const messageElements = container.querySelectorAll('[data-message-index]');
+      const target = messageElements[messageIndex];
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }, [currentConversationId, handleSelectConversation, messagesContainerRef]);
 
   const handleNavigateToMessage = useCallback((messageIndex: number) => {
     const container = messagesContainerRef.current;
@@ -372,6 +405,14 @@ const App: React.FC = () => {
               >
                 Stats
               </button>
+              <button
+                className="header-action-btn"
+                onClick={() => setIsBookmarksOpen(true)}
+                aria-label="북마크"
+                title="북마크된 메시지 보기"
+              >
+                Bookmarks
+              </button>
             </div>
           )}
         </header>
@@ -410,6 +451,8 @@ const App: React.FC = () => {
                   onDelete={deleteMessage}
                   onEdit={editMessage}
                   onFork={forkConversation}
+                  isBookmarked={currentConversationId ? isBookmarked(currentConversationId, index) : false}
+                  onToggleBookmark={handleToggleBookmark}
                 />
               </div>
             ))}
@@ -470,6 +513,9 @@ const App: React.FC = () => {
               {isLoading ? S.SENDING_BUTTON : S.SEND_BUTTON}
             </button>
             </div>
+            {input.length > 0 && (
+              <CharacterCounter current={input.length} />
+            )}
           </div>
         </div>
       </main>
@@ -522,9 +568,9 @@ const App: React.FC = () => {
       <BookmarkedMessages
         isOpen={isBookmarksOpen}
         onClose={() => setIsBookmarksOpen(false)}
-        bookmarks={[]}
-        onNavigateToMessage={() => {}}
-        onRemoveBookmark={() => {}}
+        bookmarks={bookmarks}
+        onNavigateToMessage={handleNavigateToBookmark}
+        onRemoveBookmark={removeBookmark}
       />
       {contextMenu && (
         <MessageContextMenu

@@ -1553,4 +1553,93 @@ describe('App Component', () => {
             });
         });
     });
+
+    describe('Character Counter', () => {
+        it('does not show character counter when input is empty', () => {
+            const { container } = render(<App />);
+            expect(container.querySelector('.char-counter')).not.toBeInTheDocument();
+        });
+
+        it('shows character counter when user types', async () => {
+            const user = userEvent.setup();
+            const { container } = render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            expect(container.querySelector('.char-counter')).toBeInTheDocument();
+            expect(container.querySelector('.char-counter-text')?.textContent).toContain('5');
+        });
+
+        it('hides character counter when input is cleared', async () => {
+            const user = userEvent.setup();
+            const { container } = render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hi');
+            expect(container.querySelector('.char-counter')).toBeInTheDocument();
+            await user.clear(input);
+            expect(container.querySelector('.char-counter')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Bookmarks', () => {
+        it('shows bookmark buttons on messages', async () => {
+            const callbacks = setupStreamCallbacks();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            fireEvent.change(input, { target: { value: 'Hello' } });
+            fireEvent.click(screen.getByLabelText('메시지 전송'));
+
+            await waitFor(() => {
+                expect(screen.getByText('Hello')).toBeInTheDocument();
+            });
+
+            const bookmarkButtons = screen.getAllByLabelText('북마크 추가');
+            expect(bookmarkButtons.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('toggles bookmark on message', async () => {
+            const callbacks = setupStreamCallbacks();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            fireEvent.change(input, { target: { value: 'Hello' } });
+            fireEvent.click(screen.getByLabelText('메시지 전송'));
+
+            await waitFor(() => {
+                expect(screen.getByText('Hello')).toBeInTheDocument();
+            });
+
+            const bookmarkBtn = screen.getAllByLabelText('북마크 추가')[0];
+            fireEvent.click(bookmarkBtn);
+
+            await waitFor(() => {
+                expect(screen.getByLabelText('북마크 해제')).toBeInTheDocument();
+            });
+        });
+
+        it('shows Bookmarks button in header when messages exist', async () => {
+            const callbacks = setupStreamCallbacks();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            fireEvent.change(input, { target: { value: 'Test' } });
+            fireEvent.click(screen.getByLabelText('메시지 전송'));
+
+            await waitFor(() => {
+                expect(screen.getByText('Bookmarks')).toBeInTheDocument();
+            });
+        });
+
+        it('opens bookmarks panel when Bookmarks button is clicked', async () => {
+            const callbacks = setupStreamCallbacks();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            fireEvent.change(input, { target: { value: 'Test' } });
+            fireEvent.click(screen.getByLabelText('메시지 전송'));
+
+            await waitFor(() => {
+                expect(screen.getByText('Bookmarks')).toBeInTheDocument();
+            });
+
+            fireEvent.click(screen.getByText('Bookmarks'));
+            expect(screen.getByRole('dialog', { name: '북마크된 메시지' })).toBeInTheDocument();
+        });
+    });
 });

@@ -208,6 +208,57 @@ describe('MessageBubble', () => {
     });
   });
 
+  describe('Bookmark', () => {
+    it('renders bookmark button when onToggleBookmark is provided', () => {
+      render(<MessageBubble {...defaultProps} onToggleBookmark={vi.fn()} />);
+      expect(screen.getByLabelText('북마크 추가')).toBeInTheDocument();
+    });
+
+    it('does not render bookmark button when onToggleBookmark is not provided', () => {
+      render(<MessageBubble {...defaultProps} />);
+      expect(screen.queryByLabelText('북마크 추가')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('북마크 해제')).not.toBeInTheDocument();
+    });
+
+    it('shows filled star when bookmarked', () => {
+      render(<MessageBubble {...defaultProps} isBookmarked={true} onToggleBookmark={vi.fn()} />);
+      const btn = screen.getByLabelText('북마크 해제');
+      expect(btn.textContent).toBe('\u2605');
+      expect(btn).toHaveClass('bookmarked');
+    });
+
+    it('shows empty star when not bookmarked', () => {
+      render(<MessageBubble {...defaultProps} isBookmarked={false} onToggleBookmark={vi.fn()} />);
+      const btn = screen.getByLabelText('북마크 추가');
+      expect(btn.textContent).toBe('\u2606');
+      expect(btn).not.toHaveClass('bookmarked');
+    });
+
+    it('calls onToggleBookmark with index when clicked', () => {
+      const onToggleBookmark = vi.fn();
+      render(<MessageBubble {...defaultProps} index={5} onToggleBookmark={onToggleBookmark} />);
+      fireEvent.click(screen.getByLabelText('북마크 추가'));
+      expect(onToggleBookmark).toHaveBeenCalledWith(5);
+    });
+
+    it('renders bookmark button for both user and assistant messages', () => {
+      const onToggleBookmark = vi.fn();
+      const { rerender } = render(
+        <MessageBubble {...defaultProps} onToggleBookmark={onToggleBookmark} />
+      );
+      expect(screen.getByLabelText('북마크 추가')).toBeInTheDocument();
+
+      rerender(
+        <MessageBubble
+          {...defaultProps}
+          message={createMessage({ role: 'assistant' })}
+          onToggleBookmark={onToggleBookmark}
+        />
+      );
+      expect(screen.getByLabelText('북마크 추가')).toBeInTheDocument();
+    });
+  });
+
   describe('Streaming cursor', () => {
     it('shows streaming cursor on last assistant message when streaming', () => {
       const { container } = render(

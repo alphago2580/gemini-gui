@@ -217,6 +217,13 @@ export const SESSION_CONNECTED = '연결됨';
 export const SESSION_ERROR = '연결 오류';
 export const SESSION_STATUS_PREFIX = '세션 상태:';
 
+// Bookmarks
+export const ARIA_BOOKMARK = '북마크 추가';
+export const ARIA_UNBOOKMARK = '북마크 해제';
+export const TITLE_BOOKMARK = '북마크 추가';
+export const TITLE_UNBOOKMARK = '북마크 해제';
+export const STORAGE_KEY_BOOKMARKS = 'gemini-bookmarks';
+
 // localStorage keys
 export const STORAGE_KEY_CONVERSATIONS = 'gemini-conversations';
 export const STORAGE_KEY_CURRENT_CONVERSATION = 'gemini-current-conversation';

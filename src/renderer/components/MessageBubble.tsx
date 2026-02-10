@@ -12,6 +12,8 @@ interface MessageBubbleProps {
   onDelete: (index: number) => void;
   onEdit: (index: number, content: string) => void;
   onFork?: (index: number) => void;
+  isBookmarked?: boolean;
+  onToggleBookmark?: (index: number) => void;
 }
 
 const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
@@ -22,6 +24,8 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
   onDelete,
   onEdit,
   onFork,
+  isBookmarked = false,
+  onToggleBookmark,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
@@ -64,6 +68,16 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
             title={S.TITLE_EDIT_MESSAGE}
           >
             &#9998;
+          </button>
+        )}
+        {onToggleBookmark && (
+          <button
+            className={`bookmark-message-btn${isBookmarked ? ' bookmarked' : ''}`}
+            onClick={() => onToggleBookmark(index)}
+            aria-label={isBookmarked ? S.ARIA_UNBOOKMARK : S.ARIA_BOOKMARK}
+            title={isBookmarked ? S.TITLE_UNBOOKMARK : S.TITLE_BOOKMARK}
+          >
+            {isBookmarked ? '\u2605' : '\u2606'}
           </button>
         )}
         {onFork && (
