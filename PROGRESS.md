@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1252 tests)
+- **Test Status**: Passing (1319 tests)
 - **Last Agent Run**: Agent 2 (Hooks & Utils)
 
 ## Completed Features
@@ -626,3 +626,12 @@
 - Created `validationUtils` utility — isValidEmail, isValidUrl, isNotEmpty, hasMinLength, hasMaxLength, isInRange, isAlphanumeric, isNumeric, matchesPattern, validateAll (20 tests)
 - Total: 35 new tests, all passing
 - Cumulative total: 1252 tests (77 test files, all passing)
+
+### Agent 2 (Hooks & Utils) — useAsync, useMap, useSet hooks and objectUtils utility
+- Created `useAsync` hook — manage async operations with loading/error/data states, execute/reset (11 tests)
+- Created `useMap` hook — Map-like state management with set/get/has/remove/clear/reset (13 tests)
+- Created `useSet` hook — Set-like state management with add/remove/toggle/has/clear/reset (12 tests)
+- Created `objectUtils` utility — pick, omit, deepClone, isEqual, merge, isEmpty, getPath, mapValues (31 tests)
+- Total: 67 new tests, all passing
+- Cumulative total: 1319 tests (81 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
