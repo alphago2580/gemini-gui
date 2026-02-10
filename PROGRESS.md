@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1057 tests)
+- **Test Status**: Passing (1105 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -598,3 +598,12 @@
 - **useInlineSearch.test.ts**: Added 10 tests — empty messages array, empty content messages, non-overlapping position matches, special regex characters as literal, message array reactivity, open/close idempotency, single match goToNext wrap, single match goToPrev wrap, matchIndex increments, mixed case matching
 - **useTheme.test.ts**: Added 8 tests — system-to-dark removes listener, system-to-light removes listener, dark↔light roundtrip, system mode restore from localStorage, setThemeMode callback stability, return shape validation, light mode ignores system preference, dark mode ignores system preference
 - Total tests: 1002 → 1057 (47 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 6 (+48 tests)
+- **TabBar.test.tsx**: Added 8 tests — non-Enter/Space keyDown ignored, single tab rendering, tab-title span content, new tab title attribute, + text content, × close character, tab-bar/tab-list CSS classes, tab-item class count
+- **Toast.test.tsx**: Added 8 tests — toast-exit class on manual dismiss, toast-exit class on auto-dismiss, aria-live assertive per toast, toast-message span content, toast-close class, unique key independent rendering, × close text, timer cleanup on unmount
+- **useTabs.test.ts**: Added 8 tests — prevTab single tab no-op, nextTab null conversationId no-op, prevTab null conversationId no-op, closeTab non-active tab no switch, closeTab active first tab, closeTab active last tab, cleanupTabs empty array, ensureTabOpen multiple IDs
+- **useSettings.test.ts**: Added 8 tests — all default fields present, overwrites all fields, multiple saves overwrite, partial saved settings, empty string in localStorage, settings reference changes, handleSettingsSave stability, empty systemPrompt persistence
+- **useAutoResize.test.ts**: Added 8 tests — overflowY hidden below max, overflowY auto at max, height reset before measure, exact min height boundary, resize function stability, textareaRef stability, scrollHeight above max (201px), scrollHeight below max (199px)
+- **useExport.test.ts**: Added 8 tests — fallback on null conversationId, PDF filename sanitization, missing exportMarkdown method, missing exportPdf method, markdown content inclusion, HTML content inclusion, title update on conversation change, single message export
+- Total tests: 1057 → 1105 (47 test files, all passing)

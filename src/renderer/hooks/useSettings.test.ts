@@ -79,4 +79,120 @@ describe('useSettings', () => {
     const { result } = renderHook(() => useSettings());
     expect(typeof result.current.handleSettingsSave).toBe('function');
   });
+
+  it('preserves all default settings fields', () => {
+    const { result } = renderHook(() => useSettings());
+    const s = result.current.settings;
+    expect(s).toHaveProperty('model');
+    expect(s).toHaveProperty('temperature');
+    expect(s).toHaveProperty('maxTokens');
+    expect(s).toHaveProperty('theme');
+    expect(s).toHaveProperty('systemPrompt');
+  });
+
+  it('overwrites all fields on save', () => {
+    const { result } = renderHook(() => useSettings());
+
+    const newSettings = {
+      model: 'gemini-2.5-flash',
+      temperature: 0.2,
+      maxTokens: 512,
+      theme: 'system' as const,
+      systemPrompt: 'Be helpful',
+    };
+
+    act(() => {
+      result.current.handleSettingsSave(newSettings);
+    });
+
+    expect(result.current.settings).toEqual(newSettings);
+  });
+
+  it('multiple saves overwrite each other', () => {
+    const { result } = renderHook(() => useSettings());
+
+    act(() => {
+      result.current.handleSettingsSave({
+        model: 'gemini-1.5-pro',
+        temperature: 0.5,
+        maxTokens: 1024,
+        theme: 'light',
+        systemPrompt: 'first',
+      });
+    });
+
+    act(() => {
+      result.current.handleSettingsSave({
+        model: 'gemini-2.0-flash',
+        temperature: 1.0,
+        maxTokens: 4096,
+        theme: 'dark',
+        systemPrompt: 'second',
+      });
+    });
+
+    expect(result.current.settings.model).toBe('gemini-2.0-flash');
+    expect(result.current.settings.systemPrompt).toBe('second');
+    const stored = JSON.parse(localStorage.getItem('gemini-settings') || '{}');
+    expect(stored.systemPrompt).toBe('second');
+  });
+
+  it('handles partial saved settings by using whatever is stored', () => {
+    // If localStorage has incomplete data, it loads as-is (no merge with defaults)
+    localStorage.setItem('gemini-settings', JSON.stringify({ model: 'gemini-2.5-pro' }));
+
+    const { result } = renderHook(() => useSettings());
+    expect(result.current.settings.model).toBe('gemini-2.5-pro');
+    // Missing fields will be undefined (no merge with defaults in current implementation)
+    expect(result.current.settings.temperature).toBeUndefined();
+  });
+
+  it('handles empty string in localStorage gracefully', () => {
+    localStorage.setItem('gemini-settings', '');
+
+    const { result } = renderHook(() => useSettings());
+    // Empty string is falsy, so JSON.parse is not called, defaults used
+    expect(result.current.settings.model).toBe('auto');
+  });
+
+  it('settings object reference changes on save', () => {
+    const { result } = renderHook(() => useSettings());
+    const initialSettings = result.current.settings;
+
+    act(() => {
+      result.current.handleSettingsSave({
+        model: 'gemini-2.5-pro',
+        temperature: 0.8,
+        maxTokens: 2048,
+        theme: 'dark',
+        systemPrompt: '',
+      });
+    });
+
+    expect(result.current.settings).not.toBe(initialSettings);
+  });
+
+  it('handleSettingsSave is stable across rerenders', () => {
+    const { result, rerender } = renderHook(() => useSettings());
+    const firstSave = result.current.handleSettingsSave;
+    rerender();
+    expect(result.current.handleSettingsSave).toBe(firstSave);
+  });
+
+  it('persists empty systemPrompt correctly', () => {
+    const { result } = renderHook(() => useSettings());
+
+    act(() => {
+      result.current.handleSettingsSave({
+        model: 'auto',
+        temperature: 1,
+        maxTokens: 2048,
+        theme: 'dark',
+        systemPrompt: '',
+      });
+    });
+
+    const stored = JSON.parse(localStorage.getItem('gemini-settings') || '{}');
+    expect(stored.systemPrompt).toBe('');
+  });
 });

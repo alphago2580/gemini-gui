@@ -245,4 +245,129 @@ describe('useTabs', () => {
 
         expect(mockOnNewChat).toHaveBeenCalled();
     });
+
+    it('prevTab does nothing with single tab', () => {
+        localStorage.setItem('gemini-open-tabs', JSON.stringify(['1']));
+        const { result } = renderHook(() =>
+            useTabs('1', mockOnSelectConversation, mockOnNewChat, conversations)
+        );
+
+        act(() => {
+            result.current.prevTab();
+        });
+
+        expect(mockOnSelectConversation).not.toHaveBeenCalled();
+    });
+
+    it('nextTab does nothing when currentConversationId is null', () => {
+        localStorage.setItem('gemini-open-tabs', JSON.stringify(['1', '2']));
+        const { result } = renderHook(() =>
+            useTabs(null, mockOnSelectConversation, mockOnNewChat, conversations)
+        );
+
+        act(() => {
+            result.current.nextTab();
+        });
+
+        expect(mockOnSelectConversation).not.toHaveBeenCalled();
+    });
+
+    it('prevTab does nothing when currentConversationId is null', () => {
+        localStorage.setItem('gemini-open-tabs', JSON.stringify(['1', '2']));
+        const { result } = renderHook(() =>
+            useTabs(null, mockOnSelectConversation, mockOnNewChat, conversations)
+        );
+
+        act(() => {
+            result.current.prevTab();
+        });
+
+        expect(mockOnSelectConversation).not.toHaveBeenCalled();
+    });
+
+    it('closeTab does not switch when closing non-active tab', () => {
+        localStorage.setItem('gemini-open-tabs', JSON.stringify(['1', '2', '3']));
+        const { result } = renderHook(() =>
+            useTabs('1', mockOnSelectConversation, mockOnNewChat, conversations)
+        );
+
+        act(() => {
+            result.current.closeTab('3');
+        });
+
+        act(() => {
+            vi.runAllTimers();
+        });
+
+        // Should not switch since we closed a non-active tab
+        expect(mockOnSelectConversation).not.toHaveBeenCalled();
+        expect(mockOnNewChat).not.toHaveBeenCalled();
+        expect(result.current.openTabIds).toEqual(['1', '2']);
+    });
+
+    it('closeTab active first tab switches to next tab', () => {
+        localStorage.setItem('gemini-open-tabs', JSON.stringify(['1', '2', '3']));
+        const { result } = renderHook(() =>
+            useTabs('1', mockOnSelectConversation, mockOnNewChat, conversations)
+        );
+
+        act(() => {
+            result.current.closeTab('1');
+        });
+
+        act(() => {
+            vi.runAllTimers();
+        });
+
+        expect(mockOnSelectConversation).toHaveBeenCalledWith('2');
+    });
+
+    it('closeTab active last tab switches to previous tab', () => {
+        localStorage.setItem('gemini-open-tabs', JSON.stringify(['1', '2', '3']));
+        const { result } = renderHook(() =>
+            useTabs('3', mockOnSelectConversation, mockOnNewChat, conversations)
+        );
+
+        act(() => {
+            result.current.closeTab('3');
+        });
+
+        act(() => {
+            vi.runAllTimers();
+        });
+
+        // index 2 was last, updated=[1,2], min(2, 1) = 1, so updated[1] = '2'
+        expect(mockOnSelectConversation).toHaveBeenCalledWith('2');
+    });
+
+    it('cleanupTabs removes all tabs when no conversation IDs provided', () => {
+        localStorage.setItem('gemini-open-tabs', JSON.stringify(['1', '2', '3']));
+        const { result } = renderHook(() =>
+            useTabs('1', mockOnSelectConversation, mockOnNewChat, conversations)
+        );
+
+        act(() => {
+            result.current.cleanupTabs([]);
+        });
+
+        expect(result.current.openTabIds).toEqual([]);
+    });
+
+    it('ensureTabOpen called multiple times with different IDs', () => {
+        const { result } = renderHook(() =>
+            useTabs('1', mockOnSelectConversation, mockOnNewChat, conversations)
+        );
+
+        act(() => {
+            result.current.ensureTabOpen('1');
+        });
+        act(() => {
+            result.current.ensureTabOpen('2');
+        });
+        act(() => {
+            result.current.ensureTabOpen('3');
+        });
+
+        expect(result.current.openTabIds).toEqual(['1', '2', '3']);
+    });
 });
