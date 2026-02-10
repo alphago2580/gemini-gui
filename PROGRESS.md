@@ -570,3 +570,22 @@
 - Added 5 integration tests in App.test.tsx (PinnedMessages default, context menu pin, InputPreview default, PerformancePanel default, MessageSearch default)
 - Total tests: 938 (55 test files, all passing)
 - TypeScript: 0 errors, Build: passes successfully
+
+### Agent 2 (Hooks & Utils) — useBookmarks, useEmojiReactions, wordCount
+- Created `useBookmarks` hook — CRUD for bookmarked messages with localStorage persistence
+  - addBookmark, removeBookmark, isBookmarked, clearBookmarks, getBookmarksForConversation
+  - Duplicate prevention (same conversationId + messageIndex)
+  - Compatible with BookmarkedMessages component interface
+- Created `useEmojiReactions` hook — emoji reaction management with localStorage persistence
+  - addReaction (with count increment), removeReaction (with count decrement), toggleReaction
+  - getReactions, clearReactions (per message), clearAllReactions
+  - Message-keyed storage: `{conversationId}:{messageIndex}` → EmojiReaction[]
+  - Compatible with EmojiReactionPicker component interface
+- Created `wordCount` utility module with text statistics functions
+  - countWords, countLines, countSentences, countParagraphs, getTextStats, estimateReadingTime
+  - Handles edge cases: empty, whitespace-only, Korean text, multiline
+- Added 12 unit tests for useBookmarks (add, dedupe, remove, isBookmarked, clear, filter, persistence, stable refs)
+- Added 16 unit tests for useEmojiReactions (add, increment, different emojis, remove, toggle, clear, persistence, stable refs)
+- Added 30 unit tests for wordCount (words, lines, sentences, paragraphs, stats, reading time)
+- Total tests: 996 (58 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
