@@ -137,6 +137,18 @@ const App: React.FC = () => {
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
 
+  // Warn before closing when generation is in progress
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isLoading) {
+        e.preventDefault();
+        return S.CLOSE_CONFIRM_MESSAGE;
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isLoading]);
+
   // Apply high contrast attribute
   useEffect(() => {
     document.documentElement.setAttribute('data-high-contrast', String(highContrast));

@@ -1506,6 +1506,30 @@ describe('App Component', () => {
         });
     });
 
+    describe('Close Confirmation', () => {
+        it('prevents close during loading via beforeunload', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            const event = new Event('beforeunload', { cancelable: true });
+            window.dispatchEvent(event);
+
+            expect(event.defaultPrevented).toBe(true);
+        });
+
+        it('does not prevent close when not loading', () => {
+            render(<App />);
+
+            const event = new Event('beforeunload', { cancelable: true });
+            window.dispatchEvent(event);
+
+            expect(event.defaultPrevented).toBe(false);
+        });
+    });
+
     describe('Regenerate Response', () => {
         it('shows regenerate button after assistant response completes', async () => {
             const callbacks = setupStreamCallbacks();

@@ -15,6 +15,7 @@ export const STOP_BUTTON = '중지';
 export const REGENERATE_BUTTON = '↻ 재생성';
 export const REGENERATE_TITLE = '응답 재생성';
 export const ARIA_REGENERATE = '응답 재생성';
+export const CLOSE_CONFIRM_MESSAGE = '응답이 생성 중입니다. 정말 닫으시겠습니까?';
 export const SCROLL_TO_BOTTOM = '새 메시지로 이동';
 
 // Notifications
