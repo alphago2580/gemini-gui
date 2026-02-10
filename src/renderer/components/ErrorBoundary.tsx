@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import './ErrorBoundary.css';
+import * as S from '../constants/strings';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -38,10 +39,10 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       return (
         <div className="error-boundary">
           <div className="error-boundary-content">
-            <h2>문제가 발생했습니다</h2>
+            <h2>{S.ERROR_TITLE}</h2>
             <p className="error-message">{this.state.error?.message}</p>
             <button className="error-reset-btn" onClick={this.handleReset}>
-              다시 시도
+              {S.ERROR_RETRY}
             </button>
           </div>
         </div>

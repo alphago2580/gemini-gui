@@ -24,6 +24,7 @@ import { useAutoScroll } from './hooks/useAutoScroll';
 import { useMessageSend } from './hooks/useMessageSend';
 import { useExport } from './hooks/useExport';
 import { useSettings } from './hooks/useSettings';
+import * as S from './constants/strings';
 
 const MODEL_DISPLAY_NAMES: Record<string, string> = {
   'auto': 'Auto',
@@ -173,13 +174,13 @@ const App: React.FC = () => {
 
   // Command palette commands
   const commands: Command[] = useMemo(() => [
-    { id: 'new-chat', label: '새 대화', shortcut: 'Ctrl+N', action: handleNewChat },
-    { id: 'clear', label: '대화 지우기', shortcut: 'Ctrl+L', action: handleClearConversation },
-    { id: 'search', label: '대화 검색', shortcut: 'Ctrl+F', action: () => searchInputRef.current?.focus() },
-    { id: 'settings', label: '설정 열기', shortcut: 'Ctrl+,', action: () => setIsSettingsOpen(true) },
-    { id: 'toggle-sidebar', label: '사이드바 토글', shortcut: 'Ctrl+B', action: handleToggleSidebar },
-    { id: 'export', label: 'Markdown으로 내보내기', action: handleExport },
-    { id: 'export-pdf', label: 'PDF로 내보내기', action: handleExportPdf },
+    { id: 'new-chat', label: S.CMD_NEW_CHAT, shortcut: 'Ctrl+N', action: handleNewChat },
+    { id: 'clear', label: S.CMD_CLEAR, shortcut: 'Ctrl+L', action: handleClearConversation },
+    { id: 'search', label: S.CMD_SEARCH, shortcut: 'Ctrl+F', action: () => searchInputRef.current?.focus() },
+    { id: 'settings', label: S.CMD_SETTINGS, shortcut: 'Ctrl+,', action: () => setIsSettingsOpen(true) },
+    { id: 'toggle-sidebar', label: S.CMD_TOGGLE_SIDEBAR, shortcut: 'Ctrl+B', action: handleToggleSidebar },
+    { id: 'export', label: S.CMD_EXPORT_MD, action: handleExport },
+    { id: 'export-pdf', label: S.CMD_EXPORT_PDF, action: handleExportPdf },
   ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf]);
 
   // Keyboard shortcuts
@@ -214,34 +215,34 @@ const App: React.FC = () => {
       <main className="main-content">
         <header className="app-header">
           <div className="header-title">
-            <h1>Gemini GUI</h1>
-            <p>모델: {MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
+            <h1>{S.APP_TITLE}</h1>
+            <p>{S.MODEL_PREFIX} {MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
           </div>
           {messages.length > 0 && (
             <div className="header-actions">
               <button
                 className="header-action-btn"
                 onClick={handleClearConversation}
-                aria-label="대화 지우기"
-                title="대화 지우기 (Ctrl+L)"
+                aria-label={S.ARIA_CLEAR}
+                title={S.TITLE_CLEAR}
               >
-                Clear
+                {S.CLEAR_BUTTON}
               </button>
               <button
                 className="header-action-btn"
                 onClick={handleExport}
-                aria-label="대화 내보내기"
-                title="Markdown으로 내보내기"
+                aria-label={S.ARIA_EXPORT}
+                title={S.TITLE_EXPORT}
               >
-                Export
+                {S.EXPORT_BUTTON}
               </button>
               <button
                 className="header-action-btn"
                 onClick={handleExportPdf}
-                aria-label="PDF로 내보내기"
-                title="PDF로 내보내기"
+                aria-label={S.ARIA_EXPORT_PDF}
+                title={S.TITLE_EXPORT_PDF}
               >
-                PDF
+                {S.PDF_BUTTON}
               </button>
             </div>
           )}
@@ -256,11 +257,11 @@ const App: React.FC = () => {
         />
 
         <div className="chat-container">
-          <div className="messages" role="log" aria-label="대화 메시지" aria-live="polite" ref={messagesContainerRef} onScroll={handleMessagesScroll}>
+          <div className="messages" role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleMessagesScroll}>
             {messages.length === 0 && (
               <div className="welcome-message">
-                <h2>Gemini에 오신 것을 환영합니다!</h2>
-                <p>아래 입력창에 메시지를 입력하여 대화를 시작하세요.</p>
+                <h2>{S.WELCOME_TITLE}</h2>
+                <p>{S.WELCOME_MESSAGE}</p>
               </div>
             )}
             {messages.map((message, index) => (
@@ -288,14 +289,14 @@ const App: React.FC = () => {
             <button
               className="scroll-to-bottom-btn"
               onClick={() => scrollToBottom('smooth')}
-              aria-label="새 메시지로 이동"
-              title="새 메시지로 이동"
+              aria-label={S.SCROLL_TO_BOTTOM}
+              title={S.SCROLL_TO_BOTTOM}
             >
               ↓
             </button>
           )}
 
-          <div className="input-container" role="form" aria-label="메시지 입력">
+          <div className="input-container" role="form" aria-label={S.ARIA_MESSAGE_INPUT}>
             <FileAttachment
               onFilesSelected={handleFilesSelected}
               attachedFiles={attachedFiles}
@@ -308,7 +309,7 @@ const App: React.FC = () => {
               onAdd={addTemplate}
               onDelete={deleteTemplate}
             />
-            <label htmlFor="message-input" className="sr-only">메시지 입력</label>
+            <label htmlFor="message-input" className="sr-only">{S.ARIA_MESSAGE_INPUT}</label>
             <textarea
               ref={textareaRef}
               id="message-input"
@@ -317,18 +318,18 @@ const App: React.FC = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
-              placeholder="메시지를 입력하세요... (Enter/Ctrl+Enter: 전송, Shift+Enter: 줄바꿈)"
+              placeholder={S.MESSAGE_PLACEHOLDER}
               disabled={isLoading}
               rows={1}
-              aria-label="메시지 입력"
+              aria-label={S.ARIA_MESSAGE_INPUT}
             />
             <button
               className="send-button"
               onClick={handleSend}
               disabled={isLoading || !input.trim()}
-              aria-label={isLoading ? '전송 중' : '메시지 전송'}
+              aria-label={isLoading ? S.ARIA_SENDING : S.ARIA_SEND}
             >
-              {isLoading ? '전송 중...' : '전송'}
+              {isLoading ? S.SENDING_BUTTON : S.SEND_BUTTON}
             </button>
             </div>
           </div>

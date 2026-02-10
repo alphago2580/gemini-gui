@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Settings.css';
 import type { AppSettings, ThemeMode } from '../../preload/types';
+import * as S from '../constants/strings';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -14,9 +15,9 @@ interface SettingsProps {
 }
 
 const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
-  { value: 'light', label: '라이트' },
-  { value: 'dark', label: '다크' },
-  { value: 'system', label: '시스템' },
+  { value: 'light', label: S.THEME_LIGHT },
+  { value: 'dark', label: S.THEME_DARK },
+  { value: 'system', label: S.THEME_SYSTEM },
 ];
 
 const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, themeMode, onThemeChange, highContrast = false, onHighContrastChange }) => {
@@ -38,15 +39,15 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
 
   return (
     <div className="settings-overlay" onClick={onClose} role="presentation">
-      <div className="settings-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="설정" aria-modal="true">
+      <div className="settings-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={S.ARIA_SETTINGS} aria-modal="true">
         <div className="settings-header">
-          <h2>설정</h2>
-          <button className="close-btn" onClick={onClose} aria-label="설정 닫기">×</button>
+          <h2>{S.SETTINGS_TITLE}</h2>
+          <button className="close-btn" onClick={onClose} aria-label={S.ARIA_CLOSE_SETTINGS}>×</button>
         </div>
 
         <div className="settings-content">
           <div className="setting-group">
-            <label>테마</label>
+            <label>{S.THEME_LABEL}</label>
             <div className="theme-selector">
               {THEME_OPTIONS.map((option) => (
                 <button
@@ -63,8 +64,8 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
           {onHighContrastChange && (
             <div className="setting-group">
               <label htmlFor="high-contrast">
-                고대비 모드
-                <span className="hint">가독성을 높인 고대비 색상</span>
+                {S.HIGH_CONTRAST_LABEL}
+                <span className="hint">{S.HIGH_CONTRAST_HINT}</span>
               </label>
               <button
                 id="high-contrast"
@@ -72,7 +73,7 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
                 onClick={() => onHighContrastChange(!highContrast)}
                 role="switch"
                 aria-checked={highContrast}
-                aria-label="고대비 모드"
+                aria-label={S.ARIA_HIGH_CONTRAST}
               >
                 {highContrast ? 'ON' : 'OFF'}
               </button>
@@ -81,42 +82,42 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
 
           <div className="setting-group">
             <label htmlFor="system-prompt">
-              시스템 프롬프트
-              <span className="hint">AI의 동작을 지시하는 시스템 메시지</span>
+              {S.SYSTEM_PROMPT_LABEL}
+              <span className="hint">{S.SYSTEM_PROMPT_HINT}</span>
             </label>
             <textarea
               id="system-prompt"
               className="system-prompt-input"
               value={localSettings.systemPrompt}
               onChange={(e) => setLocalSettings({ ...localSettings, systemPrompt: e.target.value })}
-              placeholder="예: 당신은 친절한 한국어 튜터입니다..."
+              placeholder={S.SYSTEM_PROMPT_PLACEHOLDER}
               rows={4}
-              aria-label="시스템 프롬프트"
+              aria-label={S.ARIA_SYSTEM_PROMPT}
             />
             {localSettings.systemPrompt && (
               <button
                 className="clear-prompt-btn"
                 onClick={() => setLocalSettings({ ...localSettings, systemPrompt: '' })}
-                aria-label="시스템 프롬프트 초기화"
+                aria-label={S.ARIA_CLEAR_PROMPT}
                 type="button"
               >
-                초기화
+                {S.CLEAR_PROMPT}
               </button>
             )}
           </div>
 
           <div className="setting-group">
             <label htmlFor="model">
-              모델 선택
-              <span className="hint">사용할 Gemini 모델을 선택합니다</span>
+              {S.MODEL_SELECT_LABEL}
+              <span className="hint">{S.MODEL_SELECT_HINT}</span>
             </label>
             <select
               id="model"
               value={localSettings.model}
               onChange={(e) => setLocalSettings({ ...localSettings, model: e.target.value })}
-              aria-label="모델 선택"
+              aria-label={S.ARIA_MODEL_SELECT}
             >
-              <option value="auto">자동 (Auto)</option>
+              <option value="auto">{S.MODEL_AUTO}</option>
               <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
               <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
               <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
@@ -128,7 +129,7 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
           <div className="setting-group">
             <label htmlFor="temperature">
               Temperature: {localSettings.temperature}
-              <span className="hint">낮을수록 일관적, 높을수록 창의적</span>
+              <span className="hint">{S.TEMPERATURE_HINT}</span>
             </label>
             <input
               type="range"
@@ -143,8 +144,8 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
 
           <div className="setting-group">
             <label htmlFor="maxTokens">
-              최대 토큰: {localSettings.maxTokens}
-              <span className="hint">응답의 최대 길이</span>
+              {S.MAX_TOKENS_PREFIX} {localSettings.maxTokens}
+              <span className="hint">{S.MAX_TOKENS_HINT}</span>
             </label>
             <input
               type="range"
@@ -158,16 +159,16 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
           </div>
 
           <div className="info-section">
-            <h3>정보</h3>
-            <p>Gemini CLI 버전: 0.17.0</p>
-            <p>설정 파일 위치: ~/.config/google-gemini-cli/</p>
-            <p>GUI 버전: 1.0.0</p>
+            <h3>{S.INFO_TITLE}</h3>
+            <p>{S.INFO_CLI_VERSION}</p>
+            <p>{S.INFO_CONFIG_PATH}</p>
+            <p>{S.INFO_GUI_VERSION}</p>
           </div>
         </div>
 
         <div className="settings-footer">
-          <button className="cancel-btn" onClick={onClose}>취소</button>
-          <button className="save-btn" onClick={handleSave}>저장</button>
+          <button className="cancel-btn" onClick={onClose}>{S.CANCEL_BUTTON}</button>
+          <button className="save-btn" onClick={handleSave}>{S.SAVE_BUTTON}</button>
         </div>
       </div>
     </div>

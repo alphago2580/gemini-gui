@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import './MarkdownRenderer.css';
 import { tokenize } from '../utils/syntaxHighlight';
 import { renderMathToHtml, parseMathSegments } from '../utils/mathRenderer';
+import * as S from '../constants/strings';
 
 interface MarkdownRendererProps {
   content: string;
@@ -106,7 +107,7 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
         <span
           key={key++}
           className="math-inline"
-          aria-label={`수식: ${mathContent}`}
+          aria-label={`${S.MATH_FORMULA_PREFIX} ${mathContent}`}
           dangerouslySetInnerHTML={{ __html: html }}
         />
       );
@@ -326,10 +327,10 @@ const CopyButton: React.FC<{ text: string }> = ({ text }) => {
     <button
       className="md-copy-btn"
       onClick={handleCopy}
-      aria-label={copied ? '복사됨' : '코드 복사'}
-      title={copied ? '복사됨!' : '코드 복사'}
+      aria-label={copied ? S.COPY_BUTTON_COPIED : S.COPY_BUTTON_LABEL}
+      title={copied ? S.COPY_FEEDBACK_TITLE : S.COPY_BUTTON_LABEL}
     >
-      {copied ? '✓' : '복사'}
+      {copied ? S.COPY_BUTTON_CHECK : S.COPY_BUTTON_TEXT}
     </button>
   );
 };
@@ -372,7 +373,7 @@ const MarkdownRendererInner: React.FC<MarkdownRendererProps> = ({ content }) => 
               key={index}
               className="math-block"
               role="math"
-              aria-label={`수식: ${block.content}`}
+              aria-label={`${S.MATH_FORMULA_PREFIX} ${block.content}`}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           );

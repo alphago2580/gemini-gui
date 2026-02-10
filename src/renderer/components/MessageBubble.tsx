@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
 import './MessageBubble.css';
 import type { Message } from '../../preload/types';
+import * as S from '../constants/strings';
 
 interface MessageBubbleProps {
   message: Message;
@@ -44,22 +45,23 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
   };
 
   const showStreamingCursor = isStreaming && message.role === 'assistant' && isLastAssistant;
+  const roleLabel = message.role === 'user' ? S.ROLE_USER : S.ROLE_ASSISTANT;
 
   return (
     <div
       className={`message ${message.role}${isEditing ? ' editing' : ''}`}
       role="article"
-      aria-label={`${message.role === 'user' ? '사용자' : 'Gemini'} 메시지`}
+      aria-label={message.role === 'user' ? S.USER_MESSAGE : S.ASSISTANT_MESSAGE}
     >
       <div className="message-header">
-        <span className="role">{message.role === 'user' ? '사용자' : 'Gemini'}</span>
+        <span className="role">{roleLabel}</span>
         <span className="timestamp">{message.timestamp.toLocaleTimeString()}</span>
         {message.role === 'user' && !isEditing && (
           <button
             className="edit-message-btn"
             onClick={handleStartEdit}
-            aria-label="메시지 수정"
-            title="메시지 수정"
+            aria-label={S.ARIA_EDIT_MESSAGE}
+            title={S.TITLE_EDIT_MESSAGE}
           >
             &#9998;
           </button>
@@ -68,8 +70,8 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
           <button
             className="fork-message-btn"
             onClick={() => onFork(index)}
-            aria-label="여기서 분기"
-            title="여기서 대화 분기"
+            aria-label={S.ARIA_FORK}
+            title={S.TITLE_FORK}
           >
             &#9095;
           </button>
@@ -77,8 +79,8 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
         <button
           className="delete-message-btn"
           onClick={() => onDelete(index)}
-          aria-label="메시지 삭제"
-          title="메시지 삭제"
+          aria-label={S.ARIA_DELETE_MESSAGE}
+          title={S.TITLE_DELETE_MESSAGE}
         >
           &times;
         </button>
@@ -90,23 +92,23 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
               className="edit-message-input"
               value={editContent}
               onChange={e => setEditContent(e.target.value)}
-              aria-label="메시지 수정 입력"
+              aria-label={S.ARIA_EDIT_INPUT}
               rows={3}
             />
             <div className="edit-message-actions">
               <button
                 className="edit-save-btn"
                 onClick={handleSaveEdit}
-                aria-label="수정 저장"
+                aria-label={S.ARIA_EDIT_SAVE}
               >
-                저장
+                {S.EDIT_SAVE}
               </button>
               <button
                 className="edit-cancel-btn"
                 onClick={handleCancelEdit}
-                aria-label="수정 취소"
+                aria-label={S.ARIA_EDIT_CANCEL}
               >
-                취소
+                {S.EDIT_CANCEL}
               </button>
             </div>
           </div>

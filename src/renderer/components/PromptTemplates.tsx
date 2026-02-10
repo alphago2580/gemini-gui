@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './PromptTemplates.css';
 import type { PromptTemplate } from '../../preload/types';
+import * as S from '../constants/strings';
 
 interface PromptTemplatesProps {
   templates: PromptTemplate[];
@@ -55,44 +56,44 @@ const PromptTemplates: React.FC<PromptTemplatesProps> = ({ templates, onSelect, 
       <button
         className="prompt-templates-trigger"
         onClick={() => setIsOpen(prev => !prev)}
-        aria-label="프롬프트 템플릿"
+        aria-label={S.ARIA_PROMPT_TEMPLATES}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        title="프롬프트 템플릿"
+        title={S.TITLE_PROMPT_TEMPLATES}
       >
         📋
       </button>
 
       {isOpen && (
-        <div className="prompt-templates-dropdown" role="listbox" aria-label="프롬프트 템플릿 목록">
+        <div className="prompt-templates-dropdown" role="listbox" aria-label={S.ARIA_PROMPT_TEMPLATES}>
           <div className="prompt-templates-header">
-            <span>프롬프트 템플릿</span>
+            <span>{S.PROMPT_TEMPLATES_HEADER}</span>
             <button
               className="prompt-templates-add-btn"
               onClick={() => setIsAdding(true)}
-              aria-label="새 템플릿 추가"
-              title="새 템플릿 추가"
+              aria-label={S.ARIA_ADD_TEMPLATE}
+              title={S.TITLE_ADD_TEMPLATE}
             >
               +
             </button>
           </div>
 
           {isAdding && (
-            <div className="prompt-templates-form" role="form" aria-label="새 템플릿 추가">
+            <div className="prompt-templates-form" role="form" aria-label={S.ARIA_ADD_TEMPLATE}>
               <input
                 className="prompt-templates-name-input"
                 value={newName}
                 onChange={e => setNewName(e.target.value)}
-                placeholder="템플릿 이름"
-                aria-label="템플릿 이름"
+                placeholder={S.TEMPLATE_NAME_PLACEHOLDER}
+                aria-label={S.ARIA_TEMPLATE_NAME}
                 autoFocus
               />
               <textarea
                 className="prompt-templates-content-input"
                 value={newContent}
                 onChange={e => setNewContent(e.target.value)}
-                placeholder="템플릿 내용"
-                aria-label="템플릿 내용"
+                placeholder={S.TEMPLATE_CONTENT_PLACEHOLDER}
+                aria-label={S.ARIA_TEMPLATE_CONTENT}
                 rows={3}
               />
               <div className="prompt-templates-form-actions">
@@ -100,16 +101,16 @@ const PromptTemplates: React.FC<PromptTemplatesProps> = ({ templates, onSelect, 
                   className="prompt-templates-save-btn"
                   onClick={handleAdd}
                   disabled={!newName.trim() || !newContent.trim()}
-                  aria-label="템플릿 저장"
+                  aria-label={S.ARIA_TEMPLATE_SAVE}
                 >
-                  저장
+                  {S.TEMPLATE_SAVE}
                 </button>
                 <button
                   className="prompt-templates-cancel-btn"
                   onClick={handleCancel}
-                  aria-label="추가 취소"
+                  aria-label={S.ARIA_TEMPLATE_CANCEL}
                 >
-                  취소
+                  {S.TEMPLATE_CANCEL}
                 </button>
               </div>
             </div>
@@ -117,7 +118,7 @@ const PromptTemplates: React.FC<PromptTemplatesProps> = ({ templates, onSelect, 
 
           {templates.length === 0 && !isAdding && (
             <div className="prompt-templates-empty">
-              템플릿이 없습니다
+              {S.TEMPLATES_EMPTY}
             </div>
           )}
 
@@ -136,8 +137,8 @@ const PromptTemplates: React.FC<PromptTemplatesProps> = ({ templates, onSelect, 
                   e.stopPropagation();
                   onDelete(template.id);
                 }}
-                aria-label={`${template.name} 삭제`}
-                title="삭제"
+                aria-label={`${template.name} ${S.DELETE_SUFFIX}`}
+                title={S.DELETE_TITLE}
               >
                 &times;
               </button>

@@ -1,5 +1,6 @@
 import React from 'react';
 import './TabBar.css';
+import * as S from '../constants/strings';
 
 export interface Tab {
   id: string;
@@ -24,7 +25,7 @@ const TabBar: React.FC<TabBarProps> = ({
   if (tabs.length === 0) return null;
 
   return (
-    <div className="tab-bar" role="tablist" aria-label="대화 탭">
+    <div className="tab-bar" role="tablist" aria-label={S.ARIA_TAB_LIST}>
       <div className="tab-list">
         {tabs.map(tab => (
           <div
@@ -32,7 +33,7 @@ const TabBar: React.FC<TabBarProps> = ({
             className={`tab-item ${activeTabId === tab.id ? 'active' : ''}`}
             role="tab"
             aria-selected={activeTabId === tab.id}
-            aria-label={`탭: ${tab.title}`}
+            aria-label={`${S.TAB_PREFIX} ${tab.title}`}
             tabIndex={activeTabId === tab.id ? 0 : -1}
             onClick={() => onSelectTab(tab.id)}
             onKeyDown={(e) => {
@@ -49,8 +50,8 @@ const TabBar: React.FC<TabBarProps> = ({
                 e.stopPropagation();
                 onCloseTab(tab.id);
               }}
-              aria-label={`탭 닫기: ${tab.title}`}
-              title="탭 닫기"
+              aria-label={`${S.TAB_CLOSE_PREFIX} ${tab.title}`}
+              title={S.TAB_CLOSE_TITLE}
             >
               &times;
             </button>
@@ -60,8 +61,8 @@ const TabBar: React.FC<TabBarProps> = ({
       <button
         className="new-tab-btn"
         onClick={onNewTab}
-        aria-label="새 탭"
-        title="새 탭 (Ctrl+N)"
+        aria-label={S.ARIA_NEW_TAB}
+        title={S.TITLE_NEW_TAB}
       >
         +
       </button>

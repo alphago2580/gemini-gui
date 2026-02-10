@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import './CommandPalette.css';
+import * as S from '../constants/strings';
 
 export interface Command {
   id: string;
@@ -87,7 +88,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
   if (!isOpen) return null;
 
   return (
-    <div className="command-palette-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="명령 팔레트">
+    <div className="command-palette-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={S.COMMAND_PALETTE_LABEL}>
       <div className="command-palette" onClick={e => e.stopPropagation()} onKeyDown={handleKeyDown}>
         <input
           ref={inputRef}
@@ -98,8 +99,8 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
             setQuery(e.target.value);
             setSelectedIndex(0);
           }}
-          placeholder="명령어 검색..."
-          aria-label="명령어 검색"
+          placeholder={S.COMMAND_SEARCH_PLACEHOLDER}
+          aria-label={S.ARIA_COMMAND_SEARCH}
           aria-activedescendant={filteredCommands[selectedIndex] ? `cmd-${filteredCommands[selectedIndex].id}` : undefined}
           role="combobox"
           aria-expanded="true"
@@ -107,7 +108,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
           aria-autocomplete="list"
         />
         {filteredCommands.length === 0 ? (
-          <div className="command-palette-empty">일치하는 명령어가 없습니다</div>
+          <div className="command-palette-empty">{S.COMMAND_EMPTY}</div>
         ) : (
           <ul ref={listRef} className="command-palette-list" id="command-list" role="listbox">
             {filteredCommands.map((cmd, index) => (

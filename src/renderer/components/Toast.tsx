@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Toast.css';
+import * as S from '../constants/strings';
 
 export interface ToastMessage {
   id: string;
@@ -40,7 +41,7 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
       <button
         className="toast-close"
         onClick={handleDismiss}
-        aria-label="알림 닫기"
+        aria-label={S.ARIA_TOAST_CLOSE}
       >
         &times;
       </button>
@@ -52,7 +53,7 @@ const Toast: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="toast-container" aria-label="알림">
+    <div className="toast-container" aria-label={S.ARIA_TOAST_CONTAINER}>
       {toasts.map(toast => (
         <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
       ))}

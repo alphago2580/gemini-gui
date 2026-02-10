@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import './Sidebar.css';
+import * as S from '../constants/strings';
 
 interface SidebarProps {
   onNewChat: () => void;
@@ -39,47 +40,47 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [conversations, searchQuery]);
 
   return (
-    <nav className={`sidebar ${isCollapsed ? 'collapsed' : ''}`} aria-label="사이드바">
+    <nav className={`sidebar ${isCollapsed ? 'collapsed' : ''}`} aria-label={S.SIDEBAR_LABEL}>
       <div className="sidebar-header">
-        {!isCollapsed && <h2>Gemini GUI</h2>}
+        {!isCollapsed && <h2>{S.APP_TITLE}</h2>}
         {onToggleCollapse && (
           <button
             className="collapse-btn"
             onClick={onToggleCollapse}
-            aria-label={isCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
-            title={isCollapsed ? '사이드바 펼치기 (Ctrl+B)' : '사이드바 접기 (Ctrl+B)'}
+            aria-label={isCollapsed ? S.SIDEBAR_EXPAND : S.SIDEBAR_COLLAPSE}
+            title={isCollapsed ? S.SIDEBAR_EXPAND_TITLE : S.SIDEBAR_COLLAPSE_TITLE}
           >
             <span aria-hidden="true">{isCollapsed ? '▶' : '◀'}</span>
           </button>
         )}
       </div>
 
-      <button className="new-chat-btn" onClick={onNewChat} aria-label="새 대화 시작">
+      <button className="new-chat-btn" onClick={onNewChat} aria-label={S.ARIA_NEW_CHAT}>
         <span className="icon" aria-hidden="true">+</span>
-        {!isCollapsed && '새 대화'}
+        {!isCollapsed && S.NEW_CHAT}
       </button>
 
       {!isCollapsed && (
         <>
           <div className="search-container">
-            <label htmlFor="sidebar-search" className="sr-only">대화 검색</label>
+            <label htmlFor="sidebar-search" className="sr-only">{S.SEARCH_LABEL}</label>
             <input
               ref={searchInputRef}
               id="sidebar-search"
               className="search-input"
               type="text"
-              placeholder="대화 검색..."
+              placeholder={S.SEARCH_PLACEHOLDER}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="대화 검색"
+              aria-label={S.SEARCH_LABEL}
             />
           </div>
 
-          <div className="conversations-list" role="list" aria-label="대화 기록 목록">
-            <h3>대화 기록</h3>
+          <div className="conversations-list" role="list" aria-label={S.CONVERSATION_LIST_LABEL}>
+            <h3>{S.CONVERSATION_HISTORY}</h3>
             {filteredConversations.length === 0 ? (
               <div className="empty-state" role="listitem">
-                {searchQuery.trim() ? '검색 결과가 없습니다' : '대화 기록이 없습니다'}
+                {searchQuery.trim() ? S.NO_SEARCH_RESULTS : S.NO_CONVERSATIONS}
               </div>
             ) : (
               filteredConversations.map(conv => (
@@ -89,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => onSelectConversation(conv.id)}
                   role="listitem"
                   aria-current={currentConversationId === conv.id ? 'true' : undefined}
-                  aria-label={`대화: ${conv.title}`}
+                  aria-label={`${S.CONVERSATION_PREFIX} ${conv.title}`}
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -109,8 +110,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                         e.stopPropagation();
                         onDeleteConversation(conv.id);
                       }}
-                      aria-label={`대화 삭제: ${conv.title}`}
-                      title="대화 삭제"
+                      aria-label={`${S.DELETE_CONVERSATION_PREFIX} ${conv.title}`}
+                      title={S.DELETE_CONVERSATION_TITLE}
                     >
                       &times;
                     </button>
@@ -123,9 +124,9 @@ const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <div className="sidebar-footer">
-        <button className="settings-btn" onClick={onOpenSettings} aria-label="설정 열기">
+        <button className="settings-btn" onClick={onOpenSettings} aria-label={S.ARIA_OPEN_SETTINGS}>
           <span className="icon" aria-hidden="true">⚙</span>
-          {!isCollapsed && '설정'}
+          {!isCollapsed && S.SETTINGS_BUTTON}
         </button>
       </div>
     </nav>

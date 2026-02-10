@@ -915,7 +915,7 @@ describe('App Component', () => {
             const user = userEvent.setup();
             render(<App />);
             await user.click(screen.getByRole('button', { name: '프롬프트 템플릿' }));
-            expect(screen.getByRole('listbox', { name: '프롬프트 템플릿 목록' })).toBeInTheDocument();
+            expect(screen.getByRole('listbox', { name: '프롬프트 템플릿' })).toBeInTheDocument();
             expect(screen.getByText('번역 (한→영)')).toBeInTheDocument();
             expect(screen.getByText('코드 리뷰')).toBeInTheDocument();
             expect(screen.getByText('요약')).toBeInTheDocument();

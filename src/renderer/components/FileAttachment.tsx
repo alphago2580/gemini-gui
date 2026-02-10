@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './FileAttachment.css';
 import { formatFileSize, getFileIcon } from '../utils/format';
+import * as S from '../constants/strings';
 
 interface FileAttachmentProps {
   onFilesSelected: (files: File[]) => void;
@@ -41,9 +42,9 @@ const FileAttachment: React.FC<FileAttachmentProps> = ({
   };
 
   return (
-    <div className="file-attachment" role="region" aria-label="파일 첨부">
+    <div className="file-attachment" role="region" aria-label={S.ARIA_FILE_ATTACHMENT}>
       {attachedFiles.length > 0 && (
-        <div className="attached-files" role="list" aria-label="첨부된 파일 목록">
+        <div className="attached-files" role="list" aria-label={S.ARIA_ATTACHED_FILES}>
           {attachedFiles.map((file, index) => (
             <div key={index} className="file-chip" role="listitem">
               <span className="file-icon" aria-hidden="true">{getFileIcon(file.type)}</span>
@@ -52,8 +53,8 @@ const FileAttachment: React.FC<FileAttachmentProps> = ({
               <button
                 className="remove-file"
                 onClick={() => onRemoveFile(index)}
-                aria-label={`${file.name} 제거`}
-                title="파일 제거"
+                aria-label={`${file.name} ${S.FILE_REMOVE_SUFFIX}`}
+                title={S.FILE_REMOVE_TITLE}
               >
                 ×
               </button>
@@ -67,7 +68,7 @@ const FileAttachment: React.FC<FileAttachmentProps> = ({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        aria-label="파일 드래그 앤 드롭 영역"
+        aria-label={S.ARIA_DROP_ZONE}
       >
         <input
           type="file"
@@ -76,12 +77,12 @@ const FileAttachment: React.FC<FileAttachmentProps> = ({
           onChange={handleFileInput}
           accept="image/*,.pdf,.txt,.doc,.docx"
           style={{ display: 'none' }}
-          aria-label="파일 선택"
+          aria-label={S.ARIA_FILE_SELECT}
         />
         <label htmlFor="file-input" className="file-input-label">
           <span className="icon" aria-hidden="true">📎</span>
           <span className="text">
-            {isDragging ? '파일을 여기에 놓으세요' : '파일 첨부 (클릭 또는 드래그)'}
+            {isDragging ? S.DROP_ZONE_DRAGGING : S.DROP_ZONE_DEFAULT}
           </span>
         </label>
       </div>
