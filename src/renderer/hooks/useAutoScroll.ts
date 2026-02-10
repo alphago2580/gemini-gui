@@ -1,8 +1,9 @@
 import { useRef, useCallback, useEffect, useState } from 'react';
+import type { Message } from '../../preload/types';
 
 const SCROLL_THRESHOLD = 100; // px from bottom to consider "near bottom"
 
-export function useAutoScroll(messages: unknown[]) {
+export function useAutoScroll(messages: Message[]) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);

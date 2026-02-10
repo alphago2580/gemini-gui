@@ -1,9 +1,8 @@
 import { useCallback } from 'react';
 import { useLocalStorage } from './useLocalStorage';
+import { generateUniqueId } from '../utils/format';
 import type { PromptTemplate } from '../../preload/types';
 import * as S from '../constants/strings';
-
-const STORAGE_KEY = 'gemini-prompt-templates';
 
 const DEFAULT_TEMPLATES: PromptTemplate[] = [
   { id: 'default-1', name: S.DEFAULT_TEMPLATE_TRANSLATE, content: S.DEFAULT_TEMPLATE_TRANSLATE_CONTENT },
@@ -12,11 +11,11 @@ const DEFAULT_TEMPLATES: PromptTemplate[] = [
 ];
 
 export function usePromptTemplates() {
-  const [templates, setTemplates] = useLocalStorage<PromptTemplate[]>(STORAGE_KEY, DEFAULT_TEMPLATES);
+  const [templates, setTemplates] = useLocalStorage<PromptTemplate[]>(S.STORAGE_KEY_PROMPT_TEMPLATES, DEFAULT_TEMPLATES);
 
   const addTemplate = useCallback((name: string, content: string) => {
     const newTemplate: PromptTemplate = {
-      id: Date.now().toString(),
+      id: generateUniqueId('tpl'),
       name,
       content,
     };

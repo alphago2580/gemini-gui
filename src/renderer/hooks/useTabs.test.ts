@@ -1,14 +1,15 @@
 import { renderHook, act } from '@testing-library/react';
 import { useTabs } from './useTabs';
+import type { Conversation } from '../../preload/types';
 
 describe('useTabs', () => {
     const mockOnSelectConversation = vi.fn();
     const mockOnNewChat = vi.fn();
 
-    const conversations = [
-        { id: '1', title: '대화 1' },
-        { id: '2', title: '대화 2' },
-        { id: '3', title: '대화 3' },
+    const conversations: Conversation[] = [
+        { id: '1', title: '대화 1', timestamp: new Date(), messages: [] },
+        { id: '2', title: '대화 2', timestamp: new Date(), messages: [] },
+        { id: '3', title: '대화 3', timestamp: new Date(), messages: [] },
     ];
 
     beforeEach(() => {

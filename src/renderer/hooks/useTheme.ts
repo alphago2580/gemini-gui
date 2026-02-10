@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ThemeMode } from '../../preload/types';
-
-const STORAGE_KEY = 'gemini-theme';
+import { STORAGE_KEY_THEME } from '../constants/strings';
 
 function getSystemTheme(): 'light' | 'dark' {
   if (typeof window !== 'undefined' && window.matchMedia) {
@@ -21,7 +20,7 @@ export function useTheme(): {
 } {
   const [themeMode, setThemeModeState] = useState<ThemeMode>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEY_THEME);
       if (saved === 'light' || saved === 'dark' || saved === 'system') {
         return saved;
       }
@@ -38,7 +37,7 @@ export function useTheme(): {
   const setThemeMode = useCallback((mode: ThemeMode) => {
     setThemeModeState(mode);
     try {
-      localStorage.setItem(STORAGE_KEY, mode);
+      localStorage.setItem(STORAGE_KEY_THEME, mode);
     } catch {
       // ignore
     }

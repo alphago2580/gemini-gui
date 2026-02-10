@@ -13,10 +13,14 @@ export function getFileIcon(type: string): string {
   return '📎';
 }
 
-let messageIdCounter = 0;
+let idCounter = 0;
+
+export function generateUniqueId(prefix = 'id'): string {
+  return `${prefix}-${Date.now()}-${idCounter++}`;
+}
 
 export function generateMessageId(): string {
-  return `msg-${Date.now()}-${messageIdCounter++}`;
+  return generateUniqueId('msg');
 }
 
 export function sanitizeFileName(title: string): string {

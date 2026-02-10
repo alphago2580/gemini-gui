@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import './Sidebar.css';
 import * as S from '../constants/strings';
+import type { Conversation } from '../../preload/types';
 
 interface SidebarProps {
   onNewChat: () => void;
   onOpenSettings: () => void;
-  conversations: Array<{ id: string; title: string; timestamp: Date; messages?: Array<{ content: string }> }>;
+  conversations: Conversation[];
   currentConversationId: string | null;
   onSelectConversation: (id: string) => void;
   onDeleteConversation?: (id: string) => void;

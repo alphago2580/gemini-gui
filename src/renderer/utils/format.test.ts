@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatFileSize, getFileIcon, generateConversationTitle, generateMessageId, sanitizeFileName, exportToMarkdown, exportToHtml, ExportableMessage } from './format';
+import { formatFileSize, getFileIcon, generateConversationTitle, generateMessageId, generateUniqueId, sanitizeFileName, exportToMarkdown, exportToHtml, ExportableMessage } from './format';
 
 describe('formatFileSize', () => {
   it('formats bytes', () => {
@@ -263,6 +263,24 @@ describe('exportToHtml', () => {
     const result = exportToHtml('Chat', messages);
     expect(result).toContain('class="time"');
     expect(result).toContain(mockDateString);
+  });
+});
+
+describe('generateUniqueId', () => {
+  it('returns a string with the given prefix', () => {
+    const id = generateUniqueId('conv');
+    expect(id).toMatch(/^conv-\d+-\d+$/);
+  });
+
+  it('uses default prefix when none given', () => {
+    const id = generateUniqueId();
+    expect(id).toMatch(/^id-\d+-\d+$/);
+  });
+
+  it('generates unique IDs on successive calls', () => {
+    const id1 = generateUniqueId('test');
+    const id2 = generateUniqueId('test');
+    expect(id1).not.toBe(id2);
   });
 });
 

@@ -41,7 +41,7 @@ describe('usePromptTemplates', () => {
     act(() => {
       newTemplate = result.current.addTemplate('새 템플릿', '내용');
     });
-    expect(newTemplate!.id).toBe('1234567890');
+    expect(newTemplate!.id).toMatch(/^tpl-1234567890-\d+$/);
     expect(newTemplate!.name).toBe('새 템플릿');
     vi.restoreAllMocks();
   });

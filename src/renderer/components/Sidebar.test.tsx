@@ -3,24 +3,25 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import Sidebar from './Sidebar';
+import type { Conversation } from '../../preload/types';
 
-const mockConversations = [
-  { id: '1', title: '첫 번째 대화', timestamp: new Date('2024-01-15') },
-  { id: '2', title: '두 번째 대화', timestamp: new Date('2024-01-16') },
-  { id: '3', title: '세 번째 대화', timestamp: new Date('2024-01-17') },
+const mockConversations: Conversation[] = [
+  { id: '1', title: '첫 번째 대화', timestamp: new Date('2024-01-15'), messages: [] },
+  { id: '2', title: '두 번째 대화', timestamp: new Date('2024-01-16'), messages: [] },
+  { id: '3', title: '세 번째 대화', timestamp: new Date('2024-01-17'), messages: [] },
 ];
 
-const mockConversationsWithMessages = [
-  { id: '1', title: '인사', timestamp: new Date('2024-01-15'), messages: [{ content: 'Hello world' }] },
-  { id: '2', title: '질문', timestamp: new Date('2024-01-16'), messages: [{ content: '오늘 날씨 어때?' }] },
-  { id: '3', title: 'React 관련', timestamp: new Date('2024-01-17'), messages: [{ content: 'React hooks 설명해줘' }] },
+const mockConversationsWithMessages: Conversation[] = [
+  { id: '1', title: '인사', timestamp: new Date('2024-01-15'), messages: [{ role: 'user', content: 'Hello world', timestamp: new Date() }] },
+  { id: '2', title: '질문', timestamp: new Date('2024-01-16'), messages: [{ role: 'user', content: '오늘 날씨 어때?', timestamp: new Date() }] },
+  { id: '3', title: 'React 관련', timestamp: new Date('2024-01-17'), messages: [{ role: 'user', content: 'React hooks 설명해줘', timestamp: new Date() }] },
 ];
 
 describe('Sidebar', () => {
   const defaultProps = {
     onNewChat: vi.fn(),
     onOpenSettings: vi.fn(),
-    conversations: [] as Array<{ id: string; title: string; timestamp: Date }>,
+    conversations: [] as Conversation[],
     currentConversationId: null as string | null,
     onSelectConversation: vi.fn(),
   };

@@ -1,10 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { generateConversationTitle, generateMessageId } from '../utils/format';
+import { generateConversationTitle, generateMessageId, generateUniqueId } from '../utils/format';
 import type { Message, Conversation } from '../../preload/types';
 import * as S from '../constants/strings';
-
-const STORAGE_KEY_CONVERSATIONS = 'gemini-conversations';
-const STORAGE_KEY_CURRENT_CONVERSATION = 'gemini-current-conversation';
 
 export function useConversations() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -13,8 +10,8 @@ export function useConversations() {
 
   // Load conversations from localStorage on mount
   useEffect(() => {
-    const savedConversations = localStorage.getItem(STORAGE_KEY_CONVERSATIONS);
-    const savedCurrentConversationId = localStorage.getItem(STORAGE_KEY_CURRENT_CONVERSATION);
+    const savedConversations = localStorage.getItem(S.STORAGE_KEY_CONVERSATIONS);
+    const savedCurrentConversationId = localStorage.getItem(S.STORAGE_KEY_CURRENT_CONVERSATION);
 
     if (savedConversations) {
       try {
@@ -45,13 +42,13 @@ export function useConversations() {
 
   // Save conversations to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_CONVERSATIONS, JSON.stringify(conversations));
+    localStorage.setItem(S.STORAGE_KEY_CONVERSATIONS, JSON.stringify(conversations));
   }, [conversations]);
 
   // Save current conversation ID to localStorage
   useEffect(() => {
     if (currentConversationId) {
-      localStorage.setItem(STORAGE_KEY_CURRENT_CONVERSATION, currentConversationId);
+      localStorage.setItem(S.STORAGE_KEY_CURRENT_CONVERSATION, currentConversationId);
     }
   }, [currentConversationId]);
 
@@ -79,7 +76,7 @@ export function useConversations() {
 
   const handleNewChat = useCallback(() => {
     const newConversation: Conversation = {
-      id: Date.now().toString(),
+      id: generateUniqueId('conv'),
       title: S.NEW_CONVERSATION_TITLE,
       timestamp: new Date(),
       messages: []
@@ -147,7 +144,7 @@ export function useConversations() {
       : currentConv.title;
 
     const newConversation: Conversation = {
-      id: Date.now().toString(),
+      id: generateUniqueId('conv'),
       title: `${baseTitle} ${S.FORK_SUFFIX}`,
       timestamp: new Date(),
       messages: forkedMessages,

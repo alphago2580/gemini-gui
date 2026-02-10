@@ -94,8 +94,8 @@ const App: React.FC = () => {
 
   // UI state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage('gemini-sidebar-collapsed', false);
-  const [highContrast, setHighContrast] = useLocalStorage('gemini-high-contrast', false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage(S.STORAGE_KEY_SIDEBAR_COLLAPSED, false);
+  const [highContrast, setHighContrast] = useLocalStorage(S.STORAGE_KEY_HIGH_CONTRAST, false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
   // Apply high contrast attribute

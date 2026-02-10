@@ -208,3 +208,13 @@ export const STREAM_ERROR_PREFIX = '오류:';
 
 // useExport
 export const UNTITLED_CONVERSATION = '제목 없는 대화';
+
+// localStorage keys
+export const STORAGE_KEY_CONVERSATIONS = 'gemini-conversations';
+export const STORAGE_KEY_CURRENT_CONVERSATION = 'gemini-current-conversation';
+export const STORAGE_KEY_SETTINGS = 'gemini-settings';
+export const STORAGE_KEY_THEME = 'gemini-theme';
+export const STORAGE_KEY_PROMPT_TEMPLATES = 'gemini-prompt-templates';
+export const STORAGE_KEY_SIDEBAR_COLLAPSED = 'gemini-sidebar-collapsed';
+export const STORAGE_KEY_HIGH_CONTRAST = 'gemini-high-contrast';
+export const STORAGE_KEY_OPEN_TABS = 'gemini-open-tabs';

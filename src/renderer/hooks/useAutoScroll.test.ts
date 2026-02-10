@@ -1,5 +1,13 @@
 import { renderHook, act } from '@testing-library/react';
 import { useAutoScroll } from './useAutoScroll';
+import type { Message } from '../../preload/types';
+
+const mockMsg = (content = 'test'): Message => ({
+  role: 'user',
+  content,
+  timestamp: new Date(),
+  id: content,
+});
 
 describe('useAutoScroll', () => {
   beforeEach(() => {
@@ -30,7 +38,7 @@ describe('useAutoScroll', () => {
   it('does not show scroll button when messages is empty', () => {
     const { result, rerender } = renderHook(
       ({ messages }) => useAutoScroll(messages),
-      { initialProps: { messages: [] as unknown[] } }
+      { initialProps: { messages: [] as Message[] } }
     );
     expect(result.current.showScrollButton).toBe(false);
 
@@ -40,7 +48,7 @@ describe('useAutoScroll', () => {
   });
 
   it('handleScroll updates showScrollButton based on scroll position', () => {
-    const { result } = renderHook(() => useAutoScroll(['msg1', 'msg2']));
+    const { result } = renderHook(() => useAutoScroll([mockMsg('msg1'), mockMsg('msg2')]));
 
     // Simulate container where user is NOT near bottom
     const container = document.createElement('div');
@@ -63,7 +71,7 @@ describe('useAutoScroll', () => {
   });
 
   it('handleScroll hides button when near bottom', () => {
-    const { result } = renderHook(() => useAutoScroll(['msg1', 'msg2']));
+    const { result } = renderHook(() => useAutoScroll([mockMsg('msg1'), mockMsg('msg2')]));
 
     const container = document.createElement('div');
     Object.defineProperty(container, 'scrollTop', { value: 550, writable: true });
@@ -101,7 +109,7 @@ describe('useAutoScroll', () => {
   });
 
   it('scrollToBottom hides the scroll button', () => {
-    const { result } = renderHook(() => useAutoScroll(['msg1']));
+    const { result } = renderHook(() => useAutoScroll([mockMsg('msg1')]));
 
     // First, simulate being scrolled up
     const container = document.createElement('div');
@@ -135,7 +143,7 @@ describe('useAutoScroll', () => {
   it('shows scroll button when messages added while scrolled up', () => {
     const { result, rerender } = renderHook(
       ({ messages }) => useAutoScroll(messages),
-      { initialProps: { messages: ['msg1'] as unknown[] } }
+      { initialProps: { messages: [mockMsg('msg1')] as Message[] } }
     );
 
     // Simulate being scrolled up
@@ -154,7 +162,7 @@ describe('useAutoScroll', () => {
     });
 
     // Add a new message
-    rerender({ messages: ['msg1', 'msg2'] });
+    rerender({ messages: [mockMsg('msg1'), mockMsg('msg2')] });
 
     expect(result.current.showScrollButton).toBe(true);
   });

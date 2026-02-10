@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { AppSettings } from '../../preload/types';
-
-const STORAGE_KEY_SETTINGS = 'gemini-settings';
+import * as S from '../constants/strings';
 
 const DEFAULT_SETTINGS: AppSettings = {
   model: 'auto',
@@ -14,7 +13,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 export function useSettings() {
   const [settings, setSettings] = useState<AppSettings>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY_SETTINGS);
+      const saved = localStorage.getItem(S.STORAGE_KEY_SETTINGS);
       return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
     } catch {
       return DEFAULT_SETTINGS;
@@ -22,7 +21,7 @@ export function useSettings() {
   });
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+    localStorage.setItem(S.STORAGE_KEY_SETTINGS, JSON.stringify(settings));
   }, [settings]);
 
   const handleSettingsSave = useCallback((newSettings: AppSettings) => {

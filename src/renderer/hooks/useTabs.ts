@@ -1,14 +1,14 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 import type { Tab } from '../components/TabBar';
-
-const STORAGE_KEY_OPEN_TABS = 'gemini-open-tabs';
+import type { Conversation } from '../../preload/types';
+import { STORAGE_KEY_OPEN_TABS } from '../constants/strings';
 
 export function useTabs(
   currentConversationId: string | null,
   onSelectConversation: (id: string) => void,
   onNewChat: () => void,
-  conversations: Array<{ id: string; title: string }>,
+  conversations: Conversation[],
 ) {
   const [openTabIds, setOpenTabIds] = useLocalStorage<string[]>(STORAGE_KEY_OPEN_TABS, []);
   const [closedCurrentTab, setClosedCurrentTab] = useState(false);
