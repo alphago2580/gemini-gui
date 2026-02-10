@@ -608,3 +608,12 @@
 - Title updates automatically as conversation changes via `useEffect`
 - Added 2 integration tests (default title, conversation title sync)
 - Total tests: 884 → 886 (50 test files, all passing)
+
+### Agent 4 (Integration) — Regenerate Response Button
+- "↻ 재생성" button appears below last assistant message when not loading
+- Clicking removes assistant response and restores last user message to input
+- Added "응답 재생성" command to CommandPalette (now 9 commands)
+- CSS: pill-shaped button with hover effect, centered below messages
+- Added 3 integration tests (button visibility, hidden during loading, input restoration)
+- Total tests: 886 → 889 (50 test files, all passing)
+- Total tests: 884 → 886 (50 test files, all passing)
