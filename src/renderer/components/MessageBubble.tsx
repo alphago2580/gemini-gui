@@ -18,6 +18,7 @@ interface MessageBubbleProps {
   onToggleBookmark?: (index: number) => void;
   reactions?: ReactionMap;
   onToggleReaction?: (index: number, emoji: string) => void;
+  showTimestamps?: boolean;
 }
 
 const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
@@ -32,6 +33,7 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
   onToggleBookmark,
   reactions = {},
   onToggleReaction,
+  showTimestamps = true,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
@@ -66,7 +68,9 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
     >
       <div className="message-header">
         <span className="role">{roleLabel}</span>
-        <span className="timestamp">{message.timestamp.toLocaleTimeString()}</span>
+        {showTimestamps && (
+          <span className="timestamp">{message.timestamp.toLocaleTimeString()}</span>
+        )}
         {message.role === 'user' && !isEditing && (
           <button
             className="edit-message-btn"

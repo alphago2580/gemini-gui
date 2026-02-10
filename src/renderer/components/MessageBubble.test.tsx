@@ -41,10 +41,22 @@ describe('MessageBubble', () => {
     expect(screen.getByText('Hello world')).toBeInTheDocument();
   });
 
-  it('renders timestamp', () => {
+  it('renders timestamp by default', () => {
     render(<MessageBubble {...defaultProps} />);
     const timestamp = defaultProps.message.timestamp.toLocaleTimeString();
     expect(screen.getByText(timestamp)).toBeInTheDocument();
+  });
+
+  it('renders timestamp when showTimestamps is true', () => {
+    render(<MessageBubble {...defaultProps} showTimestamps={true} />);
+    const timestamp = defaultProps.message.timestamp.toLocaleTimeString();
+    expect(screen.getByText(timestamp)).toBeInTheDocument();
+  });
+
+  it('hides timestamp when showTimestamps is false', () => {
+    render(<MessageBubble {...defaultProps} showTimestamps={false} />);
+    const timestamp = defaultProps.message.timestamp.toLocaleTimeString();
+    expect(screen.queryByText(timestamp)).not.toBeInTheDocument();
   });
 
   it('has role="article" with correct aria-label for user message', () => {

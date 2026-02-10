@@ -473,6 +473,7 @@ const App: React.FC = () => {
                   onToggleBookmark={handleToggleBookmark}
                   reactions={currentConversationId ? getReactions(currentConversationId, index) : {}}
                   onToggleReaction={handleToggleReaction}
+                  showTimestamps={settings.showTimestamps}
                 />
               </div>
             ))}

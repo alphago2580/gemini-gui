@@ -98,6 +98,23 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
           </div>
 
           <div className="setting-group">
+            <label htmlFor="show-timestamps">
+              {S.SHOW_TIMESTAMPS_LABEL}
+              <span className="hint">{S.SHOW_TIMESTAMPS_HINT}</span>
+            </label>
+            <button
+              id="show-timestamps"
+              className={`toggle-btn${localSettings.showTimestamps ? ' active' : ''}`}
+              onClick={() => setLocalSettings({ ...localSettings, showTimestamps: !localSettings.showTimestamps })}
+              role="switch"
+              aria-checked={localSettings.showTimestamps}
+              aria-label={S.ARIA_SHOW_TIMESTAMPS}
+            >
+              {localSettings.showTimestamps ? 'ON' : 'OFF'}
+            </button>
+          </div>
+
+          <div className="setting-group">
             <label htmlFor="system-prompt">
               {S.SYSTEM_PROMPT_LABEL}
               <span className="hint">{S.SYSTEM_PROMPT_HINT}</span>

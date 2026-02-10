@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
   systemPrompt: '',
   notificationSound: true,
+  showTimestamps: true,
   fontSize: 14,
 };
 

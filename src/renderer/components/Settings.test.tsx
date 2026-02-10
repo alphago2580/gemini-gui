@@ -11,6 +11,7 @@ describe('Settings', () => {
     theme: 'dark' as const,
     systemPrompt: '',
     notificationSound: true,
+    showTimestamps: true,
     fontSize: 14,
   };
 
@@ -365,6 +366,42 @@ describe('Settings', () => {
       render(<Settings {...defaultProps} highContrast={true} onHighContrastChange={onHighContrastChange} />);
       fireEvent.click(screen.getByRole('switch', { name: '고대비 모드' }));
       expect(onHighContrastChange).toHaveBeenCalledWith(false);
+    });
+  });
+
+  describe('Show Timestamps', () => {
+    it('renders show timestamps toggle', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByRole('switch', { name: '타임스탬프 표시' })).toBeInTheDocument();
+    });
+
+    it('shows ON when showTimestamps is enabled', () => {
+      render(<Settings {...defaultProps} />);
+      const toggle = screen.getByRole('switch', { name: '타임스탬프 표시' });
+      expect(toggle).toHaveTextContent('ON');
+      expect(toggle).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('shows OFF when showTimestamps is disabled', () => {
+      const settingsOff = { ...defaultSettings, showTimestamps: false };
+      render(<Settings {...defaultProps} settings={settingsOff} />);
+      const toggle = screen.getByRole('switch', { name: '타임스탬프 표시' });
+      expect(toggle).toHaveTextContent('OFF');
+      expect(toggle).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('toggles showTimestamps and saves', () => {
+      render(<Settings {...defaultProps} />);
+      fireEvent.click(screen.getByRole('switch', { name: '타임스탬프 표시' }));
+      fireEvent.click(screen.getByText('저장'));
+      expect(defaultProps.onSave).toHaveBeenCalledWith(
+        expect.objectContaining({ showTimestamps: false })
+      );
+    });
+
+    it('shows hint text for timestamps', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByText('메시지에 시간 정보 표시')).toBeInTheDocument();
     });
   });
 

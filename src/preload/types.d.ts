@@ -27,6 +27,7 @@ export interface AppSettings {
   theme: ThemeMode;
   systemPrompt: string;
   notificationSound: boolean;
+  showTimestamps: boolean;
   fontSize: number;
 }
 

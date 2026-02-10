@@ -17,6 +17,7 @@ describe('useSettings', () => {
       theme: 'dark',
       systemPrompt: '',
       notificationSound: true,
+      showTimestamps: true,
       fontSize: 14,
     });
   });
@@ -53,6 +54,7 @@ describe('useSettings', () => {
         theme: 'light',
         systemPrompt: 'test',
         notificationSound: true,
+        showTimestamps: true,
         fontSize: 14,
       });
     });
@@ -72,6 +74,7 @@ describe('useSettings', () => {
         theme: 'dark',
         systemPrompt: 'hello',
         notificationSound: false,
+        showTimestamps: true,
         fontSize: 16,
       });
     });
