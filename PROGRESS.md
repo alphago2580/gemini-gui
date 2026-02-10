@@ -599,3 +599,12 @@
 - Added `STOP_BUTTON` and `ARIA_STOP_GENERATION` string constants
 - Added 5 tests (button visibility, stopGemini call, button restore, aria-label)
 - Total tests: 880 → 884 (50 test files, all passing)
+
+### Agent 4 (Integration) — Window Title Sync with Conversation
+- Window title shows "ConversationTitle — Gemini GUI" when a conversation is active
+- Falls back to "Gemini GUI" when no conversation is selected
+- Added `set-window-title` IPC handler in main process
+- Added `setWindowTitle` to preload bridge and `ElectronAPI` types
+- Title updates automatically as conversation changes via `useEffect`
+- Added 2 integration tests (default title, conversation title sync)
+- Total tests: 884 → 886 (50 test files, all passing)
