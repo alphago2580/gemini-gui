@@ -95,6 +95,16 @@ const App: React.FC = () => {
   // Prompt templates
   const { templates, addTemplate, deleteTemplate } = usePromptTemplates();
 
+  // Notify when response completes while window is not focused
+  const handleStreamComplete = useCallback(async () => {
+    const api = window.electronAPI;
+    if (!api?.isWindowFocused || !api?.showNotification) return;
+    const focused = await api.isWindowFocused();
+    if (!focused) {
+      api.showNotification(S.APP_TITLE, S.NOTIFICATION_RESPONSE_COMPLETE);
+    }
+  }, []);
+
   // Stream handler
   const {
     isLoading,
@@ -108,6 +118,7 @@ const App: React.FC = () => {
     setMessages,
     updateCurrentConversation,
     addToast,
+    onComplete: handleStreamComplete,
   });
 
   // UI state

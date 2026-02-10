@@ -49,5 +49,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('export-markdown', content, defaultFileName),
 
   exportPdf: (htmlContent: string, defaultFileName: string) =>
-    ipcRenderer.invoke('export-pdf', htmlContent, defaultFileName)
+    ipcRenderer.invoke('export-pdf', htmlContent, defaultFileName),
+
+  showNotification: (title: string, body: string) =>
+    ipcRenderer.invoke('show-notification', title, body),
+
+  isWindowFocused: () => ipcRenderer.invoke('is-window-focused'),
 });

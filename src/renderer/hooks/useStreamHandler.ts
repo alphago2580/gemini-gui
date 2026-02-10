@@ -8,6 +8,7 @@ interface UseStreamHandlerOptions {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   updateCurrentConversation: (messages: Message[]) => void;
   addToast: (type: 'error' | 'success' | 'info', message: string) => void;
+  onComplete?: () => void;
 }
 
 export function useStreamHandler({
@@ -15,6 +16,7 @@ export function useStreamHandler({
   setMessages,
   updateCurrentConversation,
   addToast,
+  onComplete,
 }: UseStreamHandlerOptions) {
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -78,6 +80,7 @@ export function useStreamHandler({
     window.electronAPI.onStreamComplete(() => {
       setIsLoading(false);
       setIsStreaming(false);
+      onComplete?.();
     });
 
     // 스트리밍 에러 처리
@@ -103,7 +106,7 @@ export function useStreamHandler({
         window.electronAPI.removeAllListeners();
       }
     };
-  }, [currentConversationId, setMessages, updateCurrentConversation, addToast]);
+  }, [currentConversationId, setMessages, updateCurrentConversation, addToast, onComplete]);
 
   return {
     isLoading,

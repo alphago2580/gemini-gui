@@ -63,6 +63,8 @@ export interface ElectronAPI {
   cleanupTempFiles: () => Promise<{ success: boolean; error?: string }>;
   exportMarkdown: (content: string, defaultFileName: string) => Promise<{ success: boolean; canceled?: boolean; path?: string; error?: string }>;
   exportPdf: (htmlContent: string, defaultFileName: string) => Promise<{ success: boolean; canceled?: boolean; path?: string; error?: string }>;
+  showNotification: (title: string, body: string) => Promise<{ success: boolean; error?: string }>;
+  isWindowFocused: () => Promise<boolean>;
 }
 
 declare global {

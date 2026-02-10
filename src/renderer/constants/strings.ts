@@ -13,6 +13,9 @@ export const SEND_BUTTON = '전송';
 export const SENDING_BUTTON = '전송 중...';
 export const SCROLL_TO_BOTTOM = '새 메시지로 이동';
 
+// Notifications
+export const NOTIFICATION_RESPONSE_COMPLETE = '응답이 완료되었습니다.';
+
 // ARIA labels — App
 export const ARIA_APP = 'application';
 export const ARIA_MESSAGE_LOG = '대화 메시지';

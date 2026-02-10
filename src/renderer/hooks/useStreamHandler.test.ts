@@ -231,4 +231,25 @@ describe('useStreamHandler', () => {
 
     expect(mockSetMessages).toHaveBeenCalled();
   });
+
+  it('calls onComplete callback when stream completes', () => {
+    const mockOnComplete = vi.fn();
+    renderHook(() => useStreamHandler({ ...defaultOptions, onComplete: mockOnComplete }));
+
+    act(() => {
+      streamCompleteCallback!();
+    });
+
+    expect(mockOnComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fail when onComplete is not provided', () => {
+    renderHook(() => useStreamHandler(defaultOptions));
+
+    expect(() => {
+      act(() => {
+        streamCompleteCallback!();
+      });
+    }).not.toThrow();
+  });
 });

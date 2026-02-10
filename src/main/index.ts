@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, Notification, shell } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -367,4 +367,23 @@ ipcMain.handle('export-markdown', async (_event, content: string, defaultFileNam
   } catch (error) {
     return { success: false, error: getErrorMessage(error) };
   }
+});
+
+ipcMain.handle('show-notification', async (_event, title: string, body: string) => {
+  if (!Notification.isSupported()) {
+    return { success: false, error: 'Notifications not supported' };
+  }
+  const notification = new Notification({ title, body });
+  notification.on('click', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+  notification.show();
+  return { success: true };
+});
+
+ipcMain.handle('is-window-focused', async () => {
+  return mainWindow?.isFocused() ?? false;
 });

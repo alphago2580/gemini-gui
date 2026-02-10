@@ -19,6 +19,8 @@ const mockElectronAPI = {
     exportMarkdown: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.md' }),
     exportPdf: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.pdf' }),
     onMenuAction: vi.fn(),
+    showNotification: vi.fn().mockResolvedValue({ success: true }),
+    isWindowFocused: vi.fn().mockResolvedValue(true),
 };
 
 global.window.electronAPI = mockElectronAPI as unknown as typeof window.electronAPI;
@@ -1499,6 +1501,76 @@ describe('App Component', () => {
             await waitFor(() => {
                 expect(screen.getByText('Msg X')).toBeInTheDocument();
             });
+        });
+    });
+
+    describe('Native Notifications', () => {
+        it('sends notification when stream completes and window is not focused', async () => {
+            mockElectronAPI.isWindowFocused.mockResolvedValue(false);
+            const callbacks = setupStreamCallbacks();
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            // Simulate assistant response
+            await act(() => {
+                if (callbacks.streamData) {
+                    callbacks.streamData({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Response',
+                        delta: true,
+                    });
+                }
+            });
+
+            // Simulate stream complete
+            await act(() => {
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
+                }
+            });
+
+            await waitFor(() => {
+                expect(mockElectronAPI.isWindowFocused).toHaveBeenCalled();
+                expect(mockElectronAPI.showNotification).toHaveBeenCalledWith('Gemini GUI', '응답이 완료되었습니다.');
+            });
+        });
+
+        it('does not send notification when window is focused', async () => {
+            mockElectronAPI.isWindowFocused.mockResolvedValue(true);
+            const callbacks = setupStreamCallbacks();
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            await act(() => {
+                if (callbacks.streamData) {
+                    callbacks.streamData({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Response',
+                        delta: true,
+                    });
+                }
+            });
+
+            await act(() => {
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
+                }
+            });
+
+            await waitFor(() => {
+                expect(mockElectronAPI.isWindowFocused).toHaveBeenCalled();
+            });
+            expect(mockElectronAPI.showNotification).not.toHaveBeenCalled();
         });
     });
 
