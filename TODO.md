@@ -69,6 +69,11 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 
 ### UX Enhancements
 - [x] Session status indicator — visual connection state (idle/connecting/connected/error) in header
+- [x] UserAvatar — role-based avatar component with initials and icon display
+- [x] ProgressBar — versatile progress indicator with variants, sizes, animation
+- [x] Tooltip — hover/focus tooltip with delay and 4 positions
+- [x] Badge — notification count/dot indicator with wrapper and inline modes
+- [x] Skeleton — loading placeholder with shimmer animation for text/circular/rectangular
 
 ### Accessibility
 - [x] ARIA labels on all interactive elements

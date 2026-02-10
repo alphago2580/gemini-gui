@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (968 tests)
+- **Test Status**: Passing (985 tests)
 - **Last Agent Run**: Agent 1 (Feature)
 
 ## Completed Features
@@ -560,3 +560,13 @@
 - Added 4 unit tests for sessionStatus in useStreamHandler
 - Updated App.test.tsx mock to include `onSessionStatus`
 - Total tests: 968 (54 test files, all passing)
+
+### Agent 1 (Feature) — UI Component Library (UserAvatar, ProgressBar, Tooltip, Badge, Skeleton)
+- Created `UserAvatar` component with role-based avatars (user/assistant/system), initials display, 3 sizes
+- Created `ProgressBar` component with value/max, percentage display, 4 variants, 3 sizes, stripe animation
+- Created `Tooltip` component with hover/focus trigger, 4 positions (top/bottom/left/right), configurable delay
+- Created `Badge` component with count/dot modes, 5 variants, maxCount overflow (99+), wrapper/inline modes
+- Created `Skeleton` component with text/circular/rectangular variants, multi-line support, shimmer animation
+- All components: React.memo, CSS variables, ARIA accessibility, comprehensive tests
+- Added 18 tests for UserAvatar, 24 for ProgressBar, 14 for Tooltip, 22 for Badge, 17 for Skeleton
+- Total tests: 985 (55 test files, all passing)
