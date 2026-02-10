@@ -578,3 +578,15 @@
 - Added 10 unit tests for `windowState` (load defaults, saved state, maximized, corrupt JSON, invalid values, save, overwrite, nested dir, roundtrip)
 - Added 3 integration tests for menu actions in App (listener registration, settings open, command palette open)
 - Total tests: 863 → 876 (50 test files, all passing)
+
+### Agent 4 (Integration) — Native OS Notifications on Response Completion
+- Added `show-notification` IPC handler in main process using Electron's `Notification` API
+- Added `is-window-focused` IPC handler to check window focus state
+- Clicking notification restores and focuses the app window
+- Added `showNotification` and `isWindowFocused` to preload bridge and `ElectronAPI` types
+- Added `onComplete` callback to `useStreamHandler` hook for post-stream-complete actions
+- App.tsx checks window focus on stream complete; sends notification only when unfocused
+- Added `NOTIFICATION_RESPONSE_COMPLETE` string constant for i18n readiness
+- Added 2 unit tests for `useStreamHandler` (onComplete callback, no-op when undefined)
+- Added 2 integration tests in App (notification when unfocused, no notification when focused)
+- Total tests: 876 → 880 (50 test files, all passing)
