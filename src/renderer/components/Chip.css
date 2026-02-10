@@ -1,0 +1,118 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 13px;
+  line-height: 1.4;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  max-width: 200px;
+  vertical-align: middle;
+}
+
+.chip--clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.chip--clickable:hover {
+  background: var(--bg-tertiary);
+}
+
+.chip--clickable:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
+.chip--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chip--selected {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.chip--primary {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.chip--primary.chip--selected {
+  background: var(--accent-color);
+  color: white;
+}
+
+.chip--success {
+  border-color: #4caf50;
+  color: #4caf50;
+}
+
+.chip--success.chip--selected {
+  background: #4caf50;
+  color: white;
+}
+
+.chip--warning {
+  border-color: #ff9800;
+  color: #ff9800;
+}
+
+.chip--warning.chip--selected {
+  background: #ff9800;
+  color: white;
+}
+
+.chip--error {
+  border-color: #f44336;
+  color: #f44336;
+}
+
+.chip--error.chip--selected {
+  background: #f44336;
+  color: white;
+}
+
+.chip-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.7;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.chip-remove:hover:not(:disabled) {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.chip-remove:disabled {
+  cursor: not-allowed;
+}
