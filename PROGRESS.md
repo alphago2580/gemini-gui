@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1199 tests)
+- **Test Status**: Passing (1203 tests)
 - **Last Agent Run**: Agent 1 (Feature)
 
 ## Completed Features
@@ -632,3 +632,13 @@
 - Added 5 unit tests for Settings notification sound toggle (render, ON/OFF, toggle, hint)
 - Updated useSettings.test.ts for new notificationSound field
 - Total tests: 1199 (66 test files, all passing)
+
+### Agent 1 (Feature) — Font Size Setting
+- Added `fontSize: number` field to `AppSettings` interface (default: 14px)
+- Added font size slider (range: 12–20px) to Settings UI
+- Applied font size via CSS custom property `--message-font-size` on `document.documentElement`
+- `.message-content` uses `var(--message-font-size, 14px)` for dynamic text sizing
+- Added `FONT_SIZE_PREFIX`, `FONT_SIZE_HINT`, `ARIA_FONT_SIZE` string constants
+- Updated useSettings defaults and all test fixtures for new field
+- Added 4 unit tests for Settings font size slider (render, value display, save, hint)
+- Total tests: 1203 (66 test files, all passing)

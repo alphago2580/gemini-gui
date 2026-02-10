@@ -27,6 +27,7 @@ export interface AppSettings {
   theme: ThemeMode;
   systemPrompt: string;
   notificationSound: boolean;
+  fontSize: number;
 }
 
 export interface TokenUsage {

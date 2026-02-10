@@ -172,6 +172,23 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
             />
           </div>
 
+          <div className="setting-group">
+            <label htmlFor="fontSize">
+              {S.FONT_SIZE_PREFIX} {localSettings.fontSize}px
+              <span className="hint">{S.FONT_SIZE_HINT}</span>
+            </label>
+            <input
+              type="range"
+              id="fontSize"
+              min="12"
+              max="20"
+              step="1"
+              value={localSettings.fontSize}
+              onChange={(e) => setLocalSettings({ ...localSettings, fontSize: parseInt(e.target.value) })}
+              aria-label={S.ARIA_FONT_SIZE}
+            />
+          </div>
+
           <div className="info-section">
             <h3>{S.INFO_TITLE}</h3>
             <p>{S.INFO_CLI_VERSION}</p>

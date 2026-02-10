@@ -141,6 +141,11 @@ const App: React.FC = () => {
     document.documentElement.setAttribute('data-high-contrast', String(highContrast));
   }, [highContrast]);
 
+  // Apply font size
+  useEffect(() => {
+    document.documentElement.style.setProperty('--message-font-size', `${settings.fontSize}px`);
+  }, [settings.fontSize]);
+
   // Auto-scroll
   const {
     messagesContainerRef,

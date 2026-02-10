@@ -489,6 +489,7 @@
 }
 
 .message-content {
+  font-size: var(--message-font-size, 14px);
   line-height: 1.6;
   word-wrap: break-word;
 }

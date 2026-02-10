@@ -11,6 +11,7 @@ describe('Settings', () => {
     theme: 'dark' as const,
     systemPrompt: '',
     notificationSound: true,
+    fontSize: 14,
   };
 
   const defaultProps = {
@@ -364,6 +365,33 @@ describe('Settings', () => {
       render(<Settings {...defaultProps} highContrast={true} onHighContrastChange={onHighContrastChange} />);
       fireEvent.click(screen.getByRole('switch', { name: '고대비 모드' }));
       expect(onHighContrastChange).toHaveBeenCalledWith(false);
+    });
+  });
+
+  describe('Font Size', () => {
+    it('renders font size slider', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByLabelText('글꼴 크기')).toBeInTheDocument();
+    });
+
+    it('shows current font size value', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByText(/글꼴 크기: 14px/)).toBeInTheDocument();
+    });
+
+    it('updates font size and saves correctly', () => {
+      render(<Settings {...defaultProps} />);
+      const slider = screen.getByLabelText('글꼴 크기');
+      fireEvent.change(slider, { target: { value: '18' } });
+      fireEvent.click(screen.getByText('저장'));
+      expect(defaultProps.onSave).toHaveBeenCalledWith(
+        expect.objectContaining({ fontSize: 18 })
+      );
+    });
+
+    it('shows hint text for font size', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByText('메시지 텍스트 크기 (12~20px)')).toBeInTheDocument();
     });
   });
 });
