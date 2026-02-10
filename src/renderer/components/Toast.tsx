@@ -8,7 +8,7 @@ export interface ToastMessage {
   message: string;
 }
 
-interface ToastProps {
+export interface ToastProps {
   toasts: ToastMessage[];
   onDismiss: (id: string) => void;
 }

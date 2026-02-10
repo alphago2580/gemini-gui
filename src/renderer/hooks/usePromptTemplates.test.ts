@@ -93,4 +93,81 @@ describe('usePromptTemplates', () => {
     });
     expect(result.current.templates).toHaveLength(initialLength);
   });
+
+  it('updating non-existent id does not change templates', () => {
+    const { result } = renderHook(() => usePromptTemplates());
+    const before = result.current.templates.map(t => ({ ...t }));
+    act(() => {
+      result.current.updateTemplate('non-existent', 'name', 'content');
+    });
+    expect(result.current.templates.map(t => t.name)).toEqual(before.map(t => t.name));
+    expect(result.current.templates.map(t => t.content)).toEqual(before.map(t => t.content));
+  });
+
+  it('can add multiple templates sequentially', () => {
+    const { result } = renderHook(() => usePromptTemplates());
+    act(() => {
+      result.current.addTemplate('A', 'Content A');
+    });
+    act(() => {
+      result.current.addTemplate('B', 'Content B');
+    });
+    act(() => {
+      result.current.addTemplate('C', 'Content C');
+    });
+    expect(result.current.templates).toHaveLength(6);
+    expect(result.current.templates[5].name).toBe('C');
+  });
+
+  it('can delete all templates', () => {
+    const { result } = renderHook(() => usePromptTemplates());
+    const ids = result.current.templates.map(t => t.id);
+    act(() => {
+      ids.forEach(id => result.current.deleteTemplate(id));
+    });
+    expect(result.current.templates).toHaveLength(0);
+  });
+
+  it('update preserves template id', () => {
+    const { result } = renderHook(() => usePromptTemplates());
+    const id = result.current.templates[0].id;
+    act(() => {
+      result.current.updateTemplate(id, '새 이름', '새 내용');
+    });
+    const updated = result.current.templates.find(t => t.id === id);
+    expect(updated?.id).toBe(id);
+    expect(updated?.name).toBe('새 이름');
+    expect(updated?.content).toBe('새 내용');
+  });
+
+  it('addTemplate callback is stable across renders', () => {
+    const { result, rerender } = renderHook(() => usePromptTemplates());
+    const firstAddFn = result.current.addTemplate;
+    rerender();
+    expect(result.current.addTemplate).toBe(firstAddFn);
+  });
+
+  it('deleteTemplate callback is stable across renders', () => {
+    const { result, rerender } = renderHook(() => usePromptTemplates());
+    const firstDeleteFn = result.current.deleteTemplate;
+    rerender();
+    expect(result.current.deleteTemplate).toBe(firstDeleteFn);
+  });
+
+  it('handles empty array from localStorage gracefully', () => {
+    localStorage.setItem('gemini-prompt-templates', JSON.stringify([]));
+    const { result } = renderHook(() => usePromptTemplates());
+    expect(result.current.templates).toHaveLength(0);
+  });
+
+  it('added templates get unique ids', () => {
+    const { result } = renderHook(() => usePromptTemplates());
+    let t1: ReturnType<typeof result.current.addTemplate>;
+    let t2: ReturnType<typeof result.current.addTemplate>;
+    act(() => {
+      t1 = result.current.addTemplate('X', 'x');
+      t2 = result.current.addTemplate('Y', 'y');
+    });
+    expect(t1!.id).not.toBe(t2!.id);
+  });
 });

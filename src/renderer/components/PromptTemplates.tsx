@@ -3,7 +3,7 @@ import './PromptTemplates.css';
 import type { PromptTemplate } from '../../preload/types';
 import * as S from '../constants/strings';
 
-interface PromptTemplatesProps {
+export interface PromptTemplatesProps {
   templates: PromptTemplate[];
   onSelect: (content: string) => void;
   onAdd: (name: string, content: string) => void;

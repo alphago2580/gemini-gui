@@ -3,7 +3,7 @@ import './Sidebar.css';
 import * as S from '../constants/strings';
 import type { Conversation } from '../../preload/types';
 
-interface SidebarProps {
+export interface SidebarProps {
   onNewChat: () => void;
   onOpenSettings: () => void;
   conversations: Conversation[];

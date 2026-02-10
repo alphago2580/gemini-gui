@@ -79,4 +79,70 @@ describe('useLocalStorage', () => {
     renderHook(() => useLocalStorage('persist-key', 42));
     expect(JSON.parse(localStorage.getItem('persist-key')!)).toBe(42);
   });
+
+  it('works with boolean values', () => {
+    const { result } = renderHook(() => useLocalStorage('bool-key', false));
+    expect(result.current[0]).toBe(false);
+    act(() => {
+      result.current[1](true);
+    });
+    expect(result.current[0]).toBe(true);
+    expect(JSON.parse(localStorage.getItem('bool-key')!)).toBe(true);
+  });
+
+  it('works with null initial value', () => {
+    const { result } = renderHook(() => useLocalStorage<string | null>('null-key', null));
+    expect(result.current[0]).toBeNull();
+    act(() => {
+      result.current[1]('non-null');
+    });
+    expect(result.current[0]).toBe('non-null');
+  });
+
+  it('returns stored null from localStorage', () => {
+    localStorage.setItem('stored-null', JSON.stringify(null));
+    const { result } = renderHook(() => useLocalStorage<string | null>('stored-null', 'default'));
+    expect(result.current[0]).toBeNull();
+  });
+
+  it('handles empty string stored in localStorage', () => {
+    localStorage.setItem('empty-str', JSON.stringify(''));
+    const { result } = renderHook(() => useLocalStorage('empty-str', 'fallback'));
+    expect(result.current[0]).toBe('');
+  });
+
+  it('works with nested object values', () => {
+    const nested = { a: { b: { c: 42 } }, d: [1, 2, 3] };
+    const { result } = renderHook(() => useLocalStorage('nested-key', nested));
+    expect(result.current[0]).toEqual(nested);
+    act(() => {
+      result.current[1]({ a: { b: { c: 100 } }, d: [4, 5] });
+    });
+    expect(result.current[0]).toEqual({ a: { b: { c: 100 } }, d: [4, 5] });
+  });
+
+  it('setValue function reference is stable across renders', () => {
+    const { result, rerender } = renderHook(() => useLocalStorage('stable-key', 0));
+    const firstSetter = result.current[1];
+    rerender();
+    expect(result.current[1]).toBe(firstSetter);
+  });
+
+  it('updates localStorage when key changes via rerender', () => {
+    const { result, rerender } = renderHook(
+      ({ key }) => useLocalStorage(key, 'default'),
+      { initialProps: { key: 'key-a' } }
+    );
+    expect(result.current[0]).toBe('default');
+    expect(JSON.parse(localStorage.getItem('key-a')!)).toBe('default');
+
+    rerender({ key: 'key-b' });
+    expect(JSON.parse(localStorage.getItem('key-b')!)).toBe('default');
+  });
+
+  it('works with number zero (falsy but valid JSON)', () => {
+    localStorage.setItem('zero-key', JSON.stringify(0));
+    const { result } = renderHook(() => useLocalStorage('zero-key', 999));
+    expect(result.current[0]).toBe(0);
+  });
 });

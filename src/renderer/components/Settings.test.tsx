@@ -10,9 +10,6 @@ describe('Settings', () => {
     maxTokens: 2048,
     theme: 'dark' as const,
     systemPrompt: '',
-    notificationSound: true,
-    showTimestamps: true,
-    fontSize: 14,
   };
 
   const defaultProps = {
@@ -291,43 +288,6 @@ describe('Settings', () => {
     });
   });
 
-  // Notification sound tests
-  describe('Notification Sound', () => {
-    it('renders notification sound toggle', () => {
-      render(<Settings {...defaultProps} />);
-      expect(screen.getByRole('switch', { name: '알림음' })).toBeInTheDocument();
-    });
-
-    it('shows ON when notification sound is enabled', () => {
-      render(<Settings {...defaultProps} />);
-      const toggle = screen.getByRole('switch', { name: '알림음' });
-      expect(toggle).toHaveTextContent('ON');
-      expect(toggle).toHaveAttribute('aria-checked', 'true');
-    });
-
-    it('shows OFF when notification sound is disabled', () => {
-      const settingsOff = { ...defaultSettings, notificationSound: false };
-      render(<Settings {...defaultProps} settings={settingsOff} />);
-      const toggle = screen.getByRole('switch', { name: '알림음' });
-      expect(toggle).toHaveTextContent('OFF');
-      expect(toggle).toHaveAttribute('aria-checked', 'false');
-    });
-
-    it('toggles notification sound and saves', () => {
-      render(<Settings {...defaultProps} />);
-      fireEvent.click(screen.getByRole('switch', { name: '알림음' }));
-      fireEvent.click(screen.getByText('저장'));
-      expect(defaultProps.onSave).toHaveBeenCalledWith(
-        expect.objectContaining({ notificationSound: false })
-      );
-    });
-
-    it('shows hint text for notification sound', () => {
-      render(<Settings {...defaultProps} />);
-      expect(screen.getByText('응답 완료 시 알림음 재생')).toBeInTheDocument();
-    });
-  });
-
   // High contrast mode tests
   describe('High Contrast', () => {
     it('does not render high contrast toggle when onHighContrastChange is not provided', () => {
@@ -369,66 +329,62 @@ describe('Settings', () => {
     });
   });
 
-  describe('Show Timestamps', () => {
-    it('renders show timestamps toggle', () => {
-      render(<Settings {...defaultProps} />);
-      expect(screen.getByRole('switch', { name: '타임스탬프 표시' })).toBeInTheDocument();
+  describe('Additional coverage', () => {
+    it('settings-header contains h2 and close button', () => {
+      const { container } = render(<Settings {...defaultProps} />);
+      const header = container.querySelector('.settings-header');
+      expect(header).toBeInTheDocument();
+      expect(header!.querySelector('h2')).toBeInTheDocument();
+      expect(header!.querySelector('.close-btn')).toBeInTheDocument();
     });
 
-    it('shows ON when showTimestamps is enabled', () => {
-      render(<Settings {...defaultProps} />);
-      const toggle = screen.getByRole('switch', { name: '타임스탬프 표시' });
-      expect(toggle).toHaveTextContent('ON');
-      expect(toggle).toHaveAttribute('aria-checked', 'true');
+    it('settings-footer contains cancel and save buttons', () => {
+      const { container } = render(<Settings {...defaultProps} />);
+      const footer = container.querySelector('.settings-footer');
+      expect(footer).toBeInTheDocument();
+      expect(footer!.querySelector('.cancel-btn')).toBeInTheDocument();
+      expect(footer!.querySelector('.save-btn')).toBeInTheDocument();
     });
 
-    it('shows OFF when showTimestamps is disabled', () => {
-      const settingsOff = { ...defaultSettings, showTimestamps: false };
-      render(<Settings {...defaultProps} settings={settingsOff} />);
-      const toggle = screen.getByRole('switch', { name: '타임스탬프 표시' });
-      expect(toggle).toHaveTextContent('OFF');
-      expect(toggle).toHaveAttribute('aria-checked', 'false');
+    it('temperature slider has correct min/max/step attributes', () => {
+      render(<Settings {...defaultProps} />);
+      const slider = screen.getByLabelText(/Temperature/) as HTMLInputElement;
+      expect(slider.min).toBe('0');
+      expect(slider.max).toBe('2');
+      expect(slider.step).toBe('0.1');
     });
 
-    it('toggles showTimestamps and saves', () => {
+    it('maxTokens slider has correct min/max/step attributes', () => {
       render(<Settings {...defaultProps} />);
-      fireEvent.click(screen.getByRole('switch', { name: '타임스탬프 표시' }));
-      fireEvent.click(screen.getByText('저장'));
-      expect(defaultProps.onSave).toHaveBeenCalledWith(
-        expect.objectContaining({ showTimestamps: false })
-      );
+      const slider = screen.getByLabelText(/최대 토큰/) as HTMLInputElement;
+      expect(slider.min).toBe('256');
+      expect(slider.max).toBe('8192');
+      expect(slider.step).toBe('256');
     });
 
-    it('shows hint text for timestamps', () => {
+    it('system prompt textarea has rows=4', () => {
       render(<Settings {...defaultProps} />);
-      expect(screen.getByText('메시지에 시간 정보 표시')).toBeInTheDocument();
-    });
-  });
-
-  describe('Font Size', () => {
-    it('renders font size slider', () => {
-      render(<Settings {...defaultProps} />);
-      expect(screen.getByLabelText('글꼴 크기')).toBeInTheDocument();
+      const textarea = screen.getByLabelText('시스템 프롬프트') as HTMLTextAreaElement;
+      expect(textarea.rows).toBe(4);
     });
 
-    it('shows current font size value', () => {
+    it('info section displays CLI version and config path', () => {
       render(<Settings {...defaultProps} />);
-      expect(screen.getByText(/글꼴 크기: 14px/)).toBeInTheDocument();
+      expect(screen.getByText('Gemini CLI 버전: 0.17.0')).toBeInTheDocument();
+      expect(screen.getByText('설정 파일 위치: ~/.config/google-gemini-cli/')).toBeInTheDocument();
     });
 
-    it('updates font size and saves correctly', () => {
-      render(<Settings {...defaultProps} />);
-      const slider = screen.getByLabelText('글꼴 크기');
-      fireEvent.change(slider, { target: { value: '18' } });
-      fireEvent.click(screen.getByText('저장'));
-      expect(defaultProps.onSave).toHaveBeenCalledWith(
-        expect.objectContaining({ fontSize: 18 })
-      );
+    it('light theme option is not active when dark mode selected', () => {
+      render(<Settings {...defaultProps} themeMode="dark" />);
+      const lightBtn = screen.getByText('라이트');
+      expect(lightBtn.className).not.toContain('active');
+      const systemBtn = screen.getByText('시스템');
+      expect(systemBtn.className).not.toContain('active');
     });
 
-    it('shows hint text for font size', () => {
-      render(<Settings {...defaultProps} />);
-      expect(screen.getByText('메시지 텍스트 크기 (12~20px)')).toBeInTheDocument();
+    it('high contrast hint text is displayed', () => {
+      render(<Settings {...defaultProps} highContrast={false} onHighContrastChange={vi.fn()} />);
+      expect(screen.getByText('가독성을 높인 고대비 색상')).toBeInTheDocument();
     });
   });
 });

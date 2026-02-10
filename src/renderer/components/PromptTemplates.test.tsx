@@ -199,4 +199,79 @@ describe('PromptTemplates', () => {
     await user.click(screen.getByRole('button', { name: '새 템플릿 추가' }));
     expect(screen.getByRole('form', { name: '새 템플릿 추가' })).toBeInTheDocument();
   });
+
+  it('does not call onAdd when name is only whitespace', async () => {
+    const user = userEvent.setup();
+    render(<PromptTemplates {...defaultProps} />);
+    await user.click(screen.getByRole('button', { name: '프롬프트 템플릿' }));
+    await user.click(screen.getByRole('button', { name: '새 템플릿 추가' }));
+    await user.type(screen.getByLabelText('템플릿 이름'), '   ');
+    await user.type(screen.getByLabelText('템플릿 내용'), '실제 내용');
+    expect(screen.getByRole('button', { name: '템플릿 저장' })).toBeDisabled();
+  });
+
+  it('does not call onAdd when content is only whitespace', async () => {
+    const user = userEvent.setup();
+    render(<PromptTemplates {...defaultProps} />);
+    await user.click(screen.getByRole('button', { name: '프롬프트 템플릿' }));
+    await user.click(screen.getByRole('button', { name: '새 템플릿 추가' }));
+    await user.type(screen.getByLabelText('템플릿 이름'), '이름');
+    await user.type(screen.getByLabelText('템플릿 내용'), '   ');
+    expect(screen.getByRole('button', { name: '템플릿 저장' })).toBeDisabled();
+  });
+
+  it('trims whitespace from name and content when adding', async () => {
+    const user = userEvent.setup();
+    render(<PromptTemplates {...defaultProps} />);
+    await user.click(screen.getByRole('button', { name: '프롬프트 템플릿' }));
+    await user.click(screen.getByRole('button', { name: '새 템플릿 추가' }));
+    await user.type(screen.getByLabelText('템플릿 이름'), '  이름  ');
+    await user.type(screen.getByLabelText('템플릿 내용'), '  내용  ');
+    await user.click(screen.getByRole('button', { name: '템플릿 저장' }));
+    expect(defaultProps.onAdd).toHaveBeenCalledWith('이름', '내용');
+  });
+
+  it('cancel button clears input values', async () => {
+    const user = userEvent.setup();
+    render(<PromptTemplates {...defaultProps} />);
+    await user.click(screen.getByRole('button', { name: '프롬프트 템플릿' }));
+    await user.click(screen.getByRole('button', { name: '새 템플릿 추가' }));
+    await user.type(screen.getByLabelText('템플릿 이름'), '작성중');
+    await user.type(screen.getByLabelText('템플릿 내용'), '내용 작성');
+    await user.click(screen.getByRole('button', { name: '추가 취소' }));
+    // Reopen add form
+    await user.click(screen.getByRole('button', { name: '새 템플릿 추가' }));
+    expect(screen.getByLabelText('템플릿 이름')).toHaveValue('');
+    expect(screen.getByLabelText('템플릿 내용')).toHaveValue('');
+  });
+
+  it('outside click also closes add form', async () => {
+    const user = userEvent.setup();
+    render(
+      <div>
+        <div data-testid="outside">외부</div>
+        <PromptTemplates {...defaultProps} />
+      </div>
+    );
+    await user.click(screen.getByRole('button', { name: '프롬프트 템플릿' }));
+    await user.click(screen.getByRole('button', { name: '새 템플릿 추가' }));
+    expect(screen.getByRole('form')).toBeInTheDocument();
+    fireEvent.mouseDown(screen.getByTestId('outside'));
+    expect(screen.queryByRole('form')).not.toBeInTheDocument();
+  });
+
+  it('trigger button has aria-haspopup="listbox"', () => {
+    render(<PromptTemplates {...defaultProps} />);
+    const btn = screen.getByRole('button', { name: '프롬프트 템플릿' });
+    expect(btn).toHaveAttribute('aria-haspopup', 'listbox');
+  });
+
+  it('each template delete button has descriptive aria-label', async () => {
+    const user = userEvent.setup();
+    render(<PromptTemplates {...defaultProps} />);
+    await user.click(screen.getByRole('button', { name: '프롬프트 템플릿' }));
+    expect(screen.getByRole('button', { name: '번역 삭제' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '코드 리뷰 삭제' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '요약 삭제' })).toBeInTheDocument();
+  });
 });

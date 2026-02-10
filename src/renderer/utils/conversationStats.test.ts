@@ -44,6 +44,68 @@ describe('conversationStats', () => {
     const stats = calculateConversationStats(conversations);
     expect(stats.emptyConversations).toBe(1);
   });
+
+  it('calculates totalCharacters correctly', () => {
+    const conversations = [
+      {
+        id: '1', title: 'Chars', timestamp: new Date(),
+        messages: [
+          { role: 'user' as const, content: 'abc' },
+          { role: 'assistant' as const, content: 'defgh' },
+        ],
+      },
+    ];
+    const stats = calculateConversationStats(conversations);
+    expect(stats.totalCharacters).toBe(8);
+  });
+
+  it('calculates averageMessageLength correctly', () => {
+    const conversations = [
+      {
+        id: '1', title: 'Avg', timestamp: new Date(),
+        messages: [
+          { role: 'user' as const, content: 'ab' },
+          { role: 'assistant' as const, content: 'cdef' },
+        ],
+      },
+    ];
+    const stats = calculateConversationStats(conversations);
+    expect(stats.averageMessageLength).toBe(3);
+  });
+
+  it('returns 0 averageMessageLength when all conversations are empty', () => {
+    const conversations = [
+      { id: '1', title: 'E1', timestamp: new Date(), messages: [] },
+      { id: '2', title: 'E2', timestamp: new Date(), messages: [] },
+    ];
+    const stats = calculateConversationStats(conversations);
+    expect(stats.averageMessageLength).toBe(0);
+    expect(stats.emptyConversations).toBe(2);
+  });
+
+  it('handles single conversation correctly', () => {
+    const conversations = [
+      {
+        id: '1', title: 'Solo', timestamp: new Date(),
+        messages: [{ role: 'user' as const, content: 'only' }],
+      },
+    ];
+    const stats = calculateConversationStats(conversations);
+    expect(stats.totalConversations).toBe(1);
+    expect(stats.averageMessagesPerConversation).toBe(1);
+    expect(stats.longestConversation?.title).toBe('Solo');
+    expect(stats.shortestConversation?.title).toBe('Solo');
+  });
+
+  it('identifies longest and shortest with same-length conversations', () => {
+    const conversations = [
+      { id: '1', title: 'A', timestamp: new Date(), messages: [{ role: 'user' as const, content: 'x' }] },
+      { id: '2', title: 'B', timestamp: new Date(), messages: [{ role: 'user' as const, content: 'y' }] },
+    ];
+    const stats = calculateConversationStats(conversations);
+    expect(stats.longestConversation?.messageCount).toBe(1);
+    expect(stats.shortestConversation?.messageCount).toBe(1);
+  });
 });
 
 describe('formatNumber', () => {

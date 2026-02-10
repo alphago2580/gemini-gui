@@ -3,7 +3,7 @@ import { ConversationStatistics, formatNumber } from '../utils/conversationStats
 import './ConversationStats.css';
 import * as S from '../constants/strings';
 
-interface ConversationStatsProps {
+export interface ConversationStatsProps {
   isOpen: boolean;
   onClose: () => void;
   stats: ConversationStatistics;

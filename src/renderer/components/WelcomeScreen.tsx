@@ -17,7 +17,7 @@ export const DEFAULT_SUGGESTIONS: SuggestedPrompt[] = [
   { icon: '🌐', label: S.SUGGESTION_TRANSLATE, prompt: S.SUGGESTION_TRANSLATE_PROMPT },
 ];
 
-interface WelcomeScreenProps {
+export interface WelcomeScreenProps {
   onPromptClick: (prompt: string) => void;
 }
 

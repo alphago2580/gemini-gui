@@ -393,4 +393,66 @@ describe('MessageBubble', () => {
       expect(container.querySelector('.streaming-cursor')).not.toBeInTheDocument();
     });
   });
+
+  describe('Additional coverage', () => {
+    it('message-header contains role, timestamp, and delete button', () => {
+      const { container } = render(<MessageBubble {...defaultProps} />);
+      const header = container.querySelector('.message-header');
+      expect(header).toBeInTheDocument();
+      expect(header!.querySelector('.role')).toBeInTheDocument();
+      expect(header!.querySelector('.timestamp')).toBeInTheDocument();
+      expect(header!.querySelector('.delete-message-btn')).toBeInTheDocument();
+    });
+
+    it('message-content contains MarkdownRenderer output', () => {
+      const { container } = render(
+        <MessageBubble {...defaultProps} message={createMessage({ content: 'test content' })} />
+      );
+      const content = container.querySelector('.message-content');
+      expect(content).toBeInTheDocument();
+      expect(content!.textContent).toContain('test content');
+    });
+
+    it('delete button has title attribute', () => {
+      render(<MessageBubble {...defaultProps} />);
+      const deleteBtn = screen.getByLabelText('메시지 삭제');
+      expect(deleteBtn).toHaveAttribute('title', '메시지 삭제');
+    });
+
+    it('edit button has title attribute for user messages', () => {
+      render(<MessageBubble {...defaultProps} />);
+      const editBtn = screen.getByLabelText('메시지 수정');
+      expect(editBtn).toHaveAttribute('title', '메시지 수정');
+    });
+
+    it('fork button has title attribute', () => {
+      render(<MessageBubble {...defaultProps} onFork={vi.fn()} />);
+      const forkBtn = screen.getByLabelText('여기서 분기');
+      expect(forkBtn).toHaveAttribute('title', '여기서 대화 분기');
+    });
+
+    it('editing class is removed after cancel', () => {
+      const { container } = render(<MessageBubble {...defaultProps} />);
+      fireEvent.click(screen.getByLabelText('메시지 수정'));
+      expect(container.querySelector('.message.editing')).toBeInTheDocument();
+      fireEvent.click(screen.getByLabelText('수정 취소'));
+      expect(container.querySelector('.message.editing')).not.toBeInTheDocument();
+    });
+
+    it('edit textarea has rows=3 attribute', () => {
+      render(<MessageBubble {...defaultProps} />);
+      fireEvent.click(screen.getByLabelText('메시지 수정'));
+      const textarea = screen.getByLabelText('메시지 수정 입력') as HTMLTextAreaElement;
+      expect(textarea.rows).toBe(3);
+    });
+
+    it('edit-message-actions contains save and cancel buttons', () => {
+      const { container } = render(<MessageBubble {...defaultProps} />);
+      fireEvent.click(screen.getByLabelText('메시지 수정'));
+      const actions = container.querySelector('.edit-message-actions');
+      expect(actions).toBeInTheDocument();
+      expect(actions!.querySelector('.edit-save-btn')).toBeInTheDocument();
+      expect(actions!.querySelector('.edit-cancel-btn')).toBeInTheDocument();
+    });
+  });
 });

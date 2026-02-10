@@ -166,4 +166,102 @@ describe('useAutoScroll', () => {
 
     expect(result.current.showScrollButton).toBe(true);
   });
+
+  it('hides scroll button when messages are cleared to empty', () => {
+    const { result, rerender } = renderHook(
+      ({ messages }) => useAutoScroll(messages),
+      { initialProps: { messages: [mockMsg('msg1'), mockMsg('msg2')] as Message[] } }
+    );
+
+    // Simulate scrolled up to show the button
+    const container = document.createElement('div');
+    Object.defineProperty(container, 'scrollTop', { value: 0, writable: true });
+    Object.defineProperty(container, 'scrollHeight', { value: 1000, writable: true });
+    Object.defineProperty(container, 'clientHeight', { value: 400, writable: true });
+    Object.defineProperty(result.current.messagesContainerRef, 'current', {
+      value: container,
+      writable: true,
+    });
+
+    act(() => {
+      result.current.handleScroll();
+    });
+    expect(result.current.showScrollButton).toBe(true);
+
+    // Clear all messages
+    rerender({ messages: [] });
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
+  it('scrollToBottom uses smooth behavior by default', () => {
+    const { result } = renderHook(() => useAutoScroll([]));
+
+    const endDiv = document.createElement('div');
+    endDiv.scrollIntoView = vi.fn();
+    Object.defineProperty(result.current.messagesEndRef, 'current', {
+      value: endDiv,
+      writable: true,
+    });
+
+    act(() => {
+      result.current.scrollToBottom();
+    });
+
+    expect(endDiv.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
+  });
+
+  it('checkIfNearBottom returns true when container ref is null', () => {
+    const { result } = renderHook(() => useAutoScroll([]));
+
+    // messagesContainerRef.current is null by default
+    // handleScroll calls checkIfNearBottom which returns true when container is null
+    act(() => {
+      result.current.handleScroll();
+    });
+
+    // Since checkIfNearBottom returned true, showScrollButton should be false (near bottom)
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
+  it('detects near bottom at exact threshold boundary', () => {
+    const { result } = renderHook(() => useAutoScroll([mockMsg('msg1')]));
+
+    const container = document.createElement('div');
+    // scrollHeight - scrollTop - clientHeight = 1000 - 500 - 400 = 100 (exactly at threshold)
+    Object.defineProperty(container, 'scrollTop', { value: 500, writable: true });
+    Object.defineProperty(container, 'scrollHeight', { value: 1000, writable: true });
+    Object.defineProperty(container, 'clientHeight', { value: 400, writable: true });
+    Object.defineProperty(result.current.messagesContainerRef, 'current', {
+      value: container,
+      writable: true,
+    });
+
+    act(() => {
+      result.current.handleScroll();
+    });
+
+    // 100 <= 100 threshold, so should be near bottom
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
+  it('detects NOT near bottom just past threshold', () => {
+    const { result } = renderHook(() => useAutoScroll([mockMsg('msg1')]));
+
+    const container = document.createElement('div');
+    // scrollHeight - scrollTop - clientHeight = 1000 - 499 - 400 = 101 (just past threshold)
+    Object.defineProperty(container, 'scrollTop', { value: 499, writable: true });
+    Object.defineProperty(container, 'scrollHeight', { value: 1000, writable: true });
+    Object.defineProperty(container, 'clientHeight', { value: 400, writable: true });
+    Object.defineProperty(result.current.messagesContainerRef, 'current', {
+      value: container,
+      writable: true,
+    });
+
+    act(() => {
+      result.current.handleScroll();
+    });
+
+    // 101 > 100 threshold, so NOT near bottom
+    expect(result.current.showScrollButton).toBe(true);
+  });
 });

@@ -526,4 +526,76 @@ describe('MarkdownRenderer', () => {
       expect(tables.length).toBe(2);
     });
   });
+
+  describe('Edge cases', () => {
+    it('renders blockquote with inline formatting', () => {
+      const { container } = render(
+        <MarkdownRenderer content="> This is **bold** in a quote" />
+      );
+      const bq = container.querySelector('blockquote.md-blockquote');
+      expect(bq).toBeInTheDocument();
+      const strong = bq?.querySelector('strong');
+      expect(strong?.textContent).toBe('bold');
+    });
+
+    it('renders list items with inline code', () => {
+      const content = '- Use `npm install`\n- Run `npm test`';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const codes = container.querySelectorAll('.md-inline-code');
+      expect(codes.length).toBe(2);
+      expect(codes[0].textContent).toBe('npm install');
+      expect(codes[1].textContent).toBe('npm test');
+    });
+
+    it('transitions from unordered to ordered list', () => {
+      const content = '- Item A\n- Item B\n1. First\n2. Second';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const ul = container.querySelector('ul.md-list');
+      const ol = container.querySelector('ol.md-list');
+      expect(ul).toBeInTheDocument();
+      expect(ol).toBeInTheDocument();
+    });
+
+    it('renders ___ as horizontal rule', () => {
+      const { container } = render(<MarkdownRenderer content="___" />);
+      const hr = container.querySelector('hr.md-hr');
+      expect(hr).toBeInTheDocument();
+    });
+
+    it('renders headings with inline formatting', () => {
+      const { container } = render(
+        <MarkdownRenderer content="## A **bold** heading" />
+      );
+      const h2 = container.querySelector('h2');
+      expect(h2).toBeInTheDocument();
+      const strong = h2?.querySelector('strong');
+      expect(strong?.textContent).toBe('bold');
+    });
+
+    it('handles code block immediately after paragraph without blank line', () => {
+      const content = 'Some text\n```js\nconst x = 1;\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      expect(screen.getByText('Some text')).toBeInTheDocument();
+      expect(container.querySelector('pre.md-code-block')).toBeInTheDocument();
+    });
+
+    it('renders only-newline content without crashing', () => {
+      const { container } = render(<MarkdownRenderer content={'\n\n\n'} />);
+      const rendered = container.querySelector('.md-rendered');
+      expect(rendered).toBeInTheDocument();
+      // No code blocks, tables, or heading elements should be produced
+      expect(rendered?.querySelector('pre')).not.toBeInTheDocument();
+      expect(rendered?.querySelector('table')).not.toBeInTheDocument();
+      expect(rendered?.querySelector('h1')).not.toBeInTheDocument();
+    });
+
+    it('renders link inside a list item', () => {
+      const content = '- Visit [docs](https://docs.example.com)';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const link = container.querySelector('li a.md-link');
+      expect(link).toBeInTheDocument();
+      expect(link?.textContent).toBe('docs');
+      expect(link?.getAttribute('href')).toBe('https://docs.example.com');
+    });
+  });
 });

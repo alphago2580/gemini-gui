@@ -3,7 +3,7 @@ import type { Message } from '../../preload/types';
 import { generateMessageId } from '../utils/format';
 import * as S from '../constants/strings';
 
-interface UseMessageSendOptions {
+export interface UseMessageSendOptions {
   currentConversationId: string | null;
   isLoading: boolean;
   settings: { systemPrompt: string; model: string };

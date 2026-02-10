@@ -9,7 +9,7 @@ export interface ContextMenuItem {
   danger?: boolean;
 }
 
-interface MessageContextMenuProps {
+export interface MessageContextMenuProps {
   x: number;
   y: number;
   items: ContextMenuItem[];

@@ -61,4 +61,32 @@ describe('KeyboardShortcutHelp', () => {
     expect(screen.getByText('Ctrl+Tab')).toBeInTheDocument();
     expect(screen.getByText('다음 탭')).toBeInTheDocument();
   });
+
+  it('does not propagate click from modal body to overlay', () => {
+    const onClose = vi.fn();
+    const { container } = render(<KeyboardShortcutHelp isOpen={true} onClose={onClose} />);
+    const modal = container.querySelector('.shortcut-help-modal')!;
+    fireEvent.click(modal);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('renders shortcut keys in kbd elements', () => {
+    const { container } = render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    const kbdElements = container.querySelectorAll('kbd.shortcut-keys');
+    const totalShortcuts = SHORTCUT_GROUPS.reduce((sum, g) => sum + g.shortcuts.length, 0);
+    expect(kbdElements).toHaveLength(totalShortcuts);
+  });
+
+  it('renders all shortcut descriptions in rows', () => {
+    const { container } = render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    const rows = container.querySelectorAll('.shortcut-row');
+    const totalShortcuts = SHORTCUT_GROUPS.reduce((sum, g) => sum + g.shortcuts.length, 0);
+    expect(rows).toHaveLength(totalShortcuts);
+  });
+
+  it('includes search shortcut Ctrl+F', () => {
+    render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    expect(screen.getByText('Ctrl+F')).toBeInTheDocument();
+    expect(screen.getByText('대화 내 검색')).toBeInTheDocument();
+  });
 });

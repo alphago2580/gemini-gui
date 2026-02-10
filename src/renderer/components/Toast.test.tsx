@@ -91,4 +91,78 @@ describe('Toast', () => {
     const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
     expect(container.querySelector('.toast-container')).toHaveAttribute('aria-label', '알림');
   });
+
+  it('adds toast-exit class during manual dismiss animation', () => {
+    const toasts = [createToast({ id: 'exit-test' })];
+    const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+    fireEvent.click(screen.getByRole('button', { name: '알림 닫기' }));
+    // After clicking but before dismiss timeout
+    expect(container.querySelector('.toast-exit')).toBeInTheDocument();
+  });
+
+  it('adds toast-exit class during auto-dismiss animation', () => {
+    const toasts = [createToast({ id: 'auto-exit' })];
+    const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+    // Advance past TOAST_DURATION but not past exit animation
+    act(() => { vi.advanceTimersByTime(5000); });
+    expect(container.querySelector('.toast-exit')).toBeInTheDocument();
+  });
+
+  it('has aria-live="assertive" on each toast', () => {
+    const toasts = [
+      createToast({ id: '1', message: 'A' }),
+      createToast({ id: '2', message: 'B' }),
+    ];
+    const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+    const alerts = container.querySelectorAll('[aria-live="assertive"]');
+    expect(alerts).toHaveLength(2);
+  });
+
+  it('toast-message span contains correct text', () => {
+    const toasts = [createToast({ message: '특별한 오류 메시지' })];
+    const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+    const msgSpan = container.querySelector('.toast-message');
+    expect(msgSpan).toBeInTheDocument();
+    expect(msgSpan!.textContent).toBe('특별한 오류 메시지');
+  });
+
+  it('close button has toast-close class', () => {
+    const toasts = [createToast()];
+    const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+    const closeBtn = container.querySelector('.toast-close');
+    expect(closeBtn).toBeInTheDocument();
+  });
+
+  it('each toast has unique key (renders independently)', () => {
+    const toasts = [
+      createToast({ id: 'a', type: 'error', message: 'Error' }),
+      createToast({ id: 'b', type: 'success', message: 'Success' }),
+      createToast({ id: 'c', type: 'info', message: 'Info' }),
+    ];
+    const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+    expect(container.querySelectorAll('.toast')).toHaveLength(3);
+    expect(container.querySelector('.toast-error')).toBeInTheDocument();
+    expect(container.querySelector('.toast-success')).toBeInTheDocument();
+    expect(container.querySelector('.toast-info')).toBeInTheDocument();
+  });
+
+  it('close button text is ×', () => {
+    const toasts = [createToast()];
+    render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+    const btn = screen.getByRole('button', { name: '알림 닫기' });
+    expect(btn.textContent).toBe('×');
+  });
+
+  it('auto-dismiss timer is cleaned up on unmount', () => {
+    const dismissFn = vi.fn();
+    const toasts = [createToast({ id: 'cleanup-test' })];
+    const { unmount } = render(<Toast toasts={toasts} onDismiss={dismissFn} />);
+    // Advance only 1 second (not enough for auto-dismiss at 5000ms)
+    act(() => { vi.advanceTimersByTime(1000); });
+    expect(dismissFn).not.toHaveBeenCalled();
+    unmount();
+    // Now advance past auto-dismiss duration — timer should have been cleared
+    act(() => { vi.advanceTimersByTime(6000); });
+    expect(dismissFn).not.toHaveBeenCalled();
+  });
 });

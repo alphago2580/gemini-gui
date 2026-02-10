@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import CodeSnippets from './CodeSnippets';
 
 const mockMessages = [
@@ -96,5 +96,61 @@ describe('CodeSnippets', () => {
     render(<CodeSnippets {...defaultProps} />);
     expect(screen.getAllByText('사용자').length).toBe(1);
     expect(screen.getAllByText('Gemini').length).toBe(2);
+  });
+
+  it('copies code to clipboard on copy button click', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    render(<CodeSnippets {...defaultProps} />);
+    const copyButtons = screen.getAllByLabelText('코드 복사');
+    await act(async () => {
+      fireEvent.click(copyButtons[0]);
+    });
+    expect(writeText).toHaveBeenCalledWith('console.log("hi");');
+  });
+
+  it('shows checkmark after successful copy', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    const { container } = render(<CodeSnippets {...defaultProps} />);
+    const copyButtons = screen.getAllByLabelText('코드 복사');
+    await act(async () => {
+      fireEvent.click(copyButtons[0]);
+    });
+    await waitFor(() => {
+      const firstCopyBtn = container.querySelectorAll('.code-snippet-copy-btn')[0];
+      expect(firstCopyBtn.textContent).toBe('✓');
+    });
+  });
+
+  it('handles clipboard failure gracefully', async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error('Clipboard denied'));
+    Object.assign(navigator, { clipboard: { writeText } });
+    render(<CodeSnippets {...defaultProps} />);
+    const copyButtons = screen.getAllByLabelText('코드 복사');
+    await act(async () => {
+      fireEvent.click(copyButtons[0]);
+    });
+    // Should not throw — copiedIndex should remain null (no checkmark)
+    const allCopyBtns = screen.getAllByLabelText('코드 복사');
+    expect(allCopyBtns[0].textContent).toBe('📋');
+  });
+
+  it('stops propagation when clicking panel body', () => {
+    const onClose = vi.fn();
+    const { container } = render(<CodeSnippets {...defaultProps} onClose={onClose} />);
+    const panel = container.querySelector('.code-snippets-panel')!;
+    fireEvent.click(panel);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('resets to all filter showing all snippets after filtering', () => {
+    const { container } = render(<CodeSnippets {...defaultProps} />);
+    // Filter to python
+    fireEvent.click(screen.getByLabelText('python 필터'));
+    expect(container.querySelectorAll('.code-snippet-item').length).toBe(1);
+    // Reset to all
+    fireEvent.click(screen.getByLabelText('전체 언어 필터'));
+    expect(container.querySelectorAll('.code-snippet-item').length).toBe(3);
   });
 });

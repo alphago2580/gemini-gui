@@ -4,7 +4,7 @@ import { tokenize } from '../utils/syntaxHighlight';
 import { renderMathToHtml } from '../utils/mathRenderer';
 import * as S from '../constants/strings';
 
-interface MarkdownRendererProps {
+export interface MarkdownRendererProps {
   content: string;
 }
 

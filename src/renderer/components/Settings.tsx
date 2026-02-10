@@ -3,7 +3,7 @@ import './Settings.css';
 import type { AppSettings, ThemeMode } from '../../preload/types';
 import * as S from '../constants/strings';
 
-interface SettingsProps {
+export interface SettingsProps {
   isOpen: boolean;
   onClose: () => void;
   settings: AppSettings;

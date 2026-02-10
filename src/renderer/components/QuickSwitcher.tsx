@@ -3,7 +3,7 @@ import './QuickSwitcher.css';
 import type { Conversation } from '../../preload/types';
 import * as S from '../constants/strings';
 
-interface QuickSwitcherProps {
+export interface QuickSwitcherProps {
   isOpen: boolean;
   onClose: () => void;
   conversations: Conversation[];

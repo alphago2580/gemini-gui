@@ -11,7 +11,7 @@ export interface BookmarkedMessage {
   timestamp: Date;
 }
 
-interface BookmarkedMessagesProps {
+export interface BookmarkedMessagesProps {
   isOpen: boolean;
   onClose: () => void;
   bookmarks: BookmarkedMessage[];

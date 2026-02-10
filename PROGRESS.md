@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1735 tests)
-- **Last Agent Run**: Agent 2 (Hooks & Utils)
+- **Test Status**: Passing (1201 tests)
+- **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -546,143 +546,82 @@
 - TypeScript: 0 errors (`npx tsc --noEmit` passes)
 - Total tests: 699 (30 test files, all passing)
 
-### Agent 2 (Hooks & Utils) — usePerformanceMonitor Tests + any Fix, useDebounce, useClipboard
-- Added 14 unit tests for `usePerformanceMonitor` hook (init state, toggle, render metrics, slowest/fastest, average, cap at 50, reset, rounding, memory usage, stable refs)
-- Fixed 2 `any` type casts in usePerformanceMonitor: `(performance as any).memory` → typed `Performance & { memory?: ... }` cast
-- Created `useDebounce` hook — debounces a value by a configurable delay
-- Added 8 unit tests for useDebounce (initial value, delay, timer reset, objects, zero delay, cleanup)
-- Created `useClipboard` hook — clipboard copy with `copied` feedback state and auto-reset
-- Added 10 unit tests for useClipboard (copy, reset timer, errors, stable refs)
-- Zone B tests: 359 (25 test files, all passing)
-- Build: passes successfully
+### Agent 3 (Tests & Types) — Deepen Test Coverage for 4 Components/Hooks
+- **FormattingToolbar.test.tsx**: Added 5 tests — strikethrough, codeblock action clicks, button count, CSS class per action, tabIndex=-1 accessibility
+- **CodeSnippets.test.tsx**: Added 6 tests — clipboard copy success, checkmark feedback after copy, clipboard failure graceful handling, panel click propagation stop, filter reset to all
+- **MessageContextMenu.test.tsx**: Added 5 tests — outside click closes menu, inside click doesn't close, aria-label on menu, viewport overflow position check, non-danger item class validation
+- **useAutoScroll.test.ts**: Added 5 tests — messages cleared hides button, default smooth behavior, null container ref, exact threshold boundary, just past threshold boundary
+- Total tests: 849 → 869 (47 test files, all passing)
 
-### Agent 2 (Quality) — Integrate Priority 2 Components into App
-- Integrated 4 untracked components into App.tsx: PerformancePanel, MessageSearch, InputPreview, PinnedMessages
-- **PerformancePanel**: React Profiler-based performance monitoring dialog with render metrics, memory usage, recent render list
-- **usePerformanceMonitor**: Custom hook providing onRender callback, getData, toggle, reset for React.Profiler integration
-- **MessageSearch**: Full-text search across all conversations with highlighted results, keyboard navigation, and auto-scroll to result
-- **InputPreview**: Markdown preview panel below input (shows rendered preview of input text)
-- **PinnedMessages**: Pin/unpin messages bar above chat area, with navigate-to-message and unpin actions
-- Added `handlePinMessage`, `handleUnpinMessage`, `handleSearchNavigate` callbacks in App.tsx
-- Added 'pin' action to right-click MessageContextMenu (📌 고정)
-- Added `STORAGE_KEY_PINNED_MESSAGES` to constants/strings.ts for localStorage persistence
-- Added `perfData` useMemo for computed performance data
-- Added 5 integration tests in App.test.tsx (PinnedMessages default, context menu pin, InputPreview default, PerformancePanel default, MessageSearch default)
-- Total tests: 938 (55 test files, all passing)
-- TypeScript: 0 errors, Build: passes successfully
+### Agent 3 (Tests & Types) — Shared Types & Export All Props/Options Interfaces
+- Created `src/renderer/types/index.ts` with shared type definitions:
+  - `MessageRole`: union type for `'user' | 'assistant'`
+  - `ContextMenuState`: type for right-click context menu position + message index
+  - `FormattingResult` + `FormatterFunction`: types for text formatting operations
+  - `RoleFilter`: type for bookmark/filter role selection
+- Exported `Props` interfaces from all 22 component files (were private, now importable by tests and other modules)
+- Exported `Options`/`Actions` interfaces from 4 hooks: useExport, useMessageSend, useStreamHandler, useKeyboardShortcuts
+- TypeScript: 0 errors, 869 tests all passing
 
-### Agent 2 (Hooks & Utils) — useBookmarks, useEmojiReactions, wordCount
-- Created `useBookmarks` hook — CRUD for bookmarked messages with localStorage persistence
-  - addBookmark, removeBookmark, isBookmarked, clearBookmarks, getBookmarksForConversation
-  - Duplicate prevention (same conversationId + messageIndex)
-  - Compatible with BookmarkedMessages component interface
-- Created `useEmojiReactions` hook — emoji reaction management with localStorage persistence
-  - addReaction (with count increment), removeReaction (with count decrement), toggleReaction
-  - getReactions, clearReactions (per message), clearAllReactions
-  - Message-keyed storage: `{conversationId}:{messageIndex}` → EmojiReaction[]
-  - Compatible with EmojiReactionPicker component interface
-- Created `wordCount` utility module with text statistics functions
-  - countWords, countLines, countSentences, countParagraphs, getTextStats, estimateReadingTime
-  - Handles edge cases: empty, whitespace-only, Korean text, multiline
-- Added 12 unit tests for useBookmarks (add, dedupe, remove, isBookmarked, clear, filter, persistence, stable refs)
-- Added 16 unit tests for useEmojiReactions (add, increment, different emojis, remove, toggle, clear, persistence, stable refs)
-- Added 30 unit tests for wordCount (words, lines, sentences, paragraphs, stats, reading time)
-- Total tests: 996 (58 test files, all passing)
-- TypeScript: 0 errors, Build: passes successfully
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 2 (+40 tests)
+- **GeminiProcess.test.ts**: Added 10 tests — stop/nullify, send-without-start throws, exit event, non-JSON line ignored, empty lines ignored, `\r\n` handling, malformed JSON silent fail, `--system-instruction` flag, double-start prevention
+- **conversationStats.test.ts**: Added 5 tests — totalCharacters calculation, averageMessageLength, 0 avg when all empty, single conversation stats, same-length longest/shortest
+- **syntaxHighlight.test.ts**: Added 11 tests — CSS/SCSS/LESS/jsonc languages, block comments in CSS, shell/zsh/py/tsx/jsx aliases, decimal starting with dot
+- **KeyboardShortcutHelp.test.tsx**: Added 4 tests — modal click propagation stop, kbd elements count, shortcut rows count, Ctrl+F search shortcut
+- **LinkCollection.test.tsx**: Added 5 tests — panel click propagation stop, copy/nav button aria-labels, zero link count display, non-Escape key ignored
+- **QuickSwitcher.test.tsx**: Added 5 tests — ArrowUp/Down keyboard wrap, panel click propagation stop, aria-selected attribute, query reset on reopen
+- Total tests: 869 → 909 (47 test files, all passing)
 
-### Agent 2 (Hooks & Utils) — useThrottle, useUndoRedo, useWindowSize, stringUtils
-- Created `useThrottle` hook — throttle rapidly changing values with configurable delay (9 tests)
-- Created `useUndoRedo` hook — undo/redo state management with history limit (12 tests)
-- Created `useWindowSize` hook — reactive window dimensions tracking (4 tests)
-- Created `stringUtils` utility — truncate, capitalize, slugify, escapeHtml, stripHtml, highlightMatches, excerpt, countOccurrences, isBlank, pluralize (38 tests)
-- Total: 63 new tests, all passing
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 3 (+43 tests)
+- **codeExtractor.test.ts**: Added 8 tests — unclosed code block, multiple blocks in single message, messageIndex preservation, empty messages array, no-language code block, whitespace-only content skip, trailing-space closing fence, groupByLanguage empty input
+- **linkExtractor.test.ts**: Added 7 tests — empty link text fallback to URL, query parameters, paths with fragments, no markdown-to-bare duplication, same URL in different messages, empty messages array, http (non-https) links
+- **textFormatting.test.ts**: Added 8 tests — mid-text wrap selection, mid-text cursor placeholder, asymmetric prefix/suffix, insertBold no-selection placeholder, insertLink cursor with selection, insertCodeBlock cursor with selection, insertInlineCode no-selection, insertStrikethrough no-selection
+- **BookmarkedMessages.test.tsx**: Added 8 tests — filtered-empty message, role badges, panel click propagation stop, ArrowUp boundary, ArrowDown boundary, mouseEnter selection, dialog aria-label, listbox role
+- **ErrorBoundary.test.tsx**: Added 5 tests — specific error message display, multiple children rendering, reset button class, custom fallback precedence, componentDidCatch logging verification
+- **ConversationStats.test.tsx**: Added 7 tests — modal click propagation stop, user/assistant counts, average messages per conversation, empty conversations count, formatNumber display, message count with titles, dialog aria-label
+- Total tests: 909 → 952 (47 test files, all passing)
 
-### Agent 2 (Hooks & Utils) — usePrevious, useMediaQuery, useInterval, dateUtils
-- Created `usePrevious` hook — track previous value of any state/prop (7 tests)
-- Created `useMediaQuery` hook — reactive CSS media query matching with change listener (6 tests)
-- Created `useInterval` hook — declarative setInterval with dynamic delay and null pause (8 tests)
-- Created `dateUtils` utility — formatDate, formatTime, formatDateTime, timeAgo (Korean), isToday, isSameDay, formatDuration (27 tests)
-- Total: 48 new tests, all passing
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 4 (+50 tests)
+- **useMessageSend.test.ts**: Added 10 tests — whitespace-only input, file name in message content, clear attached files after send, accumulate multiple file selections, error with non-Error object, error with plain string, both systemPrompt+model, non-Enter key ignored, null clipboardData, getAsFile returns null
+- **PromptTemplates.test.tsx**: Added 7 tests — whitespace-only name disabled, whitespace-only content disabled, trim whitespace on add, cancel clears inputs, outside click closes add form, aria-haspopup attribute, all delete button aria-labels
+- **useConversations.test.ts**: Added 7 tests — no update without conversationId, no title regen for multi-message, no title for assistant-only, reverse chronological order, legacy data gets IDs, deleteMessage on empty list, fork uses first user message for title
+- **MarkdownRenderer.test.tsx**: Added 8 tests — blockquote with inline formatting, list items with inline code, unordered-to-ordered list transition, ___ horizontal rule, headings with inline formatting, code block after paragraph, newline-only content, link inside list item
+- **mathRenderer.test.ts**: Added 12 tests — empty parseMathSegments, adjacent inline math, hat/vec decorators, left/right delimiters, double backslash line break, quad space, unknown commands, variant Greek letters, nested sqrt+frac, multiline containsMath, empty containsMath
+- **useStreamHandler.test.ts**: Added 6 tests — new assistant message append, delta append to existing, totalTokens auto-computation, error message prefix content, non-assistant message ignored, listener re-registration on conversationId change
+- Total tests: 952 → 1002 (47 test files, all passing)
 
-### Agent 2 (Hooks & Utils) — useEventListener, useFocus, useToggle, arrayUtils
-- Created `useEventListener` hook — declarative event listener with auto-cleanup, custom element support (7 tests)
-- Created `useFocus` hook — track focus state with ref, focus/blur controls (8 tests)
-- Created `useToggle` hook — boolean state with toggle/setTrue/setFalse helpers (7 tests)
-- Created `arrayUtils` utility — unique, groupBy, chunk, moveItem, range, shuffle, findLast, flatten (33 tests)
-- Total: 55 new tests, all passing
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 5 (+55 tests)
+- **EmojiReactionPicker.test.tsx**: Added 8 tests — inside click no close, non-Escape key ignored, no listeners when closed, listener cleanup on close, CSS class per option, container class, option role=button, QUICK_EMOJIS export validation
+- **WelcomeScreen.test.tsx**: Added 10 tests — logo text content, all prompts click correctly, card count, CSS class per card, all icons rendered, all labels as text, root container class, title/subtitle classes, DEFAULT_SUGGESTIONS count, suggestion field validation
+- **ReadingProgressBar.test.tsx**: Added 8 tests — fractional progress, fractional aria-label, container class, fill class, boundary 1%, boundary 99%, empty DOM when hidden, fill as child of bar
+- **InlineSearch.test.tsx**: Added 11 tests — empty count string, single match display, search role/aria-label, container class, input class, prev/next/close title attributes, non-special keys ignored, prev/next button clicks
+- **useInlineSearch.test.ts**: Added 10 tests — empty messages array, empty content messages, non-overlapping position matches, special regex characters as literal, message array reactivity, open/close idempotency, single match goToNext wrap, single match goToPrev wrap, matchIndex increments, mixed case matching
+- **useTheme.test.ts**: Added 8 tests — system-to-dark removes listener, system-to-light removes listener, dark↔light roundtrip, system mode restore from localStorage, setThemeMode callback stability, return shape validation, light mode ignores system preference, dark mode ignores system preference
+- Total tests: 1002 → 1057 (47 test files, all passing)
 
-### Agent 2 (Hooks & Utils) — useHover, useOnClickOutside, useCountdown, numberUtils
-- Created `useHover` hook — track hover state with callbacks (5 tests)
-- Created `useOnClickOutside` hook — detect clicks outside element via mousedown (6 tests)
-- Created `useCountdown` hook — countdown timer with start/pause/resume/reset and onComplete callback (10 tests)
-- Created `numberUtils` utility — clamp, formatBytes, formatPercent, roundTo, lerp, mapRange, formatCompact (31 tests)
-- Total: 52 new tests, all passing
-- Cumulative total: 1217 tests (74 test files, all passing)
-- TypeScript: 0 errors
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 6 (+48 tests)
+- **TabBar.test.tsx**: Added 8 tests — non-Enter/Space keyDown ignored, single tab rendering, tab-title span content, new tab title attribute, + text content, × close character, tab-bar/tab-list CSS classes, tab-item class count
+- **Toast.test.tsx**: Added 8 tests — toast-exit class on manual dismiss, toast-exit class on auto-dismiss, aria-live assertive per toast, toast-message span content, toast-close class, unique key independent rendering, × close text, timer cleanup on unmount
+- **useTabs.test.ts**: Added 8 tests — prevTab single tab no-op, nextTab null conversationId no-op, prevTab null conversationId no-op, closeTab non-active tab no switch, closeTab active first tab, closeTab active last tab, cleanupTabs empty array, ensureTabOpen multiple IDs
+- **useSettings.test.ts**: Added 8 tests — all default fields present, overwrites all fields, multiple saves overwrite, partial saved settings, empty string in localStorage, settings reference changes, handleSettingsSave stability, empty systemPrompt persistence
+- **useAutoResize.test.ts**: Added 8 tests — overflowY hidden below max, overflowY auto at max, height reset before measure, exact min height boundary, resize function stability, textareaRef stability, scrollHeight above max (201px), scrollHeight below max (199px)
+- **useExport.test.ts**: Added 8 tests — fallback on null conversationId, PDF filename sanitization, missing exportMarkdown method, missing exportPdf method, markdown content inclusion, HTML content inclusion, title update on conversation change, single message export
+- Total tests: 1057 → 1105 (47 test files, all passing)
 
-### Agent 2 (Hooks & Utils) — useDocumentTitle, useScrollPosition, validationUtils
-- Created `useDocumentTitle` hook — dynamically set document.title with restore-on-unmount (7 tests)
-- Created `useScrollPosition` hook — track scroll position, direction, isAtTop/isAtBottom with throttling (8 tests)
-- Created `validationUtils` utility — isValidEmail, isValidUrl, isNotEmpty, hasMinLength, hasMaxLength, isInRange, isAlphanumeric, isNumeric, matchesPattern, validateAll (20 tests)
-- Total: 35 new tests, all passing
-- Cumulative total: 1252 tests (77 test files, all passing)
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 7 (+48 tests)
+- **useKeyboardShortcuts.test.ts**: Added 8 tests — Ctrl+K toggleQuickSwitcher, Ctrl+/ toggleShortcutHelp, uppercase P for Ctrl+Shift+P, optional onNextTab undefined safety, optional onToggleQuickSwitcher undefined safety, optional onToggleShortcutHelp undefined safety, Ctrl+Tab priority over switch-case, Escape without settings does nothing
+- **MessageContextMenu.test.tsx**: Added 8 tests — icon span class count, label span class count, empty items rendering, onSelect with quote id, non-Escape keyDown ignored, onClose called once per click, zero coordinates styling, single item menu rendering
+- **useLocalStorage.test.ts**: Added 8 tests — boolean values, null initial value, stored null from localStorage, empty string stored, nested object values, setValue stability, key change via rerender, number zero (falsy valid JSON)
+- **usePromptTemplates.test.ts**: Added 8 tests — update non-existent id, add multiple sequentially, delete all templates, update preserves id, addTemplate callback stability, deleteTemplate callback stability, empty array from localStorage, added templates unique ids
+- **CommandPalette.test.tsx**: Added 8 tests — Enter on empty filtered list, whitespace query shows all, aria-activedescendant after nav, input CSS class, overlay CSS class, inner container CSS class, selectedIndex clamped on filter, empty commands array
+- **useToast.test.ts**: Added 8 tests — dismiss non-existent id, FIFO ordering, addToast callback stability, dismissToast callback stability, toast id prefix, dismiss first keep rest, dismiss all sequentially, toast types stored correctly
+- Total tests: 1105 → 1153 (47 test files, all passing)
 
-### Agent 2 (Hooks & Utils) — useAsync, useMap, useSet hooks and objectUtils utility
-- Created `useAsync` hook — manage async operations with loading/error/data states, execute/reset (11 tests)
-- Created `useMap` hook — Map-like state management with set/get/has/remove/clear/reset (13 tests)
-- Created `useSet` hook — Set-like state management with add/remove/toggle/has/clear/reset (12 tests)
-- Created `objectUtils` utility — pick, omit, deepClone, isEqual, merge, isEmpty, getPath, mapValues (31 tests)
-- Total: 67 new tests, all passing
-- Cumulative total: 1319 tests (81 test files, all passing)
-- TypeScript: 0 errors, Build: passes successfully
-
-### Agent 2 (Hooks & Utils) — useReadingProgress, useFormattingToolbar, useNotification hooks and colorUtils utility
-- Created `useReadingProgress` hook — scroll progress tracking (0-100%) with container/window support, throttling, reset (12 tests)
-- Created `useFormattingToolbar` hook — markdown formatting actions (bold, italic, code, strikethrough, link, codeblock) with textarea selection, placeholder insertion (18 tests)
-- Created `useNotification` hook — browser Notification API integration with permission management, request/show helpers (10 tests)
-- Created `colorUtils` utility — hexToRgb, rgbToHex, rgbToHsl, hslToRgb, lighten, darken, luminance, contrastRatio, mix, getContrastText, rgbToCss, rgbaToCss (42 tests)
-- Total: 82 new tests, all passing
-- Cumulative total: 1416 tests (86 test files, all passing)
-- TypeScript: 0 errors, Build: passes successfully
-
-### Agent 2 (Hooks & Utils) — useDialogs, useQueue, useSelection, useMutationObserver, useRetry, domUtils, storageUtils
-- Created `useDialogs` hook — consolidates 11 dialog/panel open states for App.tsx with open/close/toggle actions (15 tests)
-- Created `useQueue` hook — FIFO queue state management with enqueue, dequeue, peek, clear, contains, toArray (11 tests)
-- Created `useSelection` hook — text selection tracking with targetRef filtering, offsets, clear (9 tests)
-- Created `useMutationObserver` hook — declarative MutationObserver with auto-cleanup, latest callback ref pattern (6 tests)
-- Created `useRetry` hook — async retry with configurable maxRetries, delay, exponential/fixed backoff, cancel, reset (8 tests)
-- Created `domUtils` utility — isElementVisible, isElementFullyVisible, getScrollPercent, isNearBottom, getFocusableElements, trapFocus, scrollIntoViewIfNeeded, copyToClipboard, data attributes, matchesSelector, closestAncestor (31 tests)
-- Created `storageUtils` utility — type-safe getItem/setItem, hasItem, prefix operations, getStorageSize, expiry (TTL), createNamespace (27 tests)
-- Total: 95 new tests (added tests for 4 previously untested files + 2 new modules)
-- Cumulative total: 1511 tests (92 test files, all passing)
-- TypeScript: 0 errors, Build: passes successfully
-
-### Agent 2 (Quality) — useKeyCombo, useLongPress, useIdle hooks and urlUtils utility
-- Created `useKeyCombo` hook — sequential key combination detection with modifier support (11 tests)
-- Created `useLongPress` hook — long press gesture detection for mouse and touch (10 tests)
-- Created `useIdle` hook — user inactivity detection with configurable timeout and events (10 tests)
-- Created `urlUtils` utility — isValidUrl, getDomain, getFileExtension, parseQueryParams, buildUrl, stripQueryParams, isAbsoluteUrl, ensureProtocol, extractUrls, getPathSegments, matchesDomain, joinPath (45 tests)
-- Total: 76 new tests
-- Cumulative total: 1587 tests (96 test files, all passing)
-- TypeScript: 0 errors, Build: passes successfully
-
-### Agent 2 (Hooks & Utils) — useIntersectionObserver, usePageVisibility, useSpeechSynthesis hooks and cryptoUtils utility
-- Created `useIntersectionObserver` hook — element visibility detection with IntersectionObserver API, freezeOnceVisible, threshold/rootMargin support (10 tests)
-- Created `usePageVisibility` hook — page tab visibility tracking with onVisible/onHidden callbacks, hidden duration measurement (10 tests)
-- Created `useSpeechSynthesis` hook — Web Speech API TTS with speak/cancel/pause/resume, voice list, isSpeaking/isPaused state (14 tests)
-- Created `cryptoUtils` utility — generateUUID, randomHex, randomInt, hashDjb2, hashSHA256, base64Encode/Decode, shortId, timingSafeEqual, stringToColor (41 tests)
-- Total: 85 new tests (5 new test files)
-- Cumulative total: 1672 tests (101 test files, all passing)
-- TypeScript: 0 errors, Build: passes successfully
-
-### Agent 2 (Quality) — useMessageActions Extraction + useDragAndDrop & useNetworkStatus Tests
-- Extracted `useMessageActions` hook from App.tsx consolidating message interaction logic
-  - Manages: context menu state, pinned messages, bookmarks, emoji reactions, navigation
-  - App.tsx reduced from 659 to 564 lines (95 line reduction)
-- Added 14 unit tests for useMessageActions (context menu, actions, emoji picker, navigation, stable refs)
-- Fixed 2 TypeScript errors in other agents' test files (useIntersectionObserver threshold type, useSpeechSynthesis voice list type)
-- Added 16 unit tests for useDragAndDrop (state init, drag enter/leave/over/drop, nested counter, MIME filtering, wildcard, stable refs)
-- Added 10 unit tests for useNetworkStatus (init state, online/offline events, timestamps, cleanup)
-- Total: 63 new tests (3 new test files)
-- Cumulative total: 1735 tests (105 test files, all passing)
-- TypeScript: 0 errors, Build: passes successfully
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 8 (+48 tests)
+- **FileAttachment.test.tsx**: Added 8 tests — file input onChange with null files, file-name span content, file-size span content, file-chip count, first remove button callback, drop zone label icon/text spans, file input display:none, onFilesSelected from input change
+- **MessageBubble.test.tsx**: Added 8 tests — message-header structure (role/timestamp/delete), message-content text verification, delete button title attribute, edit button title attribute, fork button title attribute, editing class removal on cancel, edit textarea rows=3, edit-message-actions structure
+- **Settings.test.tsx**: Added 8 tests — settings-header structure (h2+close), settings-footer structure (cancel+save), temperature slider min/max/step, maxTokens slider min/max/step, system prompt textarea rows=4, info section CLI version+config path, light theme not active when dark, high contrast hint text
+- **Sidebar.test.tsx**: Added 8 tests — non-active aria-current absent, non-Enter/Space keyDown ignored, conversation-title div text, sidebar CSS class on nav, sidebar-header rendered, sidebar-footer contains settings, collapse ◀ arrow when expanded, collapse ▶ arrow when collapsed
+- **TokenUsage.test.tsx**: Added 8 tests — token-usage CSS class, token-usage-label span, token-usage-item count, token-usage-total span, token-icon spans content, single digit tokens, root element is div, rerender updates display
+- **TypingIndicator.test.tsx**: Added 8 tests — typing-indicator-header role span, typing-indicator-content container, typing-text span content, explicit isStreaming=false, dots are empty spans, root element class, streaming-to-non-streaming rerender, role status contains dots+text
+- Total tests: 1153 → 1201 (47 test files, all passing)

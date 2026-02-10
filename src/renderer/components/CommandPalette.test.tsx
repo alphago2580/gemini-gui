@@ -254,4 +254,66 @@ describe('CommandPalette', () => {
       expect(input).toHaveAttribute('aria-autocomplete', 'list');
     });
   });
+
+  it('does not execute when Enter pressed on empty filtered list', async () => {
+    const user = userEvent.setup();
+    render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+    const input = screen.getByPlaceholderText('명령어 검색...');
+
+    await user.type(input, 'zzzzzznonexistent');
+    fireEvent.keyDown(input, { key: 'Enter' });
+    commands.forEach(cmd => {
+      expect(cmd.action).not.toHaveBeenCalled();
+    });
+  });
+
+  it('trims whitespace in filter query', async () => {
+    const user = userEvent.setup();
+    render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+    const input = screen.getByPlaceholderText('명령어 검색...');
+
+    await user.type(input, '   ');
+    expect(screen.getAllByRole('option')).toHaveLength(commands.length);
+  });
+
+  it('updates aria-activedescendant after ArrowDown navigation', () => {
+    render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+    const input = screen.getByRole('combobox');
+
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    expect(input).toHaveAttribute('aria-activedescendant', 'cmd-clear');
+  });
+
+  it('renders command-palette-input CSS class on input', () => {
+    const { container } = render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+    expect(container.querySelector('.command-palette-input')).toBeInTheDocument();
+  });
+
+  it('renders command-palette-overlay CSS class', () => {
+    const { container } = render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+    expect(container.querySelector('.command-palette-overlay')).toBeInTheDocument();
+  });
+
+  it('renders command-palette CSS class on inner container', () => {
+    const { container } = render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+    expect(container.querySelector('.command-palette')).toBeInTheDocument();
+  });
+
+  it('selectedIndex clamped when filter reduces list below current index', async () => {
+    const user = userEvent.setup();
+    render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+    const input = screen.getByPlaceholderText('명령어 검색...');
+
+    for (let i = 0; i < 4; i++) {
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+    }
+    await user.type(input, '설정');
+    const settingsItem = screen.getByText('설정 열기').closest('li');
+    expect(settingsItem).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('renders with empty commands array', () => {
+    render(<CommandPalette isOpen={true} onClose={onClose} commands={[]} />);
+    expect(screen.getByText('일치하는 명령어가 없습니다')).toBeInTheDocument();
+  });
 });

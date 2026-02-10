@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import './InlineSearch.css';
 import * as S from '../constants/strings';
 
-interface InlineSearchProps {
+export interface InlineSearchProps {
   isOpen: boolean;
   query: string;
   matchCount: number;

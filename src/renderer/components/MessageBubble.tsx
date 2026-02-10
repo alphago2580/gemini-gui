@@ -6,7 +6,7 @@ import type { Message } from '../../preload/types';
 import type { ReactionMap } from '../hooks/useReactions';
 import * as S from '../constants/strings';
 
-interface MessageBubbleProps {
+export interface MessageBubbleProps {
   message: Message;
   index: number;
   isStreaming: boolean;

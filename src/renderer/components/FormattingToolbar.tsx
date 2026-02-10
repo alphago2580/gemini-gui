@@ -18,7 +18,7 @@ const ACTIONS: FormattingAction[] = [
   { id: 'codeblock', label: '{}', icon: '{}', title: S.FMT_CODE_BLOCK },
 ];
 
-interface FormattingToolbarProps {
+export interface FormattingToolbarProps {
   onFormat: (actionId: string) => void;
 }
 

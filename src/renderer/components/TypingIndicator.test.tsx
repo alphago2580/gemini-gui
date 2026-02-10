@@ -60,4 +60,64 @@ describe('TypingIndicator', () => {
     const { container } = render(<TypingIndicator />);
     expect(container.querySelector('.typing-indicator')).toBeInTheDocument();
   });
+
+  it('has typing-indicator-header with role span', () => {
+    const { container } = render(<TypingIndicator />);
+    const header = container.querySelector('.typing-indicator-header');
+    expect(header).toBeInTheDocument();
+    const roleSpan = header!.querySelector('.role');
+    expect(roleSpan).toBeInTheDocument();
+    expect(roleSpan!.textContent).toBe('Gemini');
+  });
+
+  it('has typing-indicator-content container', () => {
+    const { container } = render(<TypingIndicator />);
+    expect(container.querySelector('.typing-indicator-content')).toBeInTheDocument();
+  });
+
+  it('typing-text span contains text node', () => {
+    const { container } = render(<TypingIndicator />);
+    const textSpan = container.querySelector('.typing-text');
+    expect(textSpan).toBeInTheDocument();
+    expect(textSpan!.textContent).toBe('생각하는 중...');
+  });
+
+  it('renders with isStreaming=false explicitly', () => {
+    render(<TypingIndicator isStreaming={false} />);
+    expect(screen.getByText('생각하는 중...')).toBeInTheDocument();
+    expect(screen.queryByText('입력 중...')).not.toBeInTheDocument();
+  });
+
+  it('dots are span elements without text content', () => {
+    const { container } = render(<TypingIndicator />);
+    const dots = container.querySelectorAll('.typing-dots span');
+    dots.forEach(dot => {
+      expect(dot.textContent).toBe('');
+      expect(dot.tagName).toBe('SPAN');
+    });
+  });
+
+  it('root element is a div with correct class', () => {
+    const { container } = render(<TypingIndicator />);
+    const root = container.firstElementChild;
+    expect(root!.tagName).toBe('DIV');
+    expect(root).toHaveClass('typing-indicator');
+  });
+
+  it('rerender from streaming to non-streaming updates text', () => {
+    const { rerender } = render(<TypingIndicator isStreaming={true} />);
+    expect(screen.getByText('입력 중...')).toBeInTheDocument();
+    rerender(<TypingIndicator isStreaming={false} />);
+    expect(screen.getByText('생각하는 중...')).toBeInTheDocument();
+    expect(screen.queryByText('입력 중...')).not.toBeInTheDocument();
+  });
+
+  it('role status element contains both dots and text', () => {
+    const { container } = render(<TypingIndicator />);
+    const status = screen.getByRole('status');
+    const dots = status.querySelector('.typing-dots');
+    const text = status.querySelector('.typing-text');
+    expect(dots).toBeInTheDocument();
+    expect(text).toBeInTheDocument();
+  });
 });

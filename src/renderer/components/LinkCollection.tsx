@@ -3,7 +3,7 @@ import './LinkCollection.css';
 import { extractLinks } from '../utils/linkExtractor';
 import * as S from '../constants/strings';
 
-interface LinkCollectionProps {
+export interface LinkCollectionProps {
   isOpen: boolean;
   onClose: () => void;
   messages: Array<{ role: 'user' | 'assistant'; content: string }>;

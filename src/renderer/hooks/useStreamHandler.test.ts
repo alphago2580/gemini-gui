@@ -6,13 +6,11 @@ import { useStreamHandler } from './useStreamHandler';
 let streamDataCallback: ((data: Record<string, unknown>) => void) | null = null;
 let streamCompleteCallback: (() => void) | null = null;
 let streamErrorCallback: ((data: { error: string }) => void) | null = null;
-let sessionStatusCallback: ((data: { status: string }) => void) | null = null;
 
 const mockElectronAPI = {
   onStreamData: vi.fn((cb) => { streamDataCallback = cb; }),
   onStreamComplete: vi.fn((cb) => { streamCompleteCallback = cb; }),
   onStreamError: vi.fn((cb) => { streamErrorCallback = cb; }),
-  onSessionStatus: vi.fn((cb) => { sessionStatusCallback = cb; }),
   removeAllListeners: vi.fn(),
 };
 
@@ -38,7 +36,6 @@ describe('useStreamHandler', () => {
     streamDataCallback = null;
     streamCompleteCallback = null;
     streamErrorCallback = null;
-    sessionStatusCallback = null;
   });
 
   it('initializes with isLoading false', () => {
@@ -235,43 +232,113 @@ describe('useStreamHandler', () => {
     expect(mockSetMessages).toHaveBeenCalled();
   });
 
-  describe('sessionStatus', () => {
-    it('initializes with idle status', () => {
-      const { result } = renderHook(() => useStreamHandler(defaultOptions));
-      expect(result.current.sessionStatus).toBe('idle');
+  it('appends new assistant message when last message is not from assistant', () => {
+    renderHook(() => useStreamHandler(defaultOptions));
+
+    act(() => {
+      streamDataCallback!({
+        type: 'message',
+        role: 'assistant',
+        content: 'First chunk',
+        delta: false,
+      });
     });
 
-    it('registers session status listener on mount', () => {
-      renderHook(() => useStreamHandler(defaultOptions));
-      expect(mockElectronAPI.onSessionStatus).toHaveBeenCalled();
+    // setMessages should be called with updater function
+    const updater = mockSetMessages.mock.calls[0][0];
+    const userMessages = [{ role: 'user', content: 'Hello', timestamp: new Date() }];
+    const result = updater(userMessages);
+    expect(result).toHaveLength(2);
+    expect(result[1].role).toBe('assistant');
+    expect(result[1].content).toBe('First chunk');
+    expect(result[1].id).toMatch(/^msg-/);
+  });
+
+  it('appends to existing assistant message when delta is true', () => {
+    renderHook(() => useStreamHandler(defaultOptions));
+
+    act(() => {
+      streamDataCallback!({
+        type: 'message',
+        role: 'assistant',
+        content: ' world',
+        delta: true,
+      });
     });
 
-    it('updates sessionStatus when session-status event fires', () => {
-      const { result } = renderHook(() => useStreamHandler(defaultOptions));
+    const updater = mockSetMessages.mock.calls[0][0];
+    const existingMessages = [
+      { role: 'user', content: 'Hi', timestamp: new Date() },
+      { role: 'assistant', content: 'Hello', timestamp: new Date(), id: 'msg-1' },
+    ];
+    const result = updater(existingMessages);
+    expect(result).toHaveLength(2);
+    expect(result[1].content).toBe('Hello world');
+  });
 
-      act(() => {
-        sessionStatusCallback!({ status: 'connecting' });
-      });
-      expect(result.current.sessionStatus).toBe('connecting');
+  it('computes totalTokens as inputTokens+outputTokens when total not provided', () => {
+    const { result } = renderHook(() => useStreamHandler(defaultOptions));
 
-      act(() => {
-        sessionStatusCallback!({ status: 'connected' });
+    act(() => {
+      streamDataCallback!({
+        type: 'result',
+        stats: { inputTokens: 100, outputTokens: 50 },
       });
-      expect(result.current.sessionStatus).toBe('connected');
-
-      act(() => {
-        sessionStatusCallback!({ status: 'idle' });
-      });
-      expect(result.current.sessionStatus).toBe('idle');
     });
 
-    it('updates sessionStatus to error on error event', () => {
-      const { result } = renderHook(() => useStreamHandler(defaultOptions));
-
-      act(() => {
-        sessionStatusCallback!({ status: 'error' });
-      });
-      expect(result.current.sessionStatus).toBe('error');
+    expect(result.current.tokenUsage).toEqual({
+      inputTokens: 100,
+      outputTokens: 50,
+      totalTokens: 150,
     });
+  });
+
+  it('stream error adds error message with prefix to messages', () => {
+    renderHook(() => useStreamHandler(defaultOptions));
+
+    act(() => {
+      streamErrorCallback!({ error: 'API timeout' });
+    });
+
+    const updater = mockSetMessages.mock.calls[0][0];
+    const result = updater([]);
+    expect(result).toHaveLength(1);
+    expect(result[0].role).toBe('assistant');
+    expect(result[0].content).toContain('오류:');
+    expect(result[0].content).toContain('API timeout');
+    expect(result[0].id).toMatch(/^msg-/);
+  });
+
+  it('ignores non-assistant message data', () => {
+    const { result } = renderHook(() => useStreamHandler(defaultOptions));
+
+    act(() => {
+      streamDataCallback!({
+        type: 'message',
+        role: 'user',
+        content: 'Should be ignored',
+        delta: false,
+      });
+    });
+
+    // isStreaming should remain false — non-assistant messages are ignored
+    expect(result.current.isStreaming).toBe(false);
+    expect(mockSetMessages).not.toHaveBeenCalled();
+  });
+
+  it('re-registers listeners when currentConversationId changes', () => {
+    const options = { ...defaultOptions };
+    const { rerender } = renderHook(
+      (props) => useStreamHandler(props),
+      { initialProps: options }
+    );
+
+    const initialCallCount = mockElectronAPI.onStreamData.mock.calls.length;
+
+    rerender({ ...options, currentConversationId: 'conv-2' });
+
+    // Should have re-registered listeners
+    expect(mockElectronAPI.onStreamData.mock.calls.length).toBeGreaterThan(initialCallCount);
+    expect(mockElectronAPI.removeAllListeners).toHaveBeenCalled();
   });
 });

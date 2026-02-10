@@ -42,4 +42,70 @@ describe('WelcomeScreen', () => {
     const { container } = render(<WelcomeScreen onPromptClick={onPromptClick} />);
     expect(container.querySelector('.welcome-logo')).toBeTruthy();
   });
+
+  it('renders logo with correct text content', () => {
+    render(<WelcomeScreen onPromptClick={onPromptClick} />);
+    expect(screen.getByText('✦')).toBeInTheDocument();
+  });
+
+  it('calls onPromptClick with each suggestion prompt correctly', () => {
+    render(<WelcomeScreen onPromptClick={onPromptClick} />);
+    DEFAULT_SUGGESTIONS.forEach((suggestion) => {
+      onPromptClick.mockClear();
+      fireEvent.click(screen.getByLabelText(suggestion.label));
+      expect(onPromptClick).toHaveBeenCalledWith(suggestion.prompt);
+    });
+  });
+
+  it('renders correct number of suggestion cards', () => {
+    render(<WelcomeScreen onPromptClick={onPromptClick} />);
+    const items = screen.getAllByRole('listitem');
+    expect(items).toHaveLength(DEFAULT_SUGGESTIONS.length);
+  });
+
+  it('each suggestion card has correct CSS class', () => {
+    const { container } = render(<WelcomeScreen onPromptClick={onPromptClick} />);
+    const cards = container.querySelectorAll('.welcome-suggestion-card');
+    expect(cards).toHaveLength(DEFAULT_SUGGESTIONS.length);
+  });
+
+  it('renders all six suggestion icons', () => {
+    render(<WelcomeScreen onPromptClick={onPromptClick} />);
+    DEFAULT_SUGGESTIONS.forEach(s => {
+      expect(screen.getByText(s.icon)).toBeInTheDocument();
+    });
+  });
+
+  it('renders all suggestion labels as text', () => {
+    render(<WelcomeScreen onPromptClick={onPromptClick} />);
+    DEFAULT_SUGGESTIONS.forEach(s => {
+      expect(screen.getByText(s.label)).toBeInTheDocument();
+    });
+  });
+
+  it('has welcome-screen class on root container', () => {
+    const { container } = render(<WelcomeScreen onPromptClick={onPromptClick} />);
+    expect(container.querySelector('.welcome-screen')).toBeTruthy();
+  });
+
+  it('has welcome-title and welcome-subtitle classes', () => {
+    const { container } = render(<WelcomeScreen onPromptClick={onPromptClick} />);
+    expect(container.querySelector('.welcome-title')).toBeTruthy();
+    expect(container.querySelector('.welcome-subtitle')).toBeTruthy();
+  });
+
+  it('DEFAULT_SUGGESTIONS has exactly 6 entries', () => {
+    expect(DEFAULT_SUGGESTIONS).toHaveLength(6);
+  });
+
+  it('each suggestion has icon, label, and prompt fields', () => {
+    DEFAULT_SUGGESTIONS.forEach(s => {
+      expect(typeof s.icon).toBe('string');
+      expect(typeof s.label).toBe('string');
+      expect(typeof s.prompt).toBe('string');
+      expect(s.icon.length).toBeGreaterThan(0);
+      expect(s.label.length).toBeGreaterThan(0);
+      expect(s.prompt.length).toBeGreaterThan(0);
+    });
+  });
 });

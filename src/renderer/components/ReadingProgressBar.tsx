@@ -2,7 +2,7 @@ import React from 'react';
 import './ReadingProgressBar.css';
 import * as S from '../constants/strings';
 
-interface ReadingProgressBarProps {
+export interface ReadingProgressBarProps {
   progress: number;
   isVisible: boolean;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react';
 
-interface KeyboardShortcutActions {
+export interface KeyboardShortcutActions {
   onNewChat: () => void;
   onClearConversation: () => void;
   onToggleSettings: () => void;

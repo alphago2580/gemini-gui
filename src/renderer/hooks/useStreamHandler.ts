@@ -6,6 +6,7 @@ import * as S from '../constants/strings';
 export type SessionStatus = 'idle' | 'connecting' | 'connected' | 'error';
 
 interface UseStreamHandlerOptions {
+export interface UseStreamHandlerOptions {
   currentConversationId: string | null;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   updateCurrentConversation: (messages: Message[]) => void;

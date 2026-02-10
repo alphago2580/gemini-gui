@@ -276,4 +276,149 @@ describe('useMessageSend', () => {
     unmount();
     expect(mockElectronAPI.cleanupTempFiles).toHaveBeenCalled();
   });
+
+  it('does not send when input is only whitespace', async () => {
+    const { result } = renderHook(() => useMessageSend(defaultOptions));
+    act(() => {
+      result.current.setInput('   \n\t  ');
+    });
+    await act(async () => {
+      await result.current.handleSend();
+    });
+    expect(mockElectronAPI.sendMessage).not.toHaveBeenCalled();
+    expect(mockStartLoading).not.toHaveBeenCalled();
+  });
+
+  it('appends file names to message content when files are attached', async () => {
+    const { result } = renderHook(() => useMessageSend(defaultOptions));
+    const file = new File(['data'], 'report.pdf', { type: 'application/pdf' });
+    act(() => {
+      result.current.setInput('Check this file');
+      result.current.handleFilesSelected([file]);
+    });
+    await act(async () => {
+      await result.current.handleSend();
+    });
+    const updater = mockSetMessages.mock.calls[0][0];
+    const updated = updater([]);
+    expect(updated[0].content).toContain('첨부 파일:');
+    expect(updated[0].content).toContain('report.pdf');
+  });
+
+  it('clears attached files after successful send', async () => {
+    const { result } = renderHook(() => useMessageSend(defaultOptions));
+    const file = new File(['data'], 'image.png', { type: 'image/png' });
+    act(() => {
+      result.current.setInput('Here is an image');
+      result.current.handleFilesSelected([file]);
+    });
+    expect(result.current.attachedFiles).toHaveLength(1);
+    await act(async () => {
+      await result.current.handleSend();
+    });
+    expect(result.current.attachedFiles).toHaveLength(0);
+  });
+
+  it('accumulates multiple file selections', () => {
+    const { result } = renderHook(() => useMessageSend(defaultOptions));
+    const file1 = new File(['a'], 'a.txt', { type: 'text/plain' });
+    const file2 = new File(['b'], 'b.txt', { type: 'text/plain' });
+    const file3 = new File(['c'], 'c.txt', { type: 'text/plain' });
+    act(() => {
+      result.current.handleFilesSelected([file1]);
+    });
+    act(() => {
+      result.current.handleFilesSelected([file2, file3]);
+    });
+    expect(result.current.attachedFiles).toHaveLength(3);
+    expect(result.current.attachedFiles[0].name).toBe('a.txt');
+    expect(result.current.attachedFiles[2].name).toBe('c.txt');
+  });
+
+  it('handles error with non-Error object (object with error field)', async () => {
+    mockElectronAPI.sendMessage.mockRejectedValueOnce({ error: 'Custom error object' });
+    const { result } = renderHook(() => useMessageSend(defaultOptions));
+    act(() => {
+      result.current.setInput('Hello');
+    });
+    await act(async () => {
+      await result.current.handleSend();
+    });
+    expect(mockAddToast).toHaveBeenCalledWith('error', '메시지 전송 실패: Custom error object');
+  });
+
+  it('handles error with plain string', async () => {
+    mockElectronAPI.sendMessage.mockRejectedValueOnce('string error');
+    const { result } = renderHook(() => useMessageSend(defaultOptions));
+    act(() => {
+      result.current.setInput('Hello');
+    });
+    await act(async () => {
+      await result.current.handleSend();
+    });
+    expect(mockAddToast).toHaveBeenCalledWith('error', '메시지 전송 실패: string error');
+  });
+
+  it('passes both systemPrompt and model when both are set', async () => {
+    const { result } = renderHook(() => useMessageSend({
+      ...defaultOptions,
+      settings: { systemPrompt: 'Be concise', model: 'gemini-2.5-flash' },
+    }));
+    act(() => {
+      result.current.setInput('Hi');
+    });
+    await act(async () => {
+      await result.current.handleSend();
+    });
+    expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Hi', 'Be concise', 'gemini-2.5-flash');
+  });
+
+  it('handleKeyDown ignores non-Enter keys', () => {
+    const { result } = renderHook(() => useMessageSend(defaultOptions));
+    act(() => {
+      result.current.setInput('Hello');
+    });
+    const event = {
+      key: 'a',
+      shiftKey: false,
+      preventDefault: vi.fn(),
+    } as unknown as React.KeyboardEvent;
+    act(() => {
+      result.current.handleKeyDown(event);
+    });
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(mockElectronAPI.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it('handlePaste handles null clipboardData gracefully', () => {
+    const { result } = renderHook(() => useMessageSend(defaultOptions));
+    const event = {
+      clipboardData: null,
+      preventDefault: vi.fn(),
+    } as unknown as React.ClipboardEvent;
+    act(() => {
+      result.current.handlePaste(event);
+    });
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(result.current.attachedFiles).toHaveLength(0);
+  });
+
+  it('handlePaste skips image items that return null from getAsFile', () => {
+    const { result } = renderHook(() => useMessageSend(defaultOptions));
+    const event = {
+      clipboardData: {
+        items: {
+          length: 1,
+          0: { type: 'image/png', getAsFile: () => null },
+        },
+      },
+      preventDefault: vi.fn(),
+    } as unknown as React.ClipboardEvent;
+    act(() => {
+      result.current.handlePaste(event);
+    });
+    // No files were added, so preventDefault should not be called
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(result.current.attachedFiles).toHaveLength(0);
+  });
 });

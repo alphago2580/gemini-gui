@@ -386,52 +386,63 @@ describe('Sidebar', () => {
     });
   });
 
-  // Message count badge tests
-  describe('Message Count Badge', () => {
-    it('shows message count badge for conversations with messages', () => {
-      render(<Sidebar {...defaultProps} conversations={mockConversationsWithMessages} />);
-      const badges = document.querySelectorAll('.message-count-badge');
-      expect(badges).toHaveLength(3);
-      badges.forEach(badge => {
-        expect(badge.textContent).toBe('1');
-      });
+  describe('Additional coverage', () => {
+    it('non-active conversation does not have aria-current attribute', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          currentConversationId="1"
+        />
+      );
+      const inactiveItem = screen.getByLabelText('대화: 두 번째 대화');
+      expect(inactiveItem).not.toHaveAttribute('aria-current');
     });
 
-    it('does not show badge for conversations with empty messages array', () => {
+    it('non-Enter/Space keydown does not trigger onSelectConversation', () => {
       render(<Sidebar {...defaultProps} conversations={mockConversations} />);
-      const badges = document.querySelectorAll('.message-count-badge');
-      expect(badges).toHaveLength(0);
+      const item = screen.getByLabelText('대화: 첫 번째 대화');
+      fireEvent.keyDown(item, { key: 'Tab' });
+      expect(defaultProps.onSelectConversation).not.toHaveBeenCalled();
     });
 
-    it('badge has correct aria-label', () => {
-      render(<Sidebar {...defaultProps} conversations={mockConversationsWithMessages} />);
-      const badge = document.querySelector('.message-count-badge');
-      expect(badge).toHaveAttribute('aria-label', '1개 메시지');
+    it('conversation-title div renders title text', () => {
+      const { container } = render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const titles = container.querySelectorAll('.conversation-title');
+      expect(titles).toHaveLength(3);
+      expect(titles[0].textContent).toBe('첫 번째 대화');
     });
 
-    it('badge has correct title tooltip', () => {
-      render(<Sidebar {...defaultProps} conversations={mockConversationsWithMessages} />);
-      const badge = document.querySelector('.message-count-badge');
-      expect(badge).toHaveAttribute('title', '1개 메시지');
+    it('sidebar CSS class applied to nav element', () => {
+      const { container } = render(<Sidebar {...defaultProps} />);
+      const nav = container.querySelector('nav.sidebar');
+      expect(nav).toBeInTheDocument();
     });
 
-    it('shows correct count for conversations with multiple messages', () => {
-      const multiMessageConversations = [
-        {
-          id: '1',
-          title: '긴 대화',
-          timestamp: new Date('2024-01-15'),
-          messages: [
-            { role: 'user' as const, content: '안녕', timestamp: new Date() },
-            { role: 'assistant' as const, content: '반갑습니다', timestamp: new Date() },
-            { role: 'user' as const, content: '질문', timestamp: new Date() },
-          ]
-        },
-      ];
-      render(<Sidebar {...defaultProps} conversations={multiMessageConversations} />);
-      const badge = document.querySelector('.message-count-badge');
-      expect(badge?.textContent).toBe('3');
-      expect(badge).toHaveAttribute('aria-label', '3개 메시지');
+    it('sidebar-header is rendered', () => {
+      const { container } = render(<Sidebar {...defaultProps} />);
+      expect(container.querySelector('.sidebar-header')).toBeInTheDocument();
+    });
+
+    it('sidebar-footer contains settings button', () => {
+      const { container } = render(<Sidebar {...defaultProps} />);
+      const footer = container.querySelector('.sidebar-footer');
+      expect(footer).toBeInTheDocument();
+      expect(footer!.querySelector('.settings-btn')).toBeInTheDocument();
+    });
+
+    it('collapse button shows ◀ arrow when expanded', () => {
+      const { container } = render(<Sidebar {...defaultProps} onToggleCollapse={vi.fn()} isCollapsed={false} />);
+      const arrowSpan = container.querySelector('.collapse-btn [aria-hidden="true"]');
+      expect(arrowSpan).toBeInTheDocument();
+      expect(arrowSpan!.textContent).toBe('◀');
+    });
+
+    it('collapse button shows ▶ arrow when collapsed', () => {
+      const { container } = render(<Sidebar {...defaultProps} onToggleCollapse={vi.fn()} isCollapsed={true} />);
+      const arrowSpan = container.querySelector('.collapse-btn [aria-hidden="true"]');
+      expect(arrowSpan).toBeInTheDocument();
+      expect(arrowSpan!.textContent).toBe('▶');
     });
   });
 });

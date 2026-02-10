@@ -31,6 +31,20 @@ export function useBookmarks() {
     );
   }, [setBookmarks]);
 
+  const toggleBookmark = useCallback((bookmark: BookmarkedMessage) => {
+    setBookmarks(prev => {
+      const exists = prev.some(
+        b => b.conversationId === bookmark.conversationId && b.messageIndex === bookmark.messageIndex
+      );
+      if (exists) {
+        return prev.filter(
+          b => !(b.conversationId === bookmark.conversationId && b.messageIndex === bookmark.messageIndex)
+        );
+      }
+      return [...prev, bookmark];
+    });
+  }, [setBookmarks]);
+
   const isBookmarked = useCallback((conversationId: string, messageIndex: number): boolean => {
     return bookmarks.some(
       b => b.conversationId === conversationId && b.messageIndex === messageIndex
@@ -49,6 +63,7 @@ export function useBookmarks() {
     bookmarks,
     addBookmark,
     removeBookmark,
+    toggleBookmark,
     isBookmarked,
     clearBookmarks,
     getBookmarksForConversation,

@@ -116,4 +116,66 @@ describe('QuickSwitcher', () => {
     expect(screen.getByText(/5개 메시지/)).toBeInTheDocument();
     expect(screen.getByText(/10개 메시지/)).toBeInTheDocument();
   });
+
+  it('ArrowUp wraps from first to last item', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    const input = screen.getByLabelText('대화 검색');
+    // First item is selected by default (index 0), ArrowUp should wrap to last (index 2)
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onSelect).toHaveBeenCalledWith('3');
+  });
+
+  it('ArrowDown wraps from last to first item', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    const input = screen.getByLabelText('대화 검색');
+    // Go to last: down 3 times (0→1→2→0 wrap)
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onSelect).toHaveBeenCalledWith('1');
+  });
+
+  it('does not propagate click from switcher panel to overlay', () => {
+    const { container } = render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    const panel = container.querySelector('.quick-switcher')!;
+    fireEvent.click(panel);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('sets aria-selected on the currently highlighted item', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    const options = screen.getAllByRole('option');
+    // First item selected by default
+    expect(options[0].getAttribute('aria-selected')).toBe('true');
+    expect(options[1].getAttribute('aria-selected')).toBe('false');
+  });
+
+  it('resets search query when reopened', () => {
+    const { rerender } = render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    const input = screen.getByLabelText('대화 검색');
+    fireEvent.change(input, { target: { value: 'react' } });
+    expect(screen.queryByText('TypeScript 질문')).not.toBeInTheDocument();
+
+    // Close and reopen
+    rerender(
+      <QuickSwitcher isOpen={false} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    rerender(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    // All conversations should be visible again
+    expect(screen.getByText('TypeScript 질문')).toBeInTheDocument();
+  });
 });

@@ -131,4 +131,95 @@ describe('useInlineSearch', () => {
     act(() => result.current.goToPrev());
     expect(result.current.currentMatchIndex).toBe(0);
   });
+
+  it('handles empty messages array', () => {
+    const { result } = renderHook(() => useInlineSearch([]));
+    act(() => result.current.setQuery('anything'));
+    expect(result.current.matches).toEqual([]);
+    expect(result.current.currentMatch).toBeNull();
+  });
+
+  it('handles messages with empty content', () => {
+    const messages = makeMessages('', '', '');
+    const { result } = renderHook(() => useInlineSearch(messages));
+    act(() => result.current.setQuery('test'));
+    expect(result.current.matches).toEqual([]);
+  });
+
+  it('finds overlapping-position matches correctly', () => {
+    const messages = makeMessages('aaaa');
+    const { result } = renderHook(() => useInlineSearch(messages));
+    act(() => result.current.setQuery('aa'));
+    // "aaaa" searching for "aa": pos=0 found, then searchFrom=2, pos=2 found
+    expect(result.current.matches).toHaveLength(2);
+  });
+
+  it('matches special regex characters literally', () => {
+    const messages = makeMessages('price is $10.00');
+    const { result } = renderHook(() => useInlineSearch(messages));
+    // indexOf is used, not regex, so $ and . should match literally
+    act(() => result.current.setQuery('$10'));
+    expect(result.current.matches).toHaveLength(1);
+  });
+
+  it('reacts to messages array changes', () => {
+    let messages = makeMessages('hello world');
+    const { result, rerender } = renderHook(() => useInlineSearch(messages));
+    act(() => result.current.setQuery('hello'));
+    expect(result.current.matches).toHaveLength(1);
+
+    messages = makeMessages('hello world', 'hello again');
+    rerender();
+    // After rerender with new messages, matches should update
+    expect(result.current.matches).toHaveLength(2);
+  });
+
+  it('open and close are idempotent', () => {
+    const { result } = renderHook(() => useInlineSearch(makeMessages('test')));
+    act(() => result.current.open());
+    act(() => result.current.open());
+    expect(result.current.isOpen).toBe(true);
+
+    act(() => result.current.close());
+    act(() => result.current.close());
+    expect(result.current.isOpen).toBe(false);
+  });
+
+  it('single match: goToNext wraps immediately', () => {
+    const messages = makeMessages('hello');
+    const { result } = renderHook(() => useInlineSearch(messages));
+    act(() => result.current.setQuery('hello'));
+    expect(result.current.matches).toHaveLength(1);
+    expect(result.current.currentMatchIndex).toBe(0);
+
+    act(() => result.current.goToNext());
+    expect(result.current.currentMatchIndex).toBe(0); // wraps to 0
+  });
+
+  it('single match: goToPrev wraps immediately', () => {
+    const messages = makeMessages('hello');
+    const { result } = renderHook(() => useInlineSearch(messages));
+    act(() => result.current.setQuery('hello'));
+    expect(result.current.matches).toHaveLength(1);
+
+    act(() => result.current.goToPrev());
+    expect(result.current.currentMatchIndex).toBe(0); // wraps to 0
+  });
+
+  it('matchIndex increments for multiple matches within one message', () => {
+    const messages = makeMessages('abcabcabc');
+    const { result } = renderHook(() => useInlineSearch(messages));
+    act(() => result.current.setQuery('abc'));
+    expect(result.current.matches).toHaveLength(3);
+    expect(result.current.matches[0].matchIndex).toBe(0);
+    expect(result.current.matches[1].matchIndex).toBe(1);
+    expect(result.current.matches[2].matchIndex).toBe(2);
+  });
+
+  it('mixed case query matches mixed case content', () => {
+    const messages = makeMessages('HeLLo WoRLd');
+    const { result } = renderHook(() => useInlineSearch(messages));
+    act(() => result.current.setQuery('HELLO'));
+    expect(result.current.matches).toHaveLength(1);
+  });
 });

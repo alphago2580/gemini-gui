@@ -7,7 +7,7 @@ export interface Tab {
   title: string;
 }
 
-interface TabBarProps {
+export interface TabBarProps {
   tabs: Tab[];
   activeTabId: string | null;
   onSelectTab: (id: string) => void;
