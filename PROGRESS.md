@@ -552,3 +552,13 @@
 - **MessageContextMenu.test.tsx**: Added 5 tests — outside click closes menu, inside click doesn't close, aria-label on menu, viewport overflow position check, non-danger item class validation
 - **useAutoScroll.test.ts**: Added 5 tests — messages cleared hides button, default smooth behavior, null container ref, exact threshold boundary, just past threshold boundary
 - Total tests: 849 → 869 (47 test files, all passing)
+
+### Agent 3 (Tests & Types) — Shared Types & Export All Props/Options Interfaces
+- Created `src/renderer/types/index.ts` with shared type definitions:
+  - `MessageRole`: union type for `'user' | 'assistant'`
+  - `ContextMenuState`: type for right-click context menu position + message index
+  - `FormattingResult` + `FormatterFunction`: types for text formatting operations
+  - `RoleFilter`: type for bookmark/filter role selection
+- Exported `Props` interfaces from all 22 component files (were private, now importable by tests and other modules)
+- Exported `Options`/`Actions` interfaces from 4 hooks: useExport, useMessageSend, useStreamHandler, useKeyboardShortcuts
+- TypeScript: 0 errors, 869 tests all passing
