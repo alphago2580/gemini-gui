@@ -1598,12 +1598,48 @@ describe('App Component', () => {
             render(<App />);
             expect(screen.queryByText('성능 모니터')).not.toBeInTheDocument();
         });
+
+        it('opens performance panel via command palette', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+            const perfOption = screen.getByRole('option', { name: /성능 모니터/ });
+            await user.click(perfOption);
+            expect(screen.getByText('성능 모니터')).toBeInTheDocument();
+        });
     });
 
     describe('MessageSearch', () => {
         it('does not render message search dialog by default', () => {
             render(<App />);
             expect(screen.queryByPlaceholderText('전체 대화 내용 검색...')).not.toBeInTheDocument();
+        });
+
+        it('opens message search via command palette', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+            const searchOption = screen.getByRole('option', { name: /전체 메시지 검색/ });
+            await user.click(searchOption);
+            expect(screen.getByPlaceholderText('전체 대화 내용 검색...')).toBeInTheDocument();
+        });
+    });
+
+    describe('InputPreview Toggle', () => {
+        it('toggles input preview via command palette', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+
+            // Type some text first
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, '**bold text**');
+
+            // Open command palette and toggle preview
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+            const previewOption = screen.getByRole('option', { name: /입력 미리보기 토글/ });
+            await user.click(previewOption);
+
+            expect(screen.getByLabelText('입력 미리보기')).toBeInTheDocument();
         });
     });
 });

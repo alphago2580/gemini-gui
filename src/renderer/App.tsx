@@ -19,7 +19,6 @@ import type { ContextMenuItem } from './components/MessageContextMenu';
 import CodeSnippets from './components/CodeSnippets';
 import KeyboardShortcutHelp from './components/KeyboardShortcutHelp';
 import ReadingProgressBar from './components/ReadingProgressBar';
-import EmojiReactionPicker from './components/EmojiReactionPicker';
 import LinkCollection from './components/LinkCollection';
 import ConversationStats from './components/ConversationStats';
 import BookmarkedMessages from './components/BookmarkedMessages';
@@ -323,6 +322,9 @@ const App: React.FC = () => {
     { id: 'toggle-sidebar', label: S.CMD_TOGGLE_SIDEBAR, shortcut: 'Ctrl+B', action: handleToggleSidebar },
     { id: 'export', label: S.CMD_EXPORT_MD, action: handleExport },
     { id: 'export-pdf', label: S.CMD_EXPORT_PDF, action: handleExportPdf },
+    { id: 'message-search', label: '전체 메시지 검색', action: () => setIsMessageSearchOpen(true) },
+    { id: 'perf-monitor', label: '성능 모니터', action: () => setIsPerfPanelOpen(true) },
+    { id: 'toggle-preview', label: '입력 미리보기 토글', action: () => setIsInputPreviewVisible(prev => !prev) },
   ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch]);
 
   // Keyboard shortcuts
