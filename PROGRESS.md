@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (699 tests)
-- **Last Agent Run**: Agent 2 (Quality)
+- **Test Status**: Passing (869 tests)
+- **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -545,3 +545,10 @@
 - Added 3 unit tests for `generateUniqueId` (prefix, default, uniqueness)
 - TypeScript: 0 errors (`npx tsc --noEmit` passes)
 - Total tests: 699 (30 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage for 4 Components/Hooks
+- **FormattingToolbar.test.tsx**: Added 5 tests — strikethrough, codeblock action clicks, button count, CSS class per action, tabIndex=-1 accessibility
+- **CodeSnippets.test.tsx**: Added 6 tests — clipboard copy success, checkmark feedback after copy, clipboard failure graceful handling, panel click propagation stop, filter reset to all
+- **MessageContextMenu.test.tsx**: Added 5 tests — outside click closes menu, inside click doesn't close, aria-label on menu, viewport overflow position check, non-danger item class validation
+- **useAutoScroll.test.ts**: Added 5 tests — messages cleared hides button, default smooth behavior, null container ref, exact threshold boundary, just past threshold boundary
+- Total tests: 849 → 869 (47 test files, all passing)
