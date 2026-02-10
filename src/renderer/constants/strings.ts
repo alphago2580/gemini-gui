@@ -205,3 +205,6 @@ export const ERROR_PREFIX = '오류 발생:';
 
 // useStreamHandler
 export const STREAM_ERROR_PREFIX = '오류:';
+
+// useExport
+export const UNTITLED_CONVERSATION = '제목 없는 대화';

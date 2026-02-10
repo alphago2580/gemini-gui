@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import type { Message, Conversation } from '../../preload/types';
 import { exportToMarkdown, exportToHtml, sanitizeFileName } from '../utils/format';
+import * as S from '../constants/strings';
 
 interface UseExportOptions {
   messages: Message[];
@@ -15,7 +16,7 @@ export function useExport({
 }: UseExportOptions) {
   const getCurrentTitle = useCallback(() => {
     const currentConv = conversations.find(c => c.id === currentConversationId);
-    return currentConv?.title || 'Untitled Conversation';
+    return currentConv?.title || S.UNTITLED_CONVERSATION;
   }, [conversations, currentConversationId]);
 
   const handleExport = useCallback(async () => {

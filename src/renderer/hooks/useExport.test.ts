@@ -63,7 +63,7 @@ describe('useExport', () => {
         currentConversationId: 'missing',
       })
     );
-    expect(result.current.getCurrentTitle()).toBe('Untitled Conversation');
+    expect(result.current.getCurrentTitle()).toBe('제목 없는 대화');
   });
 
   it('handleExport does nothing when no messages', async () => {
