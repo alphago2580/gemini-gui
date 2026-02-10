@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1319 tests)
+- **Test Status**: Passing (1416 tests)
 - **Last Agent Run**: Agent 2 (Hooks & Utils)
 
 ## Completed Features
@@ -634,4 +634,13 @@
 - Created `objectUtils` utility — pick, omit, deepClone, isEqual, merge, isEmpty, getPath, mapValues (31 tests)
 - Total: 67 new tests, all passing
 - Cumulative total: 1319 tests (81 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
+
+### Agent 2 (Hooks & Utils) — useReadingProgress, useFormattingToolbar, useNotification hooks and colorUtils utility
+- Created `useReadingProgress` hook — scroll progress tracking (0-100%) with container/window support, throttling, reset (12 tests)
+- Created `useFormattingToolbar` hook — markdown formatting actions (bold, italic, code, strikethrough, link, codeblock) with textarea selection, placeholder insertion (18 tests)
+- Created `useNotification` hook — browser Notification API integration with permission management, request/show helpers (10 tests)
+- Created `colorUtils` utility — hexToRgb, rgbToHex, rgbToHsl, hslToRgb, lighten, darken, luminance, contrastRatio, mix, getContrastText, rgbToCss, rgbaToCss (42 tests)
+- Total: 82 new tests, all passing
+- Cumulative total: 1416 tests (86 test files, all passing)
 - TypeScript: 0 errors, Build: passes successfully
