@@ -13,6 +13,8 @@ import TabBar from './components/TabBar';
 import WelcomeScreen from './components/WelcomeScreen';
 import InlineSearch from './components/InlineSearch';
 import QuickSwitcher from './components/QuickSwitcher';
+import FormattingToolbar from './components/FormattingToolbar';
+import { insertBold, insertItalic, insertInlineCode, insertStrikethrough, insertLink, insertCodeBlock } from './utils/textFormatting';
 import type { Command } from './components/CommandPalette';
 import { useInlineSearch } from './hooks/useInlineSearch';
 import { useConversations } from './hooks/useConversations';
@@ -151,6 +153,26 @@ const App: React.FC = () => {
 
   // Refs
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Formatting toolbar handler
+  const handleFormat = useCallback((actionId: string) => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const formatters: Record<string, (t: string, s: number, e: number) => { text: string; selectionStart: number; selectionEnd: number }> = {
+      bold: insertBold, italic: insertItalic, code: insertInlineCode,
+      strikethrough: insertStrikethrough, link: insertLink, codeblock: insertCodeBlock,
+    };
+    const fn = formatters[actionId];
+    if (!fn) return;
+    const result = fn(input, start, end);
+    setInput(result.text);
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.setSelectionRange(result.selectionStart, result.selectionEnd);
+    });
+  }, [input, setInput, textareaRef]);
 
   // Clear current conversation messages
   const handleClearConversation = useCallback(() => {
@@ -309,6 +331,7 @@ const App: React.FC = () => {
               attachedFiles={attachedFiles}
               onRemoveFile={handleRemoveFile}
             />
+            <FormattingToolbar onFormat={handleFormat} />
             <div className="input-row">
             <PromptTemplates
               templates={templates}
