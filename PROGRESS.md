@@ -559,3 +559,22 @@
 - Added 8 unit tests for `useBookmarks` hook (init, toggle, remove, isBookmarked, null conv, persistence, title)
 - Added 6 unit tests for `useReactions` hook (init, add, multiple, per-message, null conv, persistence)
 - Total tests: 849 → 863 (49 test files, all passing)
+
+### Agent 4 (Integration) — Window State Persistence & Native App Menu
+- Created `windowState.ts` utility with `loadWindowState`/`saveWindowState` functions
+- Window size, position, and maximized state saved to `userData/window-state.json`
+- State restored on app launch; gracefully handles corrupt/missing state files
+- Validates saved dimensions (rejects negative/zero width/height)
+- Window state saved on resize, move, maximize, and unmaximize events
+- Built native application menu with Korean labels:
+  - 파일: 새 대화 (Ctrl+N), Markdown/PDF 내보내기, 종료
+  - 편집: 실행 취소, 다시 실행, 잘라내기, 복사, 붙여넣기, 전체 선택
+  - 보기: 설정 (Ctrl+,), 명령 팔레트 (Ctrl+Shift+P), 사이드바 토글 (Ctrl+B), 확대/축소, 전체 화면
+  - 도움말: 키보드 단축키 (Ctrl+/)
+- macOS-specific menu items (About, Services, Hide, Quit) for proper platform integration
+- Added `onMenuAction` IPC channel: menu clicks send actions to renderer via `menu-action` event
+- Added `onMenuAction` to preload bridge and `ElectronAPI` type definition
+- App.tsx `useEffect` listens for menu actions and dispatches to existing handlers
+- Added 10 unit tests for `windowState` (load defaults, saved state, maximized, corrupt JSON, invalid values, save, overwrite, nested dir, roundtrip)
+- Added 3 integration tests for menu actions in App (listener registration, settings open, command palette open)
+- Total tests: 863 → 876 (50 test files, all passing)

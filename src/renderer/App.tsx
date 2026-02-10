@@ -323,6 +323,23 @@ const App: React.FC = () => {
     { id: 'bookmarks', label: '북마크 보기', action: () => setIsBookmarksOpen(true) },
   ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch]);
 
+  // Native menu actions
+  useEffect(() => {
+    const api = window.electronAPI;
+    if (!api?.onMenuAction) return;
+    api.onMenuAction((action: string) => {
+      switch (action) {
+        case 'new-chat': handleNewChat(); break;
+        case 'export-md': handleExport(); break;
+        case 'export-pdf': handleExportPdf(); break;
+        case 'settings': setIsSettingsOpen(true); break;
+        case 'command-palette': setIsCommandPaletteOpen(prev => !prev); break;
+        case 'toggle-sidebar': handleToggleSidebar(); break;
+        case 'shortcut-help': setIsShortcutHelpOpen(prev => !prev); break;
+      }
+    });
+  }, [handleNewChat, handleExport, handleExportPdf, handleToggleSidebar]);
+
   // Keyboard shortcuts
   useKeyboardShortcuts({
     onNewChat: handleNewChat,

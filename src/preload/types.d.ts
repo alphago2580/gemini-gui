@@ -58,6 +58,7 @@ export interface ElectronAPI {
   onStreamComplete: (callback: (data: StreamCompleteData) => void) => void;
   onStreamError: (callback: (data: StreamErrorData) => void) => void;
   removeAllListeners: () => void;
+  onMenuAction: (callback: (action: string) => void) => void;
   saveTempFile: (fileName: string, fileData: ArrayBuffer) => Promise<string>;
   cleanupTempFiles: () => Promise<{ success: boolean; error?: string }>;
   exportMarkdown: (content: string, defaultFileName: string) => Promise<{ success: boolean; canceled?: boolean; path?: string; error?: string }>;

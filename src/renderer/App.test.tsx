@@ -18,6 +18,7 @@ const mockElectronAPI = {
     stopGemini: vi.fn(),
     exportMarkdown: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.md' }),
     exportPdf: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.pdf' }),
+    onMenuAction: vi.fn(),
 };
 
 global.window.electronAPI = mockElectronAPI as unknown as typeof window.electronAPI;
@@ -1203,6 +1204,44 @@ describe('App Component', () => {
             // Messages should be cleared and welcome message should appear
             expect(screen.queryByRole('article')).not.toBeInTheDocument();
             expect(screen.getByText('Gemini에 오신 것을 환영합니다!')).toBeInTheDocument();
+        });
+    });
+
+    describe('Native Menu Actions', () => {
+        it('registers onMenuAction listener on mount', () => {
+            render(<App />);
+            expect(mockElectronAPI.onMenuAction).toHaveBeenCalledWith(expect.any(Function));
+        });
+
+        it('opens settings when menu sends settings action', async () => {
+            let menuCallback: ((action: string) => void) | null = null;
+            mockElectronAPI.onMenuAction.mockImplementation((cb: (action: string) => void) => {
+                menuCallback = cb;
+            });
+
+            render(<App />);
+            expect(menuCallback).not.toBeNull();
+
+            await act(() => {
+                menuCallback!('settings');
+            });
+
+            expect(screen.getByRole('dialog')).toBeInTheDocument();
+        });
+
+        it('opens command palette when menu sends command-palette action', async () => {
+            let menuCallback: ((action: string) => void) | null = null;
+            mockElectronAPI.onMenuAction.mockImplementation((cb: (action: string) => void) => {
+                menuCallback = cb;
+            });
+
+            render(<App />);
+
+            await act(() => {
+                menuCallback!('command-palette');
+            });
+
+            expect(screen.getByRole('dialog', { name: '명령 팔레트' })).toBeInTheDocument();
         });
     });
 

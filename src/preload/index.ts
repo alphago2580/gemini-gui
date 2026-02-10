@@ -31,6 +31,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.removeAllListeners('stream-data');
     ipcRenderer.removeAllListeners('stream-complete');
     ipcRenderer.removeAllListeners('stream-error');
+    ipcRenderer.removeAllListeners('menu-action');
+  },
+
+  // 네이티브 메뉴 액션 리스너
+  onMenuAction: (callback: (action: string) => void) => {
+    ipcRenderer.on('menu-action', (_event, action) => callback(action as string));
   },
 
   // 파일 관련 API

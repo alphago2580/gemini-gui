@@ -1,27 +1,73 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 import { GeminiProcess } from './GeminiProcess';
+import { loadWindowState, saveWindowState } from './windowState';
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   return String(error);
 }
 
+const WINDOW_STATE_FILE = 'window-state.json';
+
+function getWindowStatePath(): string {
+  return path.join(app.getPath('userData'), WINDOW_STATE_FILE);
+}
+
 let mainWindow: BrowserWindow | null = null;
 let gemini: GeminiProcess = new GeminiProcess();
 let currentSessionId: string | null = null;
 
+function saveCurrentWindowState(): void {
+  if (!mainWindow) return;
+  const bounds = mainWindow.getBounds();
+  saveWindowState(getWindowStatePath(), {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+    isMaximized: mainWindow.isMaximized(),
+  });
+}
+
 function createWindow() {
+  const statePath = getWindowStatePath();
+  const windowState = loadWindowState(statePath);
+
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    x: windowState.x,
+    y: windowState.y,
+    width: windowState.width,
+    height: windowState.height,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       nodeIntegration: false,
       contextIsolation: true,
     },
+  });
+
+  if (windowState.isMaximized) {
+    mainWindow.maximize();
+  }
+
+  // Save window state on resize/move
+  mainWindow.on('resize', () => {
+    if (mainWindow && !mainWindow.isMaximized()) {
+      saveCurrentWindowState();
+    }
+  });
+  mainWindow.on('move', () => {
+    if (mainWindow && !mainWindow.isMaximized()) {
+      saveCurrentWindowState();
+    }
+  });
+  mainWindow.on('maximize', () => {
+    saveCurrentWindowState();
+  });
+  mainWindow.on('unmaximize', () => {
+    saveCurrentWindowState();
   });
 
   // Load index.html
@@ -37,7 +83,111 @@ function createWindow() {
   });
 }
 
+function buildAppMenu(): void {
+  const isMac = process.platform === 'darwin';
+
+  const template: Electron.MenuItemConstructorOptions[] = [
+    ...(isMac ? [{
+      label: app.name,
+      submenu: [
+        { role: 'about' as const },
+        { type: 'separator' as const },
+        { role: 'services' as const },
+        { type: 'separator' as const },
+        { role: 'hide' as const },
+        { role: 'hideOthers' as const },
+        { role: 'unhide' as const },
+        { type: 'separator' as const },
+        { role: 'quit' as const },
+      ],
+    }] : []),
+    {
+      label: '파일',
+      submenu: [
+        {
+          label: '새 대화',
+          accelerator: 'CmdOrCtrl+N',
+          click: () => mainWindow?.webContents.send('menu-action', 'new-chat'),
+        },
+        { type: 'separator' },
+        {
+          label: 'Markdown으로 내보내기',
+          accelerator: 'CmdOrCtrl+Shift+E',
+          click: () => mainWindow?.webContents.send('menu-action', 'export-md'),
+        },
+        {
+          label: 'PDF로 내보내기',
+          click: () => mainWindow?.webContents.send('menu-action', 'export-pdf'),
+        },
+        { type: 'separator' },
+        ...(isMac ? [] : [{ role: 'quit' as const, label: '종료' }]),
+      ],
+    },
+    {
+      label: '편집',
+      submenu: [
+        { role: 'undo', label: '실행 취소' },
+        { role: 'redo', label: '다시 실행' },
+        { type: 'separator' as const },
+        { role: 'cut', label: '잘라내기' },
+        { role: 'copy', label: '복사' },
+        { role: 'paste', label: '붙여넣기' },
+        { role: 'selectAll', label: '전체 선택' },
+      ],
+    },
+    {
+      label: '보기',
+      submenu: [
+        {
+          label: '설정',
+          accelerator: 'CmdOrCtrl+,',
+          click: () => mainWindow?.webContents.send('menu-action', 'settings'),
+        },
+        {
+          label: '명령 팔레트',
+          accelerator: 'CmdOrCtrl+Shift+P',
+          click: () => mainWindow?.webContents.send('menu-action', 'command-palette'),
+        },
+        { type: 'separator' },
+        {
+          label: '사이드바 토글',
+          accelerator: 'CmdOrCtrl+B',
+          click: () => mainWindow?.webContents.send('menu-action', 'toggle-sidebar'),
+        },
+        { type: 'separator' },
+        { role: 'reload', label: '새로고침' },
+        { role: 'toggleDevTools', label: '개발자 도구' },
+        { type: 'separator' },
+        { role: 'resetZoom', label: '확대/축소 초기화' },
+        { role: 'zoomIn', label: '확대' },
+        { role: 'zoomOut', label: '축소' },
+        { type: 'separator' },
+        { role: 'togglefullscreen', label: '전체 화면' },
+      ],
+    },
+    {
+      label: '도움말',
+      submenu: [
+        {
+          label: '키보드 단축키',
+          accelerator: 'CmdOrCtrl+/',
+          click: () => mainWindow?.webContents.send('menu-action', 'shortcut-help'),
+        },
+        { type: 'separator' },
+        {
+          label: 'Gemini CLI GitHub',
+          click: () => shell.openExternal('https://github.com/anthropics/claude-code'),
+        },
+      ],
+    },
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
+
 app.whenReady().then(() => {
+  buildAppMenu();
   createWindow();
 
   app.on('activate', () => {
