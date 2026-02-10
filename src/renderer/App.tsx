@@ -14,6 +14,8 @@ import WelcomeScreen from './components/WelcomeScreen';
 import InlineSearch from './components/InlineSearch';
 import QuickSwitcher from './components/QuickSwitcher';
 import FormattingToolbar from './components/FormattingToolbar';
+import MessageContextMenu from './components/MessageContextMenu';
+import type { ContextMenuItem } from './components/MessageContextMenu';
 import { insertBold, insertItalic, insertInlineCode, insertStrikethrough, insertLink, insertCodeBlock } from './utils/textFormatting';
 import type { Command } from './components/CommandPalette';
 import { useInlineSearch } from './hooks/useInlineSearch';
@@ -104,6 +106,7 @@ const App: React.FC = () => {
   const [highContrast, setHighContrast] = useLocalStorage(S.STORAGE_KEY_HIGH_CONTRAST, false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isQuickSwitcherOpen, setIsQuickSwitcherOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; messageIndex: number } | null>(null);
 
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
@@ -173,6 +176,39 @@ const App: React.FC = () => {
       ta.setSelectionRange(result.selectionStart, result.selectionEnd);
     });
   }, [input, setInput, textareaRef]);
+
+  // Context menu items and handler
+  const contextMenuItems: ContextMenuItem[] = useMemo(() => [
+    { id: 'copy', label: '복사', icon: '📋' },
+    { id: 'edit', label: '수정', icon: '✏️' },
+    { id: 'fork', label: '분기', icon: '🔀' },
+    { id: 'delete', label: '삭제', icon: '🗑', danger: true },
+  ], []);
+
+  const handleContextMenuAction = useCallback((actionId: string) => {
+    if (contextMenu === null) return;
+    const idx = contextMenu.messageIndex;
+    switch (actionId) {
+      case 'copy':
+        navigator.clipboard.writeText(messages[idx]?.content || '');
+        break;
+      case 'edit':
+        editMessage(idx, messages[idx]?.content || '');
+        break;
+      case 'fork':
+        forkConversation(idx);
+        break;
+      case 'delete':
+        deleteMessage(idx);
+        break;
+    }
+    setContextMenu(null);
+  }, [contextMenu, messages, editMessage, forkConversation, deleteMessage]);
+
+  const handleMessageContextMenu = useCallback((e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, messageIndex: index });
+  }, []);
 
   // Clear current conversation messages
   const handleClearConversation = useCallback(() => {
@@ -294,16 +330,17 @@ const App: React.FC = () => {
               <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
             )}
             {messages.map((message, index) => (
-              <MessageBubble
-                key={message.id || index}
-                message={message}
-                index={index}
-                isStreaming={isStreaming}
-                isLastAssistant={message.role === 'assistant' && index === messages.length - 1}
-                onDelete={deleteMessage}
-                onEdit={editMessage}
-                onFork={forkConversation}
-              />
+              <div key={message.id || index} onContextMenu={(e) => handleMessageContextMenu(e, index)}>
+                <MessageBubble
+                  message={message}
+                  index={index}
+                  isStreaming={isStreaming}
+                  isLastAssistant={message.role === 'assistant' && index === messages.length - 1}
+                  onDelete={deleteMessage}
+                  onEdit={editMessage}
+                  onFork={forkConversation}
+                />
+              </div>
             ))}
             {isLoading && (
               <TypingIndicator isStreaming={isStreaming} />
@@ -390,6 +427,15 @@ const App: React.FC = () => {
         currentConversationId={currentConversationId}
         onSelect={handleSelectConversation}
       />
+      {contextMenu && (
+        <MessageContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={contextMenuItems}
+          onSelect={handleContextMenuAction}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
   );
 };
