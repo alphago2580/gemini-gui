@@ -616,4 +616,11 @@
 - CSS: pill-shaped button with hover effect, centered below messages
 - Added 3 integration tests (button visibility, hidden during loading, input restoration)
 - Total tests: 886 → 889 (50 test files, all passing)
-- Total tests: 884 → 886 (50 test files, all passing)
+
+### Agent 4 (Integration) — Close Confirmation During Generation
+- Prevents accidental window close during response generation via `beforeunload` event
+- Browser confirmation dialog shown only when `isLoading` is true
+- Normal close behavior when app is idle
+- Added `CLOSE_CONFIRM_MESSAGE` string constant
+- Added 2 integration tests (prevent close during loading, allow close when idle)
+- Total tests: 889 → 891 (50 test files, all passing)
