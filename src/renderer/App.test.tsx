@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 import React from 'react';
@@ -915,9 +915,10 @@ describe('App Component', () => {
             const user = userEvent.setup();
             render(<App />);
             await user.click(screen.getByRole('button', { name: '프롬프트 템플릿' }));
-            expect(screen.getByRole('listbox', { name: '프롬프트 템플릿' })).toBeInTheDocument();
+            const listbox = screen.getByRole('listbox', { name: '프롬프트 템플릿' });
+            expect(listbox).toBeInTheDocument();
             expect(screen.getByText('번역 (한→영)')).toBeInTheDocument();
-            expect(screen.getByText('코드 리뷰')).toBeInTheDocument();
+            expect(within(listbox).getByText('코드 리뷰')).toBeInTheDocument();
             expect(screen.getByText('요약')).toBeInTheDocument();
         });
 

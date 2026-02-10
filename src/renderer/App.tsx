@@ -10,6 +10,7 @@ import CommandPalette from './components/CommandPalette';
 import PromptTemplates from './components/PromptTemplates';
 import TokenUsage from './components/TokenUsage';
 import TabBar from './components/TabBar';
+import WelcomeScreen from './components/WelcomeScreen';
 import type { Command } from './components/CommandPalette';
 import { useConversations } from './hooks/useConversations';
 import { usePromptTemplates } from './hooks/usePromptTemplates';
@@ -250,10 +251,7 @@ const App: React.FC = () => {
         <div className="chat-container">
           <div className="messages" role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleMessagesScroll}>
             {messages.length === 0 && (
-              <div className="welcome-message">
-                <h2>{S.WELCOME_TITLE}</h2>
-                <p>{S.WELCOME_MESSAGE}</p>
-              </div>
+              <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
             )}
             {messages.map((message, index) => (
               <MessageBubble
