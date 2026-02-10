@@ -1,0 +1,101 @@
+.divider {
+  flex-shrink: 0;
+}
+
+/* Horizontal */
+.divider--horizontal {
+  width: 100%;
+  border-top-width: 1px;
+  border-top-color: var(--border-color);
+}
+
+.divider--horizontal.divider--solid {
+  border-top-style: solid;
+}
+
+.divider--horizontal.divider--dashed {
+  border-top-style: dashed;
+}
+
+.divider--horizontal.divider--dotted {
+  border-top-style: dotted;
+}
+
+/* Vertical */
+.divider--vertical {
+  display: inline-block;
+  border-left-width: 1px;
+  border-left-color: var(--border-color);
+  align-self: stretch;
+  min-height: 1em;
+}
+
+.divider--vertical.divider--solid {
+  border-left-style: solid;
+}
+
+.divider--vertical.divider--dashed {
+  border-left-style: dashed;
+}
+
+.divider--vertical.divider--dotted {
+  border-left-style: dotted;
+}
+
+/* Spacing */
+.divider--horizontal.divider--spacing-small {
+  margin: 4px 0;
+}
+
+.divider--horizontal.divider--spacing-medium {
+  margin: 8px 0;
+}
+
+.divider--horizontal.divider--spacing-large {
+  margin: 16px 0;
+}
+
+.divider--vertical.divider--spacing-small {
+  margin: 0 4px;
+}
+
+.divider--vertical.divider--spacing-medium {
+  margin: 0 8px;
+}
+
+.divider--vertical.divider--spacing-large {
+  margin: 0 16px;
+}
+
+/* With Label */
+.divider--with-label {
+  display: flex;
+  align-items: center;
+  border-top: none;
+}
+
+.divider-line {
+  flex: 1;
+  border-top-width: 1px;
+  border-top-color: var(--border-color);
+}
+
+.divider--with-label.divider--solid .divider-line {
+  border-top-style: solid;
+}
+
+.divider--with-label.divider--dashed .divider-line {
+  border-top-style: dashed;
+}
+
+.divider--with-label.divider--dotted .divider-line {
+  border-top-style: dotted;
+}
+
+.divider-label {
+  padding: 0 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  user-select: none;
+}
