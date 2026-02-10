@@ -238,4 +238,131 @@ describe('BookmarkedMessages', () => {
     const content = screen.getByRole('option').querySelector('.bookmark-item-content');
     expect(content?.textContent?.length).toBeLessThanOrEqual(210);
   });
+
+  it('shows filtered-empty message when filter has no results', () => {
+    const userOnly: BookmarkedMessage[] = [{
+      conversationId: 'conv-1',
+      conversationTitle: 'Test',
+      messageIndex: 0,
+      role: 'user',
+      content: 'User message',
+      timestamp: new Date(),
+    }];
+    render(
+      <BookmarkedMessages
+        isOpen={true}
+        onClose={onClose}
+        bookmarks={userOnly}
+        onNavigateToMessage={onNavigateToMessage}
+        onRemoveBookmark={onRemoveBookmark}
+      />
+    );
+    fireEvent.click(screen.getByLabelText('AI 필터'));
+    expect(screen.getByText('필터에 해당하는 북마크가 없습니다.')).toBeInTheDocument();
+  });
+
+  it('displays role badge correctly for user and assistant', () => {
+    render(
+      <BookmarkedMessages
+        isOpen={true}
+        onClose={onClose}
+        bookmarks={mockBookmarks}
+        onNavigateToMessage={onNavigateToMessage}
+        onRemoveBookmark={onRemoveBookmark}
+      />
+    );
+    expect(screen.getAllByText('사용자').length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText('Gemini')).toBeInTheDocument();
+  });
+
+  it('does not close when clicking inside the panel', () => {
+    render(
+      <BookmarkedMessages
+        isOpen={true}
+        onClose={onClose}
+        bookmarks={mockBookmarks}
+        onNavigateToMessage={onNavigateToMessage}
+        onRemoveBookmark={onRemoveBookmark}
+      />
+    );
+    fireEvent.click(screen.getByRole('dialog'));
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('ArrowUp does not go below 0', () => {
+    render(
+      <BookmarkedMessages
+        isOpen={true}
+        onClose={onClose}
+        bookmarks={mockBookmarks}
+        onNavigateToMessage={onNavigateToMessage}
+        onRemoveBookmark={onRemoveBookmark}
+      />
+    );
+    const dialog = screen.getByRole('dialog');
+    fireEvent.keyDown(dialog, { key: 'ArrowUp' });
+    const items = screen.getAllByRole('option');
+    expect(items[0]).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('ArrowDown does not exceed list length', () => {
+    render(
+      <BookmarkedMessages
+        isOpen={true}
+        onClose={onClose}
+        bookmarks={mockBookmarks}
+        onNavigateToMessage={onNavigateToMessage}
+        onRemoveBookmark={onRemoveBookmark}
+      />
+    );
+    const dialog = screen.getByRole('dialog');
+    // Press ArrowDown many times
+    for (let i = 0; i < 10; i++) {
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+    }
+    const items = screen.getAllByRole('option');
+    expect(items[items.length - 1]).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('mouseEnter updates selected index', () => {
+    render(
+      <BookmarkedMessages
+        isOpen={true}
+        onClose={onClose}
+        bookmarks={mockBookmarks}
+        onNavigateToMessage={onNavigateToMessage}
+        onRemoveBookmark={onRemoveBookmark}
+      />
+    );
+    const items = screen.getAllByRole('option');
+    fireEvent.mouseEnter(items[2]);
+    expect(items[2]).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('has dialog role and aria-label', () => {
+    render(
+      <BookmarkedMessages
+        isOpen={true}
+        onClose={onClose}
+        bookmarks={mockBookmarks}
+        onNavigateToMessage={onNavigateToMessage}
+        onRemoveBookmark={onRemoveBookmark}
+      />
+    );
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveAttribute('aria-label', '북마크된 메시지');
+  });
+
+  it('has listbox role on the list container', () => {
+    render(
+      <BookmarkedMessages
+        isOpen={true}
+        onClose={onClose}
+        bookmarks={mockBookmarks}
+        onNavigateToMessage={onNavigateToMessage}
+        onRemoveBookmark={onRemoveBookmark}
+      />
+    );
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+  });
 });

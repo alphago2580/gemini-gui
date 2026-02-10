@@ -56,4 +56,64 @@ describe('linkExtractor', () => {
     const links = extractLinks(messages);
     expect(links).toHaveLength(3);
   });
+
+  it('uses URL as text when markdown link text is empty', () => {
+    const messages = [
+      { role: 'user' as const, content: 'Check [](https://example.com)' },
+    ];
+    const links = extractLinks(messages);
+    expect(links).toHaveLength(1);
+    expect(links[0].text).toBe('https://example.com');
+  });
+
+  it('handles URLs with query parameters', () => {
+    const messages = [
+      { role: 'assistant' as const, content: 'Visit https://example.com/page?foo=bar&baz=1' },
+    ];
+    const links = extractLinks(messages);
+    expect(links).toHaveLength(1);
+    expect(links[0].url).toBe('https://example.com/page?foo=bar&baz=1');
+  });
+
+  it('handles URLs with paths and fragments', () => {
+    const messages = [
+      { role: 'user' as const, content: 'See https://example.com/docs/api#section-2' },
+    ];
+    const links = extractLinks(messages);
+    expect(links).toHaveLength(1);
+    expect(links[0].url).toBe('https://example.com/docs/api#section-2');
+  });
+
+  it('does not duplicate markdown link as bare URL', () => {
+    const messages = [
+      { role: 'user' as const, content: '[Example](https://example.com)' },
+    ];
+    const links = extractLinks(messages);
+    expect(links).toHaveLength(1);
+    expect(links[0].text).toBe('Example');
+  });
+
+  it('allows same URL in different messages', () => {
+    const messages = [
+      { role: 'user' as const, content: 'See https://example.com' },
+      { role: 'assistant' as const, content: 'Check https://example.com' },
+    ];
+    const links = extractLinks(messages);
+    expect(links).toHaveLength(2);
+    expect(links[0].messageIndex).toBe(0);
+    expect(links[1].messageIndex).toBe(1);
+  });
+
+  it('handles empty messages array', () => {
+    expect(extractLinks([])).toHaveLength(0);
+  });
+
+  it('handles http links (not just https)', () => {
+    const messages = [
+      { role: 'user' as const, content: 'Visit http://legacy-site.com/page' },
+    ];
+    const links = extractLinks(messages);
+    expect(links).toHaveLength(1);
+    expect(links[0].url).toBe('http://legacy-site.com/page');
+  });
 });

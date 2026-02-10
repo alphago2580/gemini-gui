@@ -104,4 +104,63 @@ describe('ConversationStats', () => {
     );
     expect(screen.getByText(/A{25}\.\.\./)).toBeInTheDocument();
   });
+
+  it('does not close when clicking inside the modal', () => {
+    const onClose = vi.fn();
+    render(
+      <ConversationStats isOpen={true} onClose={onClose} stats={createMockStats()} />
+    );
+    const modal = screen.getByRole('dialog').querySelector('.stats-modal');
+    fireEvent.click(modal!);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('displays user and assistant message counts', () => {
+    render(
+      <ConversationStats isOpen={true} onClose={vi.fn()} stats={createMockStats()} />
+    );
+    expect(screen.getByText('22')).toBeInTheDocument();
+    expect(screen.getByText('20')).toBeInTheDocument();
+  });
+
+  it('displays average messages per conversation', () => {
+    render(
+      <ConversationStats isOpen={true} onClose={vi.fn()} stats={createMockStats()} />
+    );
+    expect(screen.getByText('8.4')).toBeInTheDocument();
+  });
+
+  it('displays empty conversations count', () => {
+    render(
+      <ConversationStats isOpen={true} onClose={vi.fn()} stats={createMockStats()} />
+    );
+    expect(screen.getByText('빈 대화')).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
+  });
+
+  it('displays total characters with formatNumber', () => {
+    render(
+      <ConversationStats
+        isOpen={true}
+        onClose={vi.fn()}
+        stats={createMockStats({ totalCharacters: 5000 })}
+      />
+    );
+    expect(screen.getByText('5.0K')).toBeInTheDocument();
+  });
+
+  it('displays message count with longest/shortest titles', () => {
+    render(
+      <ConversationStats isOpen={true} onClose={vi.fn()} stats={createMockStats()} />
+    );
+    expect(screen.getByText(/15개/)).toBeInTheDocument();
+    expect(screen.getByText(/2개/)).toBeInTheDocument();
+  });
+
+  it('has proper aria-label on dialog', () => {
+    render(
+      <ConversationStats isOpen={true} onClose={vi.fn()} stats={createMockStats()} />
+    );
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-label', '대화 통계');
+  });
 });

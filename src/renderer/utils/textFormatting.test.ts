@@ -81,4 +81,72 @@ describe('textFormatting', () => {
       expect(result.selectionEnd).toBe(8);
     });
   });
+
+  describe('wrapSelection — edge cases', () => {
+    it('wraps selection in the middle of text', () => {
+      const result = wrapSelection('hello beautiful world', 6, 15, '**', '**');
+      expect(result.text).toBe('hello **beautiful** world');
+      expect(result.selectionStart).toBe(8);
+      expect(result.selectionEnd).toBe(17);
+    });
+
+    it('inserts placeholder at cursor position in middle of text', () => {
+      const result = wrapSelection('hello world', 5, 5, '`', '`');
+      expect(result.text).toBe('hello`text` world');
+      expect(result.selectionStart).toBe(6);
+      expect(result.selectionEnd).toBe(10);
+    });
+
+    it('handles asymmetric prefix and suffix', () => {
+      const result = wrapSelection('abc', 0, 3, '<em>', '</em>');
+      expect(result.text).toBe('<em>abc</em>');
+      expect(result.selectionStart).toBe(4);
+      expect(result.selectionEnd).toBe(7);
+    });
+  });
+
+  describe('insertBold — no selection', () => {
+    it('inserts placeholder when no selection', () => {
+      const result = insertBold('hello ', 6, 6);
+      expect(result.text).toBe('hello **text**');
+      expect(result.selectionStart).toBe(8);
+      expect(result.selectionEnd).toBe(12);
+    });
+  });
+
+  describe('insertLink — cursor positioning with selection', () => {
+    it('selects url placeholder when text is selected', () => {
+      const result = insertLink('click here please', 6, 10);
+      expect(result.text).toBe('click [here](url) please');
+      expect(result.selectionStart).toBe(13);
+      expect(result.selectionEnd).toBe(16);
+    });
+  });
+
+  describe('insertCodeBlock — cursor positioning with selection', () => {
+    it('selects content inside code block when text is selected', () => {
+      const result = insertCodeBlock('prefix some code suffix', 7, 16);
+      expect(result.text).toBe('prefix ```\nsome code\n``` suffix');
+      expect(result.selectionStart).toBe(11);
+      expect(result.selectionEnd).toBe(20);
+    });
+  });
+
+  describe('insertInlineCode — no selection', () => {
+    it('inserts placeholder when no selection', () => {
+      const result = insertInlineCode('word ', 5, 5);
+      expect(result.text).toBe('word `text`');
+      expect(result.selectionStart).toBe(6);
+      expect(result.selectionEnd).toBe(10);
+    });
+  });
+
+  describe('insertStrikethrough — no selection', () => {
+    it('inserts placeholder when no selection', () => {
+      const result = insertStrikethrough('', 0, 0);
+      expect(result.text).toBe('~~text~~');
+      expect(result.selectionStart).toBe(2);
+      expect(result.selectionEnd).toBe(6);
+    });
+  });
 });

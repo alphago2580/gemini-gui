@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (909 tests)
+- **Test Status**: Passing (952 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -571,3 +571,12 @@
 - **LinkCollection.test.tsx**: Added 5 tests — panel click propagation stop, copy/nav button aria-labels, zero link count display, non-Escape key ignored
 - **QuickSwitcher.test.tsx**: Added 5 tests — ArrowUp/Down keyboard wrap, panel click propagation stop, aria-selected attribute, query reset on reopen
 - Total tests: 869 → 909 (47 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 3 (+43 tests)
+- **codeExtractor.test.ts**: Added 8 tests — unclosed code block, multiple blocks in single message, messageIndex preservation, empty messages array, no-language code block, whitespace-only content skip, trailing-space closing fence, groupByLanguage empty input
+- **linkExtractor.test.ts**: Added 7 tests — empty link text fallback to URL, query parameters, paths with fragments, no markdown-to-bare duplication, same URL in different messages, empty messages array, http (non-https) links
+- **textFormatting.test.ts**: Added 8 tests — mid-text wrap selection, mid-text cursor placeholder, asymmetric prefix/suffix, insertBold no-selection placeholder, insertLink cursor with selection, insertCodeBlock cursor with selection, insertInlineCode no-selection, insertStrikethrough no-selection
+- **BookmarkedMessages.test.tsx**: Added 8 tests — filtered-empty message, role badges, panel click propagation stop, ArrowUp boundary, ArrowDown boundary, mouseEnter selection, dialog aria-label, listbox role
+- **ErrorBoundary.test.tsx**: Added 5 tests — specific error message display, multiple children rendering, reset button class, custom fallback precedence, componentDidCatch logging verification
+- **ConversationStats.test.tsx**: Added 7 tests — modal click propagation stop, user/assistant counts, average messages per conversation, empty conversations count, formatNumber display, message count with titles, dialog aria-label
+- Total tests: 909 → 952 (47 test files, all passing)
