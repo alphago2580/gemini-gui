@@ -713,4 +713,148 @@ describe('useConversations', () => {
       expect(result.current.messages[2].content).toBe('Third edited');
     });
   });
+
+  describe('updateCurrentConversation edge cases', () => {
+    it('does not update conversations when no currentConversationId', () => {
+      const { result } = renderHook(() => useConversations());
+
+      // No conversation created yet, so currentConversationId is null
+      act(() => {
+        result.current.updateCurrentConversation([
+          { role: 'user' as const, content: 'orphan', timestamp: new Date() },
+        ]);
+      });
+
+      // Messages are still set locally
+      expect(result.current.messages).toHaveLength(1);
+      // But no conversation is modified
+      expect(result.current.conversations).toHaveLength(0);
+    });
+
+    it('does not regenerate title for multi-message updates', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      // First: set title via single user message
+      act(() => {
+        result.current.updateCurrentConversation([
+          { role: 'user' as const, content: 'Initial question', timestamp: new Date() },
+        ]);
+      });
+      const firstTitle = result.current.conversations[0].title;
+      expect(firstTitle).toContain('Initial question');
+
+      // Second: add assistant response — title should remain the same
+      act(() => {
+        result.current.updateCurrentConversation([
+          { role: 'user' as const, content: 'Initial question', timestamp: new Date() },
+          { role: 'assistant' as const, content: 'Here is the answer', timestamp: new Date() },
+        ]);
+      });
+
+      expect(result.current.conversations[0].title).toBe(firstTitle);
+    });
+
+    it('does not regenerate title when only assistant message exists', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      act(() => {
+        result.current.updateCurrentConversation([
+          { role: 'assistant' as const, content: 'Hello!', timestamp: new Date() },
+        ]);
+      });
+
+      // Title should remain the default since the only message is from assistant
+      expect(result.current.conversations[0].title).toBe('새로운 대화');
+    });
+  });
+
+  describe('multiple conversations management', () => {
+    it('creates conversations in reverse chronological order', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+      const firstId = result.current.conversations[0].id;
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+      const secondId = result.current.conversations[0].id;
+
+      // Second conversation should be at index 0 (prepended)
+      expect(result.current.conversations[0].id).toBe(secondId);
+      expect(result.current.conversations[1].id).toBe(firstId);
+    });
+
+    it('restored messages have generated IDs for legacy data', () => {
+      const savedConversations = [
+        {
+          id: '100',
+          title: '레거시 대화',
+          timestamp: new Date().toISOString(),
+          messages: [
+            { role: 'user', content: 'old message', timestamp: new Date().toISOString() },
+          ],
+        },
+      ];
+      localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+      localStorage.setItem('gemini-current-conversation', '100');
+
+      const { result } = renderHook(() => useConversations());
+
+      // Legacy messages without IDs should get IDs generated
+      expect(result.current.messages[0].id).toBeDefined();
+      expect(result.current.messages[0].id).toMatch(/^msg-/);
+    });
+
+    it('deleteMessage on empty messages list is a no-op', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      // No messages — deleting index 0 should not crash
+      act(() => {
+        result.current.deleteMessage(0);
+      });
+
+      expect(result.current.messages).toHaveLength(0);
+    });
+
+    it('forkConversation uses first user message for title', () => {
+      const { result } = renderHook(() => useConversations());
+
+      act(() => {
+        result.current.handleNewChat();
+      });
+
+      const msgs = [
+        { role: 'assistant' as const, content: 'Welcome', timestamp: new Date() },
+        { role: 'user' as const, content: 'What is TypeScript?', timestamp: new Date() },
+        { role: 'assistant' as const, content: 'TypeScript is...', timestamp: new Date() },
+      ];
+
+      act(() => {
+        result.current.updateCurrentConversation(msgs);
+      });
+
+      act(() => {
+        result.current.forkConversation(2);
+      });
+
+      const forkedConv = result.current.conversations[0];
+      expect(forkedConv.title).toContain('What is TypeScript');
+      expect(forkedConv.title).toContain('(분기)');
+    });
+  });
 });

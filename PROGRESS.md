@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (952 tests)
+- **Test Status**: Passing (1002 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -580,3 +580,12 @@
 - **ErrorBoundary.test.tsx**: Added 5 tests — specific error message display, multiple children rendering, reset button class, custom fallback precedence, componentDidCatch logging verification
 - **ConversationStats.test.tsx**: Added 7 tests — modal click propagation stop, user/assistant counts, average messages per conversation, empty conversations count, formatNumber display, message count with titles, dialog aria-label
 - Total tests: 909 → 952 (47 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 4 (+50 tests)
+- **useMessageSend.test.ts**: Added 10 tests — whitespace-only input, file name in message content, clear attached files after send, accumulate multiple file selections, error with non-Error object, error with plain string, both systemPrompt+model, non-Enter key ignored, null clipboardData, getAsFile returns null
+- **PromptTemplates.test.tsx**: Added 7 tests — whitespace-only name disabled, whitespace-only content disabled, trim whitespace on add, cancel clears inputs, outside click closes add form, aria-haspopup attribute, all delete button aria-labels
+- **useConversations.test.ts**: Added 7 tests — no update without conversationId, no title regen for multi-message, no title for assistant-only, reverse chronological order, legacy data gets IDs, deleteMessage on empty list, fork uses first user message for title
+- **MarkdownRenderer.test.tsx**: Added 8 tests — blockquote with inline formatting, list items with inline code, unordered-to-ordered list transition, ___ horizontal rule, headings with inline formatting, code block after paragraph, newline-only content, link inside list item
+- **mathRenderer.test.ts**: Added 12 tests — empty parseMathSegments, adjacent inline math, hat/vec decorators, left/right delimiters, double backslash line break, quad space, unknown commands, variant Greek letters, nested sqrt+frac, multiline containsMath, empty containsMath
+- **useStreamHandler.test.ts**: Added 6 tests — new assistant message append, delta append to existing, totalTokens auto-computation, error message prefix content, non-assistant message ignored, listener re-registration on conversationId change
+- Total tests: 952 → 1002 (47 test files, all passing)

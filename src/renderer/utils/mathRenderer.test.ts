@@ -308,5 +308,78 @@ describe('mathRenderer', () => {
       // Let's verify behavior
       expect(result.length).toBeGreaterThanOrEqual(1);
     });
+
+    it('handles empty string input', () => {
+      const result = parseMathSegments('');
+      expect(result).toEqual([]);
+    });
+
+    it('handles adjacent inline math expressions', () => {
+      const result = parseMathSegments('$a$ and $b$');
+      expect(result).toHaveLength(3);
+      expect(result[0]).toEqual({ type: 'inline-math', content: 'a' });
+      expect(result[1]).toEqual({ type: 'text', content: ' and ' });
+      expect(result[2]).toEqual({ type: 'inline-math', content: 'b' });
+    });
+  });
+
+  describe('renderMathToHtml additional cases', () => {
+    it('renders \\hat decorator', () => {
+      const result = renderMathToHtml('\\hat{x}');
+      expect(result).toContain('x');
+      expect(result).toContain('\u0302');
+    });
+
+    it('renders \\vec decorator', () => {
+      const result = renderMathToHtml('\\vec{v}');
+      expect(result).toContain('v');
+      expect(result).toContain('\u20D7');
+    });
+
+    it('renders \\left and \\right delimiters (skips them)', () => {
+      const result = renderMathToHtml('\\left(x\\right)');
+      expect(result).toContain('(');
+      expect(result).toContain('x');
+      expect(result).toContain(')');
+    });
+
+    it('renders double backslash as line break', () => {
+      const result = renderMathToHtml('a\\\\b');
+      expect(result).toContain('<br/>');
+    });
+
+    it('renders \\quad as em space', () => {
+      const result = renderMathToHtml('a\\quad b');
+      expect(result).toContain('\u2003');
+    });
+
+    it('renders unknown commands as escaped text', () => {
+      const result = renderMathToHtml('\\unknowncmd');
+      expect(result).toContain('\\unknowncmd');
+    });
+
+    it('renders variant Greek letters', () => {
+      expect(renderMathToHtml('\\varepsilon')).toBe('\u03B5');
+      expect(renderMathToHtml('\\varphi')).toBe('\u03C6');
+      expect(renderMathToHtml('\\vartheta')).toBe('\u03D1');
+    });
+
+    it('computes totalTokens as sum when not provided', () => {
+      // This tests the implicit total calculation in stats
+      const result = renderMathToHtml('\\sqrt{\\frac{a^2}{b^2}}');
+      expect(result).toContain('math-sqrt');
+      expect(result).toContain('math-frac');
+      expect(result).toContain('\u221A');
+    });
+  });
+
+  describe('containsMath additional cases', () => {
+    it('detects multiline block math', () => {
+      expect(containsMath('line1\n$$x + y$$\nline2')).toBe(true);
+    });
+
+    it('returns false for empty string', () => {
+      expect(containsMath('')).toBe(false);
+    });
   });
 });

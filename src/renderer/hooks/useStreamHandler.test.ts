@@ -231,4 +231,114 @@ describe('useStreamHandler', () => {
 
     expect(mockSetMessages).toHaveBeenCalled();
   });
+
+  it('appends new assistant message when last message is not from assistant', () => {
+    renderHook(() => useStreamHandler(defaultOptions));
+
+    act(() => {
+      streamDataCallback!({
+        type: 'message',
+        role: 'assistant',
+        content: 'First chunk',
+        delta: false,
+      });
+    });
+
+    // setMessages should be called with updater function
+    const updater = mockSetMessages.mock.calls[0][0];
+    const userMessages = [{ role: 'user', content: 'Hello', timestamp: new Date() }];
+    const result = updater(userMessages);
+    expect(result).toHaveLength(2);
+    expect(result[1].role).toBe('assistant');
+    expect(result[1].content).toBe('First chunk');
+    expect(result[1].id).toMatch(/^msg-/);
+  });
+
+  it('appends to existing assistant message when delta is true', () => {
+    renderHook(() => useStreamHandler(defaultOptions));
+
+    act(() => {
+      streamDataCallback!({
+        type: 'message',
+        role: 'assistant',
+        content: ' world',
+        delta: true,
+      });
+    });
+
+    const updater = mockSetMessages.mock.calls[0][0];
+    const existingMessages = [
+      { role: 'user', content: 'Hi', timestamp: new Date() },
+      { role: 'assistant', content: 'Hello', timestamp: new Date(), id: 'msg-1' },
+    ];
+    const result = updater(existingMessages);
+    expect(result).toHaveLength(2);
+    expect(result[1].content).toBe('Hello world');
+  });
+
+  it('computes totalTokens as inputTokens+outputTokens when total not provided', () => {
+    const { result } = renderHook(() => useStreamHandler(defaultOptions));
+
+    act(() => {
+      streamDataCallback!({
+        type: 'result',
+        stats: { inputTokens: 100, outputTokens: 50 },
+      });
+    });
+
+    expect(result.current.tokenUsage).toEqual({
+      inputTokens: 100,
+      outputTokens: 50,
+      totalTokens: 150,
+    });
+  });
+
+  it('stream error adds error message with prefix to messages', () => {
+    renderHook(() => useStreamHandler(defaultOptions));
+
+    act(() => {
+      streamErrorCallback!({ error: 'API timeout' });
+    });
+
+    const updater = mockSetMessages.mock.calls[0][0];
+    const result = updater([]);
+    expect(result).toHaveLength(1);
+    expect(result[0].role).toBe('assistant');
+    expect(result[0].content).toContain('오류:');
+    expect(result[0].content).toContain('API timeout');
+    expect(result[0].id).toMatch(/^msg-/);
+  });
+
+  it('ignores non-assistant message data', () => {
+    const { result } = renderHook(() => useStreamHandler(defaultOptions));
+
+    act(() => {
+      streamDataCallback!({
+        type: 'message',
+        role: 'user',
+        content: 'Should be ignored',
+        delta: false,
+      });
+    });
+
+    // isStreaming should remain false — non-assistant messages are ignored
+    expect(result.current.isStreaming).toBe(false);
+    expect(mockSetMessages).not.toHaveBeenCalled();
+  });
+
+  it('re-registers listeners when currentConversationId changes', () => {
+    const options = { ...defaultOptions };
+    const { rerender } = renderHook(
+      (props) => useStreamHandler(props),
+      { initialProps: options }
+    );
+
+    const initialCallCount = mockElectronAPI.onStreamData.mock.calls.length;
+
+    rerender({ ...options, currentConversationId: 'conv-2' });
+
+    // Should have re-registered listeners
+    expect(mockElectronAPI.onStreamData.mock.calls.length).toBeGreaterThan(initialCallCount);
+    expect(mockElectronAPI.removeAllListeners).toHaveBeenCalled();
+  });
 });
