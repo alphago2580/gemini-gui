@@ -209,4 +209,70 @@ describe('useKeyboardShortcuts', () => {
     fireKeyDown('Tab', { metaKey: true });
     expect(actions.onNextTab).toHaveBeenCalledTimes(1);
   });
+
+  it('calls onToggleQuickSwitcher on Ctrl+K', () => {
+    const actions = { ...defaultActions(), onToggleQuickSwitcher: vi.fn() };
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('k', { ctrlKey: true });
+    expect(actions.onToggleQuickSwitcher).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onToggleShortcutHelp on Ctrl+/', () => {
+    const actions = { ...defaultActions(), onToggleShortcutHelp: vi.fn() };
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('/', { ctrlKey: true });
+    expect(actions.onToggleShortcutHelp).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles uppercase P for Ctrl+Shift+P', () => {
+    const actions = defaultActions();
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('P', { ctrlKey: true, shiftKey: true });
+    expect(actions.onToggleCommandPalette).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not crash when optional onNextTab is undefined and Ctrl+Tab pressed', () => {
+    const actions = defaultActions();
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    // onNextTab/onPrevTab are not provided — should not throw
+    expect(() => fireKeyDown('Tab', { ctrlKey: true })).not.toThrow();
+  });
+
+  it('does not crash when optional onToggleQuickSwitcher is undefined', () => {
+    const actions = defaultActions();
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    expect(() => fireKeyDown('k', { ctrlKey: true })).not.toThrow();
+  });
+
+  it('does not crash when optional onToggleShortcutHelp is undefined', () => {
+    const actions = defaultActions();
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    expect(() => fireKeyDown('/', { ctrlKey: true })).not.toThrow();
+  });
+
+  it('Ctrl+Tab takes priority over switch-case shortcuts', () => {
+    const actions = { ...defaultActions(), onNextTab: vi.fn() };
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('Tab', { ctrlKey: true });
+    expect(actions.onNextTab).toHaveBeenCalledTimes(1);
+    expect(actions.onNewChat).not.toHaveBeenCalled();
+    expect(actions.onToggleSidebar).not.toHaveBeenCalled();
+  });
+
+  it('Escape without settings open and without ctrl does nothing', () => {
+    const actions = defaultActions();
+    actions.isSettingsOpen = false;
+    renderHook(() => useKeyboardShortcuts(actions));
+
+    fireKeyDown('Escape');
+    expect(actions.onCloseSettings).not.toHaveBeenCalled();
+    expect(actions.onNewChat).not.toHaveBeenCalled();
+  });
 });

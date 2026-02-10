@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1105 tests)
+- **Test Status**: Passing (1153 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -607,3 +607,12 @@
 - **useAutoResize.test.ts**: Added 8 tests — overflowY hidden below max, overflowY auto at max, height reset before measure, exact min height boundary, resize function stability, textareaRef stability, scrollHeight above max (201px), scrollHeight below max (199px)
 - **useExport.test.ts**: Added 8 tests — fallback on null conversationId, PDF filename sanitization, missing exportMarkdown method, missing exportPdf method, markdown content inclusion, HTML content inclusion, title update on conversation change, single message export
 - Total tests: 1057 → 1105 (47 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 7 (+48 tests)
+- **useKeyboardShortcuts.test.ts**: Added 8 tests — Ctrl+K toggleQuickSwitcher, Ctrl+/ toggleShortcutHelp, uppercase P for Ctrl+Shift+P, optional onNextTab undefined safety, optional onToggleQuickSwitcher undefined safety, optional onToggleShortcutHelp undefined safety, Ctrl+Tab priority over switch-case, Escape without settings does nothing
+- **MessageContextMenu.test.tsx**: Added 8 tests — icon span class count, label span class count, empty items rendering, onSelect with quote id, non-Escape keyDown ignored, onClose called once per click, zero coordinates styling, single item menu rendering
+- **useLocalStorage.test.ts**: Added 8 tests — boolean values, null initial value, stored null from localStorage, empty string stored, nested object values, setValue stability, key change via rerender, number zero (falsy valid JSON)
+- **usePromptTemplates.test.ts**: Added 8 tests — update non-existent id, add multiple sequentially, delete all templates, update preserves id, addTemplate callback stability, deleteTemplate callback stability, empty array from localStorage, added templates unique ids
+- **CommandPalette.test.tsx**: Added 8 tests — Enter on empty filtered list, whitespace query shows all, aria-activedescendant after nav, input CSS class, overlay CSS class, inner container CSS class, selectedIndex clamped on filter, empty commands array
+- **useToast.test.ts**: Added 8 tests — dismiss non-existent id, FIFO ordering, addToast callback stability, dismissToast callback stability, toast id prefix, dismiss first keep rest, dismiss all sequentially, toast types stored correctly
+- Total tests: 1105 → 1153 (47 test files, all passing)

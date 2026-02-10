@@ -133,4 +133,76 @@ describe('MessageContextMenu', () => {
     expect(nonDangerItems.length).toBe(2);
     expect(allItems.length).toBe(3);
   });
+
+  it('should render icon spans with context-menu-icon class', () => {
+    const { container } = render(
+      <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+    );
+    const iconSpans = container.querySelectorAll('.context-menu-icon');
+    expect(iconSpans.length).toBe(3);
+  });
+
+  it('should render label spans with context-menu-label class', () => {
+    const { container } = render(
+      <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+    );
+    const labelSpans = container.querySelectorAll('.context-menu-label');
+    expect(labelSpans.length).toBe(3);
+  });
+
+  it('should render empty menu with no items', () => {
+    const { container } = render(
+      <MessageContextMenu x={100} y={200} items={[]} onSelect={vi.fn()} onClose={vi.fn()} />
+    );
+    const menuItems = container.querySelectorAll('.context-menu-item');
+    expect(menuItems.length).toBe(0);
+    expect(container.querySelector('.message-context-menu')).toBeInTheDocument();
+  });
+
+  it('should call onSelect with correct id for each item', () => {
+    const onSelect = vi.fn();
+    const onClose = vi.fn();
+    render(
+      <MessageContextMenu x={100} y={200} items={items} onSelect={onSelect} onClose={onClose} />
+    );
+    fireEvent.click(screen.getByText('인용'));
+    expect(onSelect).toHaveBeenCalledWith('quote');
+  });
+
+  it('should not close on non-Escape keyDown', () => {
+    const onClose = vi.fn();
+    render(
+      <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={onClose} />
+    );
+    fireEvent.keyDown(document, { key: 'Enter' });
+    fireEvent.keyDown(document, { key: 'ArrowDown' });
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('should call onClose only once per item click', () => {
+    const onClose = vi.fn();
+    render(
+      <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={onClose} />
+    );
+    fireEvent.click(screen.getByText('삭제'));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should have correct inline style for zero coordinates', () => {
+    const { container } = render(
+      <MessageContextMenu x={0} y={0} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+    );
+    const menu = container.querySelector('.message-context-menu') as HTMLElement;
+    expect(menu.style.left).toBe('0px');
+    expect(menu.style.top).toBe('0px');
+  });
+
+  it('should render single item menu correctly', () => {
+    const singleItem: ContextMenuItem[] = [{ id: 'only', label: '유일한 항목', icon: '★' }];
+    render(
+      <MessageContextMenu x={50} y={50} items={singleItem} onSelect={vi.fn()} onClose={vi.fn()} />
+    );
+    expect(screen.getByText('유일한 항목')).toBeInTheDocument();
+    expect(screen.getAllByRole('menuitem').length).toBe(1);
+  });
 });
