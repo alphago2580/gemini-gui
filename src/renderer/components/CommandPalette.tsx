@@ -9,7 +9,7 @@ export interface Command {
   action: () => void;
 }
 
-interface CommandPaletteProps {
+export interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
   commands: Command[];

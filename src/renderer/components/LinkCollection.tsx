@@ -2,7 +2,7 @@ import React, { useMemo, useState, useCallback } from 'react';
 import './LinkCollection.css';
 import { extractLinks } from '../utils/linkExtractor';
 
-interface LinkCollectionProps {
+export interface LinkCollectionProps {
   isOpen: boolean;
   onClose: () => void;
   messages: Array<{ role: 'user' | 'assistant'; content: string }>;

@@ -3,7 +3,7 @@ import './TokenUsage.css';
 import type { TokenUsage as TokenUsageType } from '../../preload/types';
 import * as S from '../constants/strings';
 
-interface TokenUsageProps {
+export interface TokenUsageProps {
   usage: TokenUsageType;
 }
 

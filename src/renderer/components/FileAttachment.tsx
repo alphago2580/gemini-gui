@@ -3,7 +3,7 @@ import './FileAttachment.css';
 import { formatFileSize, getFileIcon } from '../utils/format';
 import * as S from '../constants/strings';
 
-interface FileAttachmentProps {
+export interface FileAttachmentProps {
   onFilesSelected: (files: File[]) => void;
   attachedFiles: File[];
   onRemoveFile: (index: number) => void;

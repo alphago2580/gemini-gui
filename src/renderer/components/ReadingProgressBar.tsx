@@ -1,7 +1,7 @@
 import React from 'react';
 import './ReadingProgressBar.css';
 
-interface ReadingProgressBarProps {
+export interface ReadingProgressBarProps {
   progress: number;
   isVisible: boolean;
 }

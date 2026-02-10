@@ -4,7 +4,7 @@ import './MessageBubble.css';
 import type { Message } from '../../preload/types';
 import * as S from '../constants/strings';
 
-interface MessageBubbleProps {
+export interface MessageBubbleProps {
   message: Message;
   index: number;
   isStreaming: boolean;

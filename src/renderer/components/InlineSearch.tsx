@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import './InlineSearch.css';
 
-interface InlineSearchProps {
+export interface InlineSearchProps {
   isOpen: boolean;
   query: string;
   matchCount: number;

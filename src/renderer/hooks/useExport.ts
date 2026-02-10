@@ -3,7 +3,7 @@ import type { Message, Conversation } from '../../preload/types';
 import { exportToMarkdown, exportToHtml, sanitizeFileName } from '../utils/format';
 import * as S from '../constants/strings';
 
-interface UseExportOptions {
+export interface UseExportOptions {
   messages: Message[];
   conversations: Conversation[];
   currentConversationId: string | null;

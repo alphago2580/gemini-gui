@@ -3,7 +3,7 @@ import type { StreamData, StreamErrorData, Message, TokenUsage } from '../../pre
 import { generateMessageId } from '../utils/format';
 import * as S from '../constants/strings';
 
-interface UseStreamHandlerOptions {
+export interface UseStreamHandlerOptions {
   currentConversationId: string | null;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   updateCurrentConversation: (messages: Message[]) => void;

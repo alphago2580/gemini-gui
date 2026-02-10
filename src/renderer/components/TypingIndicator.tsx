@@ -2,7 +2,7 @@ import React from 'react';
 import './TypingIndicator.css';
 import * as S from '../constants/strings';
 
-interface TypingIndicatorProps {
+export interface TypingIndicatorProps {
   isStreaming?: boolean;
 }
 

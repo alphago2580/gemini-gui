@@ -43,7 +43,7 @@ const SHORTCUT_GROUPS: { title: string; shortcuts: ShortcutEntry[] }[] = [
 
 export { SHORTCUT_GROUPS };
 
-interface KeyboardShortcutHelpProps {
+export interface KeyboardShortcutHelpProps {
   isOpen: boolean;
   onClose: () => void;
 }

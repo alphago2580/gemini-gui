@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './QuickSwitcher.css';
 import type { Conversation } from '../../preload/types';
 
-interface QuickSwitcherProps {
+export interface QuickSwitcherProps {
   isOpen: boolean;
   onClose: () => void;
   conversations: Conversation[];

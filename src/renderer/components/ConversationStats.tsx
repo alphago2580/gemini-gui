@@ -2,7 +2,7 @@ import React from 'react';
 import { ConversationStatistics, formatNumber } from '../utils/conversationStats';
 import './ConversationStats.css';
 
-interface ConversationStatsProps {
+export interface ConversationStatsProps {
   isOpen: boolean;
   onClose: () => void;
   stats: ConversationStatistics;

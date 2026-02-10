@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import './CodeSnippets.css';
 import { extractCodeBlocks, groupByLanguage } from '../utils/codeExtractor';
 
-interface CodeSnippetsProps {
+export interface CodeSnippetsProps {
   isOpen: boolean;
   onClose: () => void;
   messages: Array<{ role: 'user' | 'assistant'; content: string }>;

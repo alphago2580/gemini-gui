@@ -16,7 +16,7 @@ export const DEFAULT_SUGGESTIONS: SuggestedPrompt[] = [
   { icon: '🌐', label: '번역 도움', prompt: '다음 텍스트를 영어로 번역해줘:\n' },
 ];
 
-interface WelcomeScreenProps {
+export interface WelcomeScreenProps {
   onPromptClick: (prompt: string) => void;
 }
 
