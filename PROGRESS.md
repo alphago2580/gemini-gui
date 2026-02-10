@@ -545,3 +545,17 @@
 - Added 3 unit tests for `generateUniqueId` (prefix, default, uniqueness)
 - TypeScript: 0 errors (`npx tsc --noEmit` passes)
 - Total tests: 699 (30 test files, all passing)
+
+### Agent 4 (Integration) — Bookmarks, Emoji Reactions & Full Component Wiring
+- Created `useBookmarks` hook: toggle, remove, isBookmarked, localStorage persistence
+- Created `useReactions` hook: addReaction, getReactions per message per conversation
+- Wired `BookmarkedMessages` panel with real bookmark state (was previously empty/no-op)
+- Added bookmark star button (☆/★) and emoji reaction picker to `MessageBubble` header
+- Added reactions display below message content as emoji badges
+- Added "Bookmarks" header action button in header-actions bar
+- Added "북마크 보기" command to `CommandPalette` (now 8 commands)
+- Added bookmark toggle action (⭐) to right-click `MessageContextMenu`
+- `EmojiReactionPicker` is now functional inside each `MessageBubble`
+- Added 8 unit tests for `useBookmarks` hook (init, toggle, remove, isBookmarked, null conv, persistence, title)
+- Added 6 unit tests for `useReactions` hook (init, add, multiple, per-message, null conv, persistence)
+- Total tests: 849 → 863 (49 test files, all passing)
