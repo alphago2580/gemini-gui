@@ -521,3 +521,14 @@
 - Updated TODO.md to reflect all completed features (vast majority now done)
 - Prepares codebase for future internationalization (i18n) support
 - Total tests: 696 (30 test files, all passing)
+
+### Agent 2 (Quality) — Hooks String Constants + Model List Consolidation + Performance
+- Migrated 4 hooks to use centralized string constants: useConversations, useMessageSend, useStreamHandler, usePromptTemplates
+- Added 12 new string constants for hooks: conversation titles, error prefixes, file labels, default templates
+- Moved `MODEL_DISPLAY_NAMES` from App.tsx to constants/strings.ts (shared between App and Settings)
+- Replaced hardcoded `<option>` elements in Settings with dynamic rendering from MODEL_DISPLAY_NAMES
+- Removed unused `parseMathSegments` import from MarkdownRenderer
+- Removed unused `MODEL_AUTO` constant (replaced by MODEL_DISPLAY_NAMES entry)
+- Wrapped `handleSettingsSave` with `useCallback` for stable reference
+- Memoized `tabs` array in useTabs with `useMemo` to avoid re-creation on every render
+- Total tests: 696 (30 test files, all passing)
