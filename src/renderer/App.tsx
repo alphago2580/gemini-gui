@@ -99,6 +99,19 @@ const App: React.FC = () => {
   // Prompt templates
   const { templates, addTemplate, deleteTemplate } = usePromptTemplates();
 
+  // Settings state (extracted to custom hook)
+  const { settings, handleSettingsSave } = useSettings();
+
+  // Notify when response completes while window is not focused (agent4)
+  const handleStreamComplete = useCallback(async () => {
+    const api = window.electronAPI;
+    if (!api?.isWindowFocused || !api?.showNotification) return;
+    const focused = await api.isWindowFocused();
+    if (!focused) {
+      api.showNotification(S.APP_TITLE, S.NOTIFICATION_RESPONSE_COMPLETE);
+    }
+  }, []);
+
   // Stream handler
   const {
     isLoading,
@@ -112,6 +125,7 @@ const App: React.FC = () => {
     setMessages,
     updateCurrentConversation,
     addToast,
+    onComplete: handleStreamComplete,
   });
 
   // Dialog/panel state (extracted to custom hook)
@@ -127,10 +141,27 @@ const App: React.FC = () => {
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
 
+  // Warn before closing when generation is in progress (agent4)
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isLoading) {
+        e.preventDefault();
+        return S.CLOSE_CONFIRM_MESSAGE;
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isLoading]);
+
   // Apply high contrast attribute
   useEffect(() => {
     document.documentElement.setAttribute('data-high-contrast', String(highContrast));
   }, [highContrast]);
+
+  // Apply font size
+  useEffect(() => {
+    document.documentElement.style.setProperty('--message-font-size', `${settings.fontSize}px`);
+  }, [settings.fontSize]);
 
   // Auto-scroll
   const {
@@ -172,8 +203,21 @@ const App: React.FC = () => {
     [conversations]
   );
 
-  // Settings state (extracted to custom hook)
-  const { settings, handleSettingsSave } = useSettings();
+  // Current conversation title (for window title sync)
+  const currentConvTitle = useMemo(() => {
+    const conv = conversations.find(c => c.id === currentConversationId);
+    return conv?.title || S.UNTITLED_CONVERSATION;
+  }, [conversations, currentConversationId]);
+
+  // Sync window title with current conversation (agent4)
+  useEffect(() => {
+    const api = window.electronAPI;
+    if (!api?.setWindowTitle) return;
+    const title = currentConversationId
+      ? `${currentConvTitle} — ${S.APP_TITLE}`
+      : S.APP_TITLE;
+    api.setWindowTitle(title);
+  }, [currentConvTitle, currentConversationId]);
 
   // Message send logic (input, files, send, paste)
   const {
@@ -197,6 +241,32 @@ const App: React.FC = () => {
     clearTokenUsage,
     addToast,
   });
+
+  // Stop generation handler (agent4)
+  const handleStopGeneration = useCallback(async () => {
+    const api = window.electronAPI;
+    if (!api?.stopGemini) return;
+    await api.stopGemini();
+    stopLoading();
+  }, [stopLoading]);
+
+  // Regenerate last response (agent4)
+  const handleRegenerate = useCallback(() => {
+    if (isLoading || messages.length === 0) return;
+    let lastUserMsgIndex = -1;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === 'user') {
+        lastUserMsgIndex = i;
+        break;
+      }
+    }
+    if (lastUserMsgIndex === -1) return;
+    const lastUserContent = messages[lastUserMsgIndex].content;
+    const trimmed = messages.slice(0, lastUserMsgIndex);
+    setMessages(trimmed);
+    updateCurrentConversation(trimmed);
+    setInput(lastUserContent);
+  }, [isLoading, messages, setMessages, updateCurrentConversation, setInput]);
 
   // Auto-resize textarea
   const { textareaRef } = useAutoResize(input);
@@ -262,7 +332,25 @@ const App: React.FC = () => {
     { id: 'perf-monitor', label: S.CMD_PERF_MONITOR, action: dialogs.openPerfPanel },
     { id: 'toggle-preview', label: S.CMD_TOGGLE_PREVIEW, action: dialogs.toggleInputPreview },
     { id: 'bookmarks', label: S.CMD_BOOKMARKS, action: dialogs.openBookmarks },
-  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch, dialogs]);
+    { id: 'regenerate', label: S.REGENERATE_TITLE, action: handleRegenerate },
+  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch, dialogs, handleRegenerate]);
+
+  // Native menu actions (agent4)
+  useEffect(() => {
+    const api = window.electronAPI;
+    if (!api?.onMenuAction) return;
+    api.onMenuAction((action: string) => {
+      switch (action) {
+        case 'new-chat': handleNewChat(); break;
+        case 'export-md': handleExport(); break;
+        case 'export-pdf': handleExportPdf(); break;
+        case 'settings': dialogs.openSettings(); break;
+        case 'command-palette': dialogs.toggleCommandPalette(); break;
+        case 'toggle-sidebar': handleToggleSidebar(); break;
+        case 'shortcut-help': dialogs.toggleShortcutHelp(); break;
+      }
+    });
+  }, [handleNewChat, handleExport, handleExportPdf, handleToggleSidebar, dialogs]);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -415,6 +503,16 @@ const App: React.FC = () => {
             {tokenUsage && !isLoading && (
               <TokenUsage usage={tokenUsage} />
             )}
+            {!isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
+              <button
+                className="regenerate-btn"
+                onClick={handleRegenerate}
+                aria-label={S.ARIA_REGENERATE}
+                title={S.REGENERATE_TITLE}
+              >
+                {S.REGENERATE_BUTTON}
+              </button>
+            )}
             <div ref={messagesEndRef} />
           </div>
 
@@ -457,14 +555,24 @@ const App: React.FC = () => {
               rows={1}
               aria-label={S.ARIA_MESSAGE_INPUT}
             />
-            <button
-              className="send-button"
-              onClick={handleSend}
-              disabled={isLoading || !input.trim()}
-              aria-label={isLoading ? S.ARIA_SENDING : S.ARIA_SEND}
-            >
-              {isLoading ? S.SENDING_BUTTON : S.SEND_BUTTON}
-            </button>
+            {isLoading ? (
+              <button
+                className="send-button stop-button"
+                onClick={handleStopGeneration}
+                aria-label={S.ARIA_STOP_GENERATION}
+              >
+                {S.STOP_BUTTON}
+              </button>
+            ) : (
+              <button
+                className="send-button"
+                onClick={handleSend}
+                disabled={!input.trim()}
+                aria-label={S.ARIA_SEND}
+              >
+                {S.SEND_BUTTON}
+              </button>
+            )}
             </div>
             <InputPreview content={input} isVisible={dialogs.isInputPreviewVisible} />
           </div>
