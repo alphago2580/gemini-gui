@@ -26,15 +26,6 @@ import { useExport } from './hooks/useExport';
 import { useSettings } from './hooks/useSettings';
 import * as S from './constants/strings';
 
-const MODEL_DISPLAY_NAMES: Record<string, string> = {
-  'auto': 'Auto',
-  'gemini-2.5-pro': 'Gemini 2.5 Pro',
-  'gemini-2.5-flash': 'Gemini 2.5 Flash',
-  'gemini-2.0-flash': 'Gemini 2.0 Flash',
-  'gemini-1.5-pro': 'Gemini 1.5 Pro',
-  'gemini-1.5-flash': 'Gemini 1.5 Flash',
-};
-
 const App: React.FC = () => {
   // Conversation state (extracted to custom hook)
   const {
@@ -216,7 +207,7 @@ const App: React.FC = () => {
         <header className="app-header">
           <div className="header-title">
             <h1>{S.APP_TITLE}</h1>
-            <p>{S.MODEL_PREFIX} {MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
+            <p>{S.MODEL_PREFIX} {S.MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
           </div>
           {messages.length > 0 && (
             <div className="header-actions">

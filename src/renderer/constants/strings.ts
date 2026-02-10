@@ -184,6 +184,16 @@ export const DEFAULT_TEMPLATE_REVIEW_CONTENT = '다음 코드를 리뷰하고 �
 export const DEFAULT_TEMPLATE_SUMMARY = '요약';
 export const DEFAULT_TEMPLATE_SUMMARY_CONTENT = '다음 내용을 간결하게 요약해 주세요:\n\n';
 
+// Model display names
+export const MODEL_DISPLAY_NAMES: Record<string, string> = {
+  'auto': 'Auto',
+  'gemini-2.5-pro': 'Gemini 2.5 Pro',
+  'gemini-2.5-flash': 'Gemini 2.5 Flash',
+  'gemini-2.0-flash': 'Gemini 2.0 Flash',
+  'gemini-1.5-pro': 'Gemini 1.5 Pro',
+  'gemini-1.5-flash': 'Gemini 1.5 Flash',
+};
+
 // useConversations
 export const NEW_CONVERSATION_TITLE = '새로운 대화';
 export const FORK_SUFFIX = '(분기)';
