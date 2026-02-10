@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import './MessageContextMenu.css';
+import * as S from '../constants/strings';
 
 export interface ContextMenuItem {
   id: string;
@@ -54,7 +55,7 @@ const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ x, y, items, on
       className="message-context-menu"
       style={{ left: x, top: y }}
       role="menu"
-      aria-label="메시지 작업 메뉴"
+      aria-label={S.CTX_MENU_LABEL}
     >
       {items.map(item => (
         <button
@@ -74,4 +75,4 @@ const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ x, y, items, on
   );
 };
 
-export default MessageContextMenu;
+export default React.memo(MessageContextMenu);

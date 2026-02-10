@@ -1,5 +1,6 @@
 import React from 'react';
 import './FormattingToolbar.css';
+import * as S from '../constants/strings';
 
 export interface FormattingAction {
   id: string;
@@ -9,12 +10,12 @@ export interface FormattingAction {
 }
 
 const ACTIONS: FormattingAction[] = [
-  { id: 'bold', label: 'B', icon: 'B', title: '굵게' },
-  { id: 'italic', label: 'I', icon: 'I', title: '기울임' },
-  { id: 'code', label: '<>', icon: '<>', title: '인라인 코드' },
-  { id: 'strikethrough', label: 'S', icon: 'S', title: '취소선' },
-  { id: 'link', label: '🔗', icon: '🔗', title: '링크 삽입' },
-  { id: 'codeblock', label: '{}', icon: '{}', title: '코드 블록' },
+  { id: 'bold', label: 'B', icon: 'B', title: S.FMT_BOLD },
+  { id: 'italic', label: 'I', icon: 'I', title: S.FMT_ITALIC },
+  { id: 'code', label: '<>', icon: '<>', title: S.FMT_INLINE_CODE },
+  { id: 'strikethrough', label: 'S', icon: 'S', title: S.FMT_STRIKETHROUGH },
+  { id: 'link', label: '🔗', icon: '🔗', title: S.FMT_LINK },
+  { id: 'codeblock', label: '{}', icon: '{}', title: S.FMT_CODE_BLOCK },
 ];
 
 interface FormattingToolbarProps {
@@ -23,7 +24,7 @@ interface FormattingToolbarProps {
 
 const FormattingToolbarInner: React.FC<FormattingToolbarProps> = ({ onFormat }) => {
   return (
-    <div className="formatting-toolbar" aria-label="텍스트 포맷팅 도구">
+    <div className="formatting-toolbar" aria-label={S.FMT_TOOLBAR_LABEL}>
       {ACTIONS.map(action => (
         <button
           key={action.id}

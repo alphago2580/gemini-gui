@@ -238,6 +238,199 @@ export const ARIA_ADD_REACTION = '리액션 추가';
 export const TITLE_ADD_REACTION = '리액션 추가';
 export const ARIA_REMOVE_REACTION = '리액션 제거';
 export const STORAGE_KEY_REACTIONS = 'gemini-reactions';
+// Context menu
+export const CTX_COPY = '복사';
+export const CTX_COPY_ICON = '📋';
+export const CTX_EDIT = '수정';
+export const CTX_EDIT_ICON = '✏️';
+export const CTX_PIN = '고정';
+export const CTX_PIN_ICON = '📌';
+export const CTX_BOOKMARK = '북마크';
+export const CTX_BOOKMARK_ICON = '⭐';
+export const CTX_REACTION = '반응';
+export const CTX_REACTION_ICON = '😀';
+export const CTX_FORK = '분기';
+export const CTX_FORK_ICON = '🔀';
+export const CTX_DELETE = '삭제';
+export const CTX_DELETE_ICON = '🗑';
+export const CTX_NO_TITLE = '제목 없음';
+
+// Command palette — additional commands
+export const CMD_MESSAGE_SEARCH = '전체 메시지 검색';
+export const CMD_PERF_MONITOR = '성능 모니터';
+export const CMD_TOGGLE_PREVIEW = '입력 미리보기 토글';
+export const CMD_BOOKMARKS = '북마크 목록';
+
+// Header action buttons — additional
+export const CODE_BUTTON = 'Code';
+export const ARIA_CODE_SNIPPETS = '코드 스니펫';
+export const TITLE_CODE_SNIPPETS = '코드 스니펫 보기';
+export const LINKS_BUTTON = 'Links';
+export const ARIA_LINK_COLLECTION = '링크 모음';
+export const TITLE_LINK_COLLECTION = '링크 모음 보기';
+export const STATS_BUTTON = 'Stats';
+export const ARIA_CONVERSATION_STATS = '대화 통계';
+export const TITLE_CONVERSATION_STATS = '대화 통계 보기';
+
+// InlineSearch
+export const INLINE_SEARCH_LABEL = '대화 내 검색';
+export const INLINE_SEARCH_PLACEHOLDER = '대화 내 검색...';
+export const INLINE_SEARCH_PREV = '이전 결과';
+export const INLINE_SEARCH_PREV_TITLE = '이전 결과 (Shift+Enter)';
+export const INLINE_SEARCH_NEXT = '다음 결과';
+export const INLINE_SEARCH_NEXT_TITLE = '다음 결과 (Enter)';
+export const INLINE_SEARCH_CLOSE_TITLE = '닫기 (Esc)';
+export const INLINE_SEARCH_CLOSE_LABEL = '검색 닫기';
+
+// QuickSwitcher
+export const QS_LABEL = '빠른 대화 전환';
+export const QS_SEARCH_LABEL = '대화 검색';
+export const QS_PLACEHOLDER = '대화 전환...';
+export const QS_LIST_LABEL = '대화 목록';
+export const QS_EMPTY = '일치하는 대화가 없습니다';
+export const QS_MESSAGE_SUFFIX = '개 메시지';
+export const QS_CURRENT_BADGE = '현재';
+
+// FormattingToolbar
+export const FMT_TOOLBAR_LABEL = '텍스트 포맷팅 도구';
+export const FMT_BOLD = '굵게';
+export const FMT_ITALIC = '기울임';
+export const FMT_INLINE_CODE = '인라인 코드';
+export const FMT_STRIKETHROUGH = '취소선';
+export const FMT_LINK = '링크 삽입';
+export const FMT_CODE_BLOCK = '코드 블록';
+
+// ReadingProgressBar
+export const READING_PROGRESS_LABEL = '읽기 진행률';
+
+// InputPreview
+export const INPUT_PREVIEW_LABEL = '입력 미리보기';
+export const INPUT_PREVIEW_TEXT = '미리보기';
+
+// PinnedMessages
+export const PINNED_LABEL = '고정된 메시지';
+export const PINNED_COUNT_SUFFIX = '개 고정됨';
+export const PINNED_NAV_PREFIX = '고정된 메시지로 이동:';
+export const PINNED_UNPIN = '고정 해제';
+
+// CodeSnippets
+export const SNIPPETS_LABEL = '코드 스니펫';
+export const SNIPPETS_CLOSE_LABEL = '코드 스니펫 닫기';
+export const SNIPPETS_ALL_FILTER = '전체';
+export const SNIPPETS_ALL_FILTER_LABEL = '전체 언어 필터';
+export const SNIPPETS_EMPTY_NO_CODE = '이 대화에 코드 블록이 없습니다.';
+export const SNIPPETS_EMPTY_NO_MATCH = '필터에 해당하는 코드가 없습니다.';
+export const SNIPPETS_NAV_LABEL = '메시지로 이동';
+export const SNIPPETS_COPY_LABEL = '코드 복사';
+
+// KeyboardShortcutHelp
+export const SHORTCUT_HELP_LABEL = '키보드 단축키';
+export const SHORTCUT_HELP_CLOSE = '단축키 도움말 닫기';
+export const SHORTCUT_GROUP_GENERAL = '일반';
+export const SHORTCUT_GROUP_MESSAGE = '메시지';
+export const SHORTCUT_GROUP_SEARCH = '검색';
+export const SHORTCUT_GROUP_TABS = '탭';
+export const SHORTCUT_NEW_CHAT = '새 대화';
+export const SHORTCUT_CLEAR = '대화 내용 지우기';
+export const SHORTCUT_SETTINGS = '설정 열기';
+export const SHORTCUT_CMD_PALETTE = '명령 팔레트';
+export const SHORTCUT_SIDEBAR = '사이드바 토글';
+export const SHORTCUT_QUICK_SWITCH = '빠른 대화 전환';
+export const SHORTCUT_CLOSE = '현재 패널 닫기';
+export const SHORTCUT_SEND = '메시지 전송';
+export const SHORTCUT_NEWLINE = '줄바꿈';
+export const SHORTCUT_FIND = '대화 내 검색';
+export const SHORTCUT_NEXT_TAB = '다음 탭';
+export const SHORTCUT_PREV_TAB = '이전 탭';
+
+// LinkCollection
+export const LINKS_LABEL = '링크 모음';
+export const LINKS_CLOSE_LABEL = '링크 모음 닫기';
+export const LINKS_EMPTY = '이 대화에 링크가 없습니다.';
+export const LINKS_NAV_LABEL = '메시지로 이동';
+export const LINKS_COPY_URL = 'URL 복사';
+
+// ConversationStats
+export const STATS_LABEL = '대화 통계';
+export const STATS_CLOSE_LABEL = '통계 닫기';
+export const STATS_TOTAL_CONV = '전체 대화';
+export const STATS_TOTAL_MSG = '전체 메시지';
+export const STATS_USER_MSG = '사용자 메시지';
+export const STATS_AI_MSG = 'AI 응답';
+export const STATS_AVG_MSG = '대화당 평균 메시지';
+export const STATS_AVG_LEN = '평균 메시지 길이';
+export const STATS_CHAR_SUFFIX = '자';
+export const STATS_TOTAL_CHARS = '총 글자 수';
+export const STATS_EMPTY_CONV = '빈 대화';
+export const STATS_LONGEST = '가장 긴 대화';
+export const STATS_SHORTEST = '가장 짧은 대화';
+export const STATS_COUNT_SUFFIX = '개';
+
+// BookmarkedMessages
+export const BOOKMARKS_LABEL = '북마크된 메시지';
+export const BOOKMARKS_TITLE = '북마크';
+export const BOOKMARKS_CLOSE_LABEL = '북마크 닫기';
+export const BOOKMARKS_FILTER_ALL = '전체';
+export const BOOKMARKS_FILTER_ALL_LABEL = '전체 필터';
+export const BOOKMARKS_FILTER_USER = '사용자';
+export const BOOKMARKS_FILTER_USER_LABEL = '사용자 필터';
+export const BOOKMARKS_FILTER_AI = 'AI';
+export const BOOKMARKS_FILTER_AI_LABEL = 'AI 필터';
+export const BOOKMARKS_EMPTY = '북마크된 메시지가 없습니다. 메시지의 ★ 버튼을 눌러 북마크하세요.';
+export const BOOKMARKS_EMPTY_FILTER = '필터에 해당하는 북마크가 없습니다.';
+export const BOOKMARKS_REMOVE = '북마크 해제';
+
+// MessageSearch
+export const MSG_SEARCH_LABEL = '메시지 검색';
+export const MSG_SEARCH_PLACEHOLDER = '전체 대화 내용 검색...';
+export const MSG_SEARCH_COUNT_SUFFIX = '개 결과';
+export const MSG_SEARCH_EMPTY = '검색 결과가 없습니다';
+
+// PerformancePanel
+export const PERF_LABEL = '성능 모니터';
+export const PERF_CLOSE_LABEL = '성능 모니터 닫기';
+export const PERF_STOP_LABEL = '모니터링 중지';
+export const PERF_START_LABEL = '모니터링 시작';
+export const PERF_STOP = '중지';
+export const PERF_START = '시작';
+export const PERF_RESET = '초기화';
+export const PERF_RESET_LABEL = '성능 데이터 초기화';
+export const PERF_STATUS_ON = '모니터링 중';
+export const PERF_STATUS_OFF = '모니터링 중지됨';
+export const PERF_RENDER_COUNT = '렌더 횟수';
+export const PERF_TOTAL_RENDER = '총 렌더 시간';
+export const PERF_AVG_RENDER = '평균 렌더 시간';
+export const PERF_SLOWEST = '최고 느린 렌더';
+export const PERF_FASTEST = '최고 빠른 렌더';
+export const PERF_MEMORY = '메모리 사용량';
+export const PERF_APP_STATUS = '앱 상태';
+export const PERF_MSG_COUNT_PREFIX = '메시지 수:';
+export const PERF_CONV_COUNT_PREFIX = '대화 수:';
+export const PERF_RECENT_RENDERS = '최근 렌더';
+
+// EmojiReactionPicker
+export const EMOJI_PICKER_LABEL = '이모지 선택';
+export const EMOJI_REACTION_PREFIX = '반응';
+
+// MessageContextMenu
+export const CTX_MENU_LABEL = '메시지 작업 메뉴';
+
+// WelcomeScreen
+export const WELCOME_SUBTITLE = '아래 입력창에 메시지를 입력하거나 제안을 클릭하세요.';
+export const WELCOME_SCREEN_LABEL = '환영 화면';
+export const WELCOME_SUGGESTIONS_LABEL = '제안 프롬프트';
+export const SUGGESTION_BRAINSTORM = '아이디어 브레인스토밍';
+export const SUGGESTION_BRAINSTORM_PROMPT = '새로운 사이드 프로젝트 아이디어를 5개 제안해줘';
+export const SUGGESTION_WRITING = '글쓰기 도움';
+export const SUGGESTION_WRITING_PROMPT = '블로그 게시물의 개요를 작성해줘';
+export const SUGGESTION_DEBUG = '코드 디버깅';
+export const SUGGESTION_DEBUG_PROMPT = '이 코드의 버그를 찾아줘:\n';
+export const SUGGESTION_EXPLAIN = '개념 설명';
+export const SUGGESTION_EXPLAIN_PROMPT = '초보자에게 설명하듯이 알려줘: ';
+export const SUGGESTION_REVIEW = '코드 리뷰';
+export const SUGGESTION_REVIEW_PROMPT = '이 코드를 리뷰하고 개선점을 알려줘:\n';
+export const SUGGESTION_TRANSLATE = '번역 도움';
+export const SUGGESTION_TRANSLATE_PROMPT = '다음 텍스트를 영어로 번역해줘:\n';
 
 // localStorage keys
 export const STORAGE_KEY_CONVERSATIONS = 'gemini-conversations';
@@ -248,3 +441,4 @@ export const STORAGE_KEY_PROMPT_TEMPLATES = 'gemini-prompt-templates';
 export const STORAGE_KEY_SIDEBAR_COLLAPSED = 'gemini-sidebar-collapsed';
 export const STORAGE_KEY_HIGH_CONTRAST = 'gemini-high-contrast';
 export const STORAGE_KEY_OPEN_TABS = 'gemini-open-tabs';
+export const STORAGE_KEY_PINNED_MESSAGES = 'gemini-pinned-messages';

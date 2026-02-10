@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import './BookmarkedMessages.css';
+import * as S from '../constants/strings';
 
 export interface BookmarkedMessage {
   conversationId: string;
@@ -79,38 +80,38 @@ const BookmarkedMessagesInner: React.FC<BookmarkedMessagesProps> = ({
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
         role="dialog"
-        aria-label="북마크된 메시지"
+        aria-label={S.BOOKMARKS_LABEL}
         tabIndex={-1}
       >
         <div className="bookmarks-header">
-          <h3 className="bookmarks-title">북마크</h3>
+          <h3 className="bookmarks-title">{S.BOOKMARKS_TITLE}</h3>
           <div className="bookmarks-filters">
             <button
               className={`bookmarks-filter-btn ${filter === 'all' ? 'active' : ''}`}
               onClick={() => setFilter('all')}
-              aria-label="전체 필터"
+              aria-label={S.BOOKMARKS_FILTER_ALL_LABEL}
             >
-              전체 ({bookmarks.length})
+              {S.BOOKMARKS_FILTER_ALL} ({bookmarks.length})
             </button>
             <button
               className={`bookmarks-filter-btn ${filter === 'user' ? 'active' : ''}`}
               onClick={() => setFilter('user')}
-              aria-label="사용자 필터"
+              aria-label={S.BOOKMARKS_FILTER_USER_LABEL}
             >
-              사용자
+              {S.BOOKMARKS_FILTER_USER}
             </button>
             <button
               className={`bookmarks-filter-btn ${filter === 'assistant' ? 'active' : ''}`}
               onClick={() => setFilter('assistant')}
-              aria-label="AI 필터"
+              aria-label={S.BOOKMARKS_FILTER_AI_LABEL}
             >
-              AI
+              {S.BOOKMARKS_FILTER_AI}
             </button>
           </div>
           <button
             className="bookmarks-close-btn"
             onClick={onClose}
-            aria-label="북마크 닫기"
+            aria-label={S.BOOKMARKS_CLOSE_LABEL}
           >
             &times;
           </button>
@@ -120,8 +121,8 @@ const BookmarkedMessagesInner: React.FC<BookmarkedMessagesProps> = ({
           {filteredBookmarks.length === 0 && (
             <div className="bookmarks-empty">
               {bookmarks.length === 0
-                ? '북마크된 메시지가 없습니다. 메시지의 ★ 버튼을 눌러 북마크하세요.'
-                : '필터에 해당하는 북마크가 없습니다.'}
+                ? S.BOOKMARKS_EMPTY
+                : S.BOOKMARKS_EMPTY_FILTER}
             </div>
           )}
           {filteredBookmarks.map((bm, index) => (
@@ -139,7 +140,7 @@ const BookmarkedMessagesInner: React.FC<BookmarkedMessagesProps> = ({
               <div className="bookmark-item-header">
                 <span className="bookmark-conv-title">{bm.conversationTitle}</span>
                 <span className="bookmark-role-badge">
-                  {bm.role === 'user' ? '사용자' : 'Gemini'}
+                  {bm.role === 'user' ? S.ROLE_USER : S.ROLE_ASSISTANT}
                 </span>
                 <button
                   className="bookmark-remove-btn"
@@ -147,8 +148,8 @@ const BookmarkedMessagesInner: React.FC<BookmarkedMessagesProps> = ({
                     e.stopPropagation();
                     onRemoveBookmark(bm.conversationId, bm.messageIndex);
                   }}
-                  title="북마크 해제"
-                  aria-label="북마크 해제"
+                  title={S.BOOKMARKS_REMOVE}
+                  aria-label={S.BOOKMARKS_REMOVE}
                 >
                   &times;
                 </button>

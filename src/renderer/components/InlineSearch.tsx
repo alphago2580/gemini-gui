@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import './InlineSearch.css';
+import * as S from '../constants/strings';
 
 interface InlineSearchProps {
   isOpen: boolean;
@@ -48,16 +49,16 @@ const InlineSearchInner: React.FC<InlineSearchProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="inline-search-bar" role="search" aria-label="대화 내 검색">
+    <div className="inline-search-bar" role="search" aria-label={S.INLINE_SEARCH_LABEL}>
       <input
         ref={inputRef}
         type="text"
         className="inline-search-input"
-        placeholder="대화 내 검색..."
+        placeholder={S.INLINE_SEARCH_PLACEHOLDER}
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        aria-label="대화 내 검색"
+        aria-label={S.INLINE_SEARCH_LABEL}
       />
       <span className="inline-search-count" aria-live="polite">
         {query ? `${matchCount > 0 ? currentMatchIndex + 1 : 0}/${matchCount}` : ''}
@@ -66,8 +67,8 @@ const InlineSearchInner: React.FC<InlineSearchProps> = ({
         className="inline-search-btn"
         onClick={onPrev}
         disabled={matchCount === 0}
-        title="이전 결과 (Shift+Enter)"
-        aria-label="이전 결과"
+        title={S.INLINE_SEARCH_PREV_TITLE}
+        aria-label={S.INLINE_SEARCH_PREV}
       >
         ↑
       </button>
@@ -75,16 +76,16 @@ const InlineSearchInner: React.FC<InlineSearchProps> = ({
         className="inline-search-btn"
         onClick={onNext}
         disabled={matchCount === 0}
-        title="다음 결과 (Enter)"
-        aria-label="다음 결과"
+        title={S.INLINE_SEARCH_NEXT_TITLE}
+        aria-label={S.INLINE_SEARCH_NEXT}
       >
         ↓
       </button>
       <button
         className="inline-search-close-btn"
         onClick={onClose}
-        title="닫기 (Esc)"
-        aria-label="검색 닫기"
+        title={S.INLINE_SEARCH_CLOSE_TITLE}
+        aria-label={S.INLINE_SEARCH_CLOSE_LABEL}
       >
         ×
       </button>

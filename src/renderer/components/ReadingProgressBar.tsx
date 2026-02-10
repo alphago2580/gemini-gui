@@ -1,5 +1,6 @@
 import React from 'react';
 import './ReadingProgressBar.css';
+import * as S from '../constants/strings';
 
 interface ReadingProgressBarProps {
   progress: number;
@@ -16,7 +17,7 @@ const ReadingProgressBarInner: React.FC<ReadingProgressBarProps> = ({ progress, 
       aria-valuenow={progress}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-label={`읽기 진행률 ${progress}%`}
+      aria-label={`${S.READING_PROGRESS_LABEL} ${progress}%`}
     >
       <div
         className="reading-progress-fill"

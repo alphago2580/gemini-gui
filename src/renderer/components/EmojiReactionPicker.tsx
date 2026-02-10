@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import './EmojiReactionPicker.css';
+import * as S from '../constants/strings';
 
 const QUICK_EMOJIS = ['👍', '👎', '❤️', '😂', '🤔', '👀', '🎉', '💡'];
 
@@ -37,14 +38,14 @@ const EmojiReactionPickerInner: React.FC<EmojiReactionPickerProps> = ({ isOpen, 
   if (!isOpen) return null;
 
   return (
-    <div className="emoji-reaction-picker" ref={ref} role="listbox" aria-label="이모지 선택">
+    <div className="emoji-reaction-picker" ref={ref} role="listbox" aria-label={S.EMOJI_PICKER_LABEL}>
       {QUICK_EMOJIS.map(emoji => (
         <button
           key={emoji}
           className="emoji-reaction-option"
           role="option"
           onClick={() => onSelect(emoji)}
-          aria-label={`반응 ${emoji}`}
+          aria-label={`${S.EMOJI_REACTION_PREFIX} ${emoji}`}
         >
           {emoji}
         </button>

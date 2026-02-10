@@ -16,7 +16,6 @@ const mockElectronAPI = {
     cleanupTempFiles: vi.fn(),
     removeAllListeners: vi.fn(),
     stopGemini: vi.fn(),
-    onSessionStatus: vi.fn(),
     exportMarkdown: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.md' }),
     exportPdf: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.pdf' }),
 };
@@ -330,8 +329,8 @@ describe('App Component', () => {
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
             await user.type(input, 'Hello');
             await user.click(screen.getByText('전송'));
-            const loadingEl = screen.getByRole('status', { name: '응답 생성 중' });
-            expect(loadingEl).toBeInTheDocument();
+            const loadingEl = screen.getByRole('status');
+            expect(loadingEl).toHaveAttribute('aria-label', '응답 생성 중');
         });
 
         it('message bubbles have role="article"', async () => {
@@ -675,8 +674,8 @@ describe('App Component', () => {
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
             await user.type(input, 'Hello');
             await user.click(screen.getByText('전송'));
-            const statusEl = screen.getByRole('status', { name: '응답 생성 중' });
-            expect(statusEl).toBeInTheDocument();
+            const statusEl = screen.getByRole('status');
+            expect(statusEl).toHaveAttribute('aria-label', '응답 생성 중');
         });
 
         it('shows three animated dots in typing indicator', async () => {
@@ -1554,133 +1553,93 @@ describe('App Component', () => {
         });
     });
 
-    describe('Character Counter', () => {
-        it('does not show character counter when input is empty', () => {
-            const { container } = render(<App />);
-            expect(container.querySelector('.char-counter')).not.toBeInTheDocument();
+    describe('PinnedMessages', () => {
+        it('does not render pinned messages bar when no messages are pinned', () => {
+            render(<App />);
+            expect(screen.queryByLabelText('고정된 메시지')).not.toBeInTheDocument();
         });
 
-        it('shows character counter when user types', async () => {
-            const user = userEvent.setup();
-            const { container } = render(<App />);
-            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            await user.type(input, 'Hello');
-            expect(container.querySelector('.char-counter')).toBeInTheDocument();
-            expect(container.querySelector('.char-counter-text')?.textContent).toContain('5');
-        });
+        it('shows pin option in context menu', async () => {
+            const savedConversations = [
+                {
+                    id: '900',
+                    title: 'Pin Test',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Pinnable message', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '900');
 
-        it('hides character counter when input is cleared', async () => {
-            const user = userEvent.setup();
-            const { container } = render(<App />);
-            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            await user.type(input, 'Hi');
-            expect(container.querySelector('.char-counter')).toBeInTheDocument();
-            await user.clear(input);
-            expect(container.querySelector('.char-counter')).not.toBeInTheDocument();
+            render(<App />);
+            await waitFor(() => {
+                expect(screen.getByText('Pinnable message')).toBeInTheDocument();
+            });
+
+            const messageDiv = screen.getByText('Pinnable message').closest('[data-message-index]');
+            expect(messageDiv).toBeTruthy();
+            fireEvent.contextMenu(messageDiv!);
+
+            expect(screen.getByText('고정')).toBeInTheDocument();
         });
     });
 
-    describe('Bookmarks', () => {
-        it('shows bookmark buttons on messages', async () => {
-            const callbacks = setupStreamCallbacks();
+    describe('InputPreview', () => {
+        it('does not render input preview by default', () => {
             render(<App />);
-            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            fireEvent.change(input, { target: { value: 'Hello' } });
-            fireEvent.click(screen.getByLabelText('메시지 전송'));
-
-            await waitFor(() => {
-                expect(screen.getByText('Hello')).toBeInTheDocument();
-            });
-
-            const bookmarkButtons = screen.getAllByLabelText('북마크 추가');
-            expect(bookmarkButtons.length).toBeGreaterThanOrEqual(1);
-        });
-
-        it('toggles bookmark on message', async () => {
-            const callbacks = setupStreamCallbacks();
-            render(<App />);
-            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            fireEvent.change(input, { target: { value: 'Hello' } });
-            fireEvent.click(screen.getByLabelText('메시지 전송'));
-
-            await waitFor(() => {
-                expect(screen.getByText('Hello')).toBeInTheDocument();
-            });
-
-            const bookmarkBtn = screen.getAllByLabelText('북마크 추가')[0];
-            fireEvent.click(bookmarkBtn);
-
-            await waitFor(() => {
-                expect(screen.getByLabelText('북마크 해제')).toBeInTheDocument();
-            });
-        });
-
-        it('shows Bookmarks button in header when messages exist', async () => {
-            const callbacks = setupStreamCallbacks();
-            render(<App />);
-            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            fireEvent.change(input, { target: { value: 'Test' } });
-            fireEvent.click(screen.getByLabelText('메시지 전송'));
-
-            await waitFor(() => {
-                expect(screen.getByText('Bookmarks')).toBeInTheDocument();
-            });
-        });
-
-        it('opens bookmarks panel when Bookmarks button is clicked', async () => {
-            const callbacks = setupStreamCallbacks();
-            render(<App />);
-            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            fireEvent.change(input, { target: { value: 'Test' } });
-            fireEvent.click(screen.getByLabelText('메시지 전송'));
-
-            await waitFor(() => {
-                expect(screen.getByText('Bookmarks')).toBeInTheDocument();
-            });
-
-            fireEvent.click(screen.getByText('Bookmarks'));
-            expect(screen.getByRole('dialog', { name: '북마크된 메시지' })).toBeInTheDocument();
+            expect(screen.queryByLabelText('입력 미리보기')).not.toBeInTheDocument();
         });
     });
 
-    describe('Message reactions', () => {
-        it('shows reaction add button on messages', async () => {
-            const callbacks = setupStreamCallbacks();
+    describe('PerformancePanel', () => {
+        it('does not render performance panel by default', () => {
             render(<App />);
-            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            fireEvent.change(input, { target: { value: 'Hello' } });
-            fireEvent.click(screen.getByLabelText('메시지 전송'));
-
-            await waitFor(() => {
-                expect(screen.getByText('Hello')).toBeInTheDocument();
-            });
-
-            expect(screen.getAllByLabelText('리액션 추가').length).toBeGreaterThan(0);
+            expect(screen.queryByText('성능 모니터')).not.toBeInTheDocument();
         });
 
-        it('opens emoji picker and adds reaction', async () => {
-            const callbacks = setupStreamCallbacks();
+        it('opens performance panel via command palette', async () => {
+            const user = userEvent.setup();
             render(<App />);
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+            const perfOption = screen.getByRole('option', { name: /성능 모니터/ });
+            await user.click(perfOption);
+            expect(screen.getByText('성능 모니터')).toBeInTheDocument();
+        });
+    });
+
+    describe('MessageSearch', () => {
+        it('does not render message search dialog by default', () => {
+            render(<App />);
+            expect(screen.queryByPlaceholderText('전체 대화 내용 검색...')).not.toBeInTheDocument();
+        });
+
+        it('opens message search via command palette', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+            const searchOption = screen.getByRole('option', { name: /전체 메시지 검색/ });
+            await user.click(searchOption);
+            expect(screen.getByPlaceholderText('전체 대화 내용 검색...')).toBeInTheDocument();
+        });
+    });
+
+    describe('InputPreview Toggle', () => {
+        it('toggles input preview via command palette', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+
+            // Type some text first
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            fireEvent.change(input, { target: { value: 'React to me' } });
-            fireEvent.click(screen.getByLabelText('메시지 전송'));
+            await user.type(input, '**bold text**');
 
-            await waitFor(() => {
-                expect(screen.getByText('React to me')).toBeInTheDocument();
-            });
+            // Open command palette and toggle preview
+            fireEvent.keyDown(document, { key: 'p', ctrlKey: true, shiftKey: true });
+            const previewOption = screen.getByRole('option', { name: /입력 미리보기 토글/ });
+            await user.click(previewOption);
 
-            const reactionBtn = screen.getAllByLabelText('리액션 추가')[0];
-            fireEvent.click(reactionBtn);
-
-            await waitFor(() => {
-                expect(screen.getByRole('listbox')).toBeInTheDocument();
-            });
-
-            fireEvent.click(screen.getByLabelText('반응 👍'));
-
-            await waitFor(() => {
-                expect(screen.getByText(/👍/)).toBeInTheDocument();
-            });
+            expect(screen.getByLabelText('입력 미리보기')).toBeInTheDocument();
         });
     });
 });

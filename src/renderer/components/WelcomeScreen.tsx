@@ -1,5 +1,6 @@
 import React from 'react';
 import './WelcomeScreen.css';
+import * as S from '../constants/strings';
 
 export interface SuggestedPrompt {
   icon: string;
@@ -8,12 +9,12 @@ export interface SuggestedPrompt {
 }
 
 export const DEFAULT_SUGGESTIONS: SuggestedPrompt[] = [
-  { icon: '💡', label: '아이디어 브레인스토밍', prompt: '새로운 사이드 프로젝트 아이디어를 5개 제안해줘' },
-  { icon: '📝', label: '글쓰기 도움', prompt: '블로그 게시물의 개요를 작성해줘' },
-  { icon: '🐛', label: '코드 디버깅', prompt: '이 코드의 버그를 찾아줘:\n' },
-  { icon: '📚', label: '개념 설명', prompt: '초보자에게 설명하듯이 알려줘: ' },
-  { icon: '🔍', label: '코드 리뷰', prompt: '이 코드를 리뷰하고 개선점을 알려줘:\n' },
-  { icon: '🌐', label: '번역 도움', prompt: '다음 텍스트를 영어로 번역해줘:\n' },
+  { icon: '💡', label: S.SUGGESTION_BRAINSTORM, prompt: S.SUGGESTION_BRAINSTORM_PROMPT },
+  { icon: '📝', label: S.SUGGESTION_WRITING, prompt: S.SUGGESTION_WRITING_PROMPT },
+  { icon: '🐛', label: S.SUGGESTION_DEBUG, prompt: S.SUGGESTION_DEBUG_PROMPT },
+  { icon: '📚', label: S.SUGGESTION_EXPLAIN, prompt: S.SUGGESTION_EXPLAIN_PROMPT },
+  { icon: '🔍', label: S.SUGGESTION_REVIEW, prompt: S.SUGGESTION_REVIEW_PROMPT },
+  { icon: '🌐', label: S.SUGGESTION_TRANSLATE, prompt: S.SUGGESTION_TRANSLATE_PROMPT },
 ];
 
 interface WelcomeScreenProps {
@@ -22,11 +23,11 @@ interface WelcomeScreenProps {
 
 const WelcomeScreenInner: React.FC<WelcomeScreenProps> = ({ onPromptClick }) => {
   return (
-    <div className="welcome-screen" role="region" aria-label="환영 화면">
+    <div className="welcome-screen" role="region" aria-label={S.WELCOME_SCREEN_LABEL}>
       <div className="welcome-logo">✦</div>
-      <h2 className="welcome-title">Gemini에 오신 것을 환영합니다!</h2>
-      <p className="welcome-subtitle">아래 입력창에 메시지를 입력하거나 제안을 클릭하세요.</p>
-      <div className="welcome-suggestions" role="list" aria-label="제안 프롬프트">
+      <h2 className="welcome-title">{S.WELCOME_TITLE}</h2>
+      <p className="welcome-subtitle">{S.WELCOME_SUBTITLE}</p>
+      <div className="welcome-suggestions" role="list" aria-label={S.WELCOME_SUGGESTIONS_LABEL}>
         {DEFAULT_SUGGESTIONS.map((suggestion, index) => (
           <button
             key={index}

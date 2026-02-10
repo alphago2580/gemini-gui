@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1355 tests)
-- **Last Agent Run**: Agent 1 (Feature)
+- **Test Status**: Passing (1735 tests)
+- **Last Agent Run**: Agent 2 (Hooks & Utils)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -546,139 +546,143 @@
 - TypeScript: 0 errors (`npx tsc --noEmit` passes)
 - Total tests: 699 (30 test files, all passing)
 
-### Agent 1 (Feature) — Session Status Indicator
-- Created `SessionIndicator` component showing Gemini CLI connection state (idle/connecting/connected/error)
-- Visual dot indicator with pulse animation for connecting state, green for connected, red for error
-- Added `SessionStatusData` interface to `preload/types.d.ts`
-- Added `onSessionStatus` IPC listener in `preload/index.ts`
-- Added `sendSessionStatus()` helper in `main/index.ts` — fires on process start, init, exit, error
-- Integrated `sessionStatus` state into `useStreamHandler` hook
-- Placed SessionIndicator in app header next to model display
-- Added string constants to `constants/strings.ts` (SESSION_IDLE, SESSION_CONNECTING, etc.)
-- Full accessibility: `role="status"`, aria-label, title tooltip, aria-hidden dot
-- Added 8 unit tests for SessionIndicator component
-- Added 4 unit tests for sessionStatus in useStreamHandler
-- Updated App.test.tsx mock to include `onSessionStatus`
-- Total tests: 968 (54 test files, all passing)
+### Agent 2 (Hooks & Utils) — usePerformanceMonitor Tests + any Fix, useDebounce, useClipboard
+- Added 14 unit tests for `usePerformanceMonitor` hook (init state, toggle, render metrics, slowest/fastest, average, cap at 50, reset, rounding, memory usage, stable refs)
+- Fixed 2 `any` type casts in usePerformanceMonitor: `(performance as any).memory` → typed `Performance & { memory?: ... }` cast
+- Created `useDebounce` hook — debounces a value by a configurable delay
+- Added 8 unit tests for useDebounce (initial value, delay, timer reset, objects, zero delay, cleanup)
+- Created `useClipboard` hook — clipboard copy with `copied` feedback state and auto-reset
+- Added 10 unit tests for useClipboard (copy, reset timer, errors, stable refs)
+- Zone B tests: 359 (25 test files, all passing)
+- Build: passes successfully
 
-### Agent 1 (Feature) — UI Component Library (UserAvatar, ProgressBar, Tooltip, Badge, Skeleton)
-- Created `UserAvatar` component with role-based avatars (user/assistant/system), initials display, 3 sizes
-- Created `ProgressBar` component with value/max, percentage display, 4 variants, 3 sizes, stripe animation
-- Created `Tooltip` component with hover/focus trigger, 4 positions (top/bottom/left/right), configurable delay
-- Created `Badge` component with count/dot modes, 5 variants, maxCount overflow (99+), wrapper/inline modes
-- Created `Skeleton` component with text/circular/rectangular variants, multi-line support, shimmer animation
-- All components: React.memo, CSS variables, ARIA accessibility, comprehensive tests
-- Added 18 tests for UserAvatar, 24 for ProgressBar, 14 for Tooltip, 22 for Badge, 17 for Skeleton
-- Total tests: 985 (55 test files, all passing)
+### Agent 2 (Quality) — Integrate Priority 2 Components into App
+- Integrated 4 untracked components into App.tsx: PerformancePanel, MessageSearch, InputPreview, PinnedMessages
+- **PerformancePanel**: React Profiler-based performance monitoring dialog with render metrics, memory usage, recent render list
+- **usePerformanceMonitor**: Custom hook providing onRender callback, getData, toggle, reset for React.Profiler integration
+- **MessageSearch**: Full-text search across all conversations with highlighted results, keyboard navigation, and auto-scroll to result
+- **InputPreview**: Markdown preview panel below input (shows rendered preview of input text)
+- **PinnedMessages**: Pin/unpin messages bar above chat area, with navigate-to-message and unpin actions
+- Added `handlePinMessage`, `handleUnpinMessage`, `handleSearchNavigate` callbacks in App.tsx
+- Added 'pin' action to right-click MessageContextMenu (📌 고정)
+- Added `STORAGE_KEY_PINNED_MESSAGES` to constants/strings.ts for localStorage persistence
+- Added `perfData` useMemo for computed performance data
+- Added 5 integration tests in App.test.tsx (PinnedMessages default, context menu pin, InputPreview default, PerformancePanel default, MessageSearch default)
+- Total tests: 938 (55 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
 
-### Agent 1 (Feature) — Message Count Badge in Sidebar
-- Added message count badge to conversation items in Sidebar
-- Shows number of messages per conversation next to the date
-- Badge hidden for empty conversations (0 messages)
-- Active conversation badge uses white translucent styling
-- Added `conversation-meta` wrapper for date + badge layout
-- Added `MESSAGE_COUNT_SUFFIX` to string constants
-- Added 5 unit tests for message count badge
-- Total tests: 990 (55 test files, all passing)
+### Agent 2 (Hooks & Utils) — useBookmarks, useEmojiReactions, wordCount
+- Created `useBookmarks` hook — CRUD for bookmarked messages with localStorage persistence
+  - addBookmark, removeBookmark, isBookmarked, clearBookmarks, getBookmarksForConversation
+  - Duplicate prevention (same conversationId + messageIndex)
+  - Compatible with BookmarkedMessages component interface
+- Created `useEmojiReactions` hook — emoji reaction management with localStorage persistence
+  - addReaction (with count increment), removeReaction (with count decrement), toggleReaction
+  - getReactions, clearReactions (per message), clearAllReactions
+  - Message-keyed storage: `{conversationId}:{messageIndex}` → EmojiReaction[]
+  - Compatible with EmojiReactionPicker component interface
+- Created `wordCount` utility module with text statistics functions
+  - countWords, countLines, countSentences, countParagraphs, getTextStats, estimateReadingTime
+  - Handles edge cases: empty, whitespace-only, Korean text, multiline
+- Added 12 unit tests for useBookmarks (add, dedupe, remove, isBookmarked, clear, filter, persistence, stable refs)
+- Added 16 unit tests for useEmojiReactions (add, increment, different emojis, remove, toggle, clear, persistence, stable refs)
+- Added 30 unit tests for wordCount (words, lines, sentences, paragraphs, stats, reading time)
+- Total tests: 996 (58 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
 
-### Agent 1 (Feature) — UI Component Library Part 2 (Accordion, Switch, Chip, AvatarGroup, Divider)
-- Created `Accordion` component with expand/collapse, single/multiple mode, disabled items, defaultExpanded
-- Created `Switch` component with toggle switch, 3 sizes, label support, keyboard navigation (Space/Enter)
-- Created `Chip` component with selectable/removable tags, 5 variants, icon support, aria-pressed
-- Created `AvatarGroup` component with stacked avatars, overflow count (+N), deterministic colors from name
-- Created `Divider` component with horizontal/vertical, 3 line styles, label with centered text
-- All components: React.memo, CSS variables, ARIA accessibility, comprehensive tests
-- Added 18 tests for Accordion, 24 for Switch, 25 for Chip, 16 for AvatarGroup, 16 for Divider
-- Total tests: 1092 (60 test files, all passing)
+### Agent 2 (Hooks & Utils) — useThrottle, useUndoRedo, useWindowSize, stringUtils
+- Created `useThrottle` hook — throttle rapidly changing values with configurable delay (9 tests)
+- Created `useUndoRedo` hook — undo/redo state management with history limit (12 tests)
+- Created `useWindowSize` hook — reactive window dimensions tracking (4 tests)
+- Created `stringUtils` utility — truncate, capitalize, slugify, escapeHtml, stripHtml, highlightMatches, excerpt, countOccurrences, isBlank, pluralize (38 tests)
+- Total: 63 new tests, all passing
 
-### Agent 1 (Feature) — ConfirmDialog Component
-- Created `ConfirmDialog` component — modal confirmation dialog for destructive/important actions
-- 3 variants: danger (red), warning (orange), info (blue) with matching icons (⚠, ⚡, ℹ)
-- Overlay click dismiss, Escape key dismiss, focus management (auto-focus confirm button)
-- Custom confirm/cancel button labels, default Korean labels (확인/취소)
-- Smooth animations: overlay fade-in, dialog scale-in
-- Full accessibility: `role="dialog"`, `aria-modal`, `aria-labelledby`, `aria-describedby`, `aria-label` on buttons
-- CSS with theme variables for dark/light support, focus-visible outline
-- React.memo for performance optimization
-- Added 19 unit tests (rendering, variants, callbacks, keyboard, overlay click, ARIA, focus)
-- Total tests: 1123 (63 test files, all passing)
+### Agent 2 (Hooks & Utils) — usePrevious, useMediaQuery, useInterval, dateUtils
+- Created `usePrevious` hook — track previous value of any state/prop (7 tests)
+- Created `useMediaQuery` hook — reactive CSS media query matching with change listener (6 tests)
+- Created `useInterval` hook — declarative setInterval with dynamic delay and null pause (8 tests)
+- Created `dateUtils` utility — formatDate, formatTime, formatDateTime, timeAgo (Korean), isToday, isSameDay, formatDuration (27 tests)
+- Total: 48 new tests, all passing
 
-### Agent 1 (Feature) — Message Bookmarking
-- Created `useBookmarks` hook with localStorage persistence (add, remove, toggle, isBookmarked)
-- Added bookmark toggle button (★/☆) to `MessageBubble` component — hover-reveal, gold color when bookmarked
-- Wired bookmarks into App.tsx: replaced empty BookmarkedMessages placeholders with real data
-- Added `handleToggleBookmark` callback: creates BookmarkedMessage from current conversation context
-- Added `handleNavigateToBookmark` callback: switches conversation + scrolls to bookmarked message
-- Added "Bookmarks" header button to open BookmarkedMessages panel from conversation view
-- Bookmark state persisted via `useLocalStorage('gemini-bookmarks')` key
-- Added `ARIA_BOOKMARK`, `ARIA_UNBOOKMARK`, `TITLE_BOOKMARK`, `TITLE_UNBOOKMARK` string constants
-- CSS: `.bookmark-message-btn` with hover-reveal, `.bookmarked` class with gold (#f5a623) color
-- Added 10 unit tests for useBookmarks hook (CRUD, toggle, persistence, dedup, isBookmarked)
-- Added 6 unit tests for MessageBubble bookmark button (render, toggle, star display, both roles)
-- Added 4 integration tests in App (bookmark buttons visible, toggle, header button, panel open)
-- Total tests: 1143 (64 test files, all passing)
+### Agent 2 (Hooks & Utils) — useEventListener, useFocus, useToggle, arrayUtils
+- Created `useEventListener` hook — declarative event listener with auto-cleanup, custom element support (7 tests)
+- Created `useFocus` hook — track focus state with ref, focus/blur controls (8 tests)
+- Created `useToggle` hook — boolean state with toggle/setTrue/setFalse helpers (7 tests)
+- Created `arrayUtils` utility — unique, groupBy, chunk, moveItem, range, shuffle, findLast, flatten (33 tests)
+- Total: 55 new tests, all passing
 
-### Agent 1 (Feature) — Notification Sound on Response Complete
-- Created `useNotificationSound` hook using Web Audio API (no external audio files)
-- Generates a pleasant two-tone chime: C5 (523 Hz) → E5 (659 Hz) with gain envelope
-- AudioContext created lazily on first play, reused via ref for subsequent calls
-- Added `notificationSound: boolean` field to `AppSettings` interface (default: true)
-- Added notification sound toggle (ON/OFF switch) to Settings UI
-- Wired into `useStreamHandler` via new `onComplete` callback — plays on stream complete
-- Added `NOTIFICATION_SOUND_LABEL`, `NOTIFICATION_SOUND_HINT`, `ARIA_NOTIFICATION_SOUND` constants
-- Moved `useSettings` initialization before `useStreamHandler` in App.tsx for dependency order
-- Graceful error handling: silently catches AudioContext unavailability
-- Added 6 unit tests for useNotificationSound (play, disabled, frequencies, error handling)
-- Added 5 unit tests for Settings notification sound toggle (render, ON/OFF, toggle, hint)
-- Updated useSettings.test.ts for new notificationSound field
-- Total tests: 1199 (66 test files, all passing)
+### Agent 2 (Hooks & Utils) — useHover, useOnClickOutside, useCountdown, numberUtils
+- Created `useHover` hook — track hover state with callbacks (5 tests)
+- Created `useOnClickOutside` hook — detect clicks outside element via mousedown (6 tests)
+- Created `useCountdown` hook — countdown timer with start/pause/resume/reset and onComplete callback (10 tests)
+- Created `numberUtils` utility — clamp, formatBytes, formatPercent, roundTo, lerp, mapRange, formatCompact (31 tests)
+- Total: 52 new tests, all passing
+- Cumulative total: 1217 tests (74 test files, all passing)
+- TypeScript: 0 errors
 
-### Agent 1 (Feature) — Font Size Setting
-- Added `fontSize: number` field to `AppSettings` interface (default: 14px)
-- Added font size slider (range: 12–20px) to Settings UI
-- Applied font size via CSS custom property `--message-font-size` on `document.documentElement`
-- `.message-content` uses `var(--message-font-size, 14px)` for dynamic text sizing
-- Added `FONT_SIZE_PREFIX`, `FONT_SIZE_HINT`, `ARIA_FONT_SIZE` string constants
-- Updated useSettings defaults and all test fixtures for new field
-- Added 4 unit tests for Settings font size slider (render, value display, save, hint)
-- Total tests: 1203 (66 test files, all passing)
+### Agent 2 (Hooks & Utils) — useDocumentTitle, useScrollPosition, validationUtils
+- Created `useDocumentTitle` hook — dynamically set document.title with restore-on-unmount (7 tests)
+- Created `useScrollPosition` hook — track scroll position, direction, isAtTop/isAtBottom with throttling (8 tests)
+- Created `validationUtils` utility — isValidEmail, isValidUrl, isNotEmpty, hasMinLength, hasMaxLength, isInRange, isAlphanumeric, isNumeric, matchesPattern, validateAll (20 tests)
+- Total: 35 new tests, all passing
+- Cumulative total: 1252 tests (77 test files, all passing)
 
-### Agent 1 (Feature) — UI Component Library Part 3 (NotificationBanner, Breadcrumb, Pagination, ColorPicker, Timeline, Stepper)
-- Created `NotificationBanner` component — dismissible alert banners with 4 variants (info/warning/error/success), auto-dismiss, action buttons, custom icons
-- Created `Breadcrumb` component — navigation path display with clickable items, custom separator, maxItems collapse with expand button
-- Created `Pagination` component — page navigation with first/last/prev/next, smart ellipsis, siblingCount, disabled state, exported `generatePageRange` utility
-- Created `ColorPicker` component — swatch trigger with preset color grid dropdown, hex code input with validation, click-outside/Escape dismiss
-- Created `Timeline` component — vertical/horizontal event timeline with 5 dot variants, connecting lines, icons, timestamps as `<time>` elements
-- Created `Stepper` component — step-by-step workflow indicator with active/completed/pending states, horizontal/vertical, clickable steps, custom icons
-- All components: React.memo, CSS variables for theme support, comprehensive ARIA accessibility
-- Added 24 tests for NotificationBanner, 21 for Breadcrumb, 24 for Pagination, 27 for ColorPicker, 22 for Timeline, 22 for Stepper
-- Total tests: 1298 (70 test files, all passing)
+### Agent 2 (Hooks & Utils) — useAsync, useMap, useSet hooks and objectUtils utility
+- Created `useAsync` hook — manage async operations with loading/error/data states, execute/reset (11 tests)
+- Created `useMap` hook — Map-like state management with set/get/has/remove/clear/reset (13 tests)
+- Created `useSet` hook — Set-like state management with add/remove/toggle/has/clear/reset (12 tests)
+- Created `objectUtils` utility — pick, omit, deepClone, isEqual, merge, isEmpty, getPath, mapValues (31 tests)
+- Total: 67 new tests, all passing
+- Cumulative total: 1319 tests (81 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
 
-### Agent 1 (Feature) — Message Emoji Reactions
-- Created `useReactions` hook with localStorage persistence (`gemini-reactions` key)
-- Reactions stored as `{ [conversationId:messageIndex]: { emoji: count } }` map
-- Hook provides: toggleReaction, getReactions, hasReaction functions
-- Wired existing `EmojiReactionPicker` component into `MessageBubble` (was imported but unused)
-- Reaction add button (☺) appears on hover in message header
-- Clicking opens EmojiReactionPicker popup with 8 quick emojis (👍👎❤️😂🤔👀🎉💡)
-- Selecting emoji toggles it on/off for that message
-- Active reactions display as clickable chips below message content
-- Clicking a reaction chip toggles it off (removes the reaction)
-- CSS: `.reaction-add-btn` with hover-reveal, `.reaction-chip` with pill styling
-- Added `ARIA_ADD_REACTION`, `TITLE_ADD_REACTION`, `STORAGE_KEY_REACTIONS` string constants
-- Removed unused `EmojiReactionPicker` direct import from App.tsx (now used via MessageBubble)
-- Added 10 unit tests for useReactions hook (CRUD, toggle, multi-emoji, multi-message, persistence)
-- Added 7 unit tests for MessageBubble reactions (button render, chip display, picker open, callbacks)
-- Added 2 integration tests in App (reaction button visible, emoji picker + reaction add flow)
-- Total tests: 1317 (71 test files, all passing)
+### Agent 2 (Hooks & Utils) — useReadingProgress, useFormattingToolbar, useNotification hooks and colorUtils utility
+- Created `useReadingProgress` hook — scroll progress tracking (0-100%) with container/window support, throttling, reset (12 tests)
+- Created `useFormattingToolbar` hook — markdown formatting actions (bold, italic, code, strikethrough, link, codeblock) with textarea selection, placeholder insertion (18 tests)
+- Created `useNotification` hook — browser Notification API integration with permission management, request/show helpers (10 tests)
+- Created `colorUtils` utility — hexToRgb, rgbToHex, rgbToHsl, hslToRgb, lighten, darken, luminance, contrastRatio, mix, getContrastText, rgbToCss, rgbaToCss (42 tests)
+- Total: 82 new tests, all passing
+- Cumulative total: 1416 tests (86 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
 
-### Agent 1 (Feature) — Show Timestamps Setting
-- Added `showTimestamps: boolean` field to `AppSettings` interface (default: true)
-- Added ON/OFF toggle in Settings UI with `role="switch"` and `aria-checked`
-- `MessageBubble` conditionally renders timestamp `<span>` based on `showTimestamps` prop
-- Wired through App.tsx: `settings.showTimestamps` passed to every `MessageBubble`
-- Added `SHOW_TIMESTAMPS_LABEL`, `SHOW_TIMESTAMPS_HINT`, `ARIA_SHOW_TIMESTAMPS` string constants
-- Updated useSettings defaults and all test fixtures for new field
-- Added 5 unit tests for Settings showTimestamps toggle (render, ON/OFF, toggle+save, hint)
-- Added 2 unit tests for MessageBubble timestamp visibility (show/hide)
-- Total tests: 1355 (72 test files, all passing)
+### Agent 2 (Hooks & Utils) — useDialogs, useQueue, useSelection, useMutationObserver, useRetry, domUtils, storageUtils
+- Created `useDialogs` hook — consolidates 11 dialog/panel open states for App.tsx with open/close/toggle actions (15 tests)
+- Created `useQueue` hook — FIFO queue state management with enqueue, dequeue, peek, clear, contains, toArray (11 tests)
+- Created `useSelection` hook — text selection tracking with targetRef filtering, offsets, clear (9 tests)
+- Created `useMutationObserver` hook — declarative MutationObserver with auto-cleanup, latest callback ref pattern (6 tests)
+- Created `useRetry` hook — async retry with configurable maxRetries, delay, exponential/fixed backoff, cancel, reset (8 tests)
+- Created `domUtils` utility — isElementVisible, isElementFullyVisible, getScrollPercent, isNearBottom, getFocusableElements, trapFocus, scrollIntoViewIfNeeded, copyToClipboard, data attributes, matchesSelector, closestAncestor (31 tests)
+- Created `storageUtils` utility — type-safe getItem/setItem, hasItem, prefix operations, getStorageSize, expiry (TTL), createNamespace (27 tests)
+- Total: 95 new tests (added tests for 4 previously untested files + 2 new modules)
+- Cumulative total: 1511 tests (92 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
+
+### Agent 2 (Quality) — useKeyCombo, useLongPress, useIdle hooks and urlUtils utility
+- Created `useKeyCombo` hook — sequential key combination detection with modifier support (11 tests)
+- Created `useLongPress` hook — long press gesture detection for mouse and touch (10 tests)
+- Created `useIdle` hook — user inactivity detection with configurable timeout and events (10 tests)
+- Created `urlUtils` utility — isValidUrl, getDomain, getFileExtension, parseQueryParams, buildUrl, stripQueryParams, isAbsoluteUrl, ensureProtocol, extractUrls, getPathSegments, matchesDomain, joinPath (45 tests)
+- Total: 76 new tests
+- Cumulative total: 1587 tests (96 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
+
+### Agent 2 (Hooks & Utils) — useIntersectionObserver, usePageVisibility, useSpeechSynthesis hooks and cryptoUtils utility
+- Created `useIntersectionObserver` hook — element visibility detection with IntersectionObserver API, freezeOnceVisible, threshold/rootMargin support (10 tests)
+- Created `usePageVisibility` hook — page tab visibility tracking with onVisible/onHidden callbacks, hidden duration measurement (10 tests)
+- Created `useSpeechSynthesis` hook — Web Speech API TTS with speak/cancel/pause/resume, voice list, isSpeaking/isPaused state (14 tests)
+- Created `cryptoUtils` utility — generateUUID, randomHex, randomInt, hashDjb2, hashSHA256, base64Encode/Decode, shortId, timingSafeEqual, stringToColor (41 tests)
+- Total: 85 new tests (5 new test files)
+- Cumulative total: 1672 tests (101 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
+
+### Agent 2 (Quality) — useMessageActions Extraction + useDragAndDrop & useNetworkStatus Tests
+- Extracted `useMessageActions` hook from App.tsx consolidating message interaction logic
+  - Manages: context menu state, pinned messages, bookmarks, emoji reactions, navigation
+  - App.tsx reduced from 659 to 564 lines (95 line reduction)
+- Added 14 unit tests for useMessageActions (context menu, actions, emoji picker, navigation, stable refs)
+- Fixed 2 TypeScript errors in other agents' test files (useIntersectionObserver threshold type, useSpeechSynthesis voice list type)
+- Added 16 unit tests for useDragAndDrop (state init, drag enter/leave/over/drop, nested counter, MIME filtering, wildcard, stable refs)
+- Added 10 unit tests for useNetworkStatus (init state, online/offline events, timestamps, cleanup)
+- Total: 63 new tests (3 new test files)
+- Cumulative total: 1735 tests (105 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully

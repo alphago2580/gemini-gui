@@ -664,4 +664,31 @@
 .reaction-chip:hover {
   background: var(--bg-secondary);
   border-color: var(--accent-highlight);
+/* Emoji reactions on messages */
+.message-reactions {
+  display: flex;
+  gap: 4px;
+  padding: 2px 8px 4px;
+  flex-wrap: wrap;
+}
+
+.message-reaction-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  font-size: 0.8rem;
+  cursor: default;
+}
+
+.emoji-picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
 }

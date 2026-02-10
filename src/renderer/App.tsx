@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import './App.css';
 import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
@@ -15,19 +15,23 @@ import InlineSearch from './components/InlineSearch';
 import QuickSwitcher from './components/QuickSwitcher';
 import FormattingToolbar from './components/FormattingToolbar';
 import MessageContextMenu from './components/MessageContextMenu';
-import type { ContextMenuItem } from './components/MessageContextMenu';
 import CodeSnippets from './components/CodeSnippets';
 import KeyboardShortcutHelp from './components/KeyboardShortcutHelp';
 import ReadingProgressBar from './components/ReadingProgressBar';
 import LinkCollection from './components/LinkCollection';
 import ConversationStats from './components/ConversationStats';
 import BookmarkedMessages from './components/BookmarkedMessages';
-import SessionIndicator from './components/SessionIndicator';
-import CharacterCounter from './components/CharacterCounter';
+import PerformancePanel from './components/PerformancePanel';
+import MessageSearch from './components/MessageSearch';
+import InputPreview from './components/InputPreview';
+import PinnedMessages from './components/PinnedMessages';
 import { calculateConversationStats } from './utils/conversationStats';
+import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
+import EmojiReactionPicker from './components/EmojiReactionPicker';
 import { insertBold, insertItalic, insertInlineCode, insertStrikethrough, insertLink, insertCodeBlock } from './utils/textFormatting';
 import type { Command } from './components/CommandPalette';
 import { useInlineSearch } from './hooks/useInlineSearch';
+import { useMessageActions } from './hooks/useMessageActions';
 import { useConversations } from './hooks/useConversations';
 import { usePromptTemplates } from './hooks/usePromptTemplates';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
@@ -41,9 +45,7 @@ import { useAutoScroll } from './hooks/useAutoScroll';
 import { useMessageSend } from './hooks/useMessageSend';
 import { useExport } from './hooks/useExport';
 import { useSettings } from './hooks/useSettings';
-import { useBookmarks } from './hooks/useBookmarks';
-import { useNotificationSound } from './hooks/useNotificationSound';
-import { useReactions } from './hooks/useReactions';
+import { useDialogs } from './hooks/useDialogs';
 import * as S from './constants/strings';
 
 const App: React.FC = () => {
@@ -97,12 +99,6 @@ const App: React.FC = () => {
   // Prompt templates
   const { templates, addTemplate, deleteTemplate } = usePromptTemplates();
 
-  // Settings state (extracted to custom hook)
-  const { settings, handleSettingsSave } = useSettings();
-
-  // Notification sound
-  const { play: playNotificationSound } = useNotificationSound(settings.notificationSound);
-
   // Stream handler
   const {
     isLoading,
@@ -111,27 +107,22 @@ const App: React.FC = () => {
     clearTokenUsage,
     startLoading,
     stopLoading,
-    sessionStatus,
   } = useStreamHandler({
     currentConversationId,
     setMessages,
     updateCurrentConversation,
     addToast,
-    onComplete: playNotificationSound,
   });
 
-  // UI state
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  // Dialog/panel state (extracted to custom hook)
+  const dialogs = useDialogs();
+
+  // UI state (localStorage-persisted)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage(S.STORAGE_KEY_SIDEBAR_COLLAPSED, false);
   const [highContrast, setHighContrast] = useLocalStorage(S.STORAGE_KEY_HIGH_CONTRAST, false);
-  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [isQuickSwitcherOpen, setIsQuickSwitcherOpen] = useState(false);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; messageIndex: number } | null>(null);
-  const [isCodeSnippetsOpen, setIsCodeSnippetsOpen] = useState(false);
-  const [isShortcutHelpOpen, setIsShortcutHelpOpen] = useState(false);
-  const [isLinkCollectionOpen, setIsLinkCollectionOpen] = useState(false);
-  const [isStatsOpen, setIsStatsOpen] = useState(false);
-  const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
+
+  // Performance monitor
+  const perfMonitor = usePerformanceMonitor();
 
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
@@ -141,11 +132,6 @@ const App: React.FC = () => {
     document.documentElement.setAttribute('data-high-contrast', String(highContrast));
   }, [highContrast]);
 
-  // Apply font size
-  useEffect(() => {
-    document.documentElement.style.setProperty('--message-font-size', `${settings.fontSize}px`);
-  }, [settings.fontSize]);
-
   // Auto-scroll
   const {
     messagesContainerRef,
@@ -154,6 +140,18 @@ const App: React.FC = () => {
     scrollToBottom,
     handleScroll: handleMessagesScroll,
   } = useAutoScroll(messages);
+
+  // Message actions (context menu, pin, bookmark, emoji, navigation)
+  const msgActions = useMessageActions({
+    messages,
+    conversations,
+    currentConversationId,
+    editMessage,
+    deleteMessage,
+    forkConversation,
+    messagesContainerRef,
+    handleSelectConversation,
+  });
 
   // Reading progress
   const [readingProgress, setReadingProgress] = useState(0);
@@ -174,11 +172,8 @@ const App: React.FC = () => {
     [conversations]
   );
 
-  // Bookmarks
-  const { bookmarks, toggleBookmark, removeBookmark, isBookmarked } = useBookmarks();
-
-  // Reactions
-  const { toggleReaction, getReactions } = useReactions();
+  // Settings state (extracted to custom hook)
+  const { settings, handleSettingsSave } = useSettings();
 
   // Message send logic (input, files, send, paste)
   const {
@@ -229,79 +224,11 @@ const App: React.FC = () => {
     });
   }, [input, setInput, textareaRef]);
 
-  // Context menu items and handler
-  const contextMenuItems: ContextMenuItem[] = useMemo(() => [
-    { id: 'copy', label: '복사', icon: '📋' },
-    { id: 'edit', label: '수정', icon: '✏️' },
-    { id: 'fork', label: '분기', icon: '🔀' },
-    { id: 'delete', label: '삭제', icon: '🗑', danger: true },
-  ], []);
-
-  const handleContextMenuAction = useCallback((actionId: string) => {
-    if (contextMenu === null) return;
-    const idx = contextMenu.messageIndex;
-    switch (actionId) {
-      case 'copy':
-        navigator.clipboard.writeText(messages[idx]?.content || '');
-        break;
-      case 'edit':
-        editMessage(idx, messages[idx]?.content || '');
-        break;
-      case 'fork':
-        forkConversation(idx);
-        break;
-      case 'delete':
-        deleteMessage(idx);
-        break;
-    }
-    setContextMenu(null);
-  }, [contextMenu, messages, editMessage, forkConversation, deleteMessage]);
-
-  const handleToggleBookmark = useCallback((messageIndex: number) => {
-    if (!currentConversationId) return;
-    const message = messages[messageIndex];
-    if (!message) return;
-    const conv = conversations.find(c => c.id === currentConversationId);
-    toggleBookmark({
-      conversationId: currentConversationId,
-      conversationTitle: conv?.title || S.UNTITLED_CONVERSATION,
-      messageIndex,
-      role: message.role,
-      content: message.content,
-      timestamp: message.timestamp,
-    });
-  }, [currentConversationId, messages, conversations, toggleBookmark]);
-
-  const handleToggleReaction = useCallback((messageIndex: number, emoji: string) => {
-    if (!currentConversationId) return;
-    toggleReaction(currentConversationId, messageIndex, emoji);
-  }, [currentConversationId, toggleReaction]);
-
-  const handleNavigateToBookmark = useCallback((conversationId: string, messageIndex: number) => {
-    if (conversationId !== currentConversationId) {
-      handleSelectConversation(conversationId);
-    }
-    setTimeout(() => {
-      const container = messagesContainerRef.current;
-      if (!container) return;
-      const messageElements = container.querySelectorAll('[data-message-index]');
-      const target = messageElements[messageIndex];
-      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
-  }, [currentConversationId, handleSelectConversation, messagesContainerRef]);
-
-  const handleNavigateToMessage = useCallback((messageIndex: number) => {
-    const container = messagesContainerRef.current;
-    if (!container) return;
-    const messageElements = container.querySelectorAll('[data-message-index]');
-    const target = messageElements[messageIndex];
-    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [messagesContainerRef]);
-
-  const handleMessageContextMenu = useCallback((e: React.MouseEvent, index: number) => {
-    e.preventDefault();
-    setContextMenu({ x: e.clientX, y: e.clientY, messageIndex: index });
-  }, []);
+  // Performance data (computed)
+  const perfData = useMemo(
+    () => perfMonitor.getData(messages.length, conversations.length),
+    [perfMonitor, messages.length, conversations.length]
+  );
 
   // Clear current conversation messages
   const handleClearConversation = useCallback(() => {
@@ -327,26 +254,30 @@ const App: React.FC = () => {
     { id: 'new-chat', label: S.CMD_NEW_CHAT, shortcut: 'Ctrl+N', action: handleNewChat },
     { id: 'clear', label: S.CMD_CLEAR, shortcut: 'Ctrl+L', action: handleClearConversation },
     { id: 'search', label: S.CMD_SEARCH, shortcut: 'Ctrl+F', action: () => inlineSearch.open() },
-    { id: 'settings', label: S.CMD_SETTINGS, shortcut: 'Ctrl+,', action: () => setIsSettingsOpen(true) },
+    { id: 'settings', label: S.CMD_SETTINGS, shortcut: 'Ctrl+,', action: dialogs.openSettings },
     { id: 'toggle-sidebar', label: S.CMD_TOGGLE_SIDEBAR, shortcut: 'Ctrl+B', action: handleToggleSidebar },
     { id: 'export', label: S.CMD_EXPORT_MD, action: handleExport },
     { id: 'export-pdf', label: S.CMD_EXPORT_PDF, action: handleExportPdf },
-  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch]);
+    { id: 'message-search', label: S.CMD_MESSAGE_SEARCH, action: dialogs.openMessageSearch },
+    { id: 'perf-monitor', label: S.CMD_PERF_MONITOR, action: dialogs.openPerfPanel },
+    { id: 'toggle-preview', label: S.CMD_TOGGLE_PREVIEW, action: dialogs.toggleInputPreview },
+    { id: 'bookmarks', label: S.CMD_BOOKMARKS, action: dialogs.openBookmarks },
+  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch, dialogs]);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
     onNewChat: handleNewChat,
     onClearConversation: handleClearConversation,
-    onToggleSettings: () => setIsSettingsOpen(prev => !prev),
-    onCloseSettings: () => setIsSettingsOpen(false),
+    onToggleSettings: dialogs.toggleSettings,
+    onCloseSettings: dialogs.closeSettings,
     onFocusSearch: () => inlineSearch.open(),
     onToggleSidebar: handleToggleSidebar,
-    onToggleCommandPalette: () => setIsCommandPaletteOpen(prev => !prev),
-    onToggleQuickSwitcher: () => setIsQuickSwitcherOpen(prev => !prev),
+    onToggleCommandPalette: dialogs.toggleCommandPalette,
+    onToggleQuickSwitcher: dialogs.toggleQuickSwitcher,
     onNextTab: nextTab,
     onPrevTab: prevTab,
-    onToggleShortcutHelp: () => setIsShortcutHelpOpen(prev => !prev),
-    isSettingsOpen,
+    onToggleShortcutHelp: dialogs.toggleShortcutHelp,
+    isSettingsOpen: dialogs.isSettingsOpen,
   });
 
 
@@ -354,7 +285,7 @@ const App: React.FC = () => {
     <div className="app" role="application">
       <Sidebar
         onNewChat={handleNewChat}
-        onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenSettings={dialogs.openSettings}
         conversations={conversations}
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
@@ -368,10 +299,7 @@ const App: React.FC = () => {
         <header className="app-header">
           <div className="header-title">
             <h1>{S.APP_TITLE}</h1>
-            <div className="header-subtitle">
-              <p>{S.MODEL_PREFIX} {S.MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
-              <SessionIndicator status={sessionStatus} />
-            </div>
+            <p>{S.MODEL_PREFIX} {S.MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
           </div>
           {messages.length > 0 && (
             <div className="header-actions">
@@ -401,35 +329,27 @@ const App: React.FC = () => {
               </button>
               <button
                 className="header-action-btn"
-                onClick={() => setIsCodeSnippetsOpen(true)}
-                aria-label="코드 스니펫"
-                title="코드 스니펫 보기"
+                onClick={dialogs.openCodeSnippets}
+                aria-label={S.ARIA_CODE_SNIPPETS}
+                title={S.TITLE_CODE_SNIPPETS}
               >
-                Code
+                {S.CODE_BUTTON}
               </button>
               <button
                 className="header-action-btn"
-                onClick={() => setIsLinkCollectionOpen(true)}
-                aria-label="링크 모음"
-                title="링크 모음 보기"
+                onClick={dialogs.openLinkCollection}
+                aria-label={S.ARIA_LINK_COLLECTION}
+                title={S.TITLE_LINK_COLLECTION}
               >
-                Links
+                {S.LINKS_BUTTON}
               </button>
               <button
                 className="header-action-btn"
-                onClick={() => setIsStatsOpen(true)}
-                aria-label="대화 통계"
-                title="대화 통계 보기"
+                onClick={dialogs.openStats}
+                aria-label={S.ARIA_CONVERSATION_STATS}
+                title={S.TITLE_CONVERSATION_STATS}
               >
-                Stats
-              </button>
-              <button
-                className="header-action-btn"
-                onClick={() => setIsBookmarksOpen(true)}
-                aria-label="북마크"
-                title="북마크된 메시지 보기"
-              >
-                Bookmarks
+                {S.STATS_BUTTON}
               </button>
             </div>
           )}
@@ -454,29 +374,41 @@ const App: React.FC = () => {
             onPrev={inlineSearch.goToPrev}
             onClose={inlineSearch.close}
           />
+          <PinnedMessages
+            messages={msgActions.pinnedMessages}
+            onNavigate={msgActions.handleNavigateToMessage}
+            onUnpin={msgActions.handleUnpinMessage}
+          />
           <div className="messages" role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleScrollWithProgress}>
             <ReadingProgressBar progress={readingProgress} isVisible={messages.length > 0} />
             {messages.length === 0 && (
               <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
             )}
-            {messages.map((message, index) => (
-              <div key={message.id || index} data-message-index={index} onContextMenu={(e) => handleMessageContextMenu(e, index)}>
-                <MessageBubble
-                  message={message}
-                  index={index}
-                  isStreaming={isStreaming}
-                  isLastAssistant={message.role === 'assistant' && index === messages.length - 1}
-                  onDelete={deleteMessage}
-                  onEdit={editMessage}
-                  onFork={forkConversation}
-                  isBookmarked={currentConversationId ? isBookmarked(currentConversationId, index) : false}
-                  onToggleBookmark={handleToggleBookmark}
-                  reactions={currentConversationId ? getReactions(currentConversationId, index) : {}}
-                  onToggleReaction={handleToggleReaction}
-                  showTimestamps={settings.showTimestamps}
-                />
-              </div>
-            ))}
+            {messages.map((message, index) => {
+              const msgReactions = currentConversationId ? msgActions.getReactions(currentConversationId, index) : [];
+              return (
+                <div key={message.id || index} data-message-index={index} onContextMenu={(e) => msgActions.handleMessageContextMenu(e, index)}>
+                  <MessageBubble
+                    message={message}
+                    index={index}
+                    isStreaming={isStreaming}
+                    isLastAssistant={message.role === 'assistant' && index === messages.length - 1}
+                    onDelete={deleteMessage}
+                    onEdit={editMessage}
+                    onFork={forkConversation}
+                  />
+                  {msgReactions.length > 0 && (
+                    <div className="message-reactions">
+                      {msgReactions.map(r => (
+                        <span key={r.emoji} className="message-reaction-badge" title={`${r.emoji} ${r.count}`}>
+                          {r.emoji}{r.count > 1 ? ` ${r.count}` : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             {isLoading && (
               <TypingIndicator isStreaming={isStreaming} />
             )}
@@ -534,16 +466,14 @@ const App: React.FC = () => {
               {isLoading ? S.SENDING_BUTTON : S.SEND_BUTTON}
             </button>
             </div>
-            {input.length > 0 && (
-              <CharacterCounter current={input.length} />
-            )}
+            <InputPreview content={input} isVisible={dialogs.isInputPreviewVisible} />
           </div>
         </div>
       </main>
 
       <Settings
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
+        isOpen={dialogs.isSettingsOpen}
+        onClose={dialogs.closeSettings}
         settings={settings}
         onSave={handleSettingsSave}
         themeMode={themeMode}
@@ -554,53 +484,78 @@ const App: React.FC = () => {
 
       <Toast toasts={toasts} onDismiss={dismissToast} />
       <CommandPalette
-        isOpen={isCommandPaletteOpen}
-        onClose={() => setIsCommandPaletteOpen(false)}
+        isOpen={dialogs.isCommandPaletteOpen}
+        onClose={dialogs.closeCommandPalette}
         commands={commands}
       />
       <QuickSwitcher
-        isOpen={isQuickSwitcherOpen}
-        onClose={() => setIsQuickSwitcherOpen(false)}
+        isOpen={dialogs.isQuickSwitcherOpen}
+        onClose={dialogs.closeQuickSwitcher}
         conversations={conversations}
         currentConversationId={currentConversationId}
         onSelect={handleSelectConversation}
       />
       <CodeSnippets
-        isOpen={isCodeSnippetsOpen}
-        onClose={() => setIsCodeSnippetsOpen(false)}
+        isOpen={dialogs.isCodeSnippetsOpen}
+        onClose={dialogs.closeCodeSnippets}
         messages={messages}
-        onNavigateToMessage={handleNavigateToMessage}
+        onNavigateToMessage={msgActions.handleNavigateToMessage}
       />
       <KeyboardShortcutHelp
-        isOpen={isShortcutHelpOpen}
-        onClose={() => setIsShortcutHelpOpen(false)}
+        isOpen={dialogs.isShortcutHelpOpen}
+        onClose={dialogs.closeShortcutHelp}
       />
       <LinkCollection
-        isOpen={isLinkCollectionOpen}
-        onClose={() => setIsLinkCollectionOpen(false)}
+        isOpen={dialogs.isLinkCollectionOpen}
+        onClose={dialogs.closeLinkCollection}
         messages={messages}
-        onNavigateToMessage={handleNavigateToMessage}
+        onNavigateToMessage={msgActions.handleNavigateToMessage}
       />
       <ConversationStats
-        isOpen={isStatsOpen}
-        onClose={() => setIsStatsOpen(false)}
+        isOpen={dialogs.isStatsOpen}
+        onClose={dialogs.closeStats}
         stats={conversationStatsData}
       />
       <BookmarkedMessages
-        isOpen={isBookmarksOpen}
-        onClose={() => setIsBookmarksOpen(false)}
-        bookmarks={bookmarks}
-        onNavigateToMessage={handleNavigateToBookmark}
-        onRemoveBookmark={removeBookmark}
+        isOpen={dialogs.isBookmarksOpen}
+        onClose={dialogs.closeBookmarks}
+        bookmarks={msgActions.bookmarks}
+        onNavigateToMessage={msgActions.handleSearchNavigate}
+        onRemoveBookmark={msgActions.removeBookmark}
       />
-      {contextMenu && (
+      <PerformancePanel
+        isOpen={dialogs.isPerfPanelOpen}
+        onClose={dialogs.closePerfPanel}
+        data={perfData}
+        isMonitoring={perfMonitor.isEnabled}
+        onToggleMonitoring={perfMonitor.toggle}
+        onReset={perfMonitor.reset}
+      />
+      <MessageSearch
+        isOpen={dialogs.isMessageSearchOpen}
+        onClose={dialogs.closeMessageSearch}
+        conversations={conversations}
+        onNavigateToResult={msgActions.handleSearchNavigate}
+      />
+      {msgActions.contextMenu && (
         <MessageContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          items={contextMenuItems}
-          onSelect={handleContextMenuAction}
-          onClose={() => setContextMenu(null)}
+          x={msgActions.contextMenu.x}
+          y={msgActions.contextMenu.y}
+          items={msgActions.contextMenuItems}
+          onSelect={msgActions.handleContextMenuAction}
+          onClose={msgActions.closeContextMenu}
         />
+      )}
+      {msgActions.emojiPickerTarget && (
+        <div className="emoji-picker-overlay" onClick={msgActions.closeEmojiPicker}>
+          <div style={{ position: 'fixed', left: msgActions.emojiPickerTarget.x, top: msgActions.emojiPickerTarget.y }} onClick={(e) => e.stopPropagation()}>
+            <EmojiReactionPicker
+              isOpen={true}
+              onSelect={msgActions.handleEmojiSelect}
+              onClose={msgActions.closeEmojiPicker}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
