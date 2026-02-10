@@ -19,7 +19,7 @@ import type { ContextMenuItem } from './components/MessageContextMenu';
 import CodeSnippets from './components/CodeSnippets';
 import KeyboardShortcutHelp from './components/KeyboardShortcutHelp';
 import ReadingProgressBar from './components/ReadingProgressBar';
-import EmojiReactionPicker from './components/EmojiReactionPicker';
+// EmojiReactionPicker is used inside MessageBubble
 import LinkCollection from './components/LinkCollection';
 import ConversationStats from './components/ConversationStats';
 import BookmarkedMessages from './components/BookmarkedMessages';
@@ -40,6 +40,8 @@ import { useAutoScroll } from './hooks/useAutoScroll';
 import { useMessageSend } from './hooks/useMessageSend';
 import { useExport } from './hooks/useExport';
 import { useSettings } from './hooks/useSettings';
+import { useBookmarks } from './hooks/useBookmarks';
+import { useReactions } from './hooks/useReactions';
 import * as S from './constants/strings';
 
 const App: React.FC = () => {
@@ -160,6 +162,42 @@ const App: React.FC = () => {
   // Settings state (extracted to custom hook)
   const { settings, handleSettingsSave } = useSettings();
 
+  // Bookmarks & reactions
+  const currentConvTitle = useMemo(() => {
+    const conv = conversations.find(c => c.id === currentConversationId);
+    return conv?.title || S.UNTITLED_CONVERSATION;
+  }, [conversations, currentConversationId]);
+
+  const {
+    bookmarks,
+    isBookmarked,
+    toggleBookmark,
+    removeBookmark,
+  } = useBookmarks(currentConversationId, currentConvTitle);
+
+  const { getReactions, addReaction } = useReactions(currentConversationId);
+
+  const handleToggleBookmark = useCallback((index: number) => {
+    const msg = messages[index];
+    if (msg) {
+      toggleBookmark(index, msg.role, msg.content);
+    }
+  }, [messages, toggleBookmark]);
+
+  const handleNavigateToBookmark = useCallback((conversationId: string, messageIndex: number) => {
+    if (conversationId !== currentConversationId) {
+      handleSelectConversation(conversationId);
+    }
+    // Use setTimeout to allow conversation switch to render
+    setTimeout(() => {
+      const container = messagesContainerRef.current;
+      if (!container) return;
+      const messageElements = container.querySelectorAll('[data-message-index]');
+      const target = messageElements[messageIndex];
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }, [currentConversationId, handleSelectConversation, messagesContainerRef]);
+
   // Message send logic (input, files, send, paste)
   const {
     input,
@@ -213,6 +251,7 @@ const App: React.FC = () => {
   const contextMenuItems: ContextMenuItem[] = useMemo(() => [
     { id: 'copy', label: '복사', icon: '📋' },
     { id: 'edit', label: '수정', icon: '✏️' },
+    { id: 'bookmark', label: '북마크', icon: '⭐' },
     { id: 'fork', label: '분기', icon: '🔀' },
     { id: 'delete', label: '삭제', icon: '🗑', danger: true },
   ], []);
@@ -227,6 +266,9 @@ const App: React.FC = () => {
       case 'edit':
         editMessage(idx, messages[idx]?.content || '');
         break;
+      case 'bookmark':
+        handleToggleBookmark(idx);
+        break;
       case 'fork':
         forkConversation(idx);
         break;
@@ -235,7 +277,7 @@ const App: React.FC = () => {
         break;
     }
     setContextMenu(null);
-  }, [contextMenu, messages, editMessage, forkConversation, deleteMessage]);
+  }, [contextMenu, messages, editMessage, handleToggleBookmark, forkConversation, deleteMessage]);
 
   const handleNavigateToMessage = useCallback((messageIndex: number) => {
     const container = messagesContainerRef.current;
@@ -278,6 +320,7 @@ const App: React.FC = () => {
     { id: 'toggle-sidebar', label: S.CMD_TOGGLE_SIDEBAR, shortcut: 'Ctrl+B', action: handleToggleSidebar },
     { id: 'export', label: S.CMD_EXPORT_MD, action: handleExport },
     { id: 'export-pdf', label: S.CMD_EXPORT_PDF, action: handleExportPdf },
+    { id: 'bookmarks', label: '북마크 보기', action: () => setIsBookmarksOpen(true) },
   ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch]);
 
   // Keyboard shortcuts
@@ -367,6 +410,14 @@ const App: React.FC = () => {
               >
                 Stats
               </button>
+              <button
+                className="header-action-btn"
+                onClick={() => setIsBookmarksOpen(true)}
+                aria-label="북마크"
+                title="북마크된 메시지 보기"
+              >
+                Bookmarks
+              </button>
             </div>
           )}
         </header>
@@ -405,6 +456,10 @@ const App: React.FC = () => {
                   onDelete={deleteMessage}
                   onEdit={editMessage}
                   onFork={forkConversation}
+                  isBookmarked={isBookmarked(index)}
+                  onToggleBookmark={handleToggleBookmark}
+                  reactions={getReactions(index)}
+                  onAddReaction={addReaction}
                 />
               </div>
             ))}
@@ -517,9 +572,9 @@ const App: React.FC = () => {
       <BookmarkedMessages
         isOpen={isBookmarksOpen}
         onClose={() => setIsBookmarksOpen(false)}
-        bookmarks={[]}
-        onNavigateToMessage={() => {}}
-        onRemoveBookmark={() => {}}
+        bookmarks={bookmarks}
+        onNavigateToMessage={handleNavigateToBookmark}
+        onRemoveBookmark={removeBookmark}
       />
       {contextMenu && (
         <MessageContextMenu

@@ -378,6 +378,68 @@
   color: var(--accent-highlight);
 }
 
+.bookmark-message-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.message:hover .bookmark-message-btn {
+  opacity: 1;
+}
+
+.bookmark-message-btn.bookmarked {
+  opacity: 1;
+  color: #f5a623;
+}
+
+.bookmark-message-btn:hover {
+  color: #f5a623;
+}
+
+.reaction-trigger-wrapper {
+  position: relative;
+}
+
+.reaction-trigger-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.message:hover .reaction-trigger-btn {
+  opacity: 1;
+}
+
+.message-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 0.5rem;
+}
+
+.reaction-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.875rem;
+  padding: 2px 6px;
+  background: var(--bg-hover);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
 .message.editing {
   border-color: var(--accent-highlight);
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
+import EmojiReactionPicker from './EmojiReactionPicker';
 import './MessageBubble.css';
 import type { Message } from '../../preload/types';
 import * as S from '../constants/strings';
@@ -12,6 +13,10 @@ interface MessageBubbleProps {
   onDelete: (index: number) => void;
   onEdit: (index: number, content: string) => void;
   onFork?: (index: number) => void;
+  isBookmarked?: boolean;
+  onToggleBookmark?: (index: number) => void;
+  reactions?: string[];
+  onAddReaction?: (index: number, emoji: string) => void;
 }
 
 const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
@@ -22,9 +27,14 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
   onDelete,
   onEdit,
   onFork,
+  isBookmarked,
+  onToggleBookmark,
+  reactions,
+  onAddReaction,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
   const handleStartEdit = () => {
     setIsEditing(true);
@@ -76,6 +86,36 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
             &#9095;
           </button>
         )}
+        {onToggleBookmark && (
+          <button
+            className={`bookmark-message-btn${isBookmarked ? ' bookmarked' : ''}`}
+            onClick={() => onToggleBookmark(index)}
+            aria-label={isBookmarked ? '북마크 해제' : '북마크'}
+            title={isBookmarked ? '북마크 해제' : '북마크'}
+          >
+            {isBookmarked ? '★' : '☆'}
+          </button>
+        )}
+        {onAddReaction && (
+          <div className="reaction-trigger-wrapper">
+            <button
+              className="reaction-trigger-btn"
+              onClick={() => setIsEmojiPickerOpen(prev => !prev)}
+              aria-label="이모지 반응"
+              title="이모지 반응 추가"
+            >
+              😀
+            </button>
+            <EmojiReactionPicker
+              isOpen={isEmojiPickerOpen}
+              onSelect={(emoji) => {
+                onAddReaction(index, emoji);
+                setIsEmojiPickerOpen(false);
+              }}
+              onClose={() => setIsEmojiPickerOpen(false)}
+            />
+          </div>
+        )}
         <button
           className="delete-message-btn"
           onClick={() => onDelete(index)}
@@ -116,6 +156,13 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
           <MarkdownRenderer content={message.content} />
         )}
       </div>
+      {reactions && reactions.length > 0 && (
+        <div className="message-reactions" role="group" aria-label="반응">
+          {reactions.map((emoji, i) => (
+            <span key={i} className="reaction-badge">{emoji}</span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
