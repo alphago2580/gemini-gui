@@ -1,0 +1,91 @@
+.pinned-messages {
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  padding: 6px 12px;
+  flex-shrink: 0;
+}
+
+.pinned-messages-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.pinned-messages-icon {
+  font-size: 11px;
+}
+
+.pinned-messages-count {
+  font-weight: 500;
+}
+
+.pinned-messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pinned-message-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+
+.pinned-message-item:hover {
+  background: var(--bg-hover);
+}
+
+.pinned-message-role {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.pinned-message-role.user {
+  background: var(--accent-primary);
+  color: #fff;
+}
+
+.pinned-message-role.assistant {
+  background: var(--text-secondary);
+  color: var(--bg-primary);
+}
+
+.pinned-message-preview {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.pinned-message-unpin {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 2px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.pinned-message-item:hover .pinned-message-unpin {
+  opacity: 1;
+}
+
+.pinned-message-unpin:hover {
+  color: var(--error);
+}

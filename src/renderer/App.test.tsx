@@ -1552,4 +1552,58 @@ describe('App Component', () => {
             });
         });
     });
+
+    describe('PinnedMessages', () => {
+        it('does not render pinned messages bar when no messages are pinned', () => {
+            render(<App />);
+            expect(screen.queryByLabelText('고정된 메시지')).not.toBeInTheDocument();
+        });
+
+        it('shows pin option in context menu', async () => {
+            const savedConversations = [
+                {
+                    id: '900',
+                    title: 'Pin Test',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Pinnable message', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '900');
+
+            render(<App />);
+            await waitFor(() => {
+                expect(screen.getByText('Pinnable message')).toBeInTheDocument();
+            });
+
+            const messageDiv = screen.getByText('Pinnable message').closest('[data-message-index]');
+            expect(messageDiv).toBeTruthy();
+            fireEvent.contextMenu(messageDiv!);
+
+            expect(screen.getByText('고정')).toBeInTheDocument();
+        });
+    });
+
+    describe('InputPreview', () => {
+        it('does not render input preview by default', () => {
+            render(<App />);
+            expect(screen.queryByLabelText('입력 미리보기')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('PerformancePanel', () => {
+        it('does not render performance panel by default', () => {
+            render(<App />);
+            expect(screen.queryByText('성능 모니터')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('MessageSearch', () => {
+        it('does not render message search dialog by default', () => {
+            render(<App />);
+            expect(screen.queryByPlaceholderText('전체 대화 내용 검색...')).not.toBeInTheDocument();
+        });
+    });
 });

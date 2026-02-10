@@ -1,0 +1,27 @@
+.input-preview {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-top: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--bg-secondary);
+}
+
+.input-preview-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 12px 0;
+}
+
+.input-preview-content {
+  padding: 4px 12px 8px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.input-preview-content p {
+  margin: 0.25em 0;
+}

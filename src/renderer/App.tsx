@@ -23,7 +23,13 @@ import EmojiReactionPicker from './components/EmojiReactionPicker';
 import LinkCollection from './components/LinkCollection';
 import ConversationStats from './components/ConversationStats';
 import BookmarkedMessages from './components/BookmarkedMessages';
+import PerformancePanel from './components/PerformancePanel';
+import MessageSearch from './components/MessageSearch';
+import InputPreview from './components/InputPreview';
+import PinnedMessages from './components/PinnedMessages';
+import type { PinnedMessage } from './components/PinnedMessages';
 import { calculateConversationStats } from './utils/conversationStats';
+import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
 import { insertBold, insertItalic, insertInlineCode, insertStrikethrough, insertLink, insertCodeBlock } from './utils/textFormatting';
 import type { Command } from './components/CommandPalette';
 import { useInlineSearch } from './hooks/useInlineSearch';
@@ -120,6 +126,13 @@ const App: React.FC = () => {
   const [isLinkCollectionOpen, setIsLinkCollectionOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
+  const [isPerfPanelOpen, setIsPerfPanelOpen] = useState(false);
+  const [isMessageSearchOpen, setIsMessageSearchOpen] = useState(false);
+  const [isInputPreviewVisible, setIsInputPreviewVisible] = useState(false);
+  const [pinnedMessages, setPinnedMessages] = useLocalStorage<PinnedMessage[]>(S.STORAGE_KEY_PINNED_MESSAGES, []);
+
+  // Performance monitor
+  const perfMonitor = usePerformanceMonitor();
 
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
@@ -209,10 +222,25 @@ const App: React.FC = () => {
     });
   }, [input, setInput, textareaRef]);
 
+  // Pin/unpin message handlers
+  const handlePinMessage = useCallback((messageIndex: number) => {
+    const msg = messages[messageIndex];
+    if (!msg) return;
+    setPinnedMessages(prev => {
+      if (prev.some(p => p.index === messageIndex)) return prev;
+      return [...prev, { index: messageIndex, role: msg.role, content: msg.content }];
+    });
+  }, [messages, setPinnedMessages]);
+
+  const handleUnpinMessage = useCallback((messageIndex: number) => {
+    setPinnedMessages(prev => prev.filter(p => p.index !== messageIndex));
+  }, [setPinnedMessages]);
+
   // Context menu items and handler
   const contextMenuItems: ContextMenuItem[] = useMemo(() => [
     { id: 'copy', label: '복사', icon: '📋' },
     { id: 'edit', label: '수정', icon: '✏️' },
+    { id: 'pin', label: '고정', icon: '📌' },
     { id: 'fork', label: '분기', icon: '🔀' },
     { id: 'delete', label: '삭제', icon: '🗑', danger: true },
   ], []);
@@ -227,6 +255,9 @@ const App: React.FC = () => {
       case 'edit':
         editMessage(idx, messages[idx]?.content || '');
         break;
+      case 'pin':
+        handlePinMessage(idx);
+        break;
       case 'fork':
         forkConversation(idx);
         break;
@@ -235,7 +266,7 @@ const App: React.FC = () => {
         break;
     }
     setContextMenu(null);
-  }, [contextMenu, messages, editMessage, forkConversation, deleteMessage]);
+  }, [contextMenu, messages, editMessage, handlePinMessage, forkConversation, deleteMessage]);
 
   const handleNavigateToMessage = useCallback((messageIndex: number) => {
     const container = messagesContainerRef.current;
@@ -249,6 +280,20 @@ const App: React.FC = () => {
     e.preventDefault();
     setContextMenu({ x: e.clientX, y: e.clientY, messageIndex: index });
   }, []);
+
+  // MessageSearch navigation: switch to conversation and scroll to message
+  const handleSearchNavigate = useCallback((conversationId: string, messageIndex: number) => {
+    if (conversationId !== currentConversationId) {
+      handleSelectConversation(conversationId);
+    }
+    setTimeout(() => handleNavigateToMessage(messageIndex), 100);
+  }, [currentConversationId, handleSelectConversation, handleNavigateToMessage]);
+
+  // Performance data (computed)
+  const perfData = useMemo(
+    () => perfMonitor.getData(messages.length, conversations.length),
+    [perfMonitor, messages.length, conversations.length]
+  );
 
   // Clear current conversation messages
   const handleClearConversation = useCallback(() => {
@@ -390,6 +435,11 @@ const App: React.FC = () => {
             onPrev={inlineSearch.goToPrev}
             onClose={inlineSearch.close}
           />
+          <PinnedMessages
+            messages={pinnedMessages}
+            onNavigate={handleNavigateToMessage}
+            onUnpin={handleUnpinMessage}
+          />
           <div className="messages" role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleScrollWithProgress}>
             <ReadingProgressBar progress={readingProgress} isVisible={messages.length > 0} />
             {messages.length === 0 && (
@@ -465,6 +515,7 @@ const App: React.FC = () => {
               {isLoading ? S.SENDING_BUTTON : S.SEND_BUTTON}
             </button>
             </div>
+            <InputPreview content={input} isVisible={isInputPreviewVisible} />
           </div>
         </div>
       </main>
@@ -520,6 +571,20 @@ const App: React.FC = () => {
         bookmarks={[]}
         onNavigateToMessage={() => {}}
         onRemoveBookmark={() => {}}
+      />
+      <PerformancePanel
+        isOpen={isPerfPanelOpen}
+        onClose={() => setIsPerfPanelOpen(false)}
+        data={perfData}
+        isMonitoring={perfMonitor.isEnabled}
+        onToggleMonitoring={perfMonitor.toggle}
+        onReset={perfMonitor.reset}
+      />
+      <MessageSearch
+        isOpen={isMessageSearchOpen}
+        onClose={() => setIsMessageSearchOpen(false)}
+        conversations={conversations}
+        onNavigateToResult={handleSearchNavigate}
       />
       {contextMenu && (
         <MessageContextMenu

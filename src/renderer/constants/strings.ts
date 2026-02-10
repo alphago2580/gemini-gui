@@ -218,3 +218,4 @@ export const STORAGE_KEY_PROMPT_TEMPLATES = 'gemini-prompt-templates';
 export const STORAGE_KEY_SIDEBAR_COLLAPSED = 'gemini-sidebar-collapsed';
 export const STORAGE_KEY_HIGH_CONTRAST = 'gemini-high-contrast';
 export const STORAGE_KEY_OPEN_TABS = 'gemini-open-tabs';
+export const STORAGE_KEY_PINNED_MESSAGES = 'gemini-pinned-messages';

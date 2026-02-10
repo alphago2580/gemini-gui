@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (699 tests)
+- **Test Status**: Passing (938 tests)
 - **Last Agent Run**: Agent 2 (Quality)
 
 ## Completed Features
@@ -545,3 +545,28 @@
 - Added 3 unit tests for `generateUniqueId` (prefix, default, uniqueness)
 - TypeScript: 0 errors (`npx tsc --noEmit` passes)
 - Total tests: 699 (30 test files, all passing)
+
+### Agent 2 (Hooks & Utils) — usePerformanceMonitor Tests + any Fix, useDebounce, useClipboard
+- Added 14 unit tests for `usePerformanceMonitor` hook (init state, toggle, render metrics, slowest/fastest, average, cap at 50, reset, rounding, memory usage, stable refs)
+- Fixed 2 `any` type casts in usePerformanceMonitor: `(performance as any).memory` → typed `Performance & { memory?: ... }` cast
+- Created `useDebounce` hook — debounces a value by a configurable delay
+- Added 8 unit tests for useDebounce (initial value, delay, timer reset, objects, zero delay, cleanup)
+- Created `useClipboard` hook — clipboard copy with `copied` feedback state and auto-reset
+- Added 10 unit tests for useClipboard (copy, reset timer, errors, stable refs)
+- Zone B tests: 359 (25 test files, all passing)
+- Build: passes successfully
+
+### Agent 2 (Quality) — Integrate Priority 2 Components into App
+- Integrated 4 untracked components into App.tsx: PerformancePanel, MessageSearch, InputPreview, PinnedMessages
+- **PerformancePanel**: React Profiler-based performance monitoring dialog with render metrics, memory usage, recent render list
+- **usePerformanceMonitor**: Custom hook providing onRender callback, getData, toggle, reset for React.Profiler integration
+- **MessageSearch**: Full-text search across all conversations with highlighted results, keyboard navigation, and auto-scroll to result
+- **InputPreview**: Markdown preview panel below input (shows rendered preview of input text)
+- **PinnedMessages**: Pin/unpin messages bar above chat area, with navigate-to-message and unpin actions
+- Added `handlePinMessage`, `handleUnpinMessage`, `handleSearchNavigate` callbacks in App.tsx
+- Added 'pin' action to right-click MessageContextMenu (📌 고정)
+- Added `STORAGE_KEY_PINNED_MESSAGES` to constants/strings.ts for localStorage persistence
+- Added `perfData` useMemo for computed performance data
+- Added 5 integration tests in App.test.tsx (PinnedMessages default, context menu pin, InputPreview default, PerformancePanel default, MessageSearch default)
+- Total tests: 938 (55 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
