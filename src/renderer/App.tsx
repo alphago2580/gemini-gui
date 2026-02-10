@@ -29,6 +29,9 @@ import PinnedMessages from './components/PinnedMessages';
 import type { PinnedMessage } from './components/PinnedMessages';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
+import { useBookmarks } from './hooks/useBookmarks';
+import { useEmojiReactions } from './hooks/useEmojiReactions';
+import EmojiReactionPicker from './components/EmojiReactionPicker';
 import { insertBold, insertItalic, insertInlineCode, insertStrikethrough, insertLink, insertCodeBlock } from './utils/textFormatting';
 import type { Command } from './components/CommandPalette';
 import { useInlineSearch } from './hooks/useInlineSearch';
@@ -45,6 +48,7 @@ import { useAutoScroll } from './hooks/useAutoScroll';
 import { useMessageSend } from './hooks/useMessageSend';
 import { useExport } from './hooks/useExport';
 import { useSettings } from './hooks/useSettings';
+import { useDialogs } from './hooks/useDialogs';
 import * as S from './constants/strings';
 
 const App: React.FC = () => {
@@ -113,25 +117,24 @@ const App: React.FC = () => {
     addToast,
   });
 
-  // UI state
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  // Dialog/panel state (extracted to custom hook)
+  const dialogs = useDialogs();
+
+  // UI state (localStorage-persisted)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage(S.STORAGE_KEY_SIDEBAR_COLLAPSED, false);
   const [highContrast, setHighContrast] = useLocalStorage(S.STORAGE_KEY_HIGH_CONTRAST, false);
-  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [isQuickSwitcherOpen, setIsQuickSwitcherOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; messageIndex: number } | null>(null);
-  const [isCodeSnippetsOpen, setIsCodeSnippetsOpen] = useState(false);
-  const [isShortcutHelpOpen, setIsShortcutHelpOpen] = useState(false);
-  const [isLinkCollectionOpen, setIsLinkCollectionOpen] = useState(false);
-  const [isStatsOpen, setIsStatsOpen] = useState(false);
-  const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
-  const [isPerfPanelOpen, setIsPerfPanelOpen] = useState(false);
-  const [isMessageSearchOpen, setIsMessageSearchOpen] = useState(false);
-  const [isInputPreviewVisible, setIsInputPreviewVisible] = useState(false);
   const [pinnedMessages, setPinnedMessages] = useLocalStorage<PinnedMessage[]>(S.STORAGE_KEY_PINNED_MESSAGES, []);
 
   // Performance monitor
   const perfMonitor = usePerformanceMonitor();
+
+  // Bookmarks
+  const { bookmarks, addBookmark, removeBookmark } = useBookmarks();
+
+  // Emoji reactions
+  const { toggleReaction, getReactions } = useEmojiReactions();
+  const [emojiPickerTarget, setEmojiPickerTarget] = useState<{ index: number; x: number; y: number } | null>(null);
 
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
@@ -237,11 +240,13 @@ const App: React.FC = () => {
 
   // Context menu items and handler
   const contextMenuItems: ContextMenuItem[] = useMemo(() => [
-    { id: 'copy', label: '복사', icon: '📋' },
-    { id: 'edit', label: '수정', icon: '✏️' },
-    { id: 'pin', label: '고정', icon: '📌' },
-    { id: 'fork', label: '분기', icon: '🔀' },
-    { id: 'delete', label: '삭제', icon: '🗑', danger: true },
+    { id: 'copy', label: S.CTX_COPY, icon: S.CTX_COPY_ICON },
+    { id: 'edit', label: S.CTX_EDIT, icon: S.CTX_EDIT_ICON },
+    { id: 'pin', label: S.CTX_PIN, icon: S.CTX_PIN_ICON },
+    { id: 'bookmark', label: S.CTX_BOOKMARK, icon: S.CTX_BOOKMARK_ICON },
+    { id: 'emoji', label: S.CTX_REACTION, icon: S.CTX_REACTION_ICON },
+    { id: 'fork', label: S.CTX_FORK, icon: S.CTX_FORK_ICON },
+    { id: 'delete', label: S.CTX_DELETE, icon: S.CTX_DELETE_ICON, danger: true },
   ], []);
 
   const handleContextMenuAction = useCallback((actionId: string) => {
@@ -257,6 +262,24 @@ const App: React.FC = () => {
       case 'pin':
         handlePinMessage(idx);
         break;
+      case 'bookmark': {
+        const msg = messages[idx];
+        if (msg) {
+          const conv = conversations.find(c => c.id === currentConversationId);
+          addBookmark({
+            conversationId: currentConversationId || '',
+            conversationTitle: conv?.title || S.CTX_NO_TITLE,
+            messageIndex: idx,
+            role: msg.role,
+            content: msg.content,
+            timestamp: new Date(),
+          });
+        }
+        break;
+      }
+      case 'emoji':
+        setEmojiPickerTarget({ index: idx, x: contextMenu.x, y: contextMenu.y });
+        break;
       case 'fork':
         forkConversation(idx);
         break;
@@ -265,7 +288,7 @@ const App: React.FC = () => {
         break;
     }
     setContextMenu(null);
-  }, [contextMenu, messages, editMessage, handlePinMessage, forkConversation, deleteMessage]);
+  }, [contextMenu, messages, editMessage, handlePinMessage, forkConversation, deleteMessage, conversations, currentConversationId, addBookmark]);
 
   const handleNavigateToMessage = useCallback((messageIndex: number) => {
     const container = messagesContainerRef.current;
@@ -279,6 +302,14 @@ const App: React.FC = () => {
     e.preventDefault();
     setContextMenu({ x: e.clientX, y: e.clientY, messageIndex: index });
   }, []);
+
+  // Emoji reaction handler
+  const handleEmojiSelect = useCallback((emoji: string) => {
+    if (emojiPickerTarget && currentConversationId) {
+      toggleReaction(currentConversationId, emojiPickerTarget.index, emoji);
+    }
+    setEmojiPickerTarget(null);
+  }, [emojiPickerTarget, currentConversationId, toggleReaction]);
 
   // MessageSearch navigation: switch to conversation and scroll to message
   const handleSearchNavigate = useCallback((conversationId: string, messageIndex: number) => {
@@ -318,29 +349,30 @@ const App: React.FC = () => {
     { id: 'new-chat', label: S.CMD_NEW_CHAT, shortcut: 'Ctrl+N', action: handleNewChat },
     { id: 'clear', label: S.CMD_CLEAR, shortcut: 'Ctrl+L', action: handleClearConversation },
     { id: 'search', label: S.CMD_SEARCH, shortcut: 'Ctrl+F', action: () => inlineSearch.open() },
-    { id: 'settings', label: S.CMD_SETTINGS, shortcut: 'Ctrl+,', action: () => setIsSettingsOpen(true) },
+    { id: 'settings', label: S.CMD_SETTINGS, shortcut: 'Ctrl+,', action: dialogs.openSettings },
     { id: 'toggle-sidebar', label: S.CMD_TOGGLE_SIDEBAR, shortcut: 'Ctrl+B', action: handleToggleSidebar },
     { id: 'export', label: S.CMD_EXPORT_MD, action: handleExport },
     { id: 'export-pdf', label: S.CMD_EXPORT_PDF, action: handleExportPdf },
-    { id: 'message-search', label: '전체 메시지 검색', action: () => setIsMessageSearchOpen(true) },
-    { id: 'perf-monitor', label: '성능 모니터', action: () => setIsPerfPanelOpen(true) },
-    { id: 'toggle-preview', label: '입력 미리보기 토글', action: () => setIsInputPreviewVisible(prev => !prev) },
-  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch]);
+    { id: 'message-search', label: S.CMD_MESSAGE_SEARCH, action: dialogs.openMessageSearch },
+    { id: 'perf-monitor', label: S.CMD_PERF_MONITOR, action: dialogs.openPerfPanel },
+    { id: 'toggle-preview', label: S.CMD_TOGGLE_PREVIEW, action: dialogs.toggleInputPreview },
+    { id: 'bookmarks', label: S.CMD_BOOKMARKS, action: dialogs.openBookmarks },
+  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch, dialogs]);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
     onNewChat: handleNewChat,
     onClearConversation: handleClearConversation,
-    onToggleSettings: () => setIsSettingsOpen(prev => !prev),
-    onCloseSettings: () => setIsSettingsOpen(false),
+    onToggleSettings: dialogs.toggleSettings,
+    onCloseSettings: dialogs.closeSettings,
     onFocusSearch: () => inlineSearch.open(),
     onToggleSidebar: handleToggleSidebar,
-    onToggleCommandPalette: () => setIsCommandPaletteOpen(prev => !prev),
-    onToggleQuickSwitcher: () => setIsQuickSwitcherOpen(prev => !prev),
+    onToggleCommandPalette: dialogs.toggleCommandPalette,
+    onToggleQuickSwitcher: dialogs.toggleQuickSwitcher,
     onNextTab: nextTab,
     onPrevTab: prevTab,
-    onToggleShortcutHelp: () => setIsShortcutHelpOpen(prev => !prev),
-    isSettingsOpen,
+    onToggleShortcutHelp: dialogs.toggleShortcutHelp,
+    isSettingsOpen: dialogs.isSettingsOpen,
   });
 
 
@@ -348,7 +380,7 @@ const App: React.FC = () => {
     <div className="app" role="application">
       <Sidebar
         onNewChat={handleNewChat}
-        onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenSettings={dialogs.openSettings}
         conversations={conversations}
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
@@ -392,27 +424,27 @@ const App: React.FC = () => {
               </button>
               <button
                 className="header-action-btn"
-                onClick={() => setIsCodeSnippetsOpen(true)}
-                aria-label="코드 스니펫"
-                title="코드 스니펫 보기"
+                onClick={dialogs.openCodeSnippets}
+                aria-label={S.ARIA_CODE_SNIPPETS}
+                title={S.TITLE_CODE_SNIPPETS}
               >
-                Code
+                {S.CODE_BUTTON}
               </button>
               <button
                 className="header-action-btn"
-                onClick={() => setIsLinkCollectionOpen(true)}
-                aria-label="링크 모음"
-                title="링크 모음 보기"
+                onClick={dialogs.openLinkCollection}
+                aria-label={S.ARIA_LINK_COLLECTION}
+                title={S.TITLE_LINK_COLLECTION}
               >
-                Links
+                {S.LINKS_BUTTON}
               </button>
               <button
                 className="header-action-btn"
-                onClick={() => setIsStatsOpen(true)}
-                aria-label="대화 통계"
-                title="대화 통계 보기"
+                onClick={dialogs.openStats}
+                aria-label={S.ARIA_CONVERSATION_STATS}
+                title={S.TITLE_CONVERSATION_STATS}
               >
-                Stats
+                {S.STATS_BUTTON}
               </button>
             </div>
           )}
@@ -447,19 +479,31 @@ const App: React.FC = () => {
             {messages.length === 0 && (
               <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
             )}
-            {messages.map((message, index) => (
-              <div key={message.id || index} data-message-index={index} onContextMenu={(e) => handleMessageContextMenu(e, index)}>
-                <MessageBubble
-                  message={message}
-                  index={index}
-                  isStreaming={isStreaming}
-                  isLastAssistant={message.role === 'assistant' && index === messages.length - 1}
-                  onDelete={deleteMessage}
-                  onEdit={editMessage}
-                  onFork={forkConversation}
-                />
-              </div>
-            ))}
+            {messages.map((message, index) => {
+              const msgReactions = currentConversationId ? getReactions(currentConversationId, index) : [];
+              return (
+                <div key={message.id || index} data-message-index={index} onContextMenu={(e) => handleMessageContextMenu(e, index)}>
+                  <MessageBubble
+                    message={message}
+                    index={index}
+                    isStreaming={isStreaming}
+                    isLastAssistant={message.role === 'assistant' && index === messages.length - 1}
+                    onDelete={deleteMessage}
+                    onEdit={editMessage}
+                    onFork={forkConversation}
+                  />
+                  {msgReactions.length > 0 && (
+                    <div className="message-reactions">
+                      {msgReactions.map(r => (
+                        <span key={r.emoji} className="message-reaction-badge" title={`${r.emoji} ${r.count}`}>
+                          {r.emoji}{r.count > 1 ? ` ${r.count}` : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             {isLoading && (
               <TypingIndicator isStreaming={isStreaming} />
             )}
@@ -517,14 +561,14 @@ const App: React.FC = () => {
               {isLoading ? S.SENDING_BUTTON : S.SEND_BUTTON}
             </button>
             </div>
-            <InputPreview content={input} isVisible={isInputPreviewVisible} />
+            <InputPreview content={input} isVisible={dialogs.isInputPreviewVisible} />
           </div>
         </div>
       </main>
 
       <Settings
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
+        isOpen={dialogs.isSettingsOpen}
+        onClose={dialogs.closeSettings}
         settings={settings}
         onSave={handleSettingsSave}
         themeMode={themeMode}
@@ -535,56 +579,56 @@ const App: React.FC = () => {
 
       <Toast toasts={toasts} onDismiss={dismissToast} />
       <CommandPalette
-        isOpen={isCommandPaletteOpen}
-        onClose={() => setIsCommandPaletteOpen(false)}
+        isOpen={dialogs.isCommandPaletteOpen}
+        onClose={dialogs.closeCommandPalette}
         commands={commands}
       />
       <QuickSwitcher
-        isOpen={isQuickSwitcherOpen}
-        onClose={() => setIsQuickSwitcherOpen(false)}
+        isOpen={dialogs.isQuickSwitcherOpen}
+        onClose={dialogs.closeQuickSwitcher}
         conversations={conversations}
         currentConversationId={currentConversationId}
         onSelect={handleSelectConversation}
       />
       <CodeSnippets
-        isOpen={isCodeSnippetsOpen}
-        onClose={() => setIsCodeSnippetsOpen(false)}
+        isOpen={dialogs.isCodeSnippetsOpen}
+        onClose={dialogs.closeCodeSnippets}
         messages={messages}
         onNavigateToMessage={handleNavigateToMessage}
       />
       <KeyboardShortcutHelp
-        isOpen={isShortcutHelpOpen}
-        onClose={() => setIsShortcutHelpOpen(false)}
+        isOpen={dialogs.isShortcutHelpOpen}
+        onClose={dialogs.closeShortcutHelp}
       />
       <LinkCollection
-        isOpen={isLinkCollectionOpen}
-        onClose={() => setIsLinkCollectionOpen(false)}
+        isOpen={dialogs.isLinkCollectionOpen}
+        onClose={dialogs.closeLinkCollection}
         messages={messages}
         onNavigateToMessage={handleNavigateToMessage}
       />
       <ConversationStats
-        isOpen={isStatsOpen}
-        onClose={() => setIsStatsOpen(false)}
+        isOpen={dialogs.isStatsOpen}
+        onClose={dialogs.closeStats}
         stats={conversationStatsData}
       />
       <BookmarkedMessages
-        isOpen={isBookmarksOpen}
-        onClose={() => setIsBookmarksOpen(false)}
-        bookmarks={[]}
-        onNavigateToMessage={() => {}}
-        onRemoveBookmark={() => {}}
+        isOpen={dialogs.isBookmarksOpen}
+        onClose={dialogs.closeBookmarks}
+        bookmarks={bookmarks}
+        onNavigateToMessage={handleSearchNavigate}
+        onRemoveBookmark={removeBookmark}
       />
       <PerformancePanel
-        isOpen={isPerfPanelOpen}
-        onClose={() => setIsPerfPanelOpen(false)}
+        isOpen={dialogs.isPerfPanelOpen}
+        onClose={dialogs.closePerfPanel}
         data={perfData}
         isMonitoring={perfMonitor.isEnabled}
         onToggleMonitoring={perfMonitor.toggle}
         onReset={perfMonitor.reset}
       />
       <MessageSearch
-        isOpen={isMessageSearchOpen}
-        onClose={() => setIsMessageSearchOpen(false)}
+        isOpen={dialogs.isMessageSearchOpen}
+        onClose={dialogs.closeMessageSearch}
         conversations={conversations}
         onNavigateToResult={handleSearchNavigate}
       />
@@ -596,6 +640,17 @@ const App: React.FC = () => {
           onSelect={handleContextMenuAction}
           onClose={() => setContextMenu(null)}
         />
+      )}
+      {emojiPickerTarget && (
+        <div className="emoji-picker-overlay" onClick={() => setEmojiPickerTarget(null)}>
+          <div style={{ position: 'fixed', left: emojiPickerTarget.x, top: emojiPickerTarget.y }} onClick={(e) => e.stopPropagation()}>
+            <EmojiReactionPicker
+              isOpen={true}
+              onSelect={handleEmojiSelect}
+              onClose={() => setEmojiPickerTarget(null)}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

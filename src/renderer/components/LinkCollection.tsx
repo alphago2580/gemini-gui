@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import './LinkCollection.css';
 import { extractLinks } from '../utils/linkExtractor';
+import * as S from '../constants/strings';
 
 interface LinkCollectionProps {
   isOpen: boolean;
@@ -42,15 +43,15 @@ const LinkCollectionInner: React.FC<LinkCollectionProps> = ({
         onClick={e => e.stopPropagation()}
         onKeyDown={handleKeyDown}
         role="dialog"
-        aria-label="링크 모음"
+        aria-label={S.LINKS_LABEL}
         tabIndex={-1}
       >
         <div className="link-collection-header">
-          <h3 className="link-collection-title">링크 모음 ({links.length})</h3>
+          <h3 className="link-collection-title">{S.LINKS_LABEL} ({links.length})</h3>
           <button
             className="link-collection-close-btn"
             onClick={onClose}
-            aria-label="링크 모음 닫기"
+            aria-label={S.LINKS_CLOSE_LABEL}
           >
             &times;
           </button>
@@ -59,7 +60,7 @@ const LinkCollectionInner: React.FC<LinkCollectionProps> = ({
         <div className="link-collection-list">
           {links.length === 0 && (
             <div className="link-collection-empty">
-              이 대화에 링크가 없습니다.
+              {S.LINKS_EMPTY}
             </div>
           )}
           {links.map((link, index) => (
@@ -76,7 +77,7 @@ const LinkCollectionInner: React.FC<LinkCollectionProps> = ({
               </div>
               <div className="link-item-actions">
                 <span className="link-item-role">
-                  {link.role === 'user' ? '사용자' : 'Gemini'}
+                  {link.role === 'user' ? S.ROLE_USER : S.ROLE_ASSISTANT}
                 </span>
                 <button
                   className="link-item-nav-btn"
@@ -84,16 +85,16 @@ const LinkCollectionInner: React.FC<LinkCollectionProps> = ({
                     onNavigateToMessage(link.messageIndex);
                     onClose();
                   }}
-                  aria-label="메시지로 이동"
-                  title="메시지로 이동"
+                  aria-label={S.LINKS_NAV_LABEL}
+                  title={S.LINKS_NAV_LABEL}
                 >
                   ↗
                 </button>
                 <button
                   className="link-item-copy-btn"
                   onClick={() => handleCopy(link.url, index)}
-                  aria-label="URL 복사"
-                  title="URL 복사"
+                  aria-label={S.LINKS_COPY_URL}
+                  title={S.LINKS_COPY_URL}
                 >
                   {copiedIndex === index ? '✓' : '📋'}
                 </button>

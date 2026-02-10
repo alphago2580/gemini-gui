@@ -1,5 +1,6 @@
 import React from 'react';
 import './PinnedMessages.css';
+import * as S from '../constants/strings';
 
 export interface PinnedMessage {
   index: number;
@@ -19,10 +20,10 @@ const PinnedMessagesInner: React.FC<PinnedMessagesProps> = ({ messages, onNaviga
   if (messages.length === 0) return null;
 
   return (
-    <div className="pinned-messages" aria-label="고정된 메시지">
+    <div className="pinned-messages" aria-label={S.PINNED_LABEL}>
       <div className="pinned-messages-header">
         <span className="pinned-messages-icon">📌</span>
-        <span className="pinned-messages-count">{messages.length}개 고정됨</span>
+        <span className="pinned-messages-count">{messages.length}{S.PINNED_COUNT_SUFFIX}</span>
       </div>
       <div className="pinned-messages-list">
         {messages.map(msg => {
@@ -36,13 +37,13 @@ const PinnedMessagesInner: React.FC<PinnedMessagesProps> = ({ messages, onNaviga
               onClick={() => onNavigate(msg.index)}
               role="button"
               tabIndex={0}
-              aria-label={`고정된 메시지로 이동: ${preview}`}
+              aria-label={`${S.PINNED_NAV_PREFIX} ${preview}`}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') onNavigate(msg.index);
               }}
             >
               <span className={`pinned-message-role ${msg.role}`}>
-                {msg.role === 'user' ? '사용자' : 'Gemini'}
+                {msg.role === 'user' ? S.ROLE_USER : S.ROLE_ASSISTANT}
               </span>
               <span className="pinned-message-preview">{preview}</span>
               <button
@@ -51,8 +52,8 @@ const PinnedMessagesInner: React.FC<PinnedMessagesProps> = ({ messages, onNaviga
                   e.stopPropagation();
                   onUnpin(msg.index);
                 }}
-                title="고정 해제"
-                aria-label="고정 해제"
+                title={S.PINNED_UNPIN}
+                aria-label={S.PINNED_UNPIN}
               >
                 ×
               </button>

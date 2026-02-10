@@ -1,6 +1,7 @@
 import React from 'react';
 import { PerformanceData, RenderMetric } from '../hooks/usePerformanceMonitor';
 import './PerformancePanel.css';
+import * as S from '../constants/strings';
 
 interface PerformancePanelProps {
   isOpen: boolean;
@@ -41,22 +42,22 @@ const PerformancePanelInner: React.FC<PerformancePanelProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="perf-overlay" onClick={onClose} role="dialog" aria-label="성능 모니터">
+    <div className="perf-overlay" onClick={onClose} role="dialog" aria-label={S.PERF_LABEL}>
       <div className="perf-modal" onClick={e => e.stopPropagation()}>
         <div className="perf-header">
-          <h2>성능 모니터</h2>
+          <h2>{S.PERF_LABEL}</h2>
           <div className="perf-header-actions">
             <button
               className={`perf-toggle-btn ${isMonitoring ? 'active' : ''}`}
               onClick={onToggleMonitoring}
-              aria-label={isMonitoring ? '모니터링 중지' : '모니터링 시작'}
+              aria-label={isMonitoring ? S.PERF_STOP_LABEL : S.PERF_START_LABEL}
             >
-              {isMonitoring ? '중지' : '시작'}
+              {isMonitoring ? S.PERF_STOP : S.PERF_START}
             </button>
-            <button className="perf-reset-btn" onClick={onReset} aria-label="성능 데이터 초기화">
-              초기화
+            <button className="perf-reset-btn" onClick={onReset} aria-label={S.PERF_RESET_LABEL}>
+              {S.PERF_RESET}
             </button>
-            <button className="perf-close-btn" onClick={onClose} aria-label="성능 모니터 닫기">
+            <button className="perf-close-btn" onClick={onClose} aria-label={S.PERF_CLOSE_LABEL}>
               ×
             </button>
           </div>
@@ -65,51 +66,51 @@ const PerformancePanelInner: React.FC<PerformancePanelProps> = ({
         <div className="perf-content">
           <div className="perf-status">
             <span className={`perf-status-dot ${isMonitoring ? 'monitoring' : 'stopped'}`} />
-            {isMonitoring ? '모니터링 중' : '모니터링 중지됨'}
+            {isMonitoring ? S.PERF_STATUS_ON : S.PERF_STATUS_OFF}
           </div>
 
           <div className="perf-metrics">
             <div className="perf-metric-card">
-              <span className="perf-metric-label">렌더 횟수</span>
+              <span className="perf-metric-label">{S.PERF_RENDER_COUNT}</span>
               <span className="perf-metric-value">{data.renderCount}</span>
             </div>
             <div className="perf-metric-card">
-              <span className="perf-metric-label">총 렌더 시간</span>
+              <span className="perf-metric-label">{S.PERF_TOTAL_RENDER}</span>
               <span className="perf-metric-value">{formatDuration(data.totalRenderTime)}</span>
             </div>
             <div className="perf-metric-card">
-              <span className="perf-metric-label">평균 렌더 시간</span>
+              <span className="perf-metric-label">{S.PERF_AVG_RENDER}</span>
               <span className="perf-metric-value">{formatDuration(data.averageRenderTime)}</span>
             </div>
             <div className="perf-metric-card">
-              <span className="perf-metric-label">최고 느린 렌더</span>
+              <span className="perf-metric-label">{S.PERF_SLOWEST}</span>
               <span className={`perf-metric-value ${getRenderSpeedClass(data.slowestRender)}`}>
                 {formatDuration(data.slowestRender)}
               </span>
             </div>
             <div className="perf-metric-card">
-              <span className="perf-metric-label">최고 빠른 렌더</span>
+              <span className="perf-metric-label">{S.PERF_FASTEST}</span>
               <span className={`perf-metric-value ${getRenderSpeedClass(data.fastestRender)}`}>
                 {formatDuration(data.fastestRender)}
               </span>
             </div>
             <div className="perf-metric-card">
-              <span className="perf-metric-label">메모리 사용량</span>
+              <span className="perf-metric-label">{S.PERF_MEMORY}</span>
               <span className="perf-metric-value">{formatMemory(data.memoryUsageMB)}</span>
             </div>
           </div>
 
           <div className="perf-app-stats">
-            <h3>앱 상태</h3>
+            <h3>{S.PERF_APP_STATUS}</h3>
             <div className="perf-app-stats-row">
-              <span>메시지 수: {data.messageCount}</span>
-              <span>대화 수: {data.conversationCount}</span>
+              <span>{S.PERF_MSG_COUNT_PREFIX} {data.messageCount}</span>
+              <span>{S.PERF_CONV_COUNT_PREFIX} {data.conversationCount}</span>
             </div>
           </div>
 
           {data.recentRenders.length > 0 && (
             <div className="perf-recent">
-              <h3>최근 렌더 ({data.recentRenders.length})</h3>
+              <h3>{S.PERF_RECENT_RENDERS} ({data.recentRenders.length})</h3>
               <div className="perf-recent-list">
                 {data.recentRenders.slice(0, 20).map((metric: RenderMetric, index: number) => (
                   <div key={index} className="perf-recent-item">

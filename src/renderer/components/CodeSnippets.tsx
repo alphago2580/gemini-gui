@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import './CodeSnippets.css';
 import { extractCodeBlocks, groupByLanguage } from '../utils/codeExtractor';
+import * as S from '../constants/strings';
 
 interface CodeSnippetsProps {
   isOpen: boolean;
@@ -54,18 +55,18 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
         onClick={e => e.stopPropagation()}
         onKeyDown={handleKeyDown}
         role="dialog"
-        aria-label="코드 스니펫"
+        aria-label={S.SNIPPETS_LABEL}
         tabIndex={-1}
       >
         <div className="code-snippets-header">
-          <h3 className="code-snippets-title">코드 스니펫 ({allCodes.length})</h3>
+          <h3 className="code-snippets-title">{S.SNIPPETS_LABEL} ({allCodes.length})</h3>
           <div className="code-snippets-filters">
             <button
               className={`code-snippets-filter-btn ${filterLang === 'all' ? 'active' : ''}`}
               onClick={() => setFilterLang('all')}
-              aria-label="전체 언어 필터"
+              aria-label={S.SNIPPETS_ALL_FILTER_LABEL}
             >
-              전체
+              {S.SNIPPETS_ALL_FILTER}
             </button>
             {languages.map(lang => (
               <button
@@ -81,7 +82,7 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
           <button
             className="code-snippets-close-btn"
             onClick={onClose}
-            aria-label="코드 스니펫 닫기"
+            aria-label={S.SNIPPETS_CLOSE_LABEL}
           >
             &times;
           </button>
@@ -91,8 +92,8 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
           {filteredCodes.length === 0 && (
             <div className="code-snippets-empty">
               {allCodes.length === 0
-                ? '이 대화에 코드 블록이 없습니다.'
-                : '필터에 해당하는 코드가 없습니다.'}
+                ? S.SNIPPETS_EMPTY_NO_CODE
+                : S.SNIPPETS_EMPTY_NO_MATCH}
             </div>
           )}
           {filteredCodes.map((code, index) => (
@@ -100,7 +101,7 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
               <div className="code-snippet-header">
                 <span className="code-snippet-lang">{code.language || 'plain'}</span>
                 <span className="code-snippet-role">
-                  {code.role === 'user' ? '사용자' : 'Gemini'}
+                  {code.role === 'user' ? S.ROLE_USER : S.ROLE_ASSISTANT}
                 </span>
                 <button
                   className="code-snippet-nav-btn"
@@ -108,16 +109,16 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
                     onNavigateToMessage(code.messageIndex);
                     onClose();
                   }}
-                  aria-label="메시지로 이동"
-                  title="메시지로 이동"
+                  aria-label={S.SNIPPETS_NAV_LABEL}
+                  title={S.SNIPPETS_NAV_LABEL}
                 >
                   ↗
                 </button>
                 <button
                   className="code-snippet-copy-btn"
                   onClick={() => handleCopy(code.content, index)}
-                  aria-label="코드 복사"
-                  title="코드 복사"
+                  aria-label={S.SNIPPETS_COPY_LABEL}
+                  title={S.SNIPPETS_COPY_LABEL}
                 >
                   {copiedIndex === index ? '✓' : '📋'}
                 </button>

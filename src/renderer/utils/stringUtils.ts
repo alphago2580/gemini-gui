@@ -52,9 +52,9 @@ export function stripHtml(str: string): string {
 export function highlightMatches(text: string, query: string): string {
   if (!query) return escapeHtml(text);
   const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const regex = new RegExp(`(${escapedQuery})`, 'gi');
+  const htmlEscapedQuery = escapedQuery.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   return escapeHtml(text).replace(
-    new RegExp(`(${escapedQuery.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')})`, 'gi'),
+    new RegExp(`(${htmlEscapedQuery})`, 'gi'),
     '<mark>$1</mark>'
   );
 }

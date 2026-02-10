@@ -1,5 +1,6 @@
 import React from 'react';
 import './KeyboardShortcutHelp.css';
+import * as S from '../constants/strings';
 
 interface ShortcutEntry {
   keys: string;
@@ -8,35 +9,35 @@ interface ShortcutEntry {
 
 const SHORTCUT_GROUPS: { title: string; shortcuts: ShortcutEntry[] }[] = [
   {
-    title: '일반',
+    title: S.SHORTCUT_GROUP_GENERAL,
     shortcuts: [
-      { keys: 'Ctrl+N', description: '새 대화' },
-      { keys: 'Ctrl+L', description: '대화 내용 지우기' },
-      { keys: 'Ctrl+,', description: '설정 열기' },
-      { keys: 'Ctrl+Shift+P', description: '명령 팔레트' },
-      { keys: 'Ctrl+B', description: '사이드바 토글' },
-      { keys: 'Ctrl+K', description: '빠른 대화 전환' },
-      { keys: 'Escape', description: '현재 패널 닫기' },
+      { keys: 'Ctrl+N', description: S.SHORTCUT_NEW_CHAT },
+      { keys: 'Ctrl+L', description: S.SHORTCUT_CLEAR },
+      { keys: 'Ctrl+,', description: S.SHORTCUT_SETTINGS },
+      { keys: 'Ctrl+Shift+P', description: S.SHORTCUT_CMD_PALETTE },
+      { keys: 'Ctrl+B', description: S.SHORTCUT_SIDEBAR },
+      { keys: 'Ctrl+K', description: S.SHORTCUT_QUICK_SWITCH },
+      { keys: 'Escape', description: S.SHORTCUT_CLOSE },
     ],
   },
   {
-    title: '메시지',
+    title: S.SHORTCUT_GROUP_MESSAGE,
     shortcuts: [
-      { keys: 'Enter', description: '메시지 전송' },
-      { keys: 'Shift+Enter', description: '줄바꿈' },
+      { keys: 'Enter', description: S.SHORTCUT_SEND },
+      { keys: 'Shift+Enter', description: S.SHORTCUT_NEWLINE },
     ],
   },
   {
-    title: '검색',
+    title: S.SHORTCUT_GROUP_SEARCH,
     shortcuts: [
-      { keys: 'Ctrl+F', description: '대화 내 검색' },
+      { keys: 'Ctrl+F', description: S.SHORTCUT_FIND },
     ],
   },
   {
-    title: '탭',
+    title: S.SHORTCUT_GROUP_TABS,
     shortcuts: [
-      { keys: 'Ctrl+Tab', description: '다음 탭' },
-      { keys: 'Ctrl+Shift+Tab', description: '이전 탭' },
+      { keys: 'Ctrl+Tab', description: S.SHORTCUT_NEXT_TAB },
+      { keys: 'Ctrl+Shift+Tab', description: S.SHORTCUT_PREV_TAB },
     ],
   },
 ];
@@ -52,11 +53,11 @@ const KeyboardShortcutHelpInner: React.FC<KeyboardShortcutHelpProps> = ({ isOpen
   if (!isOpen) return null;
 
   return (
-    <div className="shortcut-help-overlay" onClick={onClose} role="dialog" aria-label="키보드 단축키">
+    <div className="shortcut-help-overlay" onClick={onClose} role="dialog" aria-label={S.SHORTCUT_HELP_LABEL}>
       <div className="shortcut-help-modal" onClick={e => e.stopPropagation()}>
         <div className="shortcut-help-header">
-          <h2>키보드 단축키</h2>
-          <button className="shortcut-help-close" onClick={onClose} aria-label="단축키 도움말 닫기">×</button>
+          <h2>{S.SHORTCUT_HELP_LABEL}</h2>
+          <button className="shortcut-help-close" onClick={onClose} aria-label={S.SHORTCUT_HELP_CLOSE}>×</button>
         </div>
         <div className="shortcut-help-content">
           {SHORTCUT_GROUPS.map(group => (

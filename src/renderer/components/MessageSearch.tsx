@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import './MessageSearch.css';
 import { searchMessages, getMatchContext, SearchResult } from '../utils/messageSearch';
+import * as S from '../constants/strings';
 
 interface MessageSearchProps {
   isOpen: boolean;
@@ -73,29 +74,29 @@ const MessageSearchInner: React.FC<MessageSearchProps> = ({
         className="message-search-panel"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
-        aria-label="메시지 검색"
+        aria-label={S.MSG_SEARCH_LABEL}
       >
         <div className="message-search-input-container">
           <input
             ref={inputRef}
             type="text"
             className="message-search-input"
-            placeholder="전체 대화 내용 검색..."
+            placeholder={S.MSG_SEARCH_PLACEHOLDER}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            aria-label="메시지 검색"
+            aria-label={S.MSG_SEARCH_LABEL}
           />
           {query && (
             <span className="message-search-count">
-              {results.length}개 결과
+              {results.length}{S.MSG_SEARCH_COUNT_SUFFIX}
             </span>
           )}
         </div>
 
         <div className="message-search-results" ref={listRef} role="listbox">
           {query && results.length === 0 && (
-            <div className="message-search-empty">검색 결과가 없습니다</div>
+            <div className="message-search-empty">{S.MSG_SEARCH_EMPTY}</div>
           )}
           {results.map((result, index) => (
             <div
@@ -112,7 +113,7 @@ const MessageSearchInner: React.FC<MessageSearchProps> = ({
               <div className="search-result-header">
                 <span className="search-result-conv">{result.conversationTitle}</span>
                 <span className="search-result-role">
-                  {result.role === 'user' ? '사용자' : 'Gemini'}
+                  {result.role === 'user' ? S.ROLE_USER : S.ROLE_ASSISTANT}
                 </span>
               </div>
               <div className="search-result-content">

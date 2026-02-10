@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './QuickSwitcher.css';
 import type { Conversation } from '../../preload/types';
+import * as S from '../constants/strings';
 
 interface QuickSwitcherProps {
   isOpen: boolean;
@@ -75,7 +76,7 @@ const QuickSwitcherInner: React.FC<QuickSwitcherProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="quick-switcher-overlay" onClick={onClose} role="dialog" aria-label="빠른 대화 전환">
+    <div className="quick-switcher-overlay" onClick={onClose} role="dialog" aria-label={S.QS_LABEL}>
       <div
         className="quick-switcher"
         onClick={e => e.stopPropagation()}
@@ -86,16 +87,16 @@ const QuickSwitcherInner: React.FC<QuickSwitcherProps> = ({
           className="quick-switcher-input"
           type="text"
           value={query}
-          aria-label="대화 검색"
+          aria-label={S.QS_SEARCH_LABEL}
           onChange={e => {
             setQuery(e.target.value);
             setSelectedIndex(0);
           }}
-          placeholder="대화 전환..."
+          placeholder={S.QS_PLACEHOLDER}
         />
-        <div className="quick-switcher-list" ref={listRef} role="listbox" aria-label="대화 목록">
+        <div className="quick-switcher-list" ref={listRef} role="listbox" aria-label={S.QS_LIST_LABEL}>
           {filtered.length === 0 ? (
-            <div className="quick-switcher-empty">일치하는 대화가 없습니다</div>
+            <div className="quick-switcher-empty">{S.QS_EMPTY}</div>
           ) : (
             filtered.map((conv, index) => (
               <div
@@ -109,11 +110,11 @@ const QuickSwitcherInner: React.FC<QuickSwitcherProps> = ({
                 <div className="quick-switcher-item-info">
                   <span className="quick-switcher-item-title">{conv.title}</span>
                   <span className="quick-switcher-item-meta">
-                    {conv.messages.length}개 메시지 · {conv.timestamp.toLocaleDateString()}
+                    {conv.messages.length}{S.QS_MESSAGE_SUFFIX} · {conv.timestamp.toLocaleDateString()}
                   </span>
                 </div>
                 {conv.id === currentConversationId && (
-                  <span className="quick-switcher-current-badge">현재</span>
+                  <span className="quick-switcher-current-badge">{S.QS_CURRENT_BADGE}</span>
                 )}
               </div>
             ))
