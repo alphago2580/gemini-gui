@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1002 tests)
+- **Test Status**: Passing (1057 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -589,3 +589,12 @@
 - **mathRenderer.test.ts**: Added 12 tests — empty parseMathSegments, adjacent inline math, hat/vec decorators, left/right delimiters, double backslash line break, quad space, unknown commands, variant Greek letters, nested sqrt+frac, multiline containsMath, empty containsMath
 - **useStreamHandler.test.ts**: Added 6 tests — new assistant message append, delta append to existing, totalTokens auto-computation, error message prefix content, non-assistant message ignored, listener re-registration on conversationId change
 - Total tests: 952 → 1002 (47 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 5 (+55 tests)
+- **EmojiReactionPicker.test.tsx**: Added 8 tests — inside click no close, non-Escape key ignored, no listeners when closed, listener cleanup on close, CSS class per option, container class, option role=button, QUICK_EMOJIS export validation
+- **WelcomeScreen.test.tsx**: Added 10 tests — logo text content, all prompts click correctly, card count, CSS class per card, all icons rendered, all labels as text, root container class, title/subtitle classes, DEFAULT_SUGGESTIONS count, suggestion field validation
+- **ReadingProgressBar.test.tsx**: Added 8 tests — fractional progress, fractional aria-label, container class, fill class, boundary 1%, boundary 99%, empty DOM when hidden, fill as child of bar
+- **InlineSearch.test.tsx**: Added 11 tests — empty count string, single match display, search role/aria-label, container class, input class, prev/next/close title attributes, non-special keys ignored, prev/next button clicks
+- **useInlineSearch.test.ts**: Added 10 tests — empty messages array, empty content messages, non-overlapping position matches, special regex characters as literal, message array reactivity, open/close idempotency, single match goToNext wrap, single match goToPrev wrap, matchIndex increments, mixed case matching
+- **useTheme.test.ts**: Added 8 tests — system-to-dark removes listener, system-to-light removes listener, dark↔light roundtrip, system mode restore from localStorage, setThemeMode callback stability, return shape validation, light mode ignores system preference, dark mode ignores system preference
+- Total tests: 1002 → 1057 (47 test files, all passing)

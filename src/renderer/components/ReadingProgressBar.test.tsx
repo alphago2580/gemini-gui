@@ -48,4 +48,51 @@ describe('ReadingProgressBar', () => {
     expect(bar.getAttribute('aria-valuemax')).toBe('100');
     expect(bar.getAttribute('aria-valuenow')).toBe('42');
   });
+
+  it('should handle fractional progress values', () => {
+    const { container } = render(<ReadingProgressBar progress={33.33} isVisible={true} />);
+    const fill = container.querySelector('.reading-progress-fill') as HTMLElement;
+    expect(fill.style.width).toBe('33.33%');
+  });
+
+  it('should update aria-label with fractional progress', () => {
+    render(<ReadingProgressBar progress={66.7} isVisible={true} />);
+    const bar = screen.getByRole('progressbar');
+    expect(bar.getAttribute('aria-label')).toBe('읽기 진행률 66.7%');
+  });
+
+  it('should have reading-progress-bar class on container', () => {
+    const { container } = render(<ReadingProgressBar progress={50} isVisible={true} />);
+    expect(container.querySelector('.reading-progress-bar')).toBeTruthy();
+  });
+
+  it('should have reading-progress-fill class on fill element', () => {
+    const { container } = render(<ReadingProgressBar progress={50} isVisible={true} />);
+    expect(container.querySelector('.reading-progress-fill')).toBeTruthy();
+  });
+
+  it('should handle progress value near boundary (1%)', () => {
+    const { container } = render(<ReadingProgressBar progress={1} isVisible={true} />);
+    const fill = container.querySelector('.reading-progress-fill') as HTMLElement;
+    expect(fill.style.width).toBe('1%');
+  });
+
+  it('should handle progress value near boundary (99%)', () => {
+    const { container } = render(<ReadingProgressBar progress={99} isVisible={true} />);
+    const fill = container.querySelector('.reading-progress-fill') as HTMLElement;
+    expect(fill.style.width).toBe('99%');
+    expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('99');
+  });
+
+  it('should return empty DOM when not visible', () => {
+    const { container } = render(<ReadingProgressBar progress={50} isVisible={false} />);
+    expect(container.innerHTML).toBe('');
+  });
+
+  it('should have fill element as child of bar container', () => {
+    const { container } = render(<ReadingProgressBar progress={50} isVisible={true} />);
+    const bar = container.querySelector('.reading-progress-bar');
+    const fill = container.querySelector('.reading-progress-fill');
+    expect(bar).toContainElement(fill as HTMLElement);
+  });
 });
