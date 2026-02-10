@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import './MarkdownRenderer.css';
 import { tokenize } from '../utils/syntaxHighlight';
-import { renderMathToHtml, parseMathSegments } from '../utils/mathRenderer';
+import { renderMathToHtml } from '../utils/mathRenderer';
 import * as S from '../constants/strings';
 
 interface MarkdownRendererProps {
