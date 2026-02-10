@@ -12,6 +12,7 @@ import TokenUsage from './components/TokenUsage';
 import TabBar from './components/TabBar';
 import WelcomeScreen from './components/WelcomeScreen';
 import InlineSearch from './components/InlineSearch';
+import QuickSwitcher from './components/QuickSwitcher';
 import type { Command } from './components/CommandPalette';
 import { useInlineSearch } from './hooks/useInlineSearch';
 import { useConversations } from './hooks/useConversations';
@@ -100,6 +101,7 @@ const App: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage(S.STORAGE_KEY_SIDEBAR_COLLAPSED, false);
   const [highContrast, setHighContrast] = useLocalStorage(S.STORAGE_KEY_HIGH_CONTRAST, false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isQuickSwitcherOpen, setIsQuickSwitcherOpen] = useState(false);
 
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
@@ -189,6 +191,7 @@ const App: React.FC = () => {
     onFocusSearch: () => inlineSearch.open(),
     onToggleSidebar: handleToggleSidebar,
     onToggleCommandPalette: () => setIsCommandPaletteOpen(prev => !prev),
+    onToggleQuickSwitcher: () => setIsQuickSwitcherOpen(prev => !prev),
     onNextTab: nextTab,
     onPrevTab: prevTab,
     isSettingsOpen,
@@ -356,6 +359,13 @@ const App: React.FC = () => {
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
         commands={commands}
+      />
+      <QuickSwitcher
+        isOpen={isQuickSwitcherOpen}
+        onClose={() => setIsQuickSwitcherOpen(false)}
+        conversations={conversations}
+        currentConversationId={currentConversationId}
+        onSelect={handleSelectConversation}
       />
     </div>
   );

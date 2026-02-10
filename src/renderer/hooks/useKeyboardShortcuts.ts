@@ -8,6 +8,7 @@ interface KeyboardShortcutActions {
   onFocusSearch: () => void;
   onToggleSidebar: () => void;
   onToggleCommandPalette?: () => void;
+  onToggleQuickSwitcher?: () => void;
   onNextTab?: () => void;
   onPrevTab?: () => void;
   isSettingsOpen: boolean;
@@ -21,6 +22,7 @@ export function useKeyboardShortcuts({
   onFocusSearch,
   onToggleSidebar,
   onToggleCommandPalette,
+  onToggleQuickSwitcher,
   onNextTab,
   onPrevTab,
   isSettingsOpen,
@@ -72,12 +74,16 @@ export function useKeyboardShortcuts({
         e.preventDefault();
         onFocusSearch();
         break;
+      case 'k':
+        e.preventDefault();
+        onToggleQuickSwitcher?.();
+        break;
       case 'b':
         e.preventDefault();
         onToggleSidebar();
         break;
     }
-  }, [onNewChat, onClearConversation, onToggleSettings, onCloseSettings, onFocusSearch, onToggleSidebar, onToggleCommandPalette, onNextTab, onPrevTab, isSettingsOpen]);
+  }, [onNewChat, onClearConversation, onToggleSettings, onCloseSettings, onFocusSearch, onToggleSidebar, onToggleCommandPalette, onToggleQuickSwitcher, onNextTab, onPrevTab, isSettingsOpen]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
