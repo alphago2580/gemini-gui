@@ -642,3 +642,11 @@
   color: var(--btn-disabled-text);
   cursor: not-allowed;
 }
+
+.send-button.stop-button {
+  background: var(--error-color, #e74c3c);
+}
+
+.send-button.stop-button:hover {
+  background: var(--error-color-hover, #c0392b);
+}

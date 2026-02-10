@@ -11,6 +11,7 @@ export const WELCOME_MESSAGE = '아래 입력창에 메시지를 입력하여 �
 export const MESSAGE_PLACEHOLDER = '메시지를 입력하세요... (Enter/Ctrl+Enter: 전송, Shift+Enter: 줄바꿈)';
 export const SEND_BUTTON = '전송';
 export const SENDING_BUTTON = '전송 중...';
+export const STOP_BUTTON = '중지';
 export const SCROLL_TO_BOTTOM = '새 메시지로 이동';
 
 // Notifications
@@ -22,6 +23,7 @@ export const ARIA_MESSAGE_LOG = '대화 메시지';
 export const ARIA_MESSAGE_INPUT = '메시지 입력';
 export const ARIA_SEND = '메시지 전송';
 export const ARIA_SENDING = '전송 중';
+export const ARIA_STOP_GENERATION = '응답 생성 중지';
 
 // Header actions
 export const CLEAR_BUTTON = 'Clear';

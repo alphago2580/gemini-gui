@@ -232,6 +232,14 @@ const App: React.FC = () => {
     addToast,
   });
 
+  // Stop generation handler
+  const handleStopGeneration = useCallback(async () => {
+    const api = window.electronAPI;
+    if (!api?.stopGemini) return;
+    await api.stopGemini();
+    stopLoading();
+  }, [stopLoading]);
+
   // Auto-resize textarea
   const { textareaRef } = useAutoResize(input);
 
@@ -539,14 +547,24 @@ const App: React.FC = () => {
               rows={1}
               aria-label={S.ARIA_MESSAGE_INPUT}
             />
-            <button
-              className="send-button"
-              onClick={handleSend}
-              disabled={isLoading || !input.trim()}
-              aria-label={isLoading ? S.ARIA_SENDING : S.ARIA_SEND}
-            >
-              {isLoading ? S.SENDING_BUTTON : S.SEND_BUTTON}
-            </button>
+            {isLoading ? (
+              <button
+                className="send-button stop-button"
+                onClick={handleStopGeneration}
+                aria-label={S.ARIA_STOP_GENERATION}
+              >
+                {S.STOP_BUTTON}
+              </button>
+            ) : (
+              <button
+                className="send-button"
+                onClick={handleSend}
+                disabled={!input.trim()}
+                aria-label={S.ARIA_SEND}
+              >
+                {S.SEND_BUTTON}
+              </button>
+            )}
             </div>
           </div>
         </div>

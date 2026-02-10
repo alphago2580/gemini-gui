@@ -125,13 +125,14 @@ describe('App Component', () => {
         expect(screen.queryByText('Gemini에 오신 것을 환영합니다!')).not.toBeInTheDocument();
     });
 
-    it('shows loading state after sending', async () => {
+    it('shows stop button after sending', async () => {
         const user = userEvent.setup();
         render(<App />);
         const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
         await user.type(input, 'Hello');
         await user.click(screen.getByText('전송'));
-        expect(screen.getByText('전송 중...')).toBeInTheDocument();
+        expect(screen.getByText('중지')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: '응답 생성 중지' })).toBeInTheDocument();
     });
 
     it('disables input while loading', async () => {
@@ -1501,6 +1502,56 @@ describe('App Component', () => {
             await waitFor(() => {
                 expect(screen.getByText('Msg X')).toBeInTheDocument();
             });
+        });
+    });
+
+    describe('Stop Generation', () => {
+        it('shows stop button during loading', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            expect(screen.getByText('중지')).toBeInTheDocument();
+            expect(screen.queryByText('전송')).not.toBeInTheDocument();
+        });
+
+        it('calls stopGemini when stop button is clicked', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            await user.click(screen.getByText('중지'));
+            expect(mockElectronAPI.stopGemini).toHaveBeenCalled();
+        });
+
+        it('returns to send button after stopping generation', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            expect(screen.getByText('중지')).toBeInTheDocument();
+            await user.click(screen.getByText('중지'));
+
+            await waitFor(() => {
+                expect(screen.getByText('전송')).toBeInTheDocument();
+                expect(screen.queryByText('중지')).not.toBeInTheDocument();
+            });
+        });
+
+        it('stop button has correct aria-label', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            expect(screen.getByRole('button', { name: '응답 생성 중지' })).toBeInTheDocument();
         });
     });
 
