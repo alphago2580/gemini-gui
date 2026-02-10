@@ -82,6 +82,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Divider — horizontal/vertical separator with label support
 - [x] Message bookmarking — star/unstar messages with persistent storage and bookmarks panel
 - [x] Notification sound — two-tone chime on response completion with Settings toggle
+- [x] Message reactions — emoji reactions via picker with persistent storage and toggle chips
 
 ### Accessibility
 - [x] ARIA labels on all interactive elements

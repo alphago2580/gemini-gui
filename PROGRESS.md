@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1298 tests)
+- **Test Status**: Passing (1317 tests)
 - **Last Agent Run**: Agent 1 (Feature)
 
 ## Completed Features
@@ -653,3 +653,21 @@
 - All components: React.memo, CSS variables for theme support, comprehensive ARIA accessibility
 - Added 24 tests for NotificationBanner, 21 for Breadcrumb, 24 for Pagination, 27 for ColorPicker, 22 for Timeline, 22 for Stepper
 - Total tests: 1298 (70 test files, all passing)
+
+### Agent 1 (Feature) — Message Emoji Reactions
+- Created `useReactions` hook with localStorage persistence (`gemini-reactions` key)
+- Reactions stored as `{ [conversationId:messageIndex]: { emoji: count } }` map
+- Hook provides: toggleReaction, getReactions, hasReaction functions
+- Wired existing `EmojiReactionPicker` component into `MessageBubble` (was imported but unused)
+- Reaction add button (☺) appears on hover in message header
+- Clicking opens EmojiReactionPicker popup with 8 quick emojis (👍👎❤️😂🤔👀🎉💡)
+- Selecting emoji toggles it on/off for that message
+- Active reactions display as clickable chips below message content
+- Clicking a reaction chip toggles it off (removes the reaction)
+- CSS: `.reaction-add-btn` with hover-reveal, `.reaction-chip` with pill styling
+- Added `ARIA_ADD_REACTION`, `TITLE_ADD_REACTION`, `STORAGE_KEY_REACTIONS` string constants
+- Removed unused `EmojiReactionPicker` direct import from App.tsx (now used via MessageBubble)
+- Added 10 unit tests for useReactions hook (CRUD, toggle, multi-emoji, multi-message, persistence)
+- Added 7 unit tests for MessageBubble reactions (button render, chip display, picker open, callbacks)
+- Added 2 integration tests in App (reaction button visible, emoji picker + reaction add flow)
+- Total tests: 1317 (71 test files, all passing)
