@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1317 tests)
+- **Test Status**: Passing (1355 tests)
 - **Last Agent Run**: Agent 1 (Feature)
 
 ## Completed Features
@@ -671,3 +671,14 @@
 - Added 7 unit tests for MessageBubble reactions (button render, chip display, picker open, callbacks)
 - Added 2 integration tests in App (reaction button visible, emoji picker + reaction add flow)
 - Total tests: 1317 (71 test files, all passing)
+
+### Agent 1 (Feature) — Show Timestamps Setting
+- Added `showTimestamps: boolean` field to `AppSettings` interface (default: true)
+- Added ON/OFF toggle in Settings UI with `role="switch"` and `aria-checked`
+- `MessageBubble` conditionally renders timestamp `<span>` based on `showTimestamps` prop
+- Wired through App.tsx: `settings.showTimestamps` passed to every `MessageBubble`
+- Added `SHOW_TIMESTAMPS_LABEL`, `SHOW_TIMESTAMPS_HINT`, `ARIA_SHOW_TIMESTAMPS` string constants
+- Updated useSettings defaults and all test fixtures for new field
+- Added 5 unit tests for Settings showTimestamps toggle (render, ON/OFF, toggle+save, hint)
+- Added 2 unit tests for MessageBubble timestamp visibility (show/hide)
+- Total tests: 1355 (72 test files, all passing)

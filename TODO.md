@@ -83,6 +83,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] Message bookmarking — star/unstar messages with persistent storage and bookmarks panel
 - [x] Notification sound — two-tone chime on response completion with Settings toggle
 - [x] Message reactions — emoji reactions via picker with persistent storage and toggle chips
+- [x] Show timestamps toggle — Settings toggle to show/hide message timestamps
 
 ### Accessibility
 - [x] ARIA labels on all interactive elements
