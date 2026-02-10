@@ -7,7 +7,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   temperature: 1,
   maxTokens: 2048,
   theme: 'dark',
-  systemPrompt: ''
+  systemPrompt: '',
+  notificationSound: true,
 };
 
 export function useSettings() {

@@ -10,6 +10,7 @@ describe('Settings', () => {
     maxTokens: 2048,
     theme: 'dark' as const,
     systemPrompt: '',
+    notificationSound: true,
   };
 
   const defaultProps = {
@@ -285,6 +286,43 @@ describe('Settings', () => {
       rerender(<Settings {...defaultProps} settings={updatedSettings} />);
       const select = screen.getByLabelText('모델 선택');
       expect(select).toHaveValue('gemini-2.5-pro');
+    });
+  });
+
+  // Notification sound tests
+  describe('Notification Sound', () => {
+    it('renders notification sound toggle', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByRole('switch', { name: '알림음' })).toBeInTheDocument();
+    });
+
+    it('shows ON when notification sound is enabled', () => {
+      render(<Settings {...defaultProps} />);
+      const toggle = screen.getByRole('switch', { name: '알림음' });
+      expect(toggle).toHaveTextContent('ON');
+      expect(toggle).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('shows OFF when notification sound is disabled', () => {
+      const settingsOff = { ...defaultSettings, notificationSound: false };
+      render(<Settings {...defaultProps} settings={settingsOff} />);
+      const toggle = screen.getByRole('switch', { name: '알림음' });
+      expect(toggle).toHaveTextContent('OFF');
+      expect(toggle).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('toggles notification sound and saves', () => {
+      render(<Settings {...defaultProps} />);
+      fireEvent.click(screen.getByRole('switch', { name: '알림음' }));
+      fireEvent.click(screen.getByText('저장'));
+      expect(defaultProps.onSave).toHaveBeenCalledWith(
+        expect.objectContaining({ notificationSound: false })
+      );
+    });
+
+    it('shows hint text for notification sound', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByText('응답 완료 시 알림음 재생')).toBeInTheDocument();
     });
   });
 

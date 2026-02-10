@@ -81,6 +81,23 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
           )}
 
           <div className="setting-group">
+            <label htmlFor="notification-sound">
+              {S.NOTIFICATION_SOUND_LABEL}
+              <span className="hint">{S.NOTIFICATION_SOUND_HINT}</span>
+            </label>
+            <button
+              id="notification-sound"
+              className={`toggle-btn${localSettings.notificationSound ? ' active' : ''}`}
+              onClick={() => setLocalSettings({ ...localSettings, notificationSound: !localSettings.notificationSound })}
+              role="switch"
+              aria-checked={localSettings.notificationSound}
+              aria-label={S.ARIA_NOTIFICATION_SOUND}
+            >
+              {localSettings.notificationSound ? 'ON' : 'OFF'}
+            </button>
+          </div>
+
+          <div className="setting-group">
             <label htmlFor="system-prompt">
               {S.SYSTEM_PROMPT_LABEL}
               <span className="hint">{S.SYSTEM_PROMPT_HINT}</span>

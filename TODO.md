@@ -81,6 +81,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] AvatarGroup — stacked avatar display with overflow count
 - [x] Divider — horizontal/vertical separator with label support
 - [x] Message bookmarking — star/unstar messages with persistent storage and bookmarks panel
+- [x] Notification sound — two-tone chime on response completion with Settings toggle
 
 ### Accessibility
 - [x] ARIA labels on all interactive elements

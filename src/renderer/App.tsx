@@ -43,6 +43,7 @@ import { useMessageSend } from './hooks/useMessageSend';
 import { useExport } from './hooks/useExport';
 import { useSettings } from './hooks/useSettings';
 import { useBookmarks } from './hooks/useBookmarks';
+import { useNotificationSound } from './hooks/useNotificationSound';
 import * as S from './constants/strings';
 
 const App: React.FC = () => {
@@ -96,6 +97,12 @@ const App: React.FC = () => {
   // Prompt templates
   const { templates, addTemplate, deleteTemplate } = usePromptTemplates();
 
+  // Settings state (extracted to custom hook)
+  const { settings, handleSettingsSave } = useSettings();
+
+  // Notification sound
+  const { play: playNotificationSound } = useNotificationSound(settings.notificationSound);
+
   // Stream handler
   const {
     isLoading,
@@ -110,6 +117,7 @@ const App: React.FC = () => {
     setMessages,
     updateCurrentConversation,
     addToast,
+    onComplete: playNotificationSound,
   });
 
   // UI state
@@ -160,9 +168,6 @@ const App: React.FC = () => {
     () => calculateConversationStats(conversations),
     [conversations]
   );
-
-  // Settings state (extracted to custom hook)
-  const { settings, handleSettingsSave } = useSettings();
 
   // Bookmarks
   const { bookmarks, toggleBookmark, removeBookmark, isBookmarked } = useBookmarks();

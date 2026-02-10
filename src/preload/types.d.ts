@@ -26,6 +26,7 @@ export interface AppSettings {
   maxTokens: number;
   theme: ThemeMode;
   systemPrompt: string;
+  notificationSound: boolean;
 }
 
 export interface TokenUsage {

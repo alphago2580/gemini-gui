@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1143 tests)
+- **Test Status**: Passing (1199 tests)
 - **Last Agent Run**: Agent 1 (Feature)
 
 ## Completed Features
@@ -617,3 +617,18 @@
 - Added 6 unit tests for MessageBubble bookmark button (render, toggle, star display, both roles)
 - Added 4 integration tests in App (bookmark buttons visible, toggle, header button, panel open)
 - Total tests: 1143 (64 test files, all passing)
+
+### Agent 1 (Feature) — Notification Sound on Response Complete
+- Created `useNotificationSound` hook using Web Audio API (no external audio files)
+- Generates a pleasant two-tone chime: C5 (523 Hz) → E5 (659 Hz) with gain envelope
+- AudioContext created lazily on first play, reused via ref for subsequent calls
+- Added `notificationSound: boolean` field to `AppSettings` interface (default: true)
+- Added notification sound toggle (ON/OFF switch) to Settings UI
+- Wired into `useStreamHandler` via new `onComplete` callback — plays on stream complete
+- Added `NOTIFICATION_SOUND_LABEL`, `NOTIFICATION_SOUND_HINT`, `ARIA_NOTIFICATION_SOUND` constants
+- Moved `useSettings` initialization before `useStreamHandler` in App.tsx for dependency order
+- Graceful error handling: silently catches AudioContext unavailability
+- Added 6 unit tests for useNotificationSound (play, disabled, frequencies, error handling)
+- Added 5 unit tests for Settings notification sound toggle (render, ON/OFF, toggle, hint)
+- Updated useSettings.test.ts for new notificationSound field
+- Total tests: 1199 (66 test files, all passing)

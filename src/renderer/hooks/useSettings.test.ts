@@ -16,6 +16,7 @@ describe('useSettings', () => {
       maxTokens: 2048,
       theme: 'dark',
       systemPrompt: '',
+      notificationSound: true,
     });
   });
 
@@ -50,6 +51,7 @@ describe('useSettings', () => {
         maxTokens: 1024,
         theme: 'light',
         systemPrompt: 'test',
+        notificationSound: true,
       });
     });
 
@@ -67,6 +69,7 @@ describe('useSettings', () => {
         maxTokens: 2048,
         theme: 'dark',
         systemPrompt: 'hello',
+        notificationSound: false,
       });
     });
 
