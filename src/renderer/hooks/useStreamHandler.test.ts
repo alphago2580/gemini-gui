@@ -6,11 +6,13 @@ import { useStreamHandler } from './useStreamHandler';
 let streamDataCallback: ((data: Record<string, unknown>) => void) | null = null;
 let streamCompleteCallback: (() => void) | null = null;
 let streamErrorCallback: ((data: { error: string }) => void) | null = null;
+let sessionStatusCallback: ((data: { status: string }) => void) | null = null;
 
 const mockElectronAPI = {
   onStreamData: vi.fn((cb) => { streamDataCallback = cb; }),
   onStreamComplete: vi.fn((cb) => { streamCompleteCallback = cb; }),
   onStreamError: vi.fn((cb) => { streamErrorCallback = cb; }),
+  onSessionStatus: vi.fn((cb) => { sessionStatusCallback = cb; }),
   removeAllListeners: vi.fn(),
 };
 
@@ -36,6 +38,7 @@ describe('useStreamHandler', () => {
     streamDataCallback = null;
     streamCompleteCallback = null;
     streamErrorCallback = null;
+    sessionStatusCallback = null;
   });
 
   it('initializes with isLoading false', () => {
@@ -230,5 +233,45 @@ describe('useStreamHandler', () => {
     });
 
     expect(mockSetMessages).toHaveBeenCalled();
+  });
+
+  describe('sessionStatus', () => {
+    it('initializes with idle status', () => {
+      const { result } = renderHook(() => useStreamHandler(defaultOptions));
+      expect(result.current.sessionStatus).toBe('idle');
+    });
+
+    it('registers session status listener on mount', () => {
+      renderHook(() => useStreamHandler(defaultOptions));
+      expect(mockElectronAPI.onSessionStatus).toHaveBeenCalled();
+    });
+
+    it('updates sessionStatus when session-status event fires', () => {
+      const { result } = renderHook(() => useStreamHandler(defaultOptions));
+
+      act(() => {
+        sessionStatusCallback!({ status: 'connecting' });
+      });
+      expect(result.current.sessionStatus).toBe('connecting');
+
+      act(() => {
+        sessionStatusCallback!({ status: 'connected' });
+      });
+      expect(result.current.sessionStatus).toBe('connected');
+
+      act(() => {
+        sessionStatusCallback!({ status: 'idle' });
+      });
+      expect(result.current.sessionStatus).toBe('idle');
+    });
+
+    it('updates sessionStatus to error on error event', () => {
+      const { result } = renderHook(() => useStreamHandler(defaultOptions));
+
+      act(() => {
+        sessionStatusCallback!({ status: 'error' });
+      });
+      expect(result.current.sessionStatus).toBe('error');
+    });
   });
 });

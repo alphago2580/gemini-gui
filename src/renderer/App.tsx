@@ -23,6 +23,7 @@ import EmojiReactionPicker from './components/EmojiReactionPicker';
 import LinkCollection from './components/LinkCollection';
 import ConversationStats from './components/ConversationStats';
 import BookmarkedMessages from './components/BookmarkedMessages';
+import SessionIndicator from './components/SessionIndicator';
 import { calculateConversationStats } from './utils/conversationStats';
 import { insertBold, insertItalic, insertInlineCode, insertStrikethrough, insertLink, insertCodeBlock } from './utils/textFormatting';
 import type { Command } from './components/CommandPalette';
@@ -101,6 +102,7 @@ const App: React.FC = () => {
     clearTokenUsage,
     startLoading,
     stopLoading,
+    sessionStatus,
   } = useStreamHandler({
     currentConversationId,
     setMessages,
@@ -315,7 +317,10 @@ const App: React.FC = () => {
         <header className="app-header">
           <div className="header-title">
             <h1>{S.APP_TITLE}</h1>
-            <p>{S.MODEL_PREFIX} {S.MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
+            <div className="header-subtitle">
+              <p>{S.MODEL_PREFIX} {S.MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
+              <SessionIndicator status={sessionStatus} />
+            </div>
           </div>
           {messages.length > 0 && (
             <div className="header-actions">

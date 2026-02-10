@@ -16,6 +16,7 @@ const mockElectronAPI = {
     cleanupTempFiles: vi.fn(),
     removeAllListeners: vi.fn(),
     stopGemini: vi.fn(),
+    onSessionStatus: vi.fn(),
     exportMarkdown: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.md' }),
     exportPdf: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.pdf' }),
 };
@@ -329,8 +330,8 @@ describe('App Component', () => {
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
             await user.type(input, 'Hello');
             await user.click(screen.getByText('전송'));
-            const loadingEl = screen.getByRole('status');
-            expect(loadingEl).toHaveAttribute('aria-label', '응답 생성 중');
+            const loadingEl = screen.getByRole('status', { name: '응답 생성 중' });
+            expect(loadingEl).toBeInTheDocument();
         });
 
         it('message bubbles have role="article"', async () => {
@@ -674,8 +675,8 @@ describe('App Component', () => {
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
             await user.type(input, 'Hello');
             await user.click(screen.getByText('전송'));
-            const statusEl = screen.getByRole('status');
-            expect(statusEl).toHaveAttribute('aria-label', '응답 생성 중');
+            const statusEl = screen.getByRole('status', { name: '응답 생성 중' });
+            expect(statusEl).toBeInTheDocument();
         });
 
         it('shows three animated dots in typing indicator', async () => {

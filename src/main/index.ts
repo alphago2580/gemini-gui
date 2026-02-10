@@ -53,11 +53,17 @@ app.on('window-all-closed', () => {
   }
 });
 
+function sendSessionStatus(status: 'idle' | 'connecting' | 'connected' | 'error') {
+  mainWindow?.webContents.send('session-status', { status });
+}
+
 function startGeminiProcess(systemPrompt?: string, model?: string) {
   const cliPath = process.env.GEMINI_CLI_PATH || path.join(__dirname, '../../../gemini-cli/bundle/gemini.js');
   const cliDir = process.env.GEMINI_CLI_PATH
     ? path.dirname(process.env.GEMINI_CLI_PATH)
     : path.join(__dirname, '../../../gemini-cli');
+
+  sendSessionStatus('connecting');
 
   gemini.removeAllListeners('json');
   gemini.on('json', (jsonData: Record<string, unknown>) => {
@@ -66,6 +72,7 @@ function startGeminiProcess(systemPrompt?: string, model?: string) {
     if (jsonData.type === 'init' && jsonData.session_id) {
       currentSessionId = jsonData.session_id as string;
       console.log(`[Session] Session ID: ${currentSessionId}`);
+      sendSessionStatus('connected');
     }
 
     if (jsonData.type) {
@@ -84,11 +91,13 @@ function startGeminiProcess(systemPrompt?: string, model?: string) {
   gemini.on('exit', (code: number) => {
     console.log(`[Process] Gemini CLI closed with code: ${code}`);
     currentSessionId = null;
+    sendSessionStatus('idle');
   });
 
   gemini.removeAllListeners('error');
   gemini.on('error', (error: Error) => {
     console.error(`[Process] Error:`, error);
+    sendSessionStatus('error');
   });
 
   gemini.start(cliPath, cliDir, undefined, systemPrompt, model);
@@ -109,6 +118,7 @@ ipcMain.handle('send-message', async (event, message: string, systemPrompt?: str
 
 ipcMain.handle('stop-gemini', async () => {
   gemini.stop();
+  sendSessionStatus('idle');
   return { success: true };
 });
 
@@ -116,6 +126,7 @@ ipcMain.handle('new-conversation', async () => {
   console.log('[Session] Reset - starting new conversation');
   gemini.stop();
   currentSessionId = null;
+  sendSessionStatus('idle');
   return { success: true };
 });
 

@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { StreamData, StreamErrorData, Message, TokenUsage } from '../../preload/types';
+import type { StreamData, StreamErrorData, SessionStatusData, Message, TokenUsage } from '../../preload/types';
 import { generateMessageId } from '../utils/format';
 import * as S from '../constants/strings';
+
+export type SessionStatus = 'idle' | 'connecting' | 'connected' | 'error';
 
 interface UseStreamHandlerOptions {
   currentConversationId: string | null;
@@ -19,6 +21,7 @@ export function useStreamHandler({
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
+  const [sessionStatus, setSessionStatus] = useState<SessionStatus>('idle');
 
   const clearTokenUsage = useCallback(() => {
     setTokenUsage(null);
@@ -80,6 +83,13 @@ export function useStreamHandler({
       setIsStreaming(false);
     });
 
+    // 세션 상태 처리
+    if (window.electronAPI.onSessionStatus) {
+      window.electronAPI.onSessionStatus((data: SessionStatusData) => {
+        setSessionStatus(data.status);
+      });
+    }
+
     // 스트리밍 에러 처리
     window.electronAPI.onStreamError((data: StreamErrorData) => {
       console.error('Stream error:', data);
@@ -112,5 +122,6 @@ export function useStreamHandler({
     clearTokenUsage,
     startLoading,
     stopLoading,
+    sessionStatus,
   };
 }

@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (699 tests)
-- **Last Agent Run**: Agent 2 (Quality)
+- **Test Status**: Passing (968 tests)
+- **Last Agent Run**: Agent 1 (Feature)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -545,3 +545,18 @@
 - Added 3 unit tests for `generateUniqueId` (prefix, default, uniqueness)
 - TypeScript: 0 errors (`npx tsc --noEmit` passes)
 - Total tests: 699 (30 test files, all passing)
+
+### Agent 1 (Feature) — Session Status Indicator
+- Created `SessionIndicator` component showing Gemini CLI connection state (idle/connecting/connected/error)
+- Visual dot indicator with pulse animation for connecting state, green for connected, red for error
+- Added `SessionStatusData` interface to `preload/types.d.ts`
+- Added `onSessionStatus` IPC listener in `preload/index.ts`
+- Added `sendSessionStatus()` helper in `main/index.ts` — fires on process start, init, exit, error
+- Integrated `sessionStatus` state into `useStreamHandler` hook
+- Placed SessionIndicator in app header next to model display
+- Added string constants to `constants/strings.ts` (SESSION_IDLE, SESSION_CONNECTING, etc.)
+- Full accessibility: `role="status"`, aria-label, title tooltip, aria-hidden dot
+- Added 8 unit tests for SessionIndicator component
+- Added 4 unit tests for sessionStatus in useStreamHandler
+- Updated App.test.tsx mock to include `onSessionStatus`
+- Total tests: 968 (54 test files, all passing)

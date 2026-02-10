@@ -67,6 +67,9 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [x] System prompt editor
 - [x] Prompt templates/presets
 
+### UX Enhancements
+- [x] Session status indicator — visual connection state (idle/connecting/connected/error) in header
+
 ### Accessibility
 - [x] ARIA labels on all interactive elements
 - [x] Screen reader announcements for new messages

@@ -26,11 +26,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('stream-error', (_event, data) => callback(data));
   },
 
+  // 세션 상태 리스너
+  onSessionStatus: (callback: (data: unknown) => void) => {
+    ipcRenderer.on('session-status', (_event, data) => callback(data));
+  },
+
   // 리스너 제거
   removeAllListeners: () => {
     ipcRenderer.removeAllListeners('stream-data');
     ipcRenderer.removeAllListeners('stream-complete');
     ipcRenderer.removeAllListeners('stream-error');
+    ipcRenderer.removeAllListeners('session-status');
   },
 
   // 파일 관련 API

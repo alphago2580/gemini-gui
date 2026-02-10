@@ -209,6 +209,13 @@ export const STREAM_ERROR_PREFIX = '오류:';
 // useExport
 export const UNTITLED_CONVERSATION = '제목 없는 대화';
 
+// SessionIndicator
+export const SESSION_IDLE = '대기 중';
+export const SESSION_CONNECTING = '연결 중...';
+export const SESSION_CONNECTED = '연결됨';
+export const SESSION_ERROR = '연결 오류';
+export const SESSION_STATUS_PREFIX = '세션 상태:';
+
 // localStorage keys
 export const STORAGE_KEY_CONVERSATIONS = 'gemini-conversations';
 export const STORAGE_KEY_CURRENT_CONVERSATION = 'gemini-current-conversation';

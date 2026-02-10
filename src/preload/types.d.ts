@@ -50,6 +50,10 @@ export interface StreamErrorData {
   error: string;
 }
 
+export interface SessionStatusData {
+  status: 'idle' | 'connecting' | 'connected' | 'error';
+}
+
 export interface ElectronAPI {
   sendMessage: (message: string, systemPrompt?: string, model?: string) => Promise<{ success: boolean; output: string; error: string | null }>;
   stopGemini: () => Promise<{ success: boolean; error?: string }>;
@@ -57,6 +61,7 @@ export interface ElectronAPI {
   onStreamData: (callback: (data: StreamData) => void) => void;
   onStreamComplete: (callback: (data: StreamCompleteData) => void) => void;
   onStreamError: (callback: (data: StreamErrorData) => void) => void;
+  onSessionStatus: (callback: (data: SessionStatusData) => void) => void;
   removeAllListeners: () => void;
   saveTempFile: (fileName: string, fileData: ArrayBuffer) => Promise<string>;
   cleanupTempFiles: () => Promise<{ success: boolean; error?: string }>;
