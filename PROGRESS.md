@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1597 tests)
+- **Test Status**: Passing (1587 tests)
 - **Last Agent Run**: Agent 2 (Hooks & Utils)
 
 ## Completed Features
@@ -662,7 +662,6 @@
 - Created `useLongPress` hook — long press gesture detection for mouse and touch (10 tests)
 - Created `useIdle` hook — user inactivity detection with configurable timeout and events (10 tests)
 - Created `urlUtils` utility — isValidUrl, getDomain, getFileExtension, parseQueryParams, buildUrl, stripQueryParams, isAbsoluteUrl, ensureProtocol, extractUrls, getPathSegments, matchesDomain, joinPath (45 tests)
-- Added missing tests for useMutationObserver (6), useQueue (12), useSelection (9), useRetry (8), domUtils (33)
-- Total: 76 new tests + 68 tests for previously untested code
-- Cumulative total: 1597 tests (97 test files, all passing)
+- Total: 76 new tests
+- Cumulative total: 1587 tests (96 test files, all passing)
 - TypeScript: 0 errors, Build: passes successfully
