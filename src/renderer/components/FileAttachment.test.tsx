@@ -221,4 +221,74 @@ describe('FileAttachment', () => {
       expect(icons.length).toBeGreaterThanOrEqual(1);
     });
   });
+
+  it('calls onFilesSelected when file input changes', () => {
+    render(<FileAttachment {...defaultProps} />);
+    const input = document.querySelector('#file-input') as HTMLInputElement;
+    const file = createMockFile('selected.txt', 300, 'text/plain');
+    fireEvent.change(input, { target: { files: [file] } });
+    expect(defaultProps.onFilesSelected).toHaveBeenCalledWith([file]);
+  });
+
+  it('handles file input change with null files', () => {
+    render(<FileAttachment {...defaultProps} />);
+    const input = document.querySelector('#file-input') as HTMLInputElement;
+    fireEvent.change(input, { target: { files: null } });
+    expect(defaultProps.onFilesSelected).not.toHaveBeenCalled();
+  });
+
+  it('renders file-name span with correct text', () => {
+    const files = [createMockFile('myfile.doc', 1024, 'application/msword')];
+    const { container } = render(<FileAttachment {...defaultProps} attachedFiles={files} />);
+    const nameSpan = container.querySelector('.file-name');
+    expect(nameSpan).toBeInTheDocument();
+    expect(nameSpan!.textContent).toBe('myfile.doc');
+  });
+
+  it('renders file-size span with correct text', () => {
+    const files = [createMockFile('test.txt', 500, 'text/plain')];
+    const { container } = render(<FileAttachment {...defaultProps} attachedFiles={files} />);
+    const sizeSpan = container.querySelector('.file-size');
+    expect(sizeSpan).toBeInTheDocument();
+    expect(sizeSpan!.textContent).toBe('500 B');
+  });
+
+  it('renders file-chip for each attached file', () => {
+    const files = [
+      createMockFile('a.txt', 100, 'text/plain'),
+      createMockFile('b.pdf', 200, 'application/pdf'),
+      createMockFile('c.png', 300, 'image/png'),
+    ];
+    const { container } = render(<FileAttachment {...defaultProps} attachedFiles={files} />);
+    const chips = container.querySelectorAll('.file-chip');
+    expect(chips).toHaveLength(3);
+  });
+
+  it('calls onRemoveFile with first index when first remove button clicked', () => {
+    const files = [
+      createMockFile('file1.txt', 100, 'text/plain'),
+      createMockFile('file2.txt', 200, 'text/plain'),
+    ];
+    render(<FileAttachment {...defaultProps} attachedFiles={files} />);
+    const removeButtons = screen.getAllByTitle('파일 제거');
+    fireEvent.click(removeButtons[0]);
+    expect(defaultProps.onRemoveFile).toHaveBeenCalledWith(0);
+  });
+
+  it('drop zone label has icon and text spans', () => {
+    const { container } = render(<FileAttachment {...defaultProps} />);
+    const label = container.querySelector('.file-input-label');
+    expect(label).toBeInTheDocument();
+    const icon = label!.querySelector('.icon');
+    const text = label!.querySelector('.text');
+    expect(icon).toBeInTheDocument();
+    expect(text).toBeInTheDocument();
+    expect(icon!.textContent).toBe('📎');
+  });
+
+  it('file input is hidden via display none', () => {
+    render(<FileAttachment {...defaultProps} />);
+    const input = document.querySelector('#file-input') as HTMLInputElement;
+    expect(input.style.display).toBe('none');
+  });
 });

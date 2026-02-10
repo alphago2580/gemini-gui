@@ -62,4 +62,61 @@ describe('TokenUsage', () => {
     render(<TokenUsage usage={zeroUsage} />);
     expect(screen.getByText('= 0')).toBeInTheDocument();
   });
+
+  it('has token-usage CSS class on root', () => {
+    const { container } = render(<TokenUsage usage={defaultUsage} />);
+    expect(container.querySelector('.token-usage')).toBeInTheDocument();
+  });
+
+  it('renders token-usage-label span', () => {
+    const { container } = render(<TokenUsage usage={defaultUsage} />);
+    const label = container.querySelector('.token-usage-label');
+    expect(label).toBeInTheDocument();
+    expect(label!.textContent).toBe('토큰:');
+  });
+
+  it('renders two token-usage-item spans', () => {
+    const { container } = render(<TokenUsage usage={defaultUsage} />);
+    const items = container.querySelectorAll('.token-usage-item');
+    expect(items).toHaveLength(2);
+  });
+
+  it('renders token-usage-total span', () => {
+    const { container } = render(<TokenUsage usage={defaultUsage} />);
+    const total = container.querySelector('.token-usage-total');
+    expect(total).toBeInTheDocument();
+  });
+
+  it('renders token-icon spans with correct characters', () => {
+    const { container } = render(<TokenUsage usage={defaultUsage} />);
+    const icons = container.querySelectorAll('.token-icon');
+    expect(icons).toHaveLength(2);
+    expect(icons[0].textContent).toBe('↑');
+    expect(icons[1].textContent).toBe('↓');
+  });
+
+  it('handles single digit token counts', () => {
+    const smallUsage = { inputTokens: 1, outputTokens: 2, totalTokens: 3 };
+    render(<TokenUsage usage={smallUsage} />);
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.getByText('= 3')).toBeInTheDocument();
+  });
+
+  it('root element is a div', () => {
+    const { container } = render(<TokenUsage usage={defaultUsage} />);
+    const root = container.firstElementChild;
+    expect(root!.tagName).toBe('DIV');
+  });
+
+  it('updates when usage prop changes via rerender', () => {
+    const { rerender } = render(<TokenUsage usage={defaultUsage} />);
+    expect(screen.getByText('100')).toBeInTheDocument();
+    const newUsage = { inputTokens: 500, outputTokens: 300, totalTokens: 800 };
+    rerender(<TokenUsage usage={newUsage} />);
+    expect(screen.getByText('500')).toBeInTheDocument();
+    expect(screen.getByText('300')).toBeInTheDocument();
+    expect(screen.getByText('= 800')).toBeInTheDocument();
+    expect(screen.queryByText('100')).not.toBeInTheDocument();
+  });
 });

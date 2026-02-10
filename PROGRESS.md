@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1153 tests)
+- **Test Status**: Passing (1201 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -616,3 +616,12 @@
 - **CommandPalette.test.tsx**: Added 8 tests — Enter on empty filtered list, whitespace query shows all, aria-activedescendant after nav, input CSS class, overlay CSS class, inner container CSS class, selectedIndex clamped on filter, empty commands array
 - **useToast.test.ts**: Added 8 tests — dismiss non-existent id, FIFO ordering, addToast callback stability, dismissToast callback stability, toast id prefix, dismiss first keep rest, dismiss all sequentially, toast types stored correctly
 - Total tests: 1105 → 1153 (47 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 8 (+48 tests)
+- **FileAttachment.test.tsx**: Added 8 tests — file input onChange with null files, file-name span content, file-size span content, file-chip count, first remove button callback, drop zone label icon/text spans, file input display:none, onFilesSelected from input change
+- **MessageBubble.test.tsx**: Added 8 tests — message-header structure (role/timestamp/delete), message-content text verification, delete button title attribute, edit button title attribute, fork button title attribute, editing class removal on cancel, edit textarea rows=3, edit-message-actions structure
+- **Settings.test.tsx**: Added 8 tests — settings-header structure (h2+close), settings-footer structure (cancel+save), temperature slider min/max/step, maxTokens slider min/max/step, system prompt textarea rows=4, info section CLI version+config path, light theme not active when dark, high contrast hint text
+- **Sidebar.test.tsx**: Added 8 tests — non-active aria-current absent, non-Enter/Space keyDown ignored, conversation-title div text, sidebar CSS class on nav, sidebar-header rendered, sidebar-footer contains settings, collapse ◀ arrow when expanded, collapse ▶ arrow when collapsed
+- **TokenUsage.test.tsx**: Added 8 tests — token-usage CSS class, token-usage-label span, token-usage-item count, token-usage-total span, token-icon spans content, single digit tokens, root element is div, rerender updates display
+- **TypingIndicator.test.tsx**: Added 8 tests — typing-indicator-header role span, typing-indicator-content container, typing-text span content, explicit isStreaming=false, dots are empty spans, root element class, streaming-to-non-streaming rerender, role status contains dots+text
+- Total tests: 1153 → 1201 (47 test files, all passing)

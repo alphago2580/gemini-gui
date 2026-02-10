@@ -328,4 +328,63 @@ describe('Settings', () => {
       expect(onHighContrastChange).toHaveBeenCalledWith(false);
     });
   });
+
+  describe('Additional coverage', () => {
+    it('settings-header contains h2 and close button', () => {
+      const { container } = render(<Settings {...defaultProps} />);
+      const header = container.querySelector('.settings-header');
+      expect(header).toBeInTheDocument();
+      expect(header!.querySelector('h2')).toBeInTheDocument();
+      expect(header!.querySelector('.close-btn')).toBeInTheDocument();
+    });
+
+    it('settings-footer contains cancel and save buttons', () => {
+      const { container } = render(<Settings {...defaultProps} />);
+      const footer = container.querySelector('.settings-footer');
+      expect(footer).toBeInTheDocument();
+      expect(footer!.querySelector('.cancel-btn')).toBeInTheDocument();
+      expect(footer!.querySelector('.save-btn')).toBeInTheDocument();
+    });
+
+    it('temperature slider has correct min/max/step attributes', () => {
+      render(<Settings {...defaultProps} />);
+      const slider = screen.getByLabelText(/Temperature/) as HTMLInputElement;
+      expect(slider.min).toBe('0');
+      expect(slider.max).toBe('2');
+      expect(slider.step).toBe('0.1');
+    });
+
+    it('maxTokens slider has correct min/max/step attributes', () => {
+      render(<Settings {...defaultProps} />);
+      const slider = screen.getByLabelText(/최대 토큰/) as HTMLInputElement;
+      expect(slider.min).toBe('256');
+      expect(slider.max).toBe('8192');
+      expect(slider.step).toBe('256');
+    });
+
+    it('system prompt textarea has rows=4', () => {
+      render(<Settings {...defaultProps} />);
+      const textarea = screen.getByLabelText('시스템 프롬프트') as HTMLTextAreaElement;
+      expect(textarea.rows).toBe(4);
+    });
+
+    it('info section displays CLI version and config path', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByText('Gemini CLI 버전: 0.17.0')).toBeInTheDocument();
+      expect(screen.getByText('설정 파일 위치: ~/.config/google-gemini-cli/')).toBeInTheDocument();
+    });
+
+    it('light theme option is not active when dark mode selected', () => {
+      render(<Settings {...defaultProps} themeMode="dark" />);
+      const lightBtn = screen.getByText('라이트');
+      expect(lightBtn.className).not.toContain('active');
+      const systemBtn = screen.getByText('시스템');
+      expect(systemBtn.className).not.toContain('active');
+    });
+
+    it('high contrast hint text is displayed', () => {
+      render(<Settings {...defaultProps} highContrast={false} onHighContrastChange={vi.fn()} />);
+      expect(screen.getByText('가독성을 높인 고대비 색상')).toBeInTheDocument();
+    });
+  });
 });
