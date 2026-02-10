@@ -16,6 +16,7 @@ import QuickSwitcher from './components/QuickSwitcher';
 import FormattingToolbar from './components/FormattingToolbar';
 import MessageContextMenu from './components/MessageContextMenu';
 import type { ContextMenuItem } from './components/MessageContextMenu';
+import CodeSnippets from './components/CodeSnippets';
 import { insertBold, insertItalic, insertInlineCode, insertStrikethrough, insertLink, insertCodeBlock } from './utils/textFormatting';
 import type { Command } from './components/CommandPalette';
 import { useInlineSearch } from './hooks/useInlineSearch';
@@ -107,6 +108,7 @@ const App: React.FC = () => {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isQuickSwitcherOpen, setIsQuickSwitcherOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; messageIndex: number } | null>(null);
+  const [isCodeSnippetsOpen, setIsCodeSnippetsOpen] = useState(false);
 
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
@@ -205,6 +207,14 @@ const App: React.FC = () => {
     setContextMenu(null);
   }, [contextMenu, messages, editMessage, forkConversation, deleteMessage]);
 
+  const handleNavigateToMessage = useCallback((messageIndex: number) => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    const messageElements = container.querySelectorAll('[data-message-index]');
+    const target = messageElements[messageIndex];
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [messagesContainerRef]);
+
   const handleMessageContextMenu = useCallback((e: React.MouseEvent, index: number) => {
     e.preventDefault();
     setContextMenu({ x: e.clientX, y: e.clientY, messageIndex: index });
@@ -302,6 +312,14 @@ const App: React.FC = () => {
               >
                 {S.PDF_BUTTON}
               </button>
+              <button
+                className="header-action-btn"
+                onClick={() => setIsCodeSnippetsOpen(true)}
+                aria-label="코드 스니펫"
+                title="코드 스니펫 보기"
+              >
+                Code
+              </button>
             </div>
           )}
         </header>
@@ -330,7 +348,7 @@ const App: React.FC = () => {
               <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
             )}
             {messages.map((message, index) => (
-              <div key={message.id || index} onContextMenu={(e) => handleMessageContextMenu(e, index)}>
+              <div key={message.id || index} data-message-index={index} onContextMenu={(e) => handleMessageContextMenu(e, index)}>
                 <MessageBubble
                   message={message}
                   index={index}
@@ -426,6 +444,12 @@ const App: React.FC = () => {
         conversations={conversations}
         currentConversationId={currentConversationId}
         onSelect={handleSelectConversation}
+      />
+      <CodeSnippets
+        isOpen={isCodeSnippetsOpen}
+        onClose={() => setIsCodeSnippetsOpen(false)}
+        messages={messages}
+        onNavigateToMessage={handleNavigateToMessage}
       />
       {contextMenu && (
         <MessageContextMenu
