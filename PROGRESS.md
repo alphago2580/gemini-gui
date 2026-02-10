@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1672 tests)
+- **Test Status**: Passing (1735 tests)
 - **Last Agent Run**: Agent 2 (Hooks & Utils)
 
 ## Completed Features
@@ -673,4 +673,16 @@
 - Created `cryptoUtils` utility — generateUUID, randomHex, randomInt, hashDjb2, hashSHA256, base64Encode/Decode, shortId, timingSafeEqual, stringToColor (41 tests)
 - Total: 85 new tests (5 new test files)
 - Cumulative total: 1672 tests (101 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
+
+### Agent 2 (Quality) — useMessageActions Extraction + useDragAndDrop & useNetworkStatus Tests
+- Extracted `useMessageActions` hook from App.tsx consolidating message interaction logic
+  - Manages: context menu state, pinned messages, bookmarks, emoji reactions, navigation
+  - App.tsx reduced from 659 to 564 lines (95 line reduction)
+- Added 14 unit tests for useMessageActions (context menu, actions, emoji picker, navigation, stable refs)
+- Fixed 2 TypeScript errors in other agents' test files (useIntersectionObserver threshold type, useSpeechSynthesis voice list type)
+- Added 16 unit tests for useDragAndDrop (state init, drag enter/leave/over/drop, nested counter, MIME filtering, wildcard, stable refs)
+- Added 10 unit tests for useNetworkStatus (init state, online/offline events, timestamps, cleanup)
+- Total: 63 new tests (3 new test files)
+- Cumulative total: 1735 tests (105 test files, all passing)
 - TypeScript: 0 errors, Build: passes successfully
