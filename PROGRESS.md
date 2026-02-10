@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1587 tests)
+- **Test Status**: Passing (1672 tests)
 - **Last Agent Run**: Agent 2 (Hooks & Utils)
 
 ## Completed Features
@@ -664,4 +664,13 @@
 - Created `urlUtils` utility — isValidUrl, getDomain, getFileExtension, parseQueryParams, buildUrl, stripQueryParams, isAbsoluteUrl, ensureProtocol, extractUrls, getPathSegments, matchesDomain, joinPath (45 tests)
 - Total: 76 new tests
 - Cumulative total: 1587 tests (96 test files, all passing)
+- TypeScript: 0 errors, Build: passes successfully
+
+### Agent 2 (Hooks & Utils) — useIntersectionObserver, usePageVisibility, useSpeechSynthesis hooks and cryptoUtils utility
+- Created `useIntersectionObserver` hook — element visibility detection with IntersectionObserver API, freezeOnceVisible, threshold/rootMargin support (10 tests)
+- Created `usePageVisibility` hook — page tab visibility tracking with onVisible/onHidden callbacks, hidden duration measurement (10 tests)
+- Created `useSpeechSynthesis` hook — Web Speech API TTS with speak/cancel/pause/resume, voice list, isSpeaking/isPaused state (14 tests)
+- Created `cryptoUtils` utility — generateUUID, randomHex, randomInt, hashDjb2, hashSHA256, base64Encode/Decode, shortId, timingSafeEqual, stringToColor (41 tests)
+- Total: 85 new tests (5 new test files)
+- Cumulative total: 1672 tests (101 test files, all passing)
 - TypeScript: 0 errors, Build: passes successfully
