@@ -12,6 +12,9 @@ export const MESSAGE_PLACEHOLDER = '메시지를 입력하세요... (Enter/Ctrl+
 export const SEND_BUTTON = '전송';
 export const SENDING_BUTTON = '전송 중...';
 export const STOP_BUTTON = '중지';
+export const REGENERATE_BUTTON = '↻ 재생성';
+export const REGENERATE_TITLE = '응답 재생성';
+export const ARIA_REGENERATE = '응답 재생성';
 export const SCROLL_TO_BOTTOM = '새 메시지로 이동';
 
 // Notifications

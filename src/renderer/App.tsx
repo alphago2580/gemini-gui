@@ -250,6 +250,27 @@ const App: React.FC = () => {
     stopLoading();
   }, [stopLoading]);
 
+  // Regenerate last response
+  const handleRegenerate = useCallback(() => {
+    if (isLoading || messages.length === 0) return;
+    // Find the last user message
+    let lastUserMsgIndex = -1;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === 'user') {
+        lastUserMsgIndex = i;
+        break;
+      }
+    }
+    if (lastUserMsgIndex === -1) return;
+    const lastUserContent = messages[lastUserMsgIndex].content;
+    // Remove all messages after the last user message (the assistant responses)
+    const trimmed = messages.slice(0, lastUserMsgIndex);
+    setMessages(trimmed);
+    updateCurrentConversation(trimmed);
+    // Set input to the last user message content and trigger send
+    setInput(lastUserContent);
+  }, [isLoading, messages, setMessages, updateCurrentConversation, setInput]);
+
   // Auto-resize textarea
   const { textareaRef } = useAutoResize(input);
 
@@ -350,7 +371,8 @@ const App: React.FC = () => {
     { id: 'export', label: S.CMD_EXPORT_MD, action: handleExport },
     { id: 'export-pdf', label: S.CMD_EXPORT_PDF, action: handleExportPdf },
     { id: 'bookmarks', label: '북마크 보기', action: () => setIsBookmarksOpen(true) },
-  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch]);
+    { id: 'regenerate', label: S.REGENERATE_TITLE, action: handleRegenerate },
+  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch, handleRegenerate]);
 
   // Native menu actions
   useEffect(() => {
@@ -514,6 +536,16 @@ const App: React.FC = () => {
             )}
             {tokenUsage && !isLoading && (
               <TokenUsage usage={tokenUsage} />
+            )}
+            {!isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
+              <button
+                className="regenerate-btn"
+                onClick={handleRegenerate}
+                aria-label={S.ARIA_REGENERATE}
+                title={S.REGENERATE_TITLE}
+              >
+                {S.REGENERATE_BUTTON}
+              </button>
             )}
             <div ref={messagesEndRef} />
           </div>

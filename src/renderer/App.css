@@ -650,3 +650,21 @@
 .send-button.stop-button:hover {
   background: var(--error-color-hover, #c0392b);
 }
+
+.regenerate-btn {
+  display: block;
+  margin: 0.5rem auto;
+  padding: 0.4rem 1rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.regenerate-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}

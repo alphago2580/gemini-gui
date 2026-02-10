@@ -1506,6 +1506,78 @@ describe('App Component', () => {
         });
     });
 
+    describe('Regenerate Response', () => {
+        it('shows regenerate button after assistant response completes', async () => {
+            const callbacks = setupStreamCallbacks();
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            // Simulate assistant response
+            await act(() => {
+                if (callbacks.streamData) {
+                    callbacks.streamData({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Hi there',
+                        delta: true,
+                    });
+                }
+            });
+            await act(() => {
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
+                }
+            });
+
+            expect(screen.getByRole('button', { name: '응답 재생성' })).toBeInTheDocument();
+        });
+
+        it('does not show regenerate button during loading', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            expect(screen.queryByRole('button', { name: '응답 재생성' })).not.toBeInTheDocument();
+        });
+
+        it('sets input to last user message when regenerate is clicked', async () => {
+            const callbacks = setupStreamCallbacks();
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Regenerate this');
+            await user.click(screen.getByText('전송'));
+
+            await act(() => {
+                if (callbacks.streamData) {
+                    callbacks.streamData({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Old response',
+                        delta: true,
+                    });
+                }
+            });
+            await act(() => {
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
+                }
+            });
+
+            await user.click(screen.getByRole('button', { name: '응답 재생성' }));
+
+            const textarea = screen.getByPlaceholderText(/메시지를 입력하세요/) as HTMLTextAreaElement;
+            expect(textarea.value).toBe('Regenerate this');
+        });
+    });
+
     describe('Window Title Sync', () => {
         it('sets window title to app name when no conversation', () => {
             render(<App />);
