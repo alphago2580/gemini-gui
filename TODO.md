@@ -69,6 +69,7 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 
 ### UX Enhancements
 - [x] Session status indicator — visual connection state (idle/connecting/connected/error) in header
+- [x] Message count badge — show message count per conversation in sidebar
 - [x] UserAvatar — role-based avatar component with initials and icon display
 - [x] ProgressBar — versatile progress indicator with variants, sizes, animation
 - [x] Tooltip — hover/focus tooltip with delay and 4 positions

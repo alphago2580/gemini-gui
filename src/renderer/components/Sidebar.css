@@ -157,6 +157,12 @@
   color: white;
 }
 
+.conversation-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .conversation-time {
   font-size: 0.75rem;
   color: var(--text-secondary);
@@ -164,6 +170,22 @@
 
 .conversation-item.active .conversation-time {
   color: var(--user-role-color);
+}
+
+.message-count-badge {
+  font-size: 0.625rem;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  padding: 0.1rem 0.375rem;
+  border-radius: 8px;
+  min-width: 1.25rem;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.conversation-item.active .message-count-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .delete-conversation-btn {

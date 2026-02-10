@@ -385,4 +385,53 @@ describe('Sidebar', () => {
       expect(screen.getByText('대화 기록이 없습니다')).toBeInTheDocument();
     });
   });
+
+  // Message count badge tests
+  describe('Message Count Badge', () => {
+    it('shows message count badge for conversations with messages', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversationsWithMessages} />);
+      const badges = document.querySelectorAll('.message-count-badge');
+      expect(badges).toHaveLength(3);
+      badges.forEach(badge => {
+        expect(badge.textContent).toBe('1');
+      });
+    });
+
+    it('does not show badge for conversations with empty messages array', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const badges = document.querySelectorAll('.message-count-badge');
+      expect(badges).toHaveLength(0);
+    });
+
+    it('badge has correct aria-label', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversationsWithMessages} />);
+      const badge = document.querySelector('.message-count-badge');
+      expect(badge).toHaveAttribute('aria-label', '1개 메시지');
+    });
+
+    it('badge has correct title tooltip', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversationsWithMessages} />);
+      const badge = document.querySelector('.message-count-badge');
+      expect(badge).toHaveAttribute('title', '1개 메시지');
+    });
+
+    it('shows correct count for conversations with multiple messages', () => {
+      const multiMessageConversations = [
+        {
+          id: '1',
+          title: '긴 대화',
+          timestamp: new Date('2024-01-15'),
+          messages: [
+            { role: 'user' as const, content: '안녕', timestamp: new Date() },
+            { role: 'assistant' as const, content: '반갑습니다', timestamp: new Date() },
+            { role: 'user' as const, content: '질문', timestamp: new Date() },
+          ]
+        },
+      ];
+      render(<Sidebar {...defaultProps} conversations={multiMessageConversations} />);
+      const badge = document.querySelector('.message-count-badge');
+      expect(badge?.textContent).toBe('3');
+      expect(badge).toHaveAttribute('aria-label', '3개 메시지');
+    });
+  });
 });

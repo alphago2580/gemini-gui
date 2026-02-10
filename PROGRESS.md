@@ -570,3 +570,13 @@
 - All components: React.memo, CSS variables, ARIA accessibility, comprehensive tests
 - Added 18 tests for UserAvatar, 24 for ProgressBar, 14 for Tooltip, 22 for Badge, 17 for Skeleton
 - Total tests: 985 (55 test files, all passing)
+
+### Agent 1 (Feature) — Message Count Badge in Sidebar
+- Added message count badge to conversation items in Sidebar
+- Shows number of messages per conversation next to the date
+- Badge hidden for empty conversations (0 messages)
+- Active conversation badge uses white translucent styling
+- Added `conversation-meta` wrapper for date + badge layout
+- Added `MESSAGE_COUNT_SUFFIX` to string constants
+- Added 5 unit tests for message count badge
+- Total tests: 990 (55 test files, all passing)

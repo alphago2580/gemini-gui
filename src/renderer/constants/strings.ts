@@ -63,6 +63,7 @@ export const DELETE_CONVERSATION_TITLE = '대화 삭제';
 export const DELETE_CONVERSATION_PREFIX = '대화 삭제:';
 export const SETTINGS_BUTTON = '설정';
 export const ARIA_OPEN_SETTINGS = '설정 열기';
+export const MESSAGE_COUNT_SUFFIX = '개 메시지';
 
 // Settings
 export const SETTINGS_TITLE = '설정';

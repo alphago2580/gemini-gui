@@ -101,8 +101,19 @@ const Sidebar: React.FC<SidebarProps> = ({
                   }}
                 >
                   <div className="conversation-title">{conv.title}</div>
-                  <div className="conversation-time">
-                    {conv.timestamp.toLocaleDateString()}
+                  <div className="conversation-meta">
+                    <span className="conversation-time">
+                      {conv.timestamp.toLocaleDateString()}
+                    </span>
+                    {conv.messages && conv.messages.length > 0 && (
+                      <span
+                        className="message-count-badge"
+                        aria-label={`${conv.messages.length}${S.MESSAGE_COUNT_SUFFIX}`}
+                        title={`${conv.messages.length}${S.MESSAGE_COUNT_SUFFIX}`}
+                      >
+                        {conv.messages.length}
+                      </span>
+                    )}
                   </div>
                   {onDeleteConversation && (
                     <button
