@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 import type { Tab } from '../components/TabBar';
 import type { Conversation } from '../../preload/types';
@@ -11,7 +11,6 @@ export function useTabs(
   conversations: Conversation[],
 ) {
   const [openTabIds, setOpenTabIds] = useLocalStorage<string[]>(STORAGE_KEY_OPEN_TABS, []);
-  const [closedCurrentTab, setClosedCurrentTab] = useState(false);
 
   // Build tab objects from open tab IDs
   const tabs: Tab[] = useMemo(() => openTabIds
@@ -48,11 +47,7 @@ export function useTabs(
           // Use setTimeout to avoid state update during render
           setTimeout(() => onSelectConversation(nextId), 0);
         } else {
-          setClosedCurrentTab(true);
-          setTimeout(() => {
-            onNewChat();
-            setClosedCurrentTab(false);
-          }, 0);
+          setTimeout(() => onNewChat(), 0);
         }
       }
 
@@ -97,6 +92,5 @@ export function useTabs(
     prevTab,
     ensureTabOpen,
     cleanupTabs,
-    closedCurrentTab,
   };
 }
