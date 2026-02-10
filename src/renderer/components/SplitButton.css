@@ -1,0 +1,251 @@
+.split-button-container {
+  position: relative;
+  display: inline-flex;
+}
+
+.split-button-group {
+  display: inline-flex;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Primary action button */
+.split-button-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.split-button-main:focus-visible {
+  outline: 2px solid var(--accent-color, #4a90d9);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+/* Toggle dropdown button */
+.split-button-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  padding: 8px 0;
+  border: 1px solid transparent;
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+  font-size: 10px;
+}
+
+.split-button-toggle:focus-visible {
+  outline: 2px solid var(--accent-color, #4a90d9);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.split-button-arrow {
+  display: inline-block;
+  transition: transform 0.15s;
+}
+
+.split-button-arrow-open {
+  transform: rotate(180deg);
+}
+
+/* Divider between main and toggle */
+.split-button-divider {
+  width: 1px;
+  align-self: stretch;
+}
+
+/* ---- Variant: primary ---- */
+.split-button-primary .split-button-main,
+.split-button-primary .split-button-toggle {
+  background: var(--accent-color, #4a90d9);
+  color: #fff;
+  border-color: var(--accent-color, #4a90d9);
+}
+
+.split-button-primary .split-button-main:hover,
+.split-button-primary .split-button-toggle:hover {
+  background: var(--accent-hover, #3a7bc8);
+}
+
+.split-button-primary .split-button-divider {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- Variant: secondary ---- */
+.split-button-secondary .split-button-main,
+.split-button-secondary .split-button-toggle {
+  background: var(--bg-secondary, #1e1e1e);
+  color: var(--text-color, #e0e0e0);
+  border-color: var(--border-color, #404040);
+}
+
+.split-button-secondary .split-button-main:hover,
+.split-button-secondary .split-button-toggle:hover {
+  background: var(--hover-bg, #333);
+}
+
+.split-button-secondary .split-button-divider {
+  background: var(--border-color, #404040);
+}
+
+/* ---- Variant: danger ---- */
+.split-button-danger .split-button-main,
+.split-button-danger .split-button-toggle {
+  background: var(--error-color, #f44336);
+  color: #fff;
+  border-color: var(--error-color, #f44336);
+}
+
+.split-button-danger .split-button-main:hover,
+.split-button-danger .split-button-toggle:hover {
+  background: #d32f2f;
+}
+
+.split-button-danger .split-button-divider {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- Size: small ---- */
+.split-button-small .split-button-main {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.split-button-small .split-button-toggle {
+  width: 26px;
+  padding: 4px 0;
+  font-size: 9px;
+}
+
+/* ---- Size: large ---- */
+.split-button-large .split-button-main {
+  padding: 10px 18px;
+  font-size: 14px;
+}
+
+.split-button-large .split-button-toggle {
+  width: 38px;
+  padding: 10px 0;
+  font-size: 11px;
+}
+
+/* ---- Disabled ---- */
+.split-button-disabled .split-button-main,
+.split-button-disabled .split-button-toggle {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ---- Loading ---- */
+.split-button-loading .split-button-main {
+  pointer-events: none;
+}
+
+.split-button-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: split-button-spin 0.6s linear infinite;
+}
+
+@keyframes split-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Dropdown menu ---- */
+.split-button-menu {
+  position: absolute;
+  z-index: 500;
+  min-width: 100%;
+  background: var(--bg-secondary, #1e1e1e);
+  border: 1px solid var(--border-color, #404040);
+  border-radius: 8px;
+  padding: 4px 0;
+  margin: 0;
+  list-style: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: split-button-slide-in 0.12s ease-out;
+}
+
+.split-button-menu:focus {
+  outline: none;
+}
+
+@keyframes split-button-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.split-button-menu-bottom {
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+}
+
+.split-button-menu-top {
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 4px;
+}
+
+.split-button-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text-color, #e0e0e0);
+  font-size: 13px;
+  line-height: 1.4;
+  transition: background 0.1s;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.split-button-menu-item-active {
+  background: var(--hover-bg, #333);
+}
+
+.split-button-menu-item-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.split-button-menu-item-icon {
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.split-button-menu-item-label {
+  flex: 1;
+}
