@@ -11,7 +11,9 @@ import PromptTemplates from './components/PromptTemplates';
 import TokenUsage from './components/TokenUsage';
 import TabBar from './components/TabBar';
 import WelcomeScreen from './components/WelcomeScreen';
+import InlineSearch from './components/InlineSearch';
 import type { Command } from './components/CommandPalette';
+import { useInlineSearch } from './hooks/useInlineSearch';
 import { useConversations } from './hooks/useConversations';
 import { usePromptTemplates } from './hooks/usePromptTemplates';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
@@ -99,6 +101,9 @@ const App: React.FC = () => {
   const [highContrast, setHighContrast] = useLocalStorage(S.STORAGE_KEY_HIGH_CONTRAST, false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
+  // Inline search (Ctrl+F within conversation)
+  const inlineSearch = useInlineSearch(messages);
+
   // Apply high contrast attribute
   useEffect(() => {
     document.documentElement.setAttribute('data-high-contrast', String(highContrast));
@@ -168,12 +173,12 @@ const App: React.FC = () => {
   const commands: Command[] = useMemo(() => [
     { id: 'new-chat', label: S.CMD_NEW_CHAT, shortcut: 'Ctrl+N', action: handleNewChat },
     { id: 'clear', label: S.CMD_CLEAR, shortcut: 'Ctrl+L', action: handleClearConversation },
-    { id: 'search', label: S.CMD_SEARCH, shortcut: 'Ctrl+F', action: () => searchInputRef.current?.focus() },
+    { id: 'search', label: S.CMD_SEARCH, shortcut: 'Ctrl+F', action: () => inlineSearch.open() },
     { id: 'settings', label: S.CMD_SETTINGS, shortcut: 'Ctrl+,', action: () => setIsSettingsOpen(true) },
     { id: 'toggle-sidebar', label: S.CMD_TOGGLE_SIDEBAR, shortcut: 'Ctrl+B', action: handleToggleSidebar },
     { id: 'export', label: S.CMD_EXPORT_MD, action: handleExport },
     { id: 'export-pdf', label: S.CMD_EXPORT_PDF, action: handleExportPdf },
-  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf]);
+  ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch]);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -181,7 +186,7 @@ const App: React.FC = () => {
     onClearConversation: handleClearConversation,
     onToggleSettings: () => setIsSettingsOpen(prev => !prev),
     onCloseSettings: () => setIsSettingsOpen(false),
-    onFocusSearch: () => searchInputRef.current?.focus(),
+    onFocusSearch: () => inlineSearch.open(),
     onToggleSidebar: handleToggleSidebar,
     onToggleCommandPalette: () => setIsCommandPaletteOpen(prev => !prev),
     onNextTab: nextTab,
@@ -249,6 +254,16 @@ const App: React.FC = () => {
         />
 
         <div className="chat-container">
+          <InlineSearch
+            isOpen={inlineSearch.isOpen}
+            query={inlineSearch.query}
+            matchCount={inlineSearch.matches.length}
+            currentMatchIndex={inlineSearch.currentMatchIndex}
+            onQueryChange={inlineSearch.setQuery}
+            onNext={inlineSearch.goToNext}
+            onPrev={inlineSearch.goToPrev}
+            onClose={inlineSearch.close}
+          />
           <div className="messages" role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleMessagesScroll}>
             {messages.length === 0 && (
               <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />

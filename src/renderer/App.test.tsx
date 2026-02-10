@@ -477,13 +477,12 @@ describe('App Component', () => {
 
     // Ctrl+F search focus test
     describe('Search Focus', () => {
-        it('focuses sidebar search on Ctrl+F', async () => {
+        it('opens inline search on Ctrl+F', async () => {
             render(<App />);
-            const searchInput = screen.getByPlaceholderText('대화 검색...');
-            expect(document.activeElement).not.toBe(searchInput);
+            expect(screen.queryByPlaceholderText('대화 내 검색...')).not.toBeInTheDocument();
 
             fireEvent.keyDown(document, { key: 'f', ctrlKey: true });
-            expect(document.activeElement).toBe(searchInput);
+            expect(screen.getByPlaceholderText('대화 내 검색...')).toBeInTheDocument();
         });
     });
 
