@@ -11,7 +11,15 @@ export const WELCOME_MESSAGE = '아래 입력창에 메시지를 입력하여 �
 export const MESSAGE_PLACEHOLDER = '메시지를 입력하세요... (Enter/Ctrl+Enter: 전송, Shift+Enter: 줄바꿈)';
 export const SEND_BUTTON = '전송';
 export const SENDING_BUTTON = '전송 중...';
+export const STOP_BUTTON = '중지';
+export const REGENERATE_BUTTON = '↻ 재생성';
+export const REGENERATE_TITLE = '응답 재생성';
+export const ARIA_REGENERATE = '응답 재생성';
+export const CLOSE_CONFIRM_MESSAGE = '응답이 생성 중입니다. 정말 닫으시겠습니까?';
 export const SCROLL_TO_BOTTOM = '새 메시지로 이동';
+
+// Notifications
+export const NOTIFICATION_RESPONSE_COMPLETE = '응답이 완료되었습니다.';
 
 // ARIA labels — App
 export const ARIA_APP = 'application';
@@ -19,6 +27,7 @@ export const ARIA_MESSAGE_LOG = '대화 메시지';
 export const ARIA_MESSAGE_INPUT = '메시지 입력';
 export const ARIA_SEND = '메시지 전송';
 export const ARIA_SENDING = '전송 중';
+export const ARIA_STOP_GENERATION = '응답 생성 중지';
 
 // Header actions
 export const CLEAR_BUTTON = 'Clear';

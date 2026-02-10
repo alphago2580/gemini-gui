@@ -18,6 +18,10 @@ const mockElectronAPI = {
     stopGemini: vi.fn(),
     exportMarkdown: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.md' }),
     exportPdf: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.pdf' }),
+    onMenuAction: vi.fn(),
+    showNotification: vi.fn().mockResolvedValue({ success: true }),
+    isWindowFocused: vi.fn().mockResolvedValue(true),
+    setWindowTitle: vi.fn().mockResolvedValue(undefined),
 };
 
 global.window.electronAPI = mockElectronAPI as unknown as typeof window.electronAPI;
@@ -122,13 +126,14 @@ describe('App Component', () => {
         expect(screen.queryByText('Gemini에 오신 것을 환영합니다!')).not.toBeInTheDocument();
     });
 
-    it('shows loading state after sending', async () => {
+    it('shows stop button after sending', async () => {
         const user = userEvent.setup();
         render(<App />);
         const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
         await user.type(input, 'Hello');
         await user.click(screen.getByText('전송'));
-        expect(screen.getByText('전송 중...')).toBeInTheDocument();
+        expect(screen.getByText('중지')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: '응답 생성 중지' })).toBeInTheDocument();
     });
 
     it('disables input while loading', async () => {
@@ -1206,6 +1211,44 @@ describe('App Component', () => {
         });
     });
 
+    describe('Native Menu Actions', () => {
+        it('registers onMenuAction listener on mount', () => {
+            render(<App />);
+            expect(mockElectronAPI.onMenuAction).toHaveBeenCalledWith(expect.any(Function));
+        });
+
+        it('opens settings when menu sends settings action', async () => {
+            let menuCallback: ((action: string) => void) | null = null;
+            mockElectronAPI.onMenuAction.mockImplementation((cb: (action: string) => void) => {
+                menuCallback = cb;
+            });
+
+            render(<App />);
+            expect(menuCallback).not.toBeNull();
+
+            await act(() => {
+                menuCallback!('settings');
+            });
+
+            expect(screen.getByRole('dialog')).toBeInTheDocument();
+        });
+
+        it('opens command palette when menu sends command-palette action', async () => {
+            let menuCallback: ((action: string) => void) | null = null;
+            mockElectronAPI.onMenuAction.mockImplementation((cb: (action: string) => void) => {
+                menuCallback = cb;
+            });
+
+            render(<App />);
+
+            await act(() => {
+                menuCallback!('command-palette');
+            });
+
+            expect(screen.getByRole('dialog', { name: '명령 팔레트' })).toBeInTheDocument();
+        });
+    });
+
     describe('Model Selection', () => {
         it('shows default model name in header', () => {
             render(<App />);
@@ -1460,6 +1503,249 @@ describe('App Component', () => {
             await waitFor(() => {
                 expect(screen.getByText('Msg X')).toBeInTheDocument();
             });
+        });
+    });
+
+    describe('Close Confirmation', () => {
+        it('prevents close during loading via beforeunload', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            const event = new Event('beforeunload', { cancelable: true });
+            window.dispatchEvent(event);
+
+            expect(event.defaultPrevented).toBe(true);
+        });
+
+        it('does not prevent close when not loading', () => {
+            render(<App />);
+
+            const event = new Event('beforeunload', { cancelable: true });
+            window.dispatchEvent(event);
+
+            expect(event.defaultPrevented).toBe(false);
+        });
+    });
+
+    describe('Regenerate Response', () => {
+        it('shows regenerate button after assistant response completes', async () => {
+            const callbacks = setupStreamCallbacks();
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            // Simulate assistant response
+            await act(() => {
+                if (callbacks.streamData) {
+                    callbacks.streamData({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Hi there',
+                        delta: true,
+                    });
+                }
+            });
+            await act(() => {
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
+                }
+            });
+
+            expect(screen.getByRole('button', { name: '응답 재생성' })).toBeInTheDocument();
+        });
+
+        it('does not show regenerate button during loading', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            expect(screen.queryByRole('button', { name: '응답 재생성' })).not.toBeInTheDocument();
+        });
+
+        it('sets input to last user message when regenerate is clicked', async () => {
+            const callbacks = setupStreamCallbacks();
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Regenerate this');
+            await user.click(screen.getByText('전송'));
+
+            await act(() => {
+                if (callbacks.streamData) {
+                    callbacks.streamData({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Old response',
+                        delta: true,
+                    });
+                }
+            });
+            await act(() => {
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
+                }
+            });
+
+            await user.click(screen.getByRole('button', { name: '응답 재생성' }));
+
+            const textarea = screen.getByPlaceholderText(/메시지를 입력하세요/) as HTMLTextAreaElement;
+            expect(textarea.value).toBe('Regenerate this');
+        });
+    });
+
+    describe('Window Title Sync', () => {
+        it('sets window title to app name when no conversation', () => {
+            render(<App />);
+            expect(mockElectronAPI.setWindowTitle).toHaveBeenCalledWith('Gemini GUI');
+        });
+
+        it('sets window title with conversation title when conversation is active', async () => {
+            const savedConversations = [
+                {
+                    id: '900',
+                    title: '테스트 대화',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Hello', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '900');
+
+            render(<App />);
+            await waitFor(() => {
+                expect(mockElectronAPI.setWindowTitle).toHaveBeenCalledWith('테스트 대화 — Gemini GUI');
+            });
+        });
+    });
+
+    describe('Stop Generation', () => {
+        it('shows stop button during loading', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            expect(screen.getByText('중지')).toBeInTheDocument();
+            expect(screen.queryByText('전송')).not.toBeInTheDocument();
+        });
+
+        it('calls stopGemini when stop button is clicked', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            await user.click(screen.getByText('중지'));
+            expect(mockElectronAPI.stopGemini).toHaveBeenCalled();
+        });
+
+        it('returns to send button after stopping generation', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            expect(screen.getByText('중지')).toBeInTheDocument();
+            await user.click(screen.getByText('중지'));
+
+            await waitFor(() => {
+                expect(screen.getByText('전송')).toBeInTheDocument();
+                expect(screen.queryByText('중지')).not.toBeInTheDocument();
+            });
+        });
+
+        it('stop button has correct aria-label', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            expect(screen.getByRole('button', { name: '응답 생성 중지' })).toBeInTheDocument();
+        });
+    });
+
+    describe('Native Notifications', () => {
+        it('sends notification when stream completes and window is not focused', async () => {
+            mockElectronAPI.isWindowFocused.mockResolvedValue(false);
+            const callbacks = setupStreamCallbacks();
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            // Simulate assistant response
+            await act(() => {
+                if (callbacks.streamData) {
+                    callbacks.streamData({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Response',
+                        delta: true,
+                    });
+                }
+            });
+
+            // Simulate stream complete
+            await act(() => {
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
+                }
+            });
+
+            await waitFor(() => {
+                expect(mockElectronAPI.isWindowFocused).toHaveBeenCalled();
+                expect(mockElectronAPI.showNotification).toHaveBeenCalledWith('Gemini GUI', '응답이 완료되었습니다.');
+            });
+        });
+
+        it('does not send notification when window is focused', async () => {
+            mockElectronAPI.isWindowFocused.mockResolvedValue(true);
+            const callbacks = setupStreamCallbacks();
+
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            await act(() => {
+                if (callbacks.streamData) {
+                    callbacks.streamData({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Response',
+                        delta: true,
+                    });
+                }
+            });
+
+            await act(() => {
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
+                }
+            });
+
+            await waitFor(() => {
+                expect(mockElectronAPI.isWindowFocused).toHaveBeenCalled();
+            });
+            expect(mockElectronAPI.showNotification).not.toHaveBeenCalled();
         });
     });
 

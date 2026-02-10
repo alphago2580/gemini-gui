@@ -66,10 +66,14 @@ export interface ElectronAPI {
   onStreamError: (callback: (data: StreamErrorData) => void) => void;
   onSessionStatus: (callback: (data: SessionStatusData) => void) => void;
   removeAllListeners: () => void;
+  onMenuAction: (callback: (action: string) => void) => void;
   saveTempFile: (fileName: string, fileData: ArrayBuffer) => Promise<string>;
   cleanupTempFiles: () => Promise<{ success: boolean; error?: string }>;
   exportMarkdown: (content: string, defaultFileName: string) => Promise<{ success: boolean; canceled?: boolean; path?: string; error?: string }>;
   exportPdf: (htmlContent: string, defaultFileName: string) => Promise<{ success: boolean; canceled?: boolean; path?: string; error?: string }>;
+  showNotification: (title: string, body: string) => Promise<{ success: boolean; error?: string }>;
+  isWindowFocused: () => Promise<boolean>;
+  setWindowTitle: (title: string) => Promise<void>;
 }
 
 declare global {
