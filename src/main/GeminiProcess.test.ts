@@ -117,4 +117,88 @@ describe('GeminiProcess', () => {
             expect.objectContaining({ cwd: '/tmp' })
         );
     });
+
+    it('does not start a second process if already running', () => {
+        gemini.start('dummy/path', '/tmp');
+        gemini.start('dummy/path', '/tmp');
+        expect(mockSpawn).toHaveBeenCalledTimes(1);
+    });
+
+    it('throws when sending without starting', () => {
+        expect(() => gemini.send('hello')).toThrow('Process not started');
+    });
+
+    it('stop kills and nullifies the process', () => {
+        gemini.start('dummy/path', '/tmp');
+        const proc = mockSpawn.mock.results[0].value;
+        gemini.stop();
+        expect(proc.kill).toHaveBeenCalled();
+        // After stop, sending should throw
+        expect(() => gemini.send('hello')).toThrow('Process not started');
+    });
+
+    it('stop is safe to call when no process is running', () => {
+        expect(() => gemini.stop()).not.toThrow();
+    });
+
+    it('emits exit event and nullifies process on pty exit', () => {
+        gemini.start('dummy/path', '/tmp');
+        const proc = mockSpawn.mock.results[0].value;
+        const exitListener = vi.fn();
+        gemini.on('exit', exitListener);
+        proc.emit('exit', 0);
+        expect(exitListener).toHaveBeenCalledWith(0);
+        // After exit, process should be null → send throws
+        expect(() => gemini.send('test')).toThrow('Process not started');
+    });
+
+    it('ignores non-JSON lines in data stream', () => {
+        gemini.start('dummy/path', '/tmp');
+        const proc = mockSpawn.mock.results[0].value;
+        const jsonListener = vi.fn();
+        gemini.on('json', jsonListener);
+        proc.emit('data', 'some plain text output\n');
+        expect(jsonListener).not.toHaveBeenCalled();
+    });
+
+    it('ignores empty lines in data stream', () => {
+        gemini.start('dummy/path', '/tmp');
+        const proc = mockSpawn.mock.results[0].value;
+        const jsonListener = vi.fn();
+        gemini.on('json', jsonListener);
+        proc.emit('data', '\n\n\n');
+        expect(jsonListener).not.toHaveBeenCalled();
+    });
+
+    it('handles \\r\\n line endings', () => {
+        gemini.start('dummy/path', '/tmp');
+        const proc = mockSpawn.mock.results[0].value;
+        const jsonListener = vi.fn();
+        gemini.on('json', jsonListener);
+        proc.emit('data', '{"type":"crlf"}\r\n');
+        expect(jsonListener).toHaveBeenCalledWith({ type: 'crlf' });
+    });
+
+    it('silently ignores malformed JSON lines', () => {
+        gemini.start('dummy/path', '/tmp');
+        const proc = mockSpawn.mock.results[0].value;
+        const jsonListener = vi.fn();
+        gemini.on('json', jsonListener);
+        proc.emit('data', '{invalid json}\n');
+        expect(jsonListener).not.toHaveBeenCalled();
+    });
+
+    it('passes --system-instruction flag when systemPrompt is provided', () => {
+        gemini.start('dummy/path', '/tmp', process.env, 'You are a helper');
+        const args = mockSpawn.mock.calls[0][1] as string[];
+        const idx = args.indexOf('--system-instruction');
+        expect(idx).toBeGreaterThan(-1);
+        expect(args[idx + 1]).toBe('You are a helper');
+    });
+
+    it('does not pass --system-instruction when systemPrompt is undefined', () => {
+        gemini.start('dummy/path', '/tmp');
+        const args = mockSpawn.mock.calls[0][1] as string[];
+        expect(args).not.toContain('--system-instruction');
+    });
 });

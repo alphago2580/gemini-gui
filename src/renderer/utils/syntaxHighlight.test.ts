@@ -133,5 +133,63 @@ describe('syntaxHighlight', () => {
       const tokens = tokenize('const x = 1', 'unknown');
       expect(tokens[0]).toEqual({ type: 'keyword', value: 'const' });
     });
+
+    it('handles CSS language (no keywords, no line comments)', () => {
+      const tokens = tokenize('.class { color: red; }', 'css');
+      const keywordTokens = tokens.filter(t => t.type === 'keyword');
+      expect(keywordTokens).toHaveLength(0);
+    });
+
+    it('handles SCSS language same as CSS', () => {
+      const tokens = tokenize('$var: 10px;', 'scss');
+      const keywordTokens = tokens.filter(t => t.type === 'keyword');
+      expect(keywordTokens).toHaveLength(0);
+    });
+
+    it('handles block comments in CSS', () => {
+      const tokens = tokenize('/* comment */ .x {}', 'css');
+      const comments = tokens.filter(t => t.type === 'comment');
+      expect(comments).toHaveLength(1);
+      expect(comments[0].value).toBe('/* comment */');
+    });
+
+    it('handles jsonc the same as json', () => {
+      const tokens = tokenize('{ "key": true }', 'jsonc');
+      const keywordTokens = tokens.filter(t => t.type === 'keyword');
+      expect(keywordTokens).toHaveLength(0);
+    });
+
+    it('handles shell alias for bash', () => {
+      const tokens = tokenize('echo hello', 'shell');
+      expect(tokens[0]).toEqual({ type: 'keyword', value: 'echo' });
+    });
+
+    it('handles zsh alias for bash', () => {
+      const tokens = tokenize('export PATH', 'zsh');
+      expect(tokens[0]).toEqual({ type: 'keyword', value: 'export' });
+    });
+
+    it('tokenizes decimal starting with dot', () => {
+      const tokens = tokenize('.5', 'js');
+      expect(tokens[0]).toEqual({ type: 'number', value: '.5' });
+    });
+
+    it('handles py alias for Python', () => {
+      const tokens = tokenize('def main():', 'py');
+      expect(tokens[0]).toEqual({ type: 'keyword', value: 'def' });
+    });
+
+    it('handles tsx and jsx aliases', () => {
+      const tsxTokens = tokenize('const x = 1', 'tsx');
+      expect(tsxTokens[0]).toEqual({ type: 'keyword', value: 'const' });
+      const jsxTokens = tokenize('const y = 2', 'jsx');
+      expect(jsxTokens[0]).toEqual({ type: 'keyword', value: 'const' });
+    });
+
+    it('handles LESS language same as CSS', () => {
+      const tokens = tokenize('@var: 10px;', 'less');
+      const keywordTokens = tokens.filter(t => t.type === 'keyword');
+      expect(keywordTokens).toHaveLength(0);
+    });
   });
 });

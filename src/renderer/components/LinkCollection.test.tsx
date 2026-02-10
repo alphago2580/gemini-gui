@@ -90,4 +90,39 @@ describe('LinkCollection', () => {
     expect(screen.getAllByText('사용자').length).toBe(1);
     expect(screen.getAllByText('Gemini').length).toBe(2);
   });
+
+  it('does not propagate click from panel to overlay', () => {
+    const { container } = render(<LinkCollection {...defaultProps} />);
+    const panel = container.querySelector('.link-collection-panel')!;
+    fireEvent.click(panel);
+    expect(defaultProps.onClose).not.toHaveBeenCalled();
+  });
+
+  it('has copy buttons with correct aria-label', () => {
+    render(<LinkCollection {...defaultProps} />);
+    const copyButtons = screen.getAllByLabelText('URL 복사');
+    expect(copyButtons).toHaveLength(3);
+  });
+
+  it('has navigate buttons with correct aria-label', () => {
+    render(<LinkCollection {...defaultProps} />);
+    const navButtons = screen.getAllByLabelText('메시지로 이동');
+    expect(navButtons).toHaveLength(3);
+  });
+
+  it('displays link count 0 when no links exist', () => {
+    render(
+      <LinkCollection
+        {...defaultProps}
+        messages={[{ role: 'user', content: 'plain text' }]}
+      />
+    );
+    expect(screen.getByText('링크 모음 (0)')).toBeInTheDocument();
+  });
+
+  it('does not close on non-Escape key press', () => {
+    render(<LinkCollection {...defaultProps} />);
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'a' });
+    expect(defaultProps.onClose).not.toHaveBeenCalled();
+  });
 });
