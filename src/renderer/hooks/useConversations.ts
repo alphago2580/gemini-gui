@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { generateConversationTitle, generateMessageId } from '../utils/format';
 import type { Message, Conversation } from '../../preload/types';
+import * as S from '../constants/strings';
 
 const STORAGE_KEY_CONVERSATIONS = 'gemini-conversations';
 const STORAGE_KEY_CURRENT_CONVERSATION = 'gemini-current-conversation';
@@ -79,7 +80,7 @@ export function useConversations() {
   const handleNewChat = useCallback(() => {
     const newConversation: Conversation = {
       id: Date.now().toString(),
-      title: '새로운 대화',
+      title: S.NEW_CONVERSATION_TITLE,
       timestamp: new Date(),
       messages: []
     };
@@ -147,7 +148,7 @@ export function useConversations() {
 
     const newConversation: Conversation = {
       id: Date.now().toString(),
-      title: `${baseTitle} (분기)`,
+      title: `${baseTitle} ${S.FORK_SUFFIX}`,
       timestamp: new Date(),
       messages: forkedMessages,
     };

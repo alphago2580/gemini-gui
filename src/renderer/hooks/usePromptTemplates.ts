@@ -1,13 +1,14 @@
 import { useCallback } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 import type { PromptTemplate } from '../../preload/types';
+import * as S from '../constants/strings';
 
 const STORAGE_KEY = 'gemini-prompt-templates';
 
 const DEFAULT_TEMPLATES: PromptTemplate[] = [
-  { id: 'default-1', name: '번역 (한→영)', content: '다음 한국어 텍스트를 영어로 번역해 주세요:\n\n' },
-  { id: 'default-2', name: '코드 리뷰', content: '다음 코드를 리뷰하고 개선점을 제안해 주세요:\n\n' },
-  { id: 'default-3', name: '요약', content: '다음 내용을 간결하게 요약해 주세요:\n\n' },
+  { id: 'default-1', name: S.DEFAULT_TEMPLATE_TRANSLATE, content: S.DEFAULT_TEMPLATE_TRANSLATE_CONTENT },
+  { id: 'default-2', name: S.DEFAULT_TEMPLATE_REVIEW, content: S.DEFAULT_TEMPLATE_REVIEW_CONTENT },
+  { id: 'default-3', name: S.DEFAULT_TEMPLATE_SUMMARY, content: S.DEFAULT_TEMPLATE_SUMMARY_CONTENT },
 ];
 
 export function usePromptTemplates() {

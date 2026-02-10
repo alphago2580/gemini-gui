@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { StreamData, StreamErrorData, Message, TokenUsage } from '../../preload/types';
 import { generateMessageId } from '../utils/format';
+import * as S from '../constants/strings';
 
 interface UseStreamHandlerOptions {
   currentConversationId: string | null;
@@ -87,7 +88,7 @@ export function useStreamHandler({
         const updated = [...prev, {
           id: generateMessageId(),
           role: 'assistant' as const,
-          content: `오류: ${data.error}`,
+          content: `${S.STREAM_ERROR_PREFIX} ${data.error}`,
           timestamp: new Date()
         }];
         updateCurrentConversation(updated);

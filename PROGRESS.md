@@ -511,3 +511,13 @@
 - Helper captures both `streamData` and `streamComplete` callbacks in a single call
 - Reduced ~40 lines of duplicated code to 6 one-liner calls
 - Total tests: 696 (30 test files, all passing)
+
+### Agent 2 (Quality) — Extract UI String Constants for i18n Readiness
+- Created `src/renderer/constants/strings.ts` with 186 lines of centralized UI string constants
+- All Korean UI text, ARIA labels, placeholders, titles, and button text extracted
+- Migrated all 13 components to import from `constants/strings` as `* as S`
+- Components: App, Settings, Sidebar, MessageBubble, TabBar, FileAttachment, PromptTemplates, Toast, TypingIndicator, TokenUsage, CommandPalette, MarkdownRenderer, ErrorBoundary
+- Organized by component section: App-level, Header, Command Palette, Sidebar, Settings, MessageBubble, etc.
+- Updated TODO.md to reflect all completed features (vast majority now done)
+- Prepares codebase for future internationalization (i18n) support
+- Total tests: 696 (30 test files, all passing)

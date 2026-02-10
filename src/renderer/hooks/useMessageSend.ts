@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Message } from '../../preload/types';
 import { generateMessageId } from '../utils/format';
+import * as S from '../constants/strings';
 
 interface UseMessageSendOptions {
   currentConversationId: string | null;
@@ -84,12 +85,12 @@ export function useMessageSend({
     let fullMessageContent = input;
     if (attachedFiles.length > 0) {
       const fileNames = attachedFiles.map(f => f.name).join(', ');
-      fullMessageContent = `${input}\n\n[첨부 파일: ${fileNames}]`;
+      fullMessageContent = `${input}\n\n[${S.ATTACHMENT_PREFIX} ${fileNames}]`;
 
       try {
         const tempFilePaths = await saveTempFiles();
         if (tempFilePaths.length > 0) {
-          fullMessageContent += `\n[파일 경로: ${tempFilePaths.join(', ')}]`;
+          fullMessageContent += `\n[${S.FILE_PATH_PREFIX} ${tempFilePaths.join(', ')}]`;
         }
       } catch (error) {
         console.error('Error saving temp files:', error);
@@ -127,11 +128,11 @@ export function useMessageSend({
         : typeof error === 'object' && error !== null && 'error' in error
           ? String((error as { error: unknown }).error)
           : String(error);
-      addToast('error', `메시지 전송 실패: ${errMsg}`);
+      addToast('error', `${S.SEND_FAIL_PREFIX} ${errMsg}`);
       const errorMessage: Message = {
         id: generateMessageId(),
         role: 'assistant',
-        content: `오류 발생: ${errMsg}`,
+        content: `${S.ERROR_PREFIX} ${errMsg}`,
         timestamp: new Date()
       };
       setMessages(prev => {

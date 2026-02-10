@@ -183,3 +183,16 @@ export const DEFAULT_TEMPLATE_REVIEW = '코드 리뷰';
 export const DEFAULT_TEMPLATE_REVIEW_CONTENT = '다음 코드를 리뷰하고 개선점을 제안해 주세요:\n\n';
 export const DEFAULT_TEMPLATE_SUMMARY = '요약';
 export const DEFAULT_TEMPLATE_SUMMARY_CONTENT = '다음 내용을 간결하게 요약해 주세요:\n\n';
+
+// useConversations
+export const NEW_CONVERSATION_TITLE = '새로운 대화';
+export const FORK_SUFFIX = '(분기)';
+
+// useMessageSend
+export const ATTACHMENT_PREFIX = '첨부 파일:';
+export const FILE_PATH_PREFIX = '파일 경로:';
+export const SEND_FAIL_PREFIX = '메시지 전송 실패:';
+export const ERROR_PREFIX = '오류 발생:';
+
+// useStreamHandler
+export const STREAM_ERROR_PREFIX = '오류:';
