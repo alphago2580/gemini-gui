@@ -117,12 +117,9 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
               onChange={(e) => setLocalSettings({ ...localSettings, model: e.target.value })}
               aria-label={S.ARIA_MODEL_SELECT}
             >
-              <option value="auto">{S.MODEL_AUTO}</option>
-              <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-              <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-              <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-              <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-              <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+              {Object.entries(S.MODEL_DISPLAY_NAMES).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
             </select>
           </div>
 

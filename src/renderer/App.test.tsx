@@ -55,7 +55,7 @@ describe('App Component', () => {
     it('renders app header', () => {
         render(<App />);
         expect(screen.getByText('Gemini GUI', { selector: 'h1' })).toBeInTheDocument();
-        expect(screen.getByText('모델: Auto')).toBeInTheDocument();
+        expect(screen.getByText('모델: 자동 (Auto)')).toBeInTheDocument();
     });
 
     it('renders sidebar', () => {
@@ -1209,7 +1209,7 @@ describe('App Component', () => {
     describe('Model Selection', () => {
         it('shows default model name in header', () => {
             render(<App />);
-            expect(screen.getByText('모델: Auto')).toBeInTheDocument();
+            expect(screen.getByText('모델: 자동 (Auto)')).toBeInTheDocument();
         });
 
         it('shows selected model name in header after settings change', async () => {

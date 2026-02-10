@@ -84,7 +84,6 @@ export const ARIA_CLEAR_PROMPT = '시스템 프롬프트 초기화';
 export const MODEL_SELECT_LABEL = '모델 선택';
 export const MODEL_SELECT_HINT = '사용할 Gemini 모델을 선택합니다';
 export const ARIA_MODEL_SELECT = '모델 선택';
-export const MODEL_AUTO = '자동 (Auto)';
 export const TEMPERATURE_HINT = '낮을수록 일관적, 높을수록 창의적';
 export const MAX_TOKENS_PREFIX = '최대 토큰:';
 export const MAX_TOKENS_HINT = '응답의 최대 길이';
@@ -186,7 +185,7 @@ export const DEFAULT_TEMPLATE_SUMMARY_CONTENT = '다음 내용을 간결하게 �
 
 // Model display names
 export const MODEL_DISPLAY_NAMES: Record<string, string> = {
-  'auto': 'Auto',
+  'auto': '자동 (Auto)',
   'gemini-2.5-pro': 'Gemini 2.5 Pro',
   'gemini-2.5-flash': 'Gemini 2.5 Flash',
   'gemini-2.0-flash': 'Gemini 2.0 Flash',
