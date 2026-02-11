@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5727 tests)
-- **Last Agent Run**: Agent 2 (Logic)
+- **Test Status**: Passing (5304+ tests)
+- **Last Agent Run**: Agent 1 (Components)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1326,3 +1326,12 @@
 - Added 12 tests for useFileReader (default state, text/dataURL/arrayBuffer/binaryString read, onLoad, progress, error, reset, isLoading, clear previous, abort)
 - Added 36 tests for graphUtils (undirected: add/remove vertex/edge, neighbors, degree, BFS, DFS, shortest path, cycle, connectivity, clone, topo-sort null; directed: edges, topo-sort, cycle, path, clone; numeric vertices)
 - Total tests: 5570 → 5727 (212 test files, all passing)
+### Agent 1 (Components) — Select, Calendar, DatePicker, Slider, Dialog, RadioGroup, CheckboxGroup
+- Created `Select` component: dropdown select with single/multi, search, groups, keyboard nav
+- Created `Calendar` component: month view with date selection, navigation, min/max dates, disabled dates, week numbers, keyboard nav, ko/en locale (50 tests)
+- Created `DatePicker` component: popup calendar input with format, clearable, disabled, min/max, ko/en locale, keyboard nav (49 tests)
+- Created `Slider` component: range slider with marks, ticks, keyboard nav, step snap, formatValue, controlled/uncontrolled (48 tests)
+- Created `Dialog` component: modal dialog with sizes (small/medium/large/fullscreen), overlay close, escape, focus trap, scroll lock, footer (33 tests)
+- Created `RadioGroup` component: radio buttons with card variant, descriptions, keyboard nav, horizontal/vertical, disabled (36 tests)
+- Created `CheckboxGroup` component: multi-select checkboxes with select-all, max limit, descriptions, sizes, orientations (34 tests)
+- Total tests: 4712 → 5304 (191 test files, all passing)
