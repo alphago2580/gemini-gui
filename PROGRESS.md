@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (6295+ tests)
+- **Test Status**: Passing (6381+ tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1508,3 +1508,14 @@
 - Added 17 tests for useScreenCapture
 - Added 65 tests for matrixUtils
 - Total tests: 6197 → 6295 (233 test files, all passing)
+
+### Agent 2 (Logic) — useClickOutside, useDocumentVisibility, sortUtils
+- Added `useClickOutside` hook — detect clicks outside a ref element with configurable event type and enable/disable
+- Added `useDocumentVisibility` hook — track document.visibilityState with change count and onChange callback
+- Added `sortUtils` utility — sorting algorithms and helpers:
+  - bubbleSort, selectionSort, insertionSort, mergeSort, quickSort, heapSort
+  - isSorted, shuffle, sortByKey, stableSort
+- Added 13 tests for useClickOutside
+- Added 15 tests for useDocumentVisibility
+- Added 58 tests for sortUtils
+- Total tests: 6295 → 6381 (236 test files, all passing)
