@@ -154,4 +154,98 @@ describe('useKeyCombo', () => {
 
     expect(action).toHaveBeenCalledTimes(1);
   });
+
+  it('modifier-only keydown does not add to sequence', () => {
+    const action = vi.fn();
+    const combos: KeyCombo[] = [{ keys: ['g', 'i'], action }];
+    renderHook(() => useKeyCombo(combos));
+
+    fireKey('Control', { ctrl: true });
+    fireKey('g');
+    fireKey('i');
+
+    expect(action).toHaveBeenCalledTimes(1);
+  });
+
+  it('meta key works as mod modifier', () => {
+    const action = vi.fn();
+    const combos: KeyCombo[] = [{ keys: ['mod+k', 'mod+s'], action }];
+    renderHook(() => useKeyCombo(combos));
+
+    fireKey('k', { meta: true });
+    fireKey('s', { meta: true });
+
+    expect(action).toHaveBeenCalledTimes(1);
+  });
+
+  it('combo can be triggered again after reset', () => {
+    const action = vi.fn();
+    const combos: KeyCombo[] = [{ keys: ['g', 'i'], action }];
+    renderHook(() => useKeyCombo(combos));
+
+    fireKey('g');
+    fireKey('i');
+    expect(action).toHaveBeenCalledTimes(1);
+
+    fireKey('g');
+    fireKey('i');
+    expect(action).toHaveBeenCalledTimes(2);
+  });
+
+  it('trims sequence to max combo length', () => {
+    const action = vi.fn();
+    const combos: KeyCombo[] = [{ keys: ['g', 'i'], action }];
+    renderHook(() => useKeyCombo(combos));
+
+    fireKey('x');
+    fireKey('y');
+    fireKey('z');
+    fireKey('g');
+    fireKey('i');
+
+    expect(action).toHaveBeenCalledTimes(1);
+  });
+
+  it('shift modifier is tracked separately', () => {
+    const action = vi.fn();
+    const combos: KeyCombo[] = [{ keys: ['shift+a', 'shift+b'], action }];
+    renderHook(() => useKeyCombo(combos));
+
+    fireKey('a', { shift: true });
+    fireKey('b', { shift: true });
+
+    expect(action).toHaveBeenCalledTimes(1);
+  });
+
+  it('alt modifier is tracked separately', () => {
+    const action = vi.fn();
+    const combos: KeyCombo[] = [{ keys: ['alt+x'], action }];
+    renderHook(() => useKeyCombo(combos));
+
+    fireKey('x', { alt: true });
+
+    expect(action).toHaveBeenCalledTimes(1);
+  });
+
+  it('single-key combo triggers immediately', () => {
+    const action = vi.fn();
+    const combos: KeyCombo[] = [{ keys: ['escape'], action }];
+    renderHook(() => useKeyCombo(combos));
+
+    fireKey('Escape');
+
+    expect(action).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses default timeout of 500ms', () => {
+    const action = vi.fn();
+    const combos: KeyCombo[] = [{ keys: ['g', 'i'], action }];
+    renderHook(() => useKeyCombo(combos));
+
+    fireKey('g');
+    vi.advanceTimersByTime(499);
+    fireKey('i');
+
+    expect(action).toHaveBeenCalledTimes(1);
+  });
 });

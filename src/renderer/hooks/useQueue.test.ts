@@ -95,4 +95,65 @@ describe('useQueue', () => {
     expect(result.current.dequeue).toBe(firstDequeue);
     expect(result.current.clear).toBe(firstClear);
   });
+
+  it('enqueue after dequeue maintains FIFO order', () => {
+    const { result } = renderHook(() => useQueue([1, 2]));
+    act(() => { result.current.dequeue(); });
+    act(() => { result.current.enqueue(3); });
+    expect(result.current.items).toEqual([2, 3]);
+    expect(result.current.peek).toBe(2);
+  });
+
+  it('dequeue all items one by one empties the queue', () => {
+    const { result } = renderHook(() => useQueue([10, 20, 30]));
+    act(() => { result.current.dequeue(); });
+    expect(result.current.items).toEqual([20, 30]);
+    act(() => { result.current.dequeue(); });
+    expect(result.current.items).toEqual([30]);
+    act(() => { result.current.dequeue(); });
+    expect(result.current.items).toEqual([]);
+    expect(result.current.isEmpty).toBe(true);
+    expect(result.current.size).toBe(0);
+  });
+
+  it('peek updates after enqueue', () => {
+    const { result } = renderHook(() => useQueue<string>());
+    act(() => { result.current.enqueue('first'); });
+    expect(result.current.peek).toBe('first');
+    act(() => { result.current.enqueue('second'); });
+    expect(result.current.peek).toBe('first');
+  });
+
+  it('peek updates after dequeue', () => {
+    const { result } = renderHook(() => useQueue([1, 2, 3]));
+    expect(result.current.peek).toBe(1);
+    act(() => { result.current.dequeue(); });
+    expect(result.current.peek).toBe(2);
+  });
+
+  it('isEmpty toggles correctly through operations', () => {
+    const { result } = renderHook(() => useQueue<number>());
+    expect(result.current.isEmpty).toBe(true);
+    act(() => { result.current.enqueue(1); });
+    expect(result.current.isEmpty).toBe(false);
+    act(() => { result.current.dequeue(); });
+    expect(result.current.isEmpty).toBe(true);
+  });
+
+  it('contains returns false on empty queue', () => {
+    const { result } = renderHook(() => useQueue<number>());
+    expect(result.current.contains(() => true)).toBe(false);
+  });
+
+  it('contains updates after mutation', () => {
+    const { result } = renderHook(() => useQueue([1, 2, 3]));
+    expect(result.current.contains(x => x === 1)).toBe(true);
+    act(() => { result.current.dequeue(); });
+    expect(result.current.contains(x => x === 1)).toBe(false);
+  });
+
+  it('toArray returns empty array for empty queue', () => {
+    const { result } = renderHook(() => useQueue<number>());
+    expect(result.current.toArray()).toEqual([]);
+  });
 });

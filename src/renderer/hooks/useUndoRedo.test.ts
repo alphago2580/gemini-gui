@@ -129,4 +129,74 @@ describe('useUndoRedo', () => {
     expect(result.current.redo).toBe(redo);
     expect(result.current.reset).toBe(reset);
   });
+
+  it('set with different value then undo returns to original', () => {
+    const { result } = renderHook(() => useUndoRedo(5));
+    act(() => result.current.set(10));
+    expect(result.current.historySize).toBe(1);
+    expect(result.current.canUndo).toBe(true);
+    act(() => result.current.undo());
+    expect(result.current.value).toBe(5);
+  });
+
+  it('historySize decreases on undo', () => {
+    const { result } = renderHook(() => useUndoRedo(0));
+    act(() => result.current.set(1));
+    act(() => result.current.set(2));
+    expect(result.current.historySize).toBe(2);
+    act(() => result.current.undo());
+    expect(result.current.historySize).toBe(1);
+    act(() => result.current.undo());
+    expect(result.current.historySize).toBe(0);
+  });
+
+  it('redo after undo increases historySize', () => {
+    const { result } = renderHook(() => useUndoRedo('a'));
+    act(() => result.current.set('b'));
+    act(() => result.current.undo());
+    expect(result.current.historySize).toBe(0);
+    act(() => result.current.redo());
+    expect(result.current.historySize).toBe(1);
+  });
+
+  it('canUndo is false after all undos', () => {
+    const { result } = renderHook(() => useUndoRedo(0));
+    act(() => result.current.set(1));
+    act(() => result.current.undo());
+    expect(result.current.canUndo).toBe(false);
+  });
+
+  it('canRedo is false after all redos', () => {
+    const { result } = renderHook(() => useUndoRedo(0));
+    act(() => result.current.set(1));
+    act(() => result.current.undo());
+    act(() => result.current.redo());
+    expect(result.current.canRedo).toBe(false);
+  });
+
+  it('reset allows new set/undo cycle', () => {
+    const { result } = renderHook(() => useUndoRedo(0));
+    act(() => result.current.set(1));
+    act(() => result.current.reset(50));
+    act(() => result.current.set(51));
+    expect(result.current.historySize).toBe(1);
+    act(() => result.current.undo());
+    expect(result.current.value).toBe(50);
+  });
+
+  it('uses default maxHistory of 50', () => {
+    const { result } = renderHook(() => useUndoRedo(0));
+    for (let i = 1; i <= 55; i++) {
+      act(() => result.current.set(i));
+    }
+    expect(result.current.historySize).toBe(50);
+  });
+
+  it('works with array values', () => {
+    const { result } = renderHook(() => useUndoRedo<number[]>([]));
+    act(() => result.current.set([1]));
+    act(() => result.current.set([1, 2]));
+    act(() => result.current.undo());
+    expect(result.current.value).toEqual([1]);
+  });
 });

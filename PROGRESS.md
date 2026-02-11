@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2783 tests)
-- **Last Agent Run**: Agent 2 (Logic)
+- **Test Status**: Passing (2746 tests)
+- **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -711,33 +711,26 @@
 - Added 4 unit tests for Switch toggle integration (rendering, checked state, toggle click, timestamps)
 - Total tests: 2598 (128 test files, all passing)
 
-### Agent 2 (Logic) — useWebSocket, useAnimationFrame Hooks & promiseUtils Utility
-- Created `useWebSocket` hook: WebSocket connection management with auto-reconnect
-  - `WebSocketStatus`: 'connecting' | 'connected' | 'disconnected' | 'error'
-  - Returns: `status`, `lastMessage`, `send`, `connect`, `disconnect`, `reconnectCount`
-  - Auto-connects when URL provided, disconnects on URL null
-  - Configurable reconnect with `reconnectInterval`, `reconnectAttempts`, exponential reconnect count tracking
-  - Callbacks: `onOpen`, `onClose`, `onError`, `onMessage`
-  - Protocol support via `protocols` option
-  - Clean teardown on unmount (close WS, clear timers, null handlers)
-  - Stable `send` reference via `useCallback`
-- Created `useAnimationFrame` hook: requestAnimationFrame-based animation loop
-  - Returns: `start`, `stop`, `isRunning`, `elapsed`, `fps`
-  - Tracks delta time and total elapsed via refs
-  - FPS calculated from frame-to-frame delta
-  - Resets elapsed/fps on restart
-  - Uses callback ref for latest callback without re-registering
-  - Prevents double-start, cleans up on unmount
-- Created `promiseUtils` utility with 7 exports:
-  - `TimeoutError`: custom error class for timeout identification
-  - `withTimeout<T>(promise, ms)`: rejects with TimeoutError if promise exceeds ms
-  - `delay(ms)`: simple promise-based delay
-  - `withRetry<T>(fn, options)`: retry with configurable attempts, delay, exponential backoff, onRetry callback
-  - `settleAll<T>(promises)`: like Promise.allSettled with typed results
-  - `deferred<T>()`: creates externally resolvable/rejectable promise
-  - `sequential<T>(tasks)`: execute promise-returning functions one at a time
-  - `pool<T>(tasks, concurrency)`: execute with limited parallel workers, preserving order
-- Added 21 tests for useWebSocket (null url, connect, open, close, error, message, send, not-connected send, onOpen, onClose, onError, onMessage, disconnect, disconnect code/reason, reconnect, max attempts, reconnect reset, protocols, unmount cleanup, url change, stable send)
-- Added 13 tests for useAnimationFrame (init state, start, callback delta/elapsed, stop, no-call-after-stop, elapsed update, fps calc, reset on restart, ignore double-start, unmount cleanup, stable refs, latest callback ref, start/stop cycles)
-- Added 29 tests for promiseUtils (delay resolve, delay timing, withTimeout success, withTimeout reject, TimeoutError msg, promise rejection passthrough, TimeoutError name, withRetry success, retry+succeed, retry exhausted, onRetry callback, exponential backoff, default 3 attempts, settleAll fulfilled, rejected, mixed, empty, deferred resolve, reject, pending, shape, sequential order, empty, error propagation, pool basic, concurrency limit, empty, order preservation, large concurrency)
-- Total tests: 2720 → 2783 (137 test files, all passing)
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 9 (+72 tests)
+- **useRetry.test.ts**: Added 8 tests — exponential/fixed backoff delay verification, cancel stops in-progress retries, maxRetries=0 single attempt, execute resets prior state, onRetry receives last error per attempt, attempt count matches maxRetries after failure
+- **useFormattingToolbar.test.ts**: Added 8 tests — bold mid-text cursor positions, italic/code/strikethrough placeholder end positions, link with selection selects url, codeblock wraps in fenced block, unknown action preserves cursor, bold at end of text
+- **useDialogs.test.ts**: Added 8 tests — toggle cycles for command palette/quick switcher/shortcut help, all 18 callbacks stable across rerenders, simultaneous open/close all dialogs, toggleInputPreview 4-step cycle, close already-closed no-op
+- **useCountdown.test.ts**: Added 8 tests — restart clears previous timer, pause+reset, onComplete fires after resume, resume no-op after finish, multiple pauses idempotent, callback stability, does not go below zero
+- **useMessageActions.test.ts**: Added 8 tests — edit/pin/bookmark/emoji context menu actions, handleEmojiSelect toggles reaction and closes picker, emoji select without target is no-op, pin deduplication, unpin by index
+- **Pagination.test.tsx**: Added 8 tests + 3 generatePageRange edge cases — previous/next no-op at bounds, negative totalPages, single page no ellipsis, nav title attributes, CSS classes, 2-page no ellipsis, edge ranges
+- **DropdownMenu.test.tsx**: Added 8 tests — Enter/Space without active item, disabled item click no-op, disabled mouseEnter no activation, empty actionable Home/End keys, ArrowUp wrap-around, menu tabIndex
+- **PinnedMessages.test.tsx**: Added 8 tests — unpin stopPropagation, pin icon content, tabIndex on items, role class matching, non-Enter keyDown ignored, aria-labels on unpin buttons, single-item count, 80-char no-truncate
+- **ColorPicker.test.tsx**: Added 8 tests — trigger title attribute, disabled prevents dropdown, input maxLength/placeholder, preset aria-label, dropdown aria-label, non-selected preset class
+- Total tests: 2583 → 2655 (128 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 10 (+91 tests)
+- **messageSearch.test.ts**: Added 13 tests — empty conversations array, match at start/end, single occurrence per message, preserves conversationTitle/role, multi-conversation search, getMatchContext no-ellipsis, leading/trailing ellipsis, default contextLength, zero-length match
+- **colorUtils.test.ts**: Added 21 tests — uppercase/mixed-case hex, 4/5-digit hex null, cyan/magenta rgbToHsl paths, dark color saturation, green/blue/white/black hslToRgb, lighten/darken by 0, red vs green luminance, sRGB threshold boundary, contrast >= 1, mix invalid first/default weight, mid-dark/light contrast text, zero alpha rgba
+- **dateUtils.test.ts**: Added 13 tests — timeAgo boundaries (59min, 60min, 23h, 6d, 7d, 28d, 35d), Date.now() default, isSameDay different year, midnight boundary, formatDate/formatTime different values, exact hour formatDuration
+- **useIdle.test.ts**: Added 8 tests — default 60s timeout, no onActive before idle, lastActiveTime update, multiple activity resets, reset-after-idle restarts timer, non-registered events ignored, return shape validation
+- **useQueue.test.ts**: Added 8 tests — enqueue-after-dequeue FIFO, dequeue-all empties queue, peek updates after enqueue/dequeue, isEmpty toggle, contains on empty/mutated queue, toArray empty
+- **useReactions.test.ts**: Added 8 tests — sequential multi-emoji removal, hasReaction after toggle-off, non-existent conversation/message, toggle on-off-on re-add, callback stability, cross-conversation independence
+- **useUndoRedo.test.ts**: Added 8 tests — set-then-undo roundtrip, historySize decreases on undo, redo increases historySize, canUndo/canRedo after exhaustion, reset-then-set cycle, default maxHistory 50, array values
+- **useKeyCombo.test.ts**: Added 8 tests — modifier-only keydown ignored, meta as mod, re-trigger after reset, sequence trim to maxLen, shift/alt modifiers, single-key combo, default 500ms timeout
+- **usePerformanceMonitor.test.ts**: Added 8 tests — stops recording after disable, enable-disable-enable preserves data, multiple resets, reset-then-record fresh, update phase correct, fastest render update, memory rounding
+- Total tests: 2655 → 2746 (128 test files, all passing)

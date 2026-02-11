@@ -132,4 +132,110 @@ describe('useIdle', () => {
 
     expect(onIdle).not.toHaveBeenCalled();
   });
+
+  it('uses default timeout of 60000ms', () => {
+    const { result } = renderHook(() => useIdle());
+
+    act(() => {
+      vi.advanceTimersByTime(59999);
+    });
+    expect(result.current.isIdle).toBe(false);
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(result.current.isIdle).toBe(true);
+  });
+
+  it('does not call onActive when activity occurs before idle', () => {
+    const onActive = vi.fn();
+    renderHook(() => useIdle({ timeout: 1000, onActive }));
+
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    act(() => {
+      document.dispatchEvent(new Event('mousemove'));
+    });
+
+    expect(onActive).not.toHaveBeenCalled();
+  });
+
+  it('updates lastActiveTime on activity event', () => {
+    const { result } = renderHook(() => useIdle({ timeout: 5000 }));
+    const initial = result.current.lastActiveTime;
+
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    act(() => {
+      document.dispatchEvent(new Event('mousedown'));
+    });
+
+    expect(result.current.lastActiveTime).toBeGreaterThanOrEqual(initial);
+  });
+
+  it('multiple activity events keep resetting the timer', () => {
+    const onIdle = vi.fn();
+    renderHook(() => useIdle({ timeout: 500, onIdle }));
+
+    for (let i = 0; i < 5; i++) {
+      act(() => {
+        vi.advanceTimersByTime(400);
+      });
+      act(() => {
+        document.dispatchEvent(new Event('scroll'));
+      });
+    }
+
+    expect(onIdle).not.toHaveBeenCalled();
+  });
+
+  it('reset after idle restarts timer correctly', () => {
+    const onIdle = vi.fn();
+    const { result } = renderHook(() => useIdle({ timeout: 500, onIdle }));
+
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    expect(onIdle).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      result.current.reset();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    expect(onIdle).toHaveBeenCalledTimes(2);
+  });
+
+  it('ignores non-registered events in custom mode', () => {
+    const onIdle = vi.fn();
+    renderHook(() => useIdle({ timeout: 500, events: ['click'], onIdle }));
+
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    act(() => {
+      document.dispatchEvent(new Event('mousemove'));
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
+
+    expect(onIdle).toHaveBeenCalledTimes(1);
+  });
+
+  it('return shape includes isIdle, lastActiveTime, and reset', () => {
+    const { result } = renderHook(() => useIdle({ timeout: 1000 }));
+    expect(result.current).toHaveProperty('isIdle');
+    expect(result.current).toHaveProperty('lastActiveTime');
+    expect(result.current).toHaveProperty('reset');
+    expect(typeof result.current.reset).toBe('function');
+  });
 });

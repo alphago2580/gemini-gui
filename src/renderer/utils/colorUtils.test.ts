@@ -249,4 +249,137 @@ describe('rgbaToCss', () => {
   it('handles full opacity', () => {
     expect(rgbaToCss({ r: 0, g: 0, b: 0 }, 1)).toBe('rgba(0, 0, 0, 1)');
   });
+
+  it('handles zero alpha', () => {
+    expect(rgbaToCss({ r: 255, g: 255, b: 255 }, 0)).toBe('rgba(255, 255, 255, 0)');
+  });
+});
+
+describe('hexToRgb edge cases', () => {
+  it('parses uppercase hex', () => {
+    expect(hexToRgb('#FF00FF')).toEqual({ r: 255, g: 0, b: 255 });
+  });
+
+  it('parses mixed case hex', () => {
+    expect(hexToRgb('#aAbBcC')).toEqual({ r: 170, g: 187, b: 204 });
+  });
+
+  it('returns null for 4-digit hex', () => {
+    expect(hexToRgb('#1234')).toBeNull();
+  });
+
+  it('returns null for 5-digit hex', () => {
+    expect(hexToRgb('#12345')).toBeNull();
+  });
+});
+
+describe('rgbToHsl edge cases', () => {
+  it('converts cyan (max === g)', () => {
+    const hsl = rgbToHsl({ r: 0, g: 255, b: 255 });
+    expect(hsl.h).toBe(180);
+    expect(hsl.s).toBe(100);
+    expect(hsl.l).toBe(50);
+  });
+
+  it('converts magenta (max === r, g < b)', () => {
+    const hsl = rgbToHsl({ r: 255, g: 0, b: 255 });
+    expect(hsl.h).toBe(300);
+    expect(hsl.s).toBe(100);
+    expect(hsl.l).toBe(50);
+  });
+
+  it('converts dark color with lightness below 0.5', () => {
+    const hsl = rgbToHsl({ r: 50, g: 25, b: 75 });
+    expect(hsl.l).toBeLessThan(50);
+    expect(hsl.s).toBeGreaterThan(0);
+  });
+});
+
+describe('hslToRgb edge cases', () => {
+  it('converts green HSL to RGB', () => {
+    const rgb = hslToRgb({ h: 120, s: 100, l: 50 });
+    expect(rgb.r).toBe(0);
+    expect(rgb.g).toBe(255);
+    expect(rgb.b).toBe(0);
+  });
+
+  it('converts blue HSL to RGB', () => {
+    const rgb = hslToRgb({ h: 240, s: 100, l: 50 });
+    expect(rgb.r).toBe(0);
+    expect(rgb.g).toBe(0);
+    expect(rgb.b).toBe(255);
+  });
+
+  it('converts white HSL to RGB', () => {
+    const rgb = hslToRgb({ h: 0, s: 0, l: 100 });
+    expect(rgb.r).toBe(255);
+    expect(rgb.g).toBe(255);
+    expect(rgb.b).toBe(255);
+  });
+
+  it('converts black HSL to RGB', () => {
+    const rgb = hslToRgb({ h: 0, s: 0, l: 0 });
+    expect(rgb.r).toBe(0);
+    expect(rgb.g).toBe(0);
+    expect(rgb.b).toBe(0);
+  });
+});
+
+describe('lighten edge cases', () => {
+  it('lighten by 0 keeps color unchanged', () => {
+    const original = '#808080';
+    const result = lighten(original, 0);
+    expect(result).toBe(original);
+  });
+});
+
+describe('darken edge cases', () => {
+  it('darken by 0 keeps color unchanged', () => {
+    const original = '#808080';
+    const result = darken(original, 0);
+    expect(result).toBe(original);
+  });
+});
+
+describe('luminance edge cases', () => {
+  it('pure red has lower luminance than pure green', () => {
+    const redLum = luminance({ r: 255, g: 0, b: 0 });
+    const greenLum = luminance({ r: 0, g: 255, b: 0 });
+    expect(greenLum).toBeGreaterThan(redLum);
+  });
+
+  it('values at sRGB threshold boundary (10)', () => {
+    const lum = luminance({ r: 10, g: 10, b: 10 });
+    expect(lum).toBeGreaterThan(0);
+    expect(lum).toBeLessThan(0.01);
+  });
+});
+
+describe('contrastRatio edge cases', () => {
+  it('ratio is always >= 1', () => {
+    const ratio = contrastRatio({ r: 100, g: 100, b: 100 }, { r: 110, g: 110, b: 110 });
+    expect(ratio).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe('mix edge cases', () => {
+  it('returns first color for invalid first arg', () => {
+    expect(mix('invalid', '#0000ff', 50)).toBe('invalid');
+  });
+
+  it('uses default weight of 50', () => {
+    const result = mix('#000000', '#ffffff');
+    const rgb = hexToRgb(result)!;
+    expect(rgb.r).toBe(128);
+  });
+});
+
+describe('getContrastText edge cases', () => {
+  it('returns white for mid-dark gray', () => {
+    expect(getContrastText('#404040')).toBe('#ffffff');
+  });
+
+  it('returns black for mid-light gray', () => {
+    expect(getContrastText('#c0c0c0')).toBe('#000000');
+  });
 });

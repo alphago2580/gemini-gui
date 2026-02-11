@@ -137,5 +137,76 @@ describe('dateUtils', () => {
     it('truncates fractional seconds', () => {
       expect(formatDuration(90.7)).toBe('01:30');
     });
+
+    it('formats exact hour boundary', () => {
+      expect(formatDuration(3600)).toBe('01:00:00');
+    });
+  });
+
+  describe('timeAgo boundary cases', () => {
+    const NOW = 1704067200000;
+
+    it('returns 59분 전 at 59 minutes', () => {
+      expect(timeAgo(NOW - 59 * 60 * 1000, NOW)).toBe('59분 전');
+    });
+
+    it('returns 1시간 전 at exactly 60 minutes', () => {
+      expect(timeAgo(NOW - 60 * 60 * 1000, NOW)).toBe('1시간 전');
+    });
+
+    it('returns 23시간 전 at 23 hours', () => {
+      expect(timeAgo(NOW - 23 * 60 * 60 * 1000, NOW)).toBe('23시간 전');
+    });
+
+    it('returns 6일 전 at 6 days', () => {
+      expect(timeAgo(NOW - 6 * 24 * 60 * 60 * 1000, NOW)).toBe('6일 전');
+    });
+
+    it('returns 1주 전 at 7 days', () => {
+      expect(timeAgo(NOW - 7 * 24 * 60 * 60 * 1000, NOW)).toBe('1주 전');
+    });
+
+    it('returns 4주 전 at 28 days', () => {
+      expect(timeAgo(NOW - 28 * 24 * 60 * 60 * 1000, NOW)).toBe('4주 전');
+    });
+
+    it('returns months for 35+ days', () => {
+      expect(timeAgo(NOW - 35 * 24 * 60 * 60 * 1000, NOW)).toBe('1개월 전');
+    });
+
+    it('uses Date.now() when now is not provided', () => {
+      const result = timeAgo(Date.now() - 5000);
+      expect(result).toBe('방금');
+    });
+  });
+
+  describe('isSameDay edge cases', () => {
+    it('returns false for same day different year', () => {
+      const t1 = new Date(2023, 5, 15).getTime();
+      const t2 = new Date(2024, 5, 15).getTime();
+      expect(isSameDay(t1, t2)).toBe(false);
+    });
+
+    it('handles midnight boundary', () => {
+      const t1 = new Date(2024, 0, 15, 23, 59, 59).getTime();
+      const t2 = new Date(2024, 0, 15, 0, 0, 0).getTime();
+      expect(isSameDay(t1, t2)).toBe(true);
+    });
+  });
+
+  describe('formatDate edge cases', () => {
+    it('returns different strings for different dates', () => {
+      const d1 = formatDate(new Date(2024, 0, 1).getTime());
+      const d2 = formatDate(new Date(2024, 6, 15).getTime());
+      expect(d1).not.toBe(d2);
+    });
+  });
+
+  describe('formatTime edge cases', () => {
+    it('returns different strings for different times', () => {
+      const t1 = formatTime(new Date(2024, 0, 1, 9, 0).getTime());
+      const t2 = formatTime(new Date(2024, 0, 1, 21, 0).getTime());
+      expect(t1).not.toBe(t2);
+    });
   });
 });
