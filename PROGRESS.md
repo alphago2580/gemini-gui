@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5935+ tests)
+- **Test Status**: Passing (6077+ tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1424,3 +1424,25 @@
 - Added 8 tests for useEyeDropper (init, unsupported, pick-color, error, non-Error-thrown, unsupported-returns-null, reset, multi-pick)
 - Added 20 tests for priorityQueueUtils (empty, enqueue/peek, dequeue-order, empty-dequeue, single, duplicates, contains, clear, max-queue, object-queue, fromArray, toArray, clone, strings, stress-test)
 - Total tests: 5898 → 5935 (221 test files, all passing)
+
+### Agent 2 (Logic) — Hooks/Utils Batch 31: useVibration, useGamepad, observableUtils
+- Created `useVibration` hook for Vibration API:
+  - Vibrate with number or pattern (array of durations)
+  - Auto-stops isVibrating state after duration/pattern completes
+  - Manual stop(), isSupported detection, returns success boolean
+- Created `useGamepad` hook for Gamepad API:
+  - Polls connected gamepads via requestAnimationFrame
+  - Maps buttons (pressed, touched, value) and axes
+  - Responds to gamepadconnected/gamepaddisconnected events
+  - Configurable pollInterval, getGamepad(index) accessor
+- Created `observableUtils` utility with reactive Observable pattern:
+  - Observable base class with subscribe, next, complete, getValue, subscriberCount
+  - BehaviorSubject: emits current value to new subscribers
+  - ReplaySubject: replays buffered values to new subscribers (configurable buffer size)
+  - Operators: map, filter, scan, distinctUntilChanged, take, skip
+  - Combinators: merge, combineLatest
+  - Pipe support for chaining operators
+- Added 10 tests for useVibration
+- Added 12 tests for useGamepad
+- Added 24 tests for observableUtils
+- Total tests: 5935 → 6077 (223 test files, all passing)
