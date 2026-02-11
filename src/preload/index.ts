@@ -49,5 +49,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('export-markdown', content, defaultFileName),
 
   exportPdf: (htmlContent: string, defaultFileName: string) =>
-    ipcRenderer.invoke('export-pdf', htmlContent, defaultFileName)
+    ipcRenderer.invoke('export-pdf', htmlContent, defaultFileName),
+
+  // 알림 표시
+  showNotification: (title: string, body: string) =>
+    ipcRenderer.invoke('show-notification', title, body),
+
+  // 윈도우 포커스 상태 확인
+  isWindowFocused: () => ipcRenderer.invoke('is-window-focused'),
+
+  // 윈도우 타이틀 설정
+  setWindowTitle: (title: string) => ipcRenderer.invoke('set-window-title', title),
+
+  // 메뉴 액션 리스너
+  onMenuAction: (callback: (action: string) => void) => {
+    ipcRenderer.on('menu-action', (_event, action) => callback(action));
+  },
 });

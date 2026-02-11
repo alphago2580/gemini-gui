@@ -1,6 +1,5 @@
 import * as path from 'path';
 import { EventEmitter } from 'events';
-import { app } from 'electron';
 import { spawn, ChildProcess } from 'child_process';
 
 // Define Interface for PTY to allow mocking

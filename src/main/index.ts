@@ -176,7 +176,7 @@ function buildAppMenu(): void {
         { type: 'separator' },
         {
           label: 'Gemini CLI GitHub',
-          click: () => shell.openExternal('https://github.com/anthropics/claude-code'),
+          click: () => shell.openExternal('https://github.com/google-gemini/gemini-cli'),
         },
       ],
     },

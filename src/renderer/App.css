@@ -664,6 +664,8 @@
 .reaction-chip:hover {
   background: var(--bg-secondary);
   border-color: var(--accent-highlight);
+}
+
 /* Emoji reactions on messages */
 .message-reactions {
   display: flex;
