@@ -98,4 +98,69 @@ describe('useNotificationSound', () => {
       act(() => result.current.play());
     }).not.toThrow();
   });
+
+  it('play function is stable across rerenders', () => {
+    const { result, rerender } = renderHook(() => useNotificationSound(true));
+    const play1 = result.current.play;
+    rerender();
+    expect(result.current.play).toBe(play1);
+  });
+
+  it('oscillators connect to gain nodes', () => {
+    const { result } = renderHook(() => useNotificationSound(true));
+    act(() => result.current.play());
+    expect(mockOscillator.connect).toHaveBeenCalledWith(mockGain);
+  });
+
+  it('gain nodes connect to destination', () => {
+    const { result } = renderHook(() => useNotificationSound(true));
+    act(() => result.current.play());
+    expect(mockGain.connect).toHaveBeenCalledWith('dest');
+  });
+
+  it('sets gain values for volume envelope', () => {
+    const { result } = renderHook(() => useNotificationSound(true));
+    act(() => result.current.play());
+    expect(mockGain.gain.setValueAtTime).toHaveBeenCalled();
+    expect(mockGain.gain.exponentialRampToValueAtTime).toHaveBeenCalled();
+  });
+
+  it('enabled toggle from true to false stops playing', () => {
+    const { result, rerender } = renderHook(
+      ({ enabled }) => useNotificationSound(enabled),
+      { initialProps: { enabled: true } }
+    );
+
+    act(() => result.current.play());
+    expect(mockContext.createOscillator).toHaveBeenCalled();
+
+    mockContext.createOscillator.mockClear();
+    rerender({ enabled: false });
+
+    act(() => result.current.play());
+    expect(mockContext.createOscillator).not.toHaveBeenCalled();
+  });
+
+  it('uses sine wave type for oscillators', () => {
+    const types: string[] = [];
+    mockContext.createOscillator = vi.fn().mockImplementation(() => ({
+      set type(v: string) { types.push(v); },
+      get type() { return ''; },
+      frequency: { value: 0 },
+      connect: vi.fn(),
+      start: vi.fn(),
+      stop: vi.fn(),
+    }));
+
+    const { result } = renderHook(() => useNotificationSound(true));
+    act(() => result.current.play());
+    expect(types.every(t => t === 'sine')).toBe(true);
+    expect(types.length).toBe(2);
+  });
+
+  it('return shape contains only play function', () => {
+    const { result } = renderHook(() => useNotificationSound(true));
+    expect(Object.keys(result.current)).toEqual(['play']);
+    expect(typeof result.current.play).toBe('function');
+  });
 });

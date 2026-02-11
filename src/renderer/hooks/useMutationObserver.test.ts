@@ -100,4 +100,108 @@ describe('useMutationObserver', () => {
     expect(callback1).not.toHaveBeenCalled();
     expect(callback2).toHaveBeenCalledWith(fakeMutations);
   });
+
+  it('reconnects observer when options change', () => {
+    const target = document.createElement('div');
+    const ref = { current: target } as React.RefObject<HTMLElement>;
+    const callback = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ opts }) => useMutationObserver(ref, callback, opts),
+      { initialProps: { opts: { childList: true } as MutationObserverInit } }
+    );
+
+    expect(mockObserve).toHaveBeenCalledTimes(1);
+
+    rerender({ opts: { attributes: true } });
+
+    expect(mockDisconnect).toHaveBeenCalled();
+    expect(mockObserve).toHaveBeenCalledWith(target, { attributes: true });
+  });
+
+  it('handles multiple mutations in a single callback', () => {
+    const target = document.createElement('div');
+    const ref = { current: target } as React.RefObject<HTMLElement>;
+    const callback = vi.fn();
+
+    renderHook(() => useMutationObserver(ref, callback));
+
+    const fakeMutations = [
+      { type: 'childList' },
+      { type: 'attributes' },
+      { type: 'characterData' },
+    ] as unknown as MutationRecord[];
+    capturedCallback!(fakeMutations, {} as MutationObserver);
+
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith(fakeMutations);
+  });
+
+  it('disconnects on unmount preventing further callbacks', () => {
+    const target = document.createElement('div');
+    const ref = { current: target } as React.RefObject<HTMLElement>;
+    const callback = vi.fn();
+
+    const { unmount } = renderHook(() => useMutationObserver(ref, callback));
+    unmount();
+
+    expect(mockDisconnect).toHaveBeenCalledTimes(1);
+  });
+
+  it('observes with subtree and characterData options', () => {
+    const target = document.createElement('div');
+    const ref = { current: target } as React.RefObject<HTMLElement>;
+    const callback = vi.fn();
+    const options = { childList: true, subtree: true, characterData: true };
+
+    renderHook(() => useMutationObserver(ref, callback, options));
+
+    expect(mockObserve).toHaveBeenCalledWith(target, options);
+  });
+
+  it('does not observe when ref transitions from element to null', () => {
+    const target = document.createElement('div');
+    const ref = { current: target } as React.RefObject<HTMLElement | null>;
+    const callback = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ r }) => useMutationObserver(r, callback),
+      { initialProps: { r: ref } }
+    );
+
+    expect(mockObserve).toHaveBeenCalledTimes(1);
+
+    const nullRef = { current: null } as React.RefObject<HTMLElement | null>;
+    rerender({ r: nullRef });
+
+    expect(mockDisconnect).toHaveBeenCalled();
+  });
+
+  it('handles empty mutations array', () => {
+    const target = document.createElement('div');
+    const ref = { current: target } as React.RefObject<HTMLElement>;
+    const callback = vi.fn();
+
+    renderHook(() => useMutationObserver(ref, callback));
+
+    capturedCallback!([] as unknown as MutationRecord[], {} as MutationObserver);
+
+    expect(callback).toHaveBeenCalledWith([]);
+  });
+
+  it('creates new observer for each options change', () => {
+    const target = document.createElement('div');
+    const ref = { current: target } as React.RefObject<HTMLElement>;
+    const callback = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ opts }) => useMutationObserver(ref, callback, opts),
+      { initialProps: { opts: { childList: true } as MutationObserverInit } }
+    );
+
+    rerender({ opts: { childList: true, attributes: true } });
+    rerender({ opts: { childList: true, attributes: true, subtree: true } });
+
+    expect(mockObserve).toHaveBeenCalledTimes(3);
+  });
 });

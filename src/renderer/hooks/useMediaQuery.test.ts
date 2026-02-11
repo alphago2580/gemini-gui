@@ -91,4 +91,82 @@ describe('useMediaQuery', () => {
     const { result } = renderHook(() => useMediaQuery('(prefers-reduced-motion: reduce)'));
     expect(result.current).toBe(true);
   });
+
+  it('handles rapid true/false/true changes', () => {
+    matchesMap.set('(max-width: 600px)', false);
+    const { result } = renderHook(() => useMediaQuery('(max-width: 600px)'));
+    expect(result.current).toBe(false);
+
+    act(() => { fireChange('(max-width: 600px)', true); });
+    expect(result.current).toBe(true);
+
+    act(() => { fireChange('(max-width: 600px)', false); });
+    expect(result.current).toBe(false);
+
+    act(() => { fireChange('(max-width: 600px)', true); });
+    expect(result.current).toBe(true);
+  });
+
+  it('returns boolean type', () => {
+    const { result } = renderHook(() => useMediaQuery('(min-width: 0px)'));
+    expect(typeof result.current).toBe('boolean');
+  });
+
+  it('does not change when same match value fires again', () => {
+    matchesMap.set('(min-width: 500px)', true);
+    const { result } = renderHook(() => useMediaQuery('(min-width: 500px)'));
+    expect(result.current).toBe(true);
+
+    act(() => { fireChange('(min-width: 500px)', true); });
+    expect(result.current).toBe(true);
+  });
+
+  it('calls matchMedia with the correct query string', () => {
+    const query = '(orientation: portrait)';
+    matchesMap.set(query, false);
+    renderHook(() => useMediaQuery(query));
+    expect(window.matchMedia).toHaveBeenCalledWith(query);
+  });
+
+  it('handles query change from matching to non-matching', () => {
+    matchesMap.set('(min-width: 100px)', true);
+    matchesMap.set('(min-width: 2000px)', false);
+
+    const { result, rerender } = renderHook(
+      ({ q }) => useMediaQuery(q),
+      { initialProps: { q: '(min-width: 100px)' } }
+    );
+    expect(result.current).toBe(true);
+
+    rerender({ q: '(min-width: 2000px)' });
+    expect(result.current).toBe(false);
+  });
+
+  it('handles multiple different queries independently', () => {
+    matchesMap.set('(min-width: 768px)', true);
+    matchesMap.set('(prefers-color-scheme: dark)', false);
+
+    const { result: r1 } = renderHook(() => useMediaQuery('(min-width: 768px)'));
+    const { result: r2 } = renderHook(() => useMediaQuery('(prefers-color-scheme: dark)'));
+
+    expect(r1.current).toBe(true);
+    expect(r2.current).toBe(false);
+  });
+
+  it('removes listener for old query on query change', () => {
+    matchesMap.set('(min-width: 500px)', false);
+    matchesMap.set('(min-width: 800px)', false);
+
+    const { rerender } = renderHook(
+      ({ q }) => useMediaQuery(q),
+      { initialProps: { q: '(min-width: 500px)' } }
+    );
+
+    const firstResults = (window.matchMedia as ReturnType<typeof vi.fn>).mock.results;
+    const firstMql = firstResults[firstResults.length - 1].value;
+
+    rerender({ q: '(min-width: 800px)' });
+
+    expect(firstMql.removeEventListener).toHaveBeenCalledWith('change', expect.any(Function));
+  });
 });

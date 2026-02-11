@@ -93,4 +93,138 @@ describe('useOnClickOutside', () => {
     expect(handler2).toHaveBeenCalledTimes(1);
     document.body.removeChild(div);
   });
+
+  it('resubscribes when active changes from false to true', () => {
+    const handler = vi.fn();
+    const { result, rerender } = renderHook(
+      ({ active }) => useOnClickOutside<HTMLDivElement>(handler, active),
+      { initialProps: { active: false } }
+    );
+
+    const div = document.createElement('div');
+    document.body.appendChild(div);
+    (result.current as { current: HTMLDivElement | null }).current = div;
+
+    act(() => {
+      document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+    expect(handler).not.toHaveBeenCalled();
+
+    rerender({ active: true });
+
+    act(() => {
+      document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+    expect(handler).toHaveBeenCalledTimes(1);
+
+    document.body.removeChild(div);
+  });
+
+  it('does not call handler when clicking directly on the element itself', () => {
+    const handler = vi.fn();
+    const { result } = renderHook(() => useOnClickOutside<HTMLDivElement>(handler));
+
+    const div = document.createElement('div');
+    document.body.appendChild(div);
+    (result.current as { current: HTMLDivElement | null }).current = div;
+
+    act(() => {
+      div.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+
+    expect(handler).not.toHaveBeenCalled();
+    document.body.removeChild(div);
+  });
+
+  it('does not call handler when clicking on a deeply nested child', () => {
+    const handler = vi.fn();
+    const { result } = renderHook(() => useOnClickOutside<HTMLDivElement>(handler));
+
+    const div = document.createElement('div');
+    const child1 = document.createElement('div');
+    const child2 = document.createElement('span');
+    child1.appendChild(child2);
+    div.appendChild(child1);
+    document.body.appendChild(div);
+    (result.current as { current: HTMLDivElement | null }).current = div;
+
+    act(() => {
+      child2.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+
+    expect(handler).not.toHaveBeenCalled();
+    document.body.removeChild(div);
+  });
+
+  it('stops firing when active switches from true to false', () => {
+    const handler = vi.fn();
+    const { result, rerender } = renderHook(
+      ({ active }) => useOnClickOutside<HTMLDivElement>(handler, active),
+      { initialProps: { active: true } }
+    );
+
+    const div = document.createElement('div');
+    document.body.appendChild(div);
+    (result.current as { current: HTMLDivElement | null }).current = div;
+
+    act(() => {
+      document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+    expect(handler).toHaveBeenCalledTimes(1);
+
+    rerender({ active: false });
+
+    act(() => {
+      document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+    expect(handler).toHaveBeenCalledTimes(1);
+
+    document.body.removeChild(div);
+  });
+
+  it('default active parameter is true', () => {
+    const handler = vi.fn();
+    const { result } = renderHook(() => useOnClickOutside<HTMLDivElement>(handler));
+
+    const div = document.createElement('div');
+    document.body.appendChild(div);
+    (result.current as { current: HTMLDivElement | null }).current = div;
+
+    act(() => {
+      document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    document.body.removeChild(div);
+  });
+
+  it('ref is stable across rerenders', () => {
+    const handler = vi.fn();
+    const { result, rerender } = renderHook(() => useOnClickOutside<HTMLDivElement>(handler));
+    const ref1 = result.current;
+    rerender();
+    expect(result.current).toBe(ref1);
+  });
+
+  it('handles multiple outside clicks', () => {
+    const handler = vi.fn();
+    const { result } = renderHook(() => useOnClickOutside<HTMLDivElement>(handler));
+
+    const div = document.createElement('div');
+    document.body.appendChild(div);
+    (result.current as { current: HTMLDivElement | null }).current = div;
+
+    act(() => {
+      document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+    act(() => {
+      document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+    act(() => {
+      document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+
+    expect(handler).toHaveBeenCalledTimes(3);
+    document.body.removeChild(div);
+  });
 });
