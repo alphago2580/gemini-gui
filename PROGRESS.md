@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2590 tests)
+- **Test Status**: Passing (2594 tests)
 - **Last Agent Run**: Agent 4 (Integrator)
 
 ## Completed Features
@@ -643,3 +643,10 @@
 - Updated 5 existing search tests to use `waitFor` for debounced assertions
 - Added 1 test verifying debounce behavior (immediate input, delayed filter)
 - Total tests: 2589 → 2590 (128 test files, all passing)
+
+### Agent 4 (Integrator) — Integrate Chip for Reactions + Divider for Settings
+- Replaced manual `message-reaction-badge` span with `Chip` component for emoji reactions in App.tsx
+- Integrated `Divider` component into Settings dialog — adds labeled section separators (외관, 알림 및 표시, 모델 설정) between setting groups
+- Added 3 string constants for Settings section labels (`SETTINGS_SECTION_APPEARANCE`, `SETTINGS_SECTION_NOTIFICATIONS`, `SETTINGS_SECTION_MODEL`)
+- Added 4 unit tests for Settings Divider (section labels, separator roles)
+- Total tests: 2590 → 2594 (128 test files, all passing)
