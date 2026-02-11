@@ -1,0 +1,97 @@
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  outline: none;
+}
+
+.rating:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.rating--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rating--readonly {
+  cursor: default;
+}
+
+.rating-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.rating-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary, #666);
+  transition: color 0.15s ease, transform 0.15s ease;
+  user-select: none;
+  line-height: 1;
+}
+
+.rating-star--filled {
+  color: var(--warning-color, #f5a623);
+}
+
+.rating-star--interactive {
+  cursor: pointer;
+}
+
+.rating-star--interactive:hover {
+  transform: scale(1.15);
+}
+
+/* Half star */
+.rating-star-half-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rating-star-half-filled {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  width: 50%;
+  color: var(--warning-color, #f5a623);
+}
+
+.rating-star-half-empty {
+  color: var(--text-tertiary, #666);
+}
+
+/* Sizes */
+.rating--small .rating-star {
+  font-size: 16px;
+}
+
+.rating--medium .rating-star {
+  font-size: 22px;
+}
+
+.rating--large .rating-star {
+  font-size: 30px;
+}
+
+/* Label */
+.rating-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.rating--small .rating-label {
+  font-size: 12px;
+}
+
+.rating--large .rating-label {
+  font-size: 16px;
+}
