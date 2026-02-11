@@ -334,7 +334,7 @@ describe('App Component', () => {
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
             await user.type(input, 'Hello');
             await user.click(screen.getByText('전송'));
-            const loadingEl = screen.getByRole('status');
+            const loadingEl = screen.getByRole('status', { name: '응답 생성 중' });
             expect(loadingEl).toHaveAttribute('aria-label', '응답 생성 중');
         });
 
@@ -495,7 +495,7 @@ describe('App Component', () => {
             expect(screen.getByText('Clear')).toBeInTheDocument();
         });
 
-        it('clears all messages when clear button is clicked', async () => {
+        it('clears all messages when clear button is clicked and confirmed', async () => {
             const user = userEvent.setup();
             render(<App />);
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
@@ -504,6 +504,11 @@ describe('App Component', () => {
             expect(screen.getByText('Message to clear')).toBeInTheDocument();
 
             await user.click(screen.getByText('Clear'));
+            // Confirm dialog should appear
+            expect(screen.getByRole('dialog')).toBeInTheDocument();
+            expect(screen.getByText('대화 지우기')).toBeInTheDocument();
+            // Click confirm
+            await user.click(screen.getByRole('button', { name: '확인' }));
             expect(screen.queryByText('Message to clear')).not.toBeInTheDocument();
             expect(screen.getByText('Gemini에 오신 것을 환영합니다!')).toBeInTheDocument();
         });
@@ -667,7 +672,7 @@ describe('App Component', () => {
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
             await user.type(input, 'Hello');
             await user.click(screen.getByText('전송'));
-            const statusEl = screen.getByRole('status');
+            const statusEl = screen.getByRole('status', { name: '응답 생성 중' });
             expect(statusEl).toHaveAttribute('aria-label', '응답 생성 중');
         });
 
@@ -1151,7 +1156,7 @@ describe('App Component', () => {
             expect(screen.getByRole('button', { name: /대화 삭제:/ })).toBeInTheDocument();
         });
 
-        it('removes conversation from sidebar when delete is clicked', async () => {
+        it('removes conversation from sidebar when delete is clicked and confirmed', async () => {
             const user = userEvent.setup();
             render(<App />);
 
@@ -1171,11 +1176,15 @@ describe('App Component', () => {
             const deleteButtons = screen.getAllByRole('button', { name: /대화 삭제:/ });
             await user.click(deleteButtons[1]); // second in DOM = older conversation
 
+            // Confirm dialog should appear
+            expect(screen.getByText('대화 삭제')).toBeInTheDocument();
+            await user.click(screen.getByRole('button', { name: '확인' }));
+
             const remainingItems = screen.getAllByRole('listitem').filter(item => item.classList.contains('conversation-item'));
             expect(remainingItems).toHaveLength(1);
         });
 
-        it('clears messages when deleting the current conversation', async () => {
+        it('clears messages when deleting the current conversation and confirmed', async () => {
             const user = userEvent.setup();
             render(<App />);
 
@@ -1192,6 +1201,10 @@ describe('App Component', () => {
             // Delete the current conversation
             const deleteBtn = screen.getByRole('button', { name: /대화 삭제:/ });
             await user.click(deleteBtn);
+
+            // Confirm dialog should appear
+            expect(screen.getByText('대화 삭제')).toBeInTheDocument();
+            await user.click(screen.getByRole('button', { name: '확인' }));
 
             // Messages should be cleared and welcome message should appear
             expect(screen.queryByRole('article')).not.toBeInTheDocument();
@@ -1914,6 +1927,126 @@ describe('App Component', () => {
             await user.click(previewOption);
 
             expect(screen.getByLabelText('입력 미리보기')).toBeInTheDocument();
+        });
+    });
+
+    describe('Skeleton Loading Placeholder', () => {
+        it('shows skeleton placeholder when loading and not yet streaming', async () => {
+            const user = userEvent.setup();
+            const { container } = render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+            expect(container.querySelector('.skeleton-loading-placeholder')).toBeInTheDocument();
+        });
+
+        it('hides skeleton placeholder once streaming starts', async () => {
+            const callbacks = setupStreamCallbacks();
+            const user = userEvent.setup();
+            const { container } = render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            expect(container.querySelector('.skeleton-loading-placeholder')).toBeInTheDocument();
+
+            // Simulate streaming data
+            await act(() => {
+                if (callbacks.streamData) {
+                    callbacks.streamData({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Hi',
+                        delta: true,
+                    });
+                }
+            });
+
+            expect(container.querySelector('.skeleton-loading-placeholder')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('ConfirmDialog Integration', () => {
+        it('shows confirm dialog when clear is clicked', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            await user.click(screen.getByText('Clear'));
+            expect(screen.getByText('모든 메시지가 삭제됩니다. 계속하시겠습니까?')).toBeInTheDocument();
+        });
+
+        it('does not clear when cancel is clicked in confirm dialog', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Keep this message');
+            await user.click(screen.getByText('전송'));
+
+            await user.click(screen.getByText('Clear'));
+            // Cancel the dialog
+            await user.click(screen.getByRole('button', { name: '취소' }));
+
+            // Message should still be present
+            expect(screen.getByText('Keep this message')).toBeInTheDocument();
+        });
+
+        it('shows confirm dialog when deleting a conversation', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            await user.click(screen.getByText('새 대화'));
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            const deleteBtn = screen.getByRole('button', { name: /대화 삭제:/ });
+            await user.click(deleteBtn);
+
+            expect(screen.getByText('대화 삭제')).toBeInTheDocument();
+            expect(screen.getByText(/대화를 삭제하시겠습니까/)).toBeInTheDocument();
+        });
+
+        it('does not delete conversation when cancel is clicked', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            await user.click(screen.getByText('새 대화'));
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Keep this');
+            await user.click(screen.getByText('전송'));
+
+            const deleteBtn = screen.getByRole('button', { name: /대화 삭제:/ });
+            await user.click(deleteBtn);
+            await user.click(screen.getByRole('button', { name: '취소' }));
+
+            // Conversation should still exist
+            expect(screen.getByRole('button', { name: /대화 삭제:/ })).toBeInTheDocument();
+        });
+    });
+
+    describe('Badge in Sidebar', () => {
+        it('renders Badge component for message count in sidebar', () => {
+            const savedConversations = [
+                {
+                    id: '1000',
+                    title: 'Badge Test',
+                    timestamp: new Date().toISOString(),
+                    messages: [
+                        { role: 'user', content: 'Hello', timestamp: new Date().toISOString() },
+                        { role: 'assistant', content: 'Hi', timestamp: new Date().toISOString() },
+                        { role: 'user', content: 'How?', timestamp: new Date().toISOString() },
+                    ],
+                },
+            ];
+            localStorage.setItem('gemini-conversations', JSON.stringify(savedConversations));
+            localStorage.setItem('gemini-current-conversation', '1000');
+
+            render(<App />);
+            // Badge should show message count "3"
+            const badges = screen.getAllByRole('status');
+            const countBadge = badges.find(b => b.textContent === '3');
+            expect(countBadge).toBeTruthy();
         });
     });
 });
