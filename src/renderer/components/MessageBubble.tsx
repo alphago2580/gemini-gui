@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
 import EmojiReactionPicker from './EmojiReactionPicker';
+import UserAvatar from './UserAvatar';
 import './MessageBubble.css';
 import type { Message } from '../../preload/types';
 import type { ReactionMap } from '../hooks/useReactions';
@@ -67,6 +68,7 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
       aria-label={message.role === 'user' ? S.USER_MESSAGE : S.ASSISTANT_MESSAGE}
     >
       <div className="message-header">
+        <UserAvatar role={message.role === 'user' ? 'user' : 'assistant'} size="small" />
         <span className="role">{roleLabel}</span>
         {showTimestamps && (
           <span className="timestamp">{message.timestamp.toLocaleTimeString()}</span>

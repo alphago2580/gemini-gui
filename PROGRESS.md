@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (3966 tests)
-- **Last Agent Run**: Agent 2 (Logic)
+- **Test Status**: Passing (3972+ tests)
+- **Last Agent Run**: Agent 4 (Integrator)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -966,3 +966,15 @@
 - Added 12 tests for useSticky (init isSticky, init scrollY, sentinelRef, not intersecting, intersecting, scrollY tracking, disabled, reset on disable, offset rootMargin, scroll cleanup, disconnect, default offset)
 - Added 34 tests for rateLimitUtils (Fixed: allow, block, window reset, remaining, reset, retryAfter zero, retryAfter positive; Sliding: allow, block, expire, remaining, reset, retryAfter zero, retryAfter ms, partial expiry; Token: full capacity, consume, reject, refill, max cap, multi-consume, reject multi, reset, retryAfter zero, retryAfter time, refill rate; Leaky: accept, reject, leak, queue size, queue decrease, no negative, reset, leak rate)
 - Total tests: 3752 → 3966 (155 test files, all passing)
+
+### Agent 4 (Integrator) — Integrate UserAvatar, NotificationBanner, Accordion
+- Added `UserAvatar` component to `MessageBubble` — each message now displays a role-specific avatar (👤 for user, ✦ for assistant)
+- Integrated `NotificationBanner` into App.tsx — shows error banner when `sessionStatus` is 'error' (connection failures)
+  - Banner includes retry action button and is dismissible
+  - Wired to `useStreamHandler`'s `sessionStatus` state
+- Integrated `Accordion` into Settings dialog — wraps temperature, maxTokens, and fontSize controls
+  - Advanced settings collapsible via accordion (expanded by default)
+  - Replaced inline sliders with Accordion item for cleaner organization
+- Added 6 string constants: `BANNER_CONNECTION_ERROR`, `BANNER_RETRY`, `SETTINGS_SECTION_GENERAL`, `SETTINGS_SECTION_ADVANCED`
+- Added 6 new integration tests: UserAvatar rendering for user/assistant, NotificationBanner visibility, session error banner, Accordion in settings, accordion expand
+- Total tests: 3966 → 3972+ (157 test files, all passing)
