@@ -206,4 +206,104 @@ describe('Tooltip', () => {
     expect(arrow).toBeInTheDocument();
     expect(arrow).toHaveAttribute('aria-hidden', 'true');
   });
+
+  it('tooltip has tooltip-wrapper CSS class', () => {
+    const { container } = render(
+      <Tooltip content="test">
+        <span>child</span>
+      </Tooltip>
+    );
+    expect(container.querySelector('.tooltip-wrapper')).toBeInTheDocument();
+  });
+
+  it('tooltip content matches text', () => {
+    render(
+      <Tooltip content="특별한 내용">
+        <button>버튼</button>
+      </Tooltip>
+    );
+    const wrapper = screen.getByText('버튼').parentElement!;
+    fireEvent.mouseEnter(wrapper);
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(screen.getByRole('tooltip').textContent).toContain('특별한 내용');
+  });
+
+  it('tooltip arrow is a span element', () => {
+    const { container } = render(
+      <Tooltip content="test">
+        <span>child</span>
+      </Tooltip>
+    );
+    fireEvent.mouseEnter(container.querySelector('.tooltip-wrapper')!);
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    const arrow = container.querySelector('.tooltip-arrow');
+    expect(arrow?.tagName).toBe('SPAN');
+  });
+
+  it('re-entering before delay does not show duplicate tooltips', () => {
+    const { container } = render(
+      <Tooltip content="test">
+        <span>child</span>
+      </Tooltip>
+    );
+    const wrapper = container.querySelector('.tooltip-wrapper')!;
+
+    // Enter, leave quickly, enter again
+    fireEvent.mouseEnter(wrapper);
+    act(() => { vi.advanceTimersByTime(100); });
+    fireEvent.mouseLeave(wrapper);
+    fireEvent.mouseEnter(wrapper);
+    act(() => { vi.advanceTimersByTime(300); });
+
+    const tooltips = container.querySelectorAll('.tooltip');
+    expect(tooltips.length).toBe(1);
+  });
+
+  it('hide clears timer on mouse leave before show', () => {
+    const clearSpy = vi.spyOn(global, 'clearTimeout');
+    const { container } = render(
+      <Tooltip content="test">
+        <span>child</span>
+      </Tooltip>
+    );
+    const wrapper = container.querySelector('.tooltip-wrapper')!;
+
+    fireEvent.mouseEnter(wrapper);
+    fireEvent.mouseLeave(wrapper);
+
+    expect(clearSpy).toHaveBeenCalled();
+    clearSpy.mockRestore();
+  });
+
+  it('focus then blur hides tooltip', () => {
+    const { container } = render(
+      <Tooltip content="test">
+        <button>btn</button>
+      </Tooltip>
+    );
+    const wrapper = container.querySelector('.tooltip-wrapper')!;
+
+    fireEvent.focus(wrapper);
+    act(() => { vi.advanceTimersByTime(300); });
+    expect(container.querySelector('.tooltip')).toBeInTheDocument();
+
+    fireEvent.blur(wrapper);
+    expect(container.querySelector('.tooltip')).not.toBeInTheDocument();
+  });
+
+  it('renders children of different types', () => {
+    render(
+      <Tooltip content="info">
+        <div data-testid="custom-child">
+          <span>nested</span>
+        </div>
+      </Tooltip>
+    );
+    expect(screen.getByTestId('custom-child')).toBeInTheDocument();
+    expect(screen.getByText('nested')).toBeInTheDocument();
+  });
 });

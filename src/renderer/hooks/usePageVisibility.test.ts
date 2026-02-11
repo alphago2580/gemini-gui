@@ -152,4 +152,85 @@ describe('usePageVisibility', () => {
     expect(onVisible).toHaveBeenCalledTimes(2);
     expect(result.current.isVisible).toBe(true);
   });
+
+  it('returns all four fields in result shape', () => {
+    const { result } = renderHook(() => usePageVisibility());
+    expect(result.current).toHaveProperty('isVisible');
+    expect(result.current).toHaveProperty('lastVisibleTime');
+    expect(result.current).toHaveProperty('lastHiddenTime');
+    expect(result.current).toHaveProperty('hiddenDuration');
+  });
+
+  it('hiddenDuration is zero before any hide', () => {
+    const { result } = renderHook(() => usePageVisibility());
+    expect(result.current.hiddenDuration).toBe(0);
+  });
+
+  it('lastHiddenTime updates on each hide', () => {
+    const { result } = renderHook(() => usePageVisibility());
+
+    vi.setSystemTime(new Date(2000));
+    act(() => { triggerVisibilityChange(true); });
+    const firstHidden = result.current.lastHiddenTime;
+
+    vi.setSystemTime(new Date(3000));
+    act(() => { triggerVisibilityChange(false); });
+    vi.setSystemTime(new Date(5000));
+    act(() => { triggerVisibilityChange(true); });
+    const secondHidden = result.current.lastHiddenTime;
+
+    expect(firstHidden).toBe(2000);
+    expect(secondHidden).not.toBe(firstHidden);
+  });
+
+  it('hiddenDuration accumulates only latest hide period', () => {
+    const { result } = renderHook(() => usePageVisibility());
+
+    // First hide: 1000ms
+    vi.setSystemTime(new Date(1000));
+    act(() => { triggerVisibilityChange(true); });
+    vi.setSystemTime(new Date(2000));
+    act(() => { triggerVisibilityChange(false); });
+    expect(result.current.hiddenDuration).toBe(1000);
+
+    // Second hide: 3000ms
+    vi.setSystemTime(new Date(5000));
+    act(() => { triggerVisibilityChange(true); });
+    vi.setSystemTime(new Date(8000));
+    act(() => { triggerVisibilityChange(false); });
+    expect(result.current.hiddenDuration).toBe(3000);
+  });
+
+  it('works with no options provided', () => {
+    const { result } = renderHook(() => usePageVisibility());
+
+    act(() => { triggerVisibilityChange(true); });
+    act(() => { triggerVisibilityChange(false); });
+
+    expect(result.current.isVisible).toBe(true);
+  });
+
+  it('onHidden not called when page becomes visible', () => {
+    const onHidden = vi.fn();
+    renderHook(() => usePageVisibility({ onHidden }));
+
+    act(() => { triggerVisibilityChange(false); });
+
+    expect(onHidden).not.toHaveBeenCalled();
+  });
+
+  it('onVisible not called when page becomes hidden', () => {
+    const onVisible = vi.fn();
+    renderHook(() => usePageVisibility({ onVisible }));
+
+    act(() => { triggerVisibilityChange(true); });
+
+    expect(onVisible).not.toHaveBeenCalled();
+  });
+
+  it('lastVisibleTime is null before first visible event', () => {
+    hiddenValue = true;
+    const { result } = renderHook(() => usePageVisibility());
+    expect(result.current.lastVisibleTime).toBeNull();
+  });
 });

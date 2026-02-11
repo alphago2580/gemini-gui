@@ -147,4 +147,107 @@ describe('useClipboard', () => {
     rerender();
     expect(result.current.copy).toBe(firstCopy);
   });
+
+  it('copies empty string successfully', async () => {
+    const { result } = renderHook(() => useClipboard());
+    await act(async () => {
+      const success = await result.current.copy('');
+      expect(success).toBe(true);
+    });
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('');
+    expect(result.current.copied).toBe(true);
+  });
+
+  it('copies string with special characters', async () => {
+    const { result } = renderHook(() => useClipboard());
+    const specialText = '<script>alert("xss")</script>';
+    await act(async () => {
+      await result.current.copy(specialText);
+    });
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(specialText);
+  });
+
+  it('copies multiline text', async () => {
+    const { result } = renderHook(() => useClipboard());
+    const multiline = 'line 1\nline 2\nline 3';
+    await act(async () => {
+      const success = await result.current.copy(multiline);
+      expect(success).toBe(true);
+    });
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(multiline);
+  });
+
+  it('copied stays false before delay even after success', async () => {
+    const { result } = renderHook(() => useClipboard(5000));
+    await act(async () => {
+      await result.current.copy('test');
+    });
+    expect(result.current.copied).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(4999);
+    });
+    expect(result.current.copied).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(result.current.copied).toBe(false);
+  });
+
+  it('error is cleared on next successful copy', async () => {
+    (navigator.clipboard.writeText as ReturnType<typeof vi.fn>)
+      .mockRejectedValueOnce(new Error('first fail'));
+
+    const { result } = renderHook(() => useClipboard());
+
+    await act(async () => {
+      await result.current.copy('fail');
+    });
+    expect(result.current.error).toBe('first fail');
+
+    (navigator.clipboard.writeText as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce(undefined);
+
+    await act(async () => {
+      await result.current.copy('success');
+    });
+    expect(result.current.error).toBeNull();
+    expect(result.current.copied).toBe(true);
+  });
+
+  it('multiple rapid copies only keeps last timer', async () => {
+    const { result } = renderHook(() => useClipboard(300));
+
+    await act(async () => {
+      await result.current.copy('a');
+    });
+    await act(async () => {
+      await result.current.copy('b');
+    });
+    await act(async () => {
+      await result.current.copy('c');
+    });
+
+    expect(result.current.copied).toBe(true);
+
+    // After 300ms from last copy, it resets
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(result.current.copied).toBe(false);
+  });
+
+  it('zero delay resets copied immediately', async () => {
+    const { result } = renderHook(() => useClipboard(0));
+    await act(async () => {
+      await result.current.copy('test');
+    });
+    expect(result.current.copied).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
+    expect(result.current.copied).toBe(false);
+  });
 });

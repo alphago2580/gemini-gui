@@ -152,4 +152,92 @@ describe('useThrottle', () => {
     act(() => { vi.advanceTimersByTime(200); });
     expect(result.current).toBe('c');
   });
+
+  it('handles null value', () => {
+    const { result, rerender } = renderHook(
+      ({ value }) => useThrottle(value, 200),
+      { initialProps: { value: null as string | null } }
+    );
+    expect(result.current).toBeNull();
+
+    act(() => { vi.advanceTimersByTime(200); });
+    rerender({ value: 'hello' });
+    expect(result.current).toBe('hello');
+  });
+
+  it('handles undefined value', () => {
+    const { result } = renderHook(() => useThrottle(undefined, 100));
+    expect(result.current).toBeUndefined();
+  });
+
+  it('handles boolean values', () => {
+    const { result, rerender } = renderHook(
+      ({ value }) => useThrottle(value, 200),
+      { initialProps: { value: false } }
+    );
+    expect(result.current).toBe(false);
+
+    act(() => { vi.advanceTimersByTime(200); });
+    rerender({ value: true });
+    expect(result.current).toBe(true);
+  });
+
+  it('handles array values', () => {
+    const { result, rerender } = renderHook(
+      ({ value }) => useThrottle(value, 200),
+      { initialProps: { value: [1, 2, 3] } }
+    );
+    expect(result.current).toEqual([1, 2, 3]);
+
+    rerender({ value: [4, 5] });
+    expect(result.current).toEqual([1, 2, 3]);
+
+    act(() => { vi.advanceTimersByTime(200); });
+    expect(result.current).toEqual([4, 5]);
+  });
+
+  it('does not fire timer after unmount', () => {
+    const { result, rerender, unmount } = renderHook(
+      ({ value }) => useThrottle(value, 300),
+      { initialProps: { value: 'a' } }
+    );
+
+    rerender({ value: 'b' });
+    unmount();
+
+    // Timer fires but no crash
+    act(() => { vi.advanceTimersByTime(300); });
+    expect(result.current).toBe('a');
+  });
+
+  it('immediate update after full delay cycle', () => {
+    const { result, rerender } = renderHook(
+      ({ value }) => useThrottle(value, 100),
+      { initialProps: { value: 'x' } }
+    );
+
+    // Wait full cycle
+    act(() => { vi.advanceTimersByTime(100); });
+    rerender({ value: 'y' });
+    // Should update immediately since elapsed >= delay
+    expect(result.current).toBe('y');
+
+    // Wait full cycle again
+    act(() => { vi.advanceTimersByTime(100); });
+    rerender({ value: 'z' });
+    expect(result.current).toBe('z');
+  });
+
+  it('handles very large delay', () => {
+    const { result, rerender } = renderHook(
+      ({ value }) => useThrottle(value, 999999),
+      { initialProps: { value: 'start' } }
+    );
+
+    rerender({ value: 'middle' });
+    expect(result.current).toBe('start');
+
+    act(() => { vi.advanceTimersByTime(999999); });
+    expect(result.current).toBe('middle');
+  });
 });
