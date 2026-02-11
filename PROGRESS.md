@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (6077+ tests)
+- **Test Status**: Passing (6157+ tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1458,3 +1458,23 @@
 - Added 12 tests for useGamepad
 - Added 24 tests for observableUtils
 - Total tests: 6031 → 6077 (223 test files, all passing)
+
+### Agent 2 (Logic) — Hooks/Utils Batch 32: useClipboardHistory, usePointerLock, finiteStateMachineUtils
+- Created `useClipboardHistory` hook for clipboard history management:
+  - Add/remove/clear entries, copy from history back to clipboard
+  - Deduplication (moves existing text to top), maxItems limit
+  - Entries have unique IDs and timestamps, latest accessor
+- Created `usePointerLock` hook for Pointer Lock API:
+  - Lock on element or document.body, unlock, movement tracking (movementX/Y)
+  - Error handling for lock failures, isSupported detection
+  - Responds to pointerlockchange/pointerlockerror events
+- Created `finiteStateMachineUtils` utility with FiniteStateMachine class:
+  - Configurable states, events, transitions with string or object config
+  - Guards (conditional transitions), actions (side effects on transition)
+  - onEnter/onExit state lifecycle handlers
+  - Transition listeners, state history tracking
+  - can() event availability check, getAvailableEvents(), matches(), reset()
+- Added 13 tests for useClipboardHistory
+- Added 11 tests for usePointerLock
+- Added 19 tests for finiteStateMachineUtils
+- Total tests: 6077 → 6157 (227 test files, all passing)
