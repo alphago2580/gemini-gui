@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (3558 tests)
+- **Test Status**: Passing (3818 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -898,3 +898,14 @@
 - **urlUtils.test.ts**: Added 8 tests — data URI valid, subdomain extraction, double extension, duplicate query params, overwrite existing param, stripQueryParams fragment, file protocol, multiple URLs per line
 - **cryptoUtils.test.ts**: Added 8 tests — single byte hex, randomInt variety, similar string different hashes, SHA256 Unicode, base64 valid chars, shortId uniqueness, single char difference, hue determinism range
 - Total tests: 3494 → 3558 (143 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 17 (+63 tests)
+- **useWebSocket.test.ts**: Added 7 tests — stable disconnect ref, reconnect timer clear on disconnect, null url no connect, multiple messages order, latest message overwrite, url change closes previous, reconnectCount reset on disconnect
+- **useAnimationFrame.test.ts**: Added 8 tests — fps 0 before frame, fps reset on restart, stop safe when not running, elapsed 0 after first frame, correct elapsed multi-frame, delta 0 first frame, frame scheduling, cancel after stop
+- **AvatarGroup.test.tsx**: Added 8 tests — small size dimensions, large size dimensions, overflow z-index 0, overflow class, item class count, different name colors, aria-label per avatar, max=0 shows only overflow
+- **numberUtils.test.ts**: Added 8 tests — clamp negative range, clamp at exact min, clamp at exact max, formatBytes TB, fractional MB, roundTo 1 decimal, roundTo negative, lerp negative t
+- **GeminiProcess.test.ts**: Added 8 tests — always --yolo flag, always --output-format stream-json, multi-JSON chunk, node executable, cwd passthrough, restart after stop, non-JSON { without }, buffer accumulation
+- **useFormValidation.test.ts**: Added 8 tests — maxLength custom msg, pattern default msg, minValue custom msg, maxValue custom msg, minValue exact boundary, maxValue exact boundary, minLength exact boundary, maxLength exact boundary
+- **Carousel.test.tsx**: Added 8 tests — unrelated key no-op, Home no-op at first, End no-op at last, indicator click current no-op, autoPlay=false no advance, empty custom label, viewport exists, slide label "2 / 3"
+- **Rating.test.tsx**: Added 8 tests — no aria-disabled when interactive, no aria-readonly when interactive, no label text without prop, half container element, half filled/empty icons, ArrowDown half step, max=3 star count, no-clear without allowClear
+- Total tests: 3755 → 3818 (148 test files, all passing)
