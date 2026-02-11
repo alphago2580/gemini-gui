@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import './Sidebar.css';
 import * as S from '../constants/strings';
 import type { Conversation } from '../../preload/types';
+import { useDebounce } from '../hooks/useDebounce';
 
 export interface SidebarProps {
   onNewChat: () => void;
@@ -27,10 +28,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 200);
 
   const filteredConversations = useMemo(() => {
-    if (!searchQuery.trim()) return conversations;
-    const query = searchQuery.toLowerCase();
+    if (!debouncedSearchQuery.trim()) return conversations;
+    const query = debouncedSearchQuery.toLowerCase();
     return conversations.filter(conv => {
       if (conv.title.toLowerCase().includes(query)) return true;
       if (conv.messages) {
@@ -38,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       }
       return false;
     });
-  }, [conversations, searchQuery]);
+  }, [conversations, debouncedSearchQuery]);
 
   return (
     <nav className={`sidebar ${isCollapsed ? 'collapsed' : ''}`} aria-label={S.SIDEBAR_LABEL}>
@@ -81,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <h3>{S.CONVERSATION_HISTORY}</h3>
             {filteredConversations.length === 0 ? (
               <div className="empty-state" role="listitem">
-                {searchQuery.trim() ? S.NO_SEARCH_RESULTS : S.NO_CONVERSATIONS}
+                {debouncedSearchQuery.trim() ? S.NO_SEARCH_RESULTS : S.NO_CONVERSATIONS}
               </div>
             ) : (
               filteredConversations.map(conv => (

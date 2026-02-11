@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import Sidebar from './Sidebar';
@@ -337,9 +337,11 @@ describe('Sidebar', () => {
       render(<Sidebar {...defaultProps} conversations={mockConversations} />);
       const searchInput = screen.getByPlaceholderText('대화 검색...');
       await user.type(searchInput, '첫 번째');
-      expect(screen.getByText('첫 번째 대화')).toBeInTheDocument();
-      expect(screen.queryByText('두 번째 대화')).not.toBeInTheDocument();
-      expect(screen.queryByText('세 번째 대화')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('첫 번째 대화')).toBeInTheDocument();
+        expect(screen.queryByText('두 번째 대화')).not.toBeInTheDocument();
+        expect(screen.queryByText('세 번째 대화')).not.toBeInTheDocument();
+      });
     });
 
     it('filters conversations by message content', async () => {
@@ -347,9 +349,11 @@ describe('Sidebar', () => {
       render(<Sidebar {...defaultProps} conversations={mockConversationsWithMessages} />);
       const searchInput = screen.getByPlaceholderText('대화 검색...');
       await user.type(searchInput, 'React');
-      expect(screen.getByText('React 관련')).toBeInTheDocument();
-      expect(screen.queryByText('인사')).not.toBeInTheDocument();
-      expect(screen.queryByText('질문')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('React 관련')).toBeInTheDocument();
+        expect(screen.queryByText('인사')).not.toBeInTheDocument();
+        expect(screen.queryByText('질문')).not.toBeInTheDocument();
+      });
     });
 
     it('search is case-insensitive', async () => {
@@ -357,7 +361,9 @@ describe('Sidebar', () => {
       render(<Sidebar {...defaultProps} conversations={mockConversationsWithMessages} />);
       const searchInput = screen.getByPlaceholderText('대화 검색...');
       await user.type(searchInput, 'hello');
-      expect(screen.getByText('인사')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('인사')).toBeInTheDocument();
+      });
     });
 
     it('shows "검색 결과가 없습니다" when no match', async () => {
@@ -365,7 +371,9 @@ describe('Sidebar', () => {
       render(<Sidebar {...defaultProps} conversations={mockConversations} />);
       const searchInput = screen.getByPlaceholderText('대화 검색...');
       await user.type(searchInput, 'zzzzzzz');
-      expect(screen.getByText('검색 결과가 없습니다')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('검색 결과가 없습니다')).toBeInTheDocument();
+      });
     });
 
     it('shows all conversations when search is empty', async () => {
@@ -373,16 +381,33 @@ describe('Sidebar', () => {
       render(<Sidebar {...defaultProps} conversations={mockConversations} />);
       const searchInput = screen.getByPlaceholderText('대화 검색...');
       await user.type(searchInput, '첫');
-      expect(screen.queryByText('두 번째 대화')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByText('두 번째 대화')).not.toBeInTheDocument();
+      });
       await user.clear(searchInput);
-      expect(screen.getByText('첫 번째 대화')).toBeInTheDocument();
-      expect(screen.getByText('두 번째 대화')).toBeInTheDocument();
-      expect(screen.getByText('세 번째 대화')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('첫 번째 대화')).toBeInTheDocument();
+        expect(screen.getByText('두 번째 대화')).toBeInTheDocument();
+        expect(screen.getByText('세 번째 대화')).toBeInTheDocument();
+      });
     });
 
     it('shows "대화 기록이 없습니다" when no conversations and no search query', () => {
       render(<Sidebar {...defaultProps} conversations={[]} />);
       expect(screen.getByText('대화 기록이 없습니다')).toBeInTheDocument();
+    });
+
+    it('debounces search filtering (input updates immediately but filter is delayed)', async () => {
+      const user = userEvent.setup();
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const searchInput = screen.getByPlaceholderText('대화 검색...');
+      await user.type(searchInput, '첫');
+      // Input value updates immediately
+      expect(searchInput).toHaveValue('첫');
+      // After debounce delay, filtering takes effect
+      await waitFor(() => {
+        expect(screen.queryByText('두 번째 대화')).not.toBeInTheDocument();
+      });
     });
   });
 
