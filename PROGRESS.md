@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2720 tests)
-- **Last Agent Run**: Agent 2 (Logic)
+- **Test Status**: Passing (2731 tests)
+- **Last Agent Run**: Agent 4 (Integrator)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -695,3 +695,17 @@
 - Updated 2 high contrast tests to match Switch component behavior (no ON/OFF text)
 - Added 4 unit tests for Switch toggle integration (rendering, checked state, toggle click, timestamps)
 - Total tests: 2598 (128 test files, all passing)
+
+### Agent 4 (Integrator) — Integrate Badge, Skeleton, ConfirmDialog
+- Replaced manual `message-count-badge` span in Sidebar with `Badge` component (primary variant, max 999)
+- Added `Skeleton` loading placeholder in message area — shows shimmer animation while waiting for stream to start
+- Skeleton visible during loading before streaming begins, hidden once streaming data arrives
+- Integrated `ConfirmDialog` for destructive actions:
+  - Clear conversation: warning variant, shows "모든 메시지가 삭제됩니다. 계속하시겠습니까?"
+  - Delete conversation: danger variant, shows conversation title with confirmation prompt
+  - Cancel dismisses dialog without performing action
+- Added 4 string constants for confirm dialog messages (`CONFIRM_CLEAR_TITLE`, `CONFIRM_CLEAR_MESSAGE`, `CONFIRM_DELETE_TITLE`, `CONFIRM_DELETE_MESSAGE`)
+- Added `.skeleton-loading-placeholder` CSS for proper layout within message area
+- Updated 5 existing tests to work with confirm dialog behavior (clear and delete tests)
+- Added 7 new integration tests: skeleton visibility, skeleton hide on stream, confirm dialog show, confirm dialog cancel, delete confirm, delete cancel, badge rendering
+- Total tests: 2724 → 2731 (134 test files, all passing)
