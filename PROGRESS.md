@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2864 tests)
+- **Test Status**: Passing (2922 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -745,3 +745,14 @@
 - **QuickSwitcher.test.tsx**: Added 9 tests — Enter with empty results, mouseEnter selection, current CSS class, null conversationId, onChange resets index, listbox role, placeholder text, dates meta, empty conversations
 - **conversationStats.test.ts**: Added 12 tests — rounding to 1 decimal, tied longest/shortest picks first, full empty stats shape, 100 conversations stress test, averageMessageLength rounding, only-assistant messages, all-empty-content, formatNumber edge cases (0, boundary values)
 - Total tests: 2746 → 2864 (128 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 12 (+58 tests)
+- **useWindowSize.test.ts**: Added 8 tests — height-only resize, interface shape validation, no-throw after unmount, single resize listener registration, very small/large dimensions, simultaneous width+height update
+- **useHover.test.ts**: Added 8 tests — multiple enter/leave cycles, duplicate enter stays true, duplicate leave stays false, ref stable across rerenders, ref stable after state change, interface shape, leave without prior enter
+- **InputPreview.test.tsx**: Added 10 tests — input-preview/label/content CSS classes, tab-only/newline-only whitespace hidden, italic/list rendering, visibility toggle, content change from empty to non-empty
+- **useMediaQuery.test.ts**: Added 8 tests — rapid true/false/true changes, boolean return type, same-value no-change, correct query string, matching-to-non-matching, independent queries, old query listener removal
+- **useMutationObserver.test.ts**: Added 8 tests — options change reconnects, multiple mutations single callback, unmount disconnect, subtree+characterData options, null ref transition, empty mutations array, incremental options changes
+- **useNotificationSound.test.ts**: Added 8 tests — play stability, oscillator→gain connection, gain→destination connection, gain envelope values, enabled→disabled toggle, sine wave type, return shape
+- **useOnClickOutside.test.ts**: Added 8 tests — false→true resubscribe, click on element itself, deeply nested child click, true→false stops firing, default active=true, ref stability, multiple outside clicks
+- **useDocumentTitle.test.ts**: Added 8 tests — very long title, Korean characters, same title multiple times, multiple updates before unmount, HTML entities, newline collapsing, original title captured at mount
+- Total tests: 2864 → 2922 (128 test files, all passing)
