@@ -1,0 +1,174 @@
+.tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs-vertical {
+  flex-direction: row;
+}
+
+/* Tab list */
+.tabs-list {
+  display: flex;
+  gap: 2px;
+}
+
+.tabs-horizontal .tabs-list {
+  flex-direction: row;
+  border-bottom: 1px solid var(--border-color, #333);
+}
+
+.tabs-vertical .tabs-list {
+  flex-direction: column;
+  border-right: 1px solid var(--border-color, #333);
+  padding-right: 2px;
+}
+
+/* Tab button */
+.tabs-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--text-secondary, #888);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+  position: relative;
+}
+
+.tabs-tab:hover:not(:disabled) {
+  color: var(--text-primary, #e0e0e0);
+}
+
+.tabs-tab:focus-visible {
+  outline: 2px solid var(--accent-color, #4a9eff);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.tabs-tab-active {
+  color: var(--accent-color, #4a9eff);
+}
+
+.tabs-tab-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.tabs-small .tabs-tab {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.tabs-medium .tabs-tab {
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.tabs-large .tabs-tab {
+  padding: 14px 20px;
+  font-size: 16px;
+}
+
+/* Default variant — bottom border indicator */
+.tabs-default .tabs-tab-active {
+  font-weight: 500;
+}
+
+.tabs-default.tabs-horizontal .tabs-tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent-color, #4a9eff);
+}
+
+.tabs-default.tabs-vertical .tabs-tab-active::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent-color, #4a9eff);
+}
+
+/* Pills variant */
+.tabs-pills .tabs-tab {
+  border-radius: 6px;
+}
+
+.tabs-pills .tabs-tab-active {
+  background: var(--accent-color, #4a9eff);
+  color: #fff;
+}
+
+.tabs-pills .tabs-tab:hover:not(:disabled):not(.tabs-tab-active) {
+  background: var(--bg-hover, #333);
+}
+
+/* Underline variant */
+.tabs-underline .tabs-tab-active {
+  font-weight: 500;
+}
+
+.tabs-underline.tabs-horizontal .tabs-tab {
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tabs-underline.tabs-horizontal .tabs-tab-active {
+  border-bottom-color: var(--accent-color, #4a9eff);
+}
+
+.tabs-underline.tabs-vertical .tabs-tab {
+  border-right: 2px solid transparent;
+  margin-right: -1px;
+}
+
+.tabs-underline.tabs-vertical .tabs-tab-active {
+  border-right-color: var(--accent-color, #4a9eff);
+}
+
+/* Full width */
+.tabs-full-width .tabs-list {
+  width: 100%;
+}
+
+.tabs-full-width .tabs-tab {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Icon */
+.tabs-tab-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Badge */
+.tabs-tab-badge {
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+/* Panel */
+.tabs-panel {
+  padding: 16px 0;
+  outline: none;
+}
+
+.tabs-vertical .tabs-panel {
+  padding: 0 16px;
+  flex: 1;
+}
+
+.tabs-panel[hidden] {
+  display: none;
+}
