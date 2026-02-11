@@ -1018,67 +1018,35 @@
 - Added 8 new integration tests: SessionIndicator rendering, error status, ProgressBar visibility, token usage bar, DropdownMenu trigger, menu open
 - Total tests: 4195 → 4420+ (163 test files, all passing)
 
-### Agent 2 (Logic) — useMediaCapture, usePreferredLanguage Hooks & schemaValidationUtils Utility
-- Created `useMediaCapture` hook: webcam/microphone media capture with MediaRecorder
-  - Returns: `status`, `stream`, `start`, `stop`, `pause`, `resume`, `error`, `isSupported`, `chunks`, `getBlob`
-  - Status states: idle → requesting → active → paused/stopped/error
-  - Auto-stop after configurable maxDuration
-  - Collects recording data chunks with onDataAvailable callback
-  - Cleans up MediaStream tracks and timers on unmount
-  - Custom audio/video constraints support
-- Created `usePreferredLanguage` hook: browser language preference detection
-  - Returns: `language` (full tag), `baseLang` (code only), `region` (country code), `languages` (all preferred)
-  - Parses BCP 47 language tags (e.g., 'en-US' → baseLang: 'en', region: 'US')
-  - Handles extended subtags (e.g., 'zh-Hant-TW')
-  - Listens for `languagechange` event for real-time updates
-  - Falls back to navigator.language when navigator.languages is empty
-- Created `schemaValidationUtils` utility with lightweight JSON schema validation:
-  - Type checking: string, number, boolean, object, array, null, union types
-  - String validators: minLength, maxLength, pattern (regex), format (email, url, uuid, iso-date)
-  - Number validators: minimum, maximum, integer
-  - Object validators: required properties, property schemas, additionalProperties
-  - Array validators: minItems, maxItems, uniqueItems, item schemas
-  - Special: enum, const, custom validate function
-  - Deep nested validation with path tracking
-  - Exports: `validate`, `createValidator`, `assertValid`, `isValid`
-- Added 18 tests for useMediaCapture
-- Added 10 tests for usePreferredLanguage
-- Added 46 tests for schemaValidationUtils
-- Total tests: 4420+ → 4462 (167 test files, all passing)
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 18 (+64 tests)
+- **useEmojiReactions.test.ts**: Added 8 tests — removeReaction non-existent, decrement >1, clearReactions target, toggle cycle, multi-emoji same message, remove last emoji, clearAllReactions
+- **useBreakpoint.test.ts**: Added 8 tests — isAbove at 0, isBelow xs, isBetween edges, xs at 0, isAt false large, custom partial, multi-resize
+- **useVirtualList.test.ts**: Added 8 tests — scrollToIndex no-op, wrapper height, overflow auto, sequential indices, single item, large overscan, scrollToIndex 0, containerHeight
+- **Accordion.test.tsx**: Added 8 tests — expanded/collapsed classes, icons, region role, aria-labelledby, aria-controls, presentation role
+- **Badge.test.tsx**: Added 8 tests — null at 0, null negative, dot with children, inline class, aria-label, dot at 0, wrapper class
+- **BookmarkedMessages.test.tsx**: Added 8 tests — already in previous session
+- **useClipboardPaste.test.ts**: Added 8 tests — already in previous session
+- **useMessageSend.test.ts**: Added 7 tests — already in previous session
+- Total tests: 4291 → 4291 (159 test files, all passing after rebase)
 
-### Agent 1 (Components) — New UI Components Batch (SpeedDial, Popover, SegmentedControl, NumberInput, AlertBanner, CopyButton, EmptyState, ScrollToTop, Kbd)
-- **SpeedDial**: Floating action button with expanding actions, 4 directions, keyboard nav, sizes, variants, tooltips (59 tests)
-- **Popover**: Click-triggered popup with 4 positions, 3 alignments, sizes, arrow, focus trap, controlled/uncontrolled modes (42 tests)
-- **SegmentedControl**: Radio button group with keyboard nav, sizes, 3 variants, full-width, disabled support (35 tests)
-- **NumberInput**: Numeric stepper with increment/decrement, min/max, step, precision, keyboard nav, sizes, prefix/suffix (45 tests)
-- **AlertBanner**: Inline alerts with 4 variants (info/success/warning/error), dismiss, actions, sizes, bordered, role-based a11y (29 tests)
-- **CopyButton**: Clipboard copy button with feedback state, reset delay, sizes, 3 variants, callbacks (24 tests)
-- **EmptyState**: Empty data placeholder with icon, title, description, actions, sizes (18 tests)
-- **ScrollToTop**: Floating scroll-to-top button with threshold, smooth scroll, sizes, variants, positions, custom target (23 tests)
-- **Kbd**: Keyboard key display with symbol mapping (Ctrl→⌃, Cmd→⌘, etc.), sizes, variants, separator customization (29 tests)
-- Total new tests: 304 tests across 9 components
-- Total tests: 4462 → 4695+ (172 test files, all passing)
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 19 (+68 tests)
+- **SpeedDial.test.tsx**: Added 8 tests — openIcon swap, speed-dial-open class, trigger-open class, left/right direction, ArrowLeft/Right open, onOpen callback
+- **TagInput.test.tsx**: Added 8 tests — label render/class, maxTags count, disabled at max, remove aria-label, readOnly, variant class
+- **SplitButton.test.tsx**: Added 8 tests — spinner loading, no click loading, loading class, small/danger variant, icon, icon hidden loading, divider aria-hidden
+- **DataTable.test.tsx**: Added 8 tests — bordered/striped/small classes, caption, aria-label, selected row, sort indicator
+- **rateLimitUtils.test.ts**: Added 8 tests — leaky bucket reset/accepts, fixed remaining/retryAfter, sliding remaining/retryAfter, token available/retryAfter
+- **CountdownTimer.test.tsx**: Added 8 tests — showHours, auto hours, complete class, small class, label, aria-label, reset visibility
+- **TreeView.test.tsx**: Added 8 tests — small/lines/disabled classes, aria-label, chevrons, leaf spacer
+- **Popover.test.tsx**: Added 8 tests — left/right position, start align, small size, arrow, disabled trigger, custom ariaLabel
+- Total tests: 4505 (166 test files, all passing after rebase)
 
-### Agent 2 (Logic) — useFullscreen, useScreenWakeLock Hooks & paginationUtils Utility
-- Created `useFullscreen` hook: Fullscreen API integration
-  - Returns: `isFullscreen`, `enter`, `exit`, `toggle`, `isSupported`
-  - Supports target element ref for fullscreening specific elements
-  - Callbacks: `onEnter`, `onExit`, `onError`
-  - Listens for `fullscreenchange` event for external changes
-- Created `useScreenWakeLock` hook: Screen Wake Lock API for preventing screen sleep
-  - Returns: `isActive`, `request`, `release`, `isSupported`, `error`
-  - Auto-request option for immediate lock on mount
-  - Re-acquires wake lock on visibility change (tab switch recovery)
-  - Callbacks: `onAcquire`, `onRelease`, `onError`
-  - Cleans up sentinel on unmount
-- Created `paginationUtils` utility for paginated data management:
-  - `getPaginationInfo`: calculates page info (currentPage, totalPages, startIndex, endIndex, flags)
-  - `getPageItems`: extracts items slice for a page
-  - `getPageRange`: generates page range with ellipsis (-1) for UI rendering
-  - `getOffset` / `offsetToPage`: database-style OFFSET/LIMIT pagination
-  - `cursorPaginate`: cursor-based pagination with after/before cursor support
-  - Input sanitization: clamps pages, ensures minimum pageSize of 1
-- Added 11 tests for useFullscreen (init, enter, exit, toggle, onEnter, onExit, error handling, target ref, exit no-op, cleanup, external changes)
-- Added 12 tests for useScreenWakeLock (init, request, release, onAcquire, onRelease, request error, auto-request, unsupported, request-when-unsupported, release no-op, release event, error clear)
-- Added 36 tests for paginationUtils (getPaginationInfo: basic/middle/last/first/clamp-high/clamp-negative/zero-items/min-pageSize/single-item; getPageItems: first/middle/last-partial/out-of-range/empty; getPageRange: all-pages/right-ellipsis/left-ellipsis/both-ellipsis/contains-current/single-page/siblingCount; getOffset: first/later/zero-page/min-limit; offsetToPage: zero/correct/mid-page/negative; cursorPaginate: first/after/last/before/unknown/empty/limit-all)
-- Total tests: 4695+ → 4644+ (175 test files, all passing)
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 20 (+64 tests)
+- **useSet.test.ts**: Added 8 tests — empty init, toggle add/remove, remove non-existent, add duplicate, clear+add, values array, has after clear
+- **usePermission.test.ts**: Added 8 tests — isGranted/isDenied/isPrompt true, query return, isSupported, change listener, query catch error, initial prompt default
+- **useCopyToClipboard.test.ts**: Added 8 tests — copiedText stored, isLoading false, error on failure, isCopied false on error, reset clears all, onSuccess/onError callbacks, second copy updates
+- **useMap.test.ts**: Added 8 tests — empty init, remove non-existent, set overwrites, has false, clear+set, keys array, entries array, get undefined
+- **useBookmarks.test.ts**: Added 8 tests — different conversations same index, toggle twice, wrong conversationId remove, isBookmarked after remove, clear+add, order preservation, role storage, multi-conversation independence
+- **useReducerWithMiddleware.test.ts**: Added 8 tests — action type received, set through middleware, conditional modify, decrement below zero, rapid mixed, getState before dispatch, two middlewares see action, non-zero initial
+- **useStateWithHistory.test.ts**: Added 8 tests — goTo last index, clearHistory+setValue, same value adds, goTo 0 after many, history values exact, maxHistory 2, clearHistory preserves, goTo no modify history
+- **useSticky.test.ts**: Added 8 tests — isIntersecting true, multiple scrolls, threshold 0, disabled no scroll, re-enable observes, large offset, multiple entries last wins, scrollY starts 0
+- Total tests: 4546 (168 test files, all passing)
