@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (4462 tests)
+- **Test Status**: Passing (4644 tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1045,3 +1045,27 @@
 - Added 10 tests for usePreferredLanguage (current language, base lang, region, null region, all languages, languagechange update, cleanup, extended subtags, empty languages fallback, default en)
 - Added 46 tests for schemaValidationUtils (type: string/wrong/number/boolean/null/array/object/union/no-type; string: minLength/maxLength/pattern/email/url/uuid/iso-date; number: min/max/integer/range; enum/const/enum-error; object: required/property-schemas/reject-additional/allow-additional/nested-path/skip-optional; array: minItems/maxItems/uniqueItems/item-schemas/item-path; custom: true-return/string-message; createValidator; assertValid: no-throw/throw/path; isValid: true/false; complex: user-profile/deep-nested/array-of-objects/multiple-errors)
 - Total tests: 4420+ → 4462 (167 test files, all passing)
+
+### Agent 2 (Logic) — useFullscreen, useScreenWakeLock Hooks & paginationUtils Utility
+- Created `useFullscreen` hook: Fullscreen API integration
+  - Returns: `isFullscreen`, `enter`, `exit`, `toggle`, `isSupported`
+  - Supports target element ref for fullscreening specific elements
+  - Callbacks: `onEnter`, `onExit`, `onError`
+  - Listens for `fullscreenchange` event for external changes
+- Created `useScreenWakeLock` hook: Screen Wake Lock API for preventing screen sleep
+  - Returns: `isActive`, `request`, `release`, `isSupported`, `error`
+  - Auto-request option for immediate lock on mount
+  - Re-acquires wake lock on visibility change (tab switch recovery)
+  - Callbacks: `onAcquire`, `onRelease`, `onError`
+  - Cleans up sentinel on unmount
+- Created `paginationUtils` utility for paginated data management:
+  - `getPaginationInfo`: calculates page info (currentPage, totalPages, startIndex, endIndex, flags)
+  - `getPageItems`: extracts items slice for a page
+  - `getPageRange`: generates page range with ellipsis (-1) for UI rendering
+  - `getOffset` / `offsetToPage`: database-style OFFSET/LIMIT pagination
+  - `cursorPaginate`: cursor-based pagination with after/before cursor support
+  - Input sanitization: clamps pages, ensures minimum pageSize of 1
+- Added 11 tests for useFullscreen (init, enter, exit, toggle, onEnter, onExit, error handling, target ref, exit no-op, cleanup, external changes)
+- Added 12 tests for useScreenWakeLock (init, request, release, onAcquire, onRelease, request error, auto-request, unsupported, request-when-unsupported, release no-op, release event, error clear)
+- Added 36 tests for paginationUtils (getPaginationInfo: basic/middle/last/first/clamp-high/clamp-negative/zero-items/min-pageSize/single-item; getPageItems: first/middle/last-partial/out-of-range/empty; getPageRange: all-pages/right-ellipsis/left-ellipsis/both-ellipsis/contains-current/single-page/siblingCount; getOffset: first/later/zero-page/min-limit; offsetToPage: zero/correct/mid-page/negative; cursorPaginate: first/after/last/before/unknown/empty/limit-all)
+- Total tests: 4462 → 4644 (175 test files, all passing)
