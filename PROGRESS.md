@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5439+ tests)
-- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 10
+- **Test Status**: Passing (5570 tests)
+- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1257,3 +1257,31 @@
 - Added 13 tests for useTextSelection (default state, text selected, bounding rect, collapsed rect, clearSelection, empty text, event listener, unmount cleanup, null getSelection, anchorNode/focusNode, rangeCount, null rect, stable clearSelection)
 - Added 57 tests for slugUtils (slugify: basic/spaces/special/diacriticals/trim/separator/empty/special-only/hyphens/uppercase/numbers/mixed; unslugify: title/single/custom/multi/empty; uniqueSlug: no-conflict/append-1/increment/custom/empty; truncateSlug: short/separator-boundary/mid-word-cutback/no-separator/exact/long; isValidSlug: valid/single/uppercase/spaces/special/leading-sep/trailing-sep/double-sep/numbers/custom/empty; filePathToSlug: filename/fullpath/windows/no-ext/custom/nested; camelToSlug: camel/pascal/consecutive-caps/single/custom/multi; slugToCamel: basic/single/multi/custom/empty/inverse)
 - Total tests: 5356 → 5439 (200 test files, all passing)
+
+### Agent 2 (Logic) — Hooks/Utils Batch 27: useStepWizard, useClampedValue, treeUtils
+- Created `useStepWizard` hook for multi-step wizard/stepper state management:
+  - Navigate between steps (next, prev, goToStep)
+  - Linear mode requiring step completion before advancing
+  - Progress percentage calculation
+  - Step completion tracking (markCompleted, markIncomplete, isStepCompleted)
+  - Reset to initial state
+- Created `useClampedValue` hook for clamped numeric value with controls:
+  - Increment/decrement with configurable step size
+  - Loop mode wrapping from max→min and min→max
+  - Percentage calculation within range
+  - isMin/isMax boundary detection
+  - Auto-clamp on setValue and initialization
+- Created `treeUtils` utility for tree data structure operations:
+  - `createNode`: create tree nodes with children
+  - `findNode`/`findNodeBy`: search by ID or predicate
+  - `flatten`: pre-order traversal to array
+  - `getDepth`/`countNodes`: tree metrics
+  - `getPath`: get ID path from root to target
+  - `mapTree`/`filterTree`: transform and filter trees immutably
+  - `getLeaves`/`getAncestors`/`getSiblings`: relationship queries
+  - `insertChild`/`removeNode`: immutable tree modifications
+  - `walkTree`: depth-aware traversal with callback
+- Added 22 tests for useStepWizard (init, custom step, clamp, navigation, boundaries, goToStep, reset, completion, progress, single step, linear mode)
+- Added 20 tests for useClampedValue (init, custom value, clamp, increment/decrement, step, boundaries, setValue, reset, percentage, equal min/max, loop mode, negative ranges)
+- Added 39 tests for treeUtils (createNode, findNode, findNodeBy, flatten, getDepth, countNodes, getPath, mapTree, filterTree, getLeaves, getAncestors, getSiblings, insertChild, removeNode, walkTree)
+- Total tests: 5439 → 5570 (207 test files, all passing)
