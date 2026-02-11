@@ -58,6 +58,9 @@ import Avatar from './components/Avatar';
 import AvatarGroup from './components/AvatarGroup';
 import type { AvatarGroupItem } from './components/AvatarGroup';
 import Divider from './components/Divider';
+import CountdownTimer from './components/CountdownTimer';
+import Pagination from './components/Pagination';
+import Switch from './components/Switch';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -204,6 +207,23 @@ const App: React.FC = () => {
   const handleTagsChange = useCallback((messageId: string, tags: string[]) => {
     setMessageTags(prev => ({ ...prev, [messageId]: tags }));
   }, [setMessageTags]);
+
+  // Message pagination
+  const MESSAGES_PER_PAGE = 50;
+  const [messagePage, setMessagePage] = useState(1);
+  const totalMessagePages = useMemo(() => Math.max(1, Math.ceil(messages.length / MESSAGES_PER_PAGE)), [messages.length]);
+  const paginatedMessages = useMemo(() => {
+    if (messages.length <= MESSAGES_PER_PAGE) return messages;
+    const start = (messagePage - 1) * MESSAGES_PER_PAGE;
+    return messages.slice(start, start + MESSAGES_PER_PAGE);
+  }, [messages, messagePage]);
+
+  // Reset to last page on new messages
+  useEffect(() => {
+    if (messages.length > 0) {
+      setMessagePage(Math.max(1, Math.ceil(messages.length / MESSAGES_PER_PAGE)));
+    }
+  }, [messages.length]);
 
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
@@ -653,26 +673,36 @@ const App: React.FC = () => {
             onNavigate={msgActions.handleNavigateToMessage}
             onUnpin={msgActions.handleUnpinMessage}
           />
+          {totalMessagePages > 1 && (
+            <Pagination
+              currentPage={messagePage}
+              totalPages={totalMessagePages}
+              onPageChange={setMessagePage}
+              siblingCount={1}
+              showFirstLast={true}
+            />
+          )}
           <div className={`messages${viewMode === 'compact' ? ' messages--compact' : ''}`} role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleScrollWithProgress}>
             <ReadingProgressBar progress={readingProgress} isVisible={messages.length > 0} />
             {messages.length === 0 && (
               <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
             )}
-            {messages.map((message, index) => {
-              const msgReactions = currentConversationId ? msgActions.getReactions(currentConversationId, index) : [];
+            {paginatedMessages.map((message, index) => {
+              const globalIndex = (messagePage - 1) * MESSAGES_PER_PAGE + index;
+              const msgReactions = currentConversationId ? msgActions.getReactions(currentConversationId, globalIndex) : [];
               return (
-                <div key={message.id || index} data-message-index={index} onContextMenu={(e) => msgActions.handleMessageContextMenu(e, index)}>
+                <div key={message.id || globalIndex} data-message-index={globalIndex} onContextMenu={(e) => msgActions.handleMessageContextMenu(e, globalIndex)}>
                   <Avatar
                     name={message.role === 'user' ? S.AVATAR_USER_NAME : S.AVATAR_ASSISTANT_NAME}
                     size="small"
                     shape="circle"
-                    status={message.role === 'assistant' && isStreaming && index === messages.length - 1 ? 'busy' : 'online'}
+                    status={message.role === 'assistant' && isStreaming && globalIndex === messages.length - 1 ? 'busy' : 'online'}
                   />
                   <MessageBubble
                     message={message}
-                    index={index}
+                    index={globalIndex}
                     isStreaming={isStreaming}
-                    isLastAssistant={message.role === 'assistant' && index === messages.length - 1}
+                    isLastAssistant={message.role === 'assistant' && globalIndex === messages.length - 1}
                     onDelete={deleteMessage}
                     onEdit={editMessage}
                     onFork={forkConversation}
@@ -718,7 +748,17 @@ const App: React.FC = () => {
               </div>
             )}
             {isLoading && (
-              <TypingIndicator isStreaming={isStreaming} />
+              <>
+                <TypingIndicator isStreaming={isStreaming} />
+                <CountdownTimer
+                  duration={60}
+                  autoStart={true}
+                  size="small"
+                  warningThreshold={15}
+                  dangerThreshold={5}
+                  label={S.COUNTDOWN_LABEL}
+                />
+              </>
             )}
             {tokenUsage && !isLoading && (
               <Collapsible
@@ -832,6 +872,13 @@ const App: React.FC = () => {
               </button>
             )}
             </div>
+            <Switch
+              checked={dialogs.isInputPreviewVisible}
+              onChange={() => dialogs.toggleInputPreview()}
+              label={S.SWITCH_PREVIEW_LABEL}
+              size="small"
+              aria-label={S.SWITCH_PREVIEW_ARIA}
+            />
             <InputPreview content={input} isVisible={dialogs.isInputPreviewVisible} />
           </div>
         </div>

@@ -556,3 +556,13 @@ export const AVATAR_GROUP_ARIA = '대화 참여자';
 
 // Divider
 export const DIVIDER_TOKEN_LABEL = '상세 정보';
+
+// CountdownTimer (response timeout)
+export const COUNTDOWN_LABEL = '응답 대기';
+
+// Pagination (message history)
+export const PAGINATION_ARIA = '메시지 페이지 이동';
+
+// Switch (quick toggle)
+export const SWITCH_PREVIEW_LABEL = '미리보기';
+export const SWITCH_PREVIEW_ARIA = '입력 미리보기 토글';
