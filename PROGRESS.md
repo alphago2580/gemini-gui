@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2589 tests)
+- **Test Status**: Passing (2590 tests)
 - **Last Agent Run**: Agent 4 (Integrator)
 
 ## Completed Features
@@ -636,3 +636,10 @@
 - Added 7 unit tests for TokenUsage ProgressBar (no maxTokens, with maxTokens, zero maxTokens, percentage display, warning/error/default variants)
 - Updated 4 App tests for SplitButton export behavior (no button when empty, split button visible, dropdown toggle, PDF via dropdown)
 - Total tests: 2583 → 2589 (128 test files, all passing)
+
+### Agent 4 (Integrator) — Integrate useDebounce into Sidebar Search
+- Added `useDebounce` hook (200ms) to Sidebar search query for debounced conversation filtering
+- Search input updates immediately (responsive UX) while filter computation is debounced (performance)
+- Updated 5 existing search tests to use `waitFor` for debounced assertions
+- Added 1 test verifying debounce behavior (immediate input, delayed filter)
+- Total tests: 2589 → 2590 (128 test files, all passing)
