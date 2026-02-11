@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5269 tests)
-- **Last Agent Run**: Agent 2 (Logic)
+- **Test Status**: Passing (5269+ tests)
+- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 8
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1189,3 +1189,9 @@
 - Added 14 tests for useHistoryState (init default, restore from history, push/push-with-URL, replace/replace-with-URL, popstate, popstate no key, popstate null, cleanup, stable refs, shape, object state, preserve keys)
 - Added 58 tests for measureUtils (formatBytes: 0/bytes/KB/MB/GB/decimals/negative/TB; temperature: same/C→F/F→C/C→K/K→C/F→K/K→F; length: same/m→km/km→mi/in→cm/ft→m/yd→ft/mm→cm; weight: same/kg→g/kg→lb/lb→kg/oz→g/g→mg/ton→kg; distance2D: zero/horizontal/vertical/diagonal/negative; distance3D: zero/axis/diagonal; degrees/radians: 0/180/360/90/PI/roundtrip; duration: ms/seconds/min-sec/min/hour-min/hour/negative/zero; percentage: simple/zero-total/decimals/100%/over/zero-value)
 - Total tests: 5184 → 5269 (194 test files, all passing)
+
+### Agent 4 (Integrator) — Integration Batch 8: Breadcrumb, Badge
+- Added **Breadcrumb** navigation in app header showing "Gemini › 대화 › [title]" path
+- Wrapped Stats header button with **Badge** component showing conversation count
+- Added Korean UI strings for Breadcrumb navigation
+- Total tests: 5183+ (191+ test files, all passing)

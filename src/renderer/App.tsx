@@ -43,6 +43,9 @@ import ImageViewer from './components/ImageViewer';
 import SpeedDial from './components/SpeedDial';
 import type { SpeedDialAction } from './components/SpeedDial';
 import AlertBanner from './components/AlertBanner';
+import Breadcrumb from './components/Breadcrumb';
+import type { BreadcrumbItem } from './components/Breadcrumb';
+import Badge from './components/Badge';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -241,6 +244,18 @@ const App: React.FC = () => {
     const conv = conversations.find(c => c.id === currentConversationId);
     return conv?.title || S.UNTITLED_CONVERSATION;
   }, [conversations, currentConversationId]);
+
+  // Breadcrumb navigation items
+  const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
+    const items: BreadcrumbItem[] = [
+      { label: S.BREADCRUMB_HOME, icon: '🏠', onClick: handleNewChat },
+    ];
+    if (currentConversationId) {
+      items.push({ label: S.BREADCRUMB_CHAT });
+      items.push({ label: currentConvTitle });
+    }
+    return items;
+  }, [currentConversationId, currentConvTitle, handleNewChat]);
 
   // Sync window title with current conversation (agent4)
   useEffect(() => {
@@ -473,6 +488,7 @@ const App: React.FC = () => {
         <header className="app-header">
           <div className="header-title">
             <h1>{S.APP_TITLE}</h1>
+            <Breadcrumb items={breadcrumbItems} separator="›" />
             <p>{S.MODEL_PREFIX} {S.MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
             <SessionIndicator status={sessionStatus} />
           </div>
@@ -520,13 +536,15 @@ const App: React.FC = () => {
                 </button>
               </Tooltip>
               <Tooltip content={S.TITLE_CONVERSATION_STATS} position="bottom">
-                <button
-                  className="header-action-btn"
-                  onClick={dialogs.openStats}
-                  aria-label={S.ARIA_CONVERSATION_STATS}
-                >
-                  {S.STATS_BUTTON}
-                </button>
+                <Badge count={conversations.length} variant="primary" maxCount={99}>
+                  <button
+                    className="header-action-btn"
+                    onClick={dialogs.openStats}
+                    aria-label={S.ARIA_CONVERSATION_STATS}
+                  >
+                    {S.STATS_BUTTON}
+                  </button>
+                </Badge>
               </Tooltip>
             </div>
           )}
