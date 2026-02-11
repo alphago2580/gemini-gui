@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (3818 tests)
-- **Last Agent Run**: Agent 3 (Tests & Types)
+- **Test Status**: Passing (3966 tests)
+- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -909,3 +909,60 @@
 - **Carousel.test.tsx**: Added 8 tests — unrelated key no-op, Home no-op at first, End no-op at last, indicator click current no-op, autoPlay=false no advance, empty custom label, viewport exists, slide label "2 / 3"
 - **Rating.test.tsx**: Added 8 tests — no aria-disabled when interactive, no aria-readonly when interactive, no label text without prop, half container element, half filled/empty icons, ArrowDown half step, max=3 star count, no-clear without allowClear
 - Total tests: 3755 → 3818 (148 test files, all passing)
+
+### Agent 2 (Logic) — useBreakpoint, useClipboardPaste Hooks & typeGuardUtils Utility
+- Created `useBreakpoint` hook: responsive breakpoint detection
+  - Default breakpoints: xs(0), sm(640), md(768), lg(1024), xl(1280), 2xl(1536)
+  - Returns: `current`, `width`, `isAbove`, `isBelow`, `isAt`, `isBetween`
+  - `isAt` checks if width falls within a breakpoint's range (e.g., md = 768–1023)
+  - `isBetween(min, max)` checks inclusive min, exclusive max
+  - Supports custom breakpoints via `Partial<BreakpointConfig>`
+  - Listens on window resize, cleans up on unmount
+- Created `useClipboardPaste` hook: clipboard paste event handler
+  - Detects text, HTML, image files, and non-image files from paste events
+  - Returns `PasteData`: `text`, `html`, `images`, `files`, `hasContent`
+  - `acceptTypes` filter with wildcard support (e.g., `image/*`)
+  - Optional `targetRef` to listen on specific element instead of document
+  - `enabled` toggle to activate/deactivate listener
+  - Uses refs for stable callback without re-registering listeners
+- Created `typeGuardUtils` utility with 22 type guards + 1 assertion:
+  - Primitives: `isString`, `isNumber` (excludes NaN), `isBoolean`
+  - Nullish: `isNil`, `isNonNil`
+  - Objects: `isPlainObject`, `isArray`, `isFunction`, `isDate` (valid only), `isRegExp`
+  - Collections: `isMap`, `isSet`
+  - Async: `isPromiseLike` (thenable detection)
+  - Errors: `isError`
+  - Refinements: `isNonEmptyString`, `isNonEmptyArray`, `isFiniteNumber`, `isInteger`, `isPositive`, `isNegative`
+  - Property checks: `hasProperty`, `hasProperties`
+  - Assertion: `assertType(value, guard, message?)` — throws TypeError on failure
+- Added 16 tests for useBreakpoint (current lg, xs, sm, md, xl, 2xl, width, resize update, isAbove, isBelow, isAt range, isAt 2xl, isBetween, custom breakpoints, default export, cleanup)
+- Added 13 tests for useClipboardPaste (text, html, images, non-image files, separation, no content, acceptTypes text, acceptTypes wildcard, disabled, re-enable, cleanup, targetRef, text+files combo)
+- Added 60 tests for typeGuardUtils (isString 4, isNumber 4, isBoolean 3, isNil 3, isNonNil 3, isPlainObject 4, isArray 3, isFunction 3, isDate 4, isRegExp 3, isPromiseLike 3, isError 3, isMap 2, isSet 2, isNonEmptyString 3, isNonEmptyArray 3, isFiniteNumber 3, isInteger 3, isPositive 3, isNegative 2, hasProperty 4, hasProperties 4, assertType 4)
+- Total tests: 2947 → 3752 (150 test files, all passing)
+
+### Agent 2 (Logic) — useCopyToClipboard, useSticky Hooks & rateLimitUtils Utility
+- Created `useCopyToClipboard` hook: clipboard write with status management
+  - Returns: `copy`, `isCopied`, `copiedText`, `isLoading`, `error`, `reset`
+  - Auto-resets `isCopied` after configurable `resetDelay` (default 2000ms)
+  - `resetDelay: 0` disables auto-reset
+  - Callbacks: `onSuccess(text)`, `onError(error)`
+  - Handles non-Error rejections (wraps to Error)
+  - Clears previous timer on subsequent copy operations
+- Created `useSticky` hook: scroll-based sticky element detection
+  - Uses IntersectionObserver on a sentinel element for CSS-free detection
+  - Returns: `isSticky`, `sentinelRef`, `scrollY`
+  - Configurable `offset` for rootMargin-based trigger point
+  - `enabled` toggle to activate/deactivate observer
+  - Passive scroll listener for scrollY tracking
+  - Disconnects observer and removes listeners on unmount
+- Created `rateLimitUtils` utility with 4 rate limiters:
+  - `createFixedWindowLimiter(maxRequests, windowMs)`: fixed time window counter
+  - `createSlidingWindowLimiter(maxRequests, windowMs)`: per-request timestamp tracking
+  - `createTokenBucket(maxTokens, refillRate, refillIntervalMs)`: constant refill up to capacity
+  - `createLeakyBucket(capacity, leakRate, leakIntervalMs)`: queue with constant drain
+  - All implement: `tryAcquire`, `remaining/available/queueSize`, `reset`, `retryAfter`
+  - Token bucket supports multi-token consume via `tryAcquire(count)`
+- Added 12 tests for useCopyToClipboard (init, copy, resetDelay, default delay, failure, onSuccess, onError, reset, timer clear, non-Error, error clear, no auto-reset)
+- Added 12 tests for useSticky (init isSticky, init scrollY, sentinelRef, not intersecting, intersecting, scrollY tracking, disabled, reset on disable, offset rootMargin, scroll cleanup, disconnect, default offset)
+- Added 34 tests for rateLimitUtils (Fixed: allow, block, window reset, remaining, reset, retryAfter zero, retryAfter positive; Sliding: allow, block, expire, remaining, reset, retryAfter zero, retryAfter ms, partial expiry; Token: full capacity, consume, reject, refill, max cap, multi-consume, reject multi, reset, retryAfter zero, retryAfter time, refill rate; Leaky: accept, reject, leak, queue size, queue decrease, no negative, reset, leak rate)
+- Total tests: 3752 → 3966 (155 test files, all passing)
