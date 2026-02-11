@@ -1,0 +1,115 @@
+/* SegmentedControl — toggle button group */
+
+.segmented-control {
+  display: inline-flex;
+  border-radius: 8px;
+  background-color: var(--bg-tertiary, #333);
+  padding: 2px;
+  gap: 2px;
+}
+
+.segmented-control-full-width {
+  display: flex;
+  width: 100%;
+}
+
+.segmented-control-full-width .segmented-control-option {
+  flex: 1;
+}
+
+/* Option button */
+.segmented-control-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary, #aaa);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.segmented-control-option:hover:not(:disabled) {
+  color: var(--text-primary, #e0e0e0);
+  background-color: var(--bg-hover, rgba(255, 255, 255, 0.05));
+}
+
+.segmented-control-option:focus-visible {
+  outline: 2px solid var(--color-accent, #6b9eff);
+  outline-offset: -2px;
+}
+
+/* Selected */
+.segmented-control-option-selected {
+  background-color: var(--bg-secondary, #2a2a2a);
+  color: var(--text-primary, #e0e0e0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.segmented-control-option-selected:hover:not(:disabled) {
+  background-color: var(--bg-secondary, #2a2a2a);
+}
+
+/* Disabled */
+.segmented-control-option-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.segmented-control-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Sizes */
+.segmented-control-small .segmented-control-option {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.segmented-control-medium .segmented-control-option {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.segmented-control-large .segmented-control-option {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+/* Variant: primary — selected uses accent color */
+.segmented-control-primary .segmented-control-option-selected {
+  background-color: var(--color-accent, #6b9eff);
+  color: #fff;
+}
+
+.segmented-control-primary .segmented-control-option-selected:hover:not(:disabled) {
+  background-color: var(--color-accent-hover, #5a8de6);
+}
+
+/* Variant: ghost — no background */
+.segmented-control-ghost {
+  background-color: transparent;
+  padding: 0;
+  gap: 4px;
+}
+
+.segmented-control-ghost .segmented-control-option {
+  border-radius: 4px;
+}
+
+.segmented-control-ghost .segmented-control-option-selected {
+  background-color: var(--bg-tertiary, #333);
+  box-shadow: none;
+}
+
+/* Icon */
+.segmented-control-icon {
+  display: inline-flex;
+  font-size: 1em;
+  line-height: 1;
+}
