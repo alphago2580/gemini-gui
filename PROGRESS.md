@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2720 tests)
+- **Test Status**: Passing (2783 tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -708,3 +708,34 @@
 - Added 14 tests for useStateWithHistory (init, initial history, setValue, history entries, timestamps, maxHistory limit, clearHistory, goTo, negative index, high index, objects, stable refs, default max, middle goTo)
 - Added 25 tests for eventBusUtils (create, on+emit, multiple listeners, cross-event isolation, complex data, repeat emit, unsubscribe, off specific, off non-existent, off empty event, once, once unsubscribe, once with regular, clear event, clear preserves others, clear all, listenerCount zero, listenerCount multiple, listenerCount after off, hasListeners false, hasListeners true, hasListeners after remove, emit no listeners, self-remove during emit, undefined data)
 - Total tests: 2663 → 2720 (134 test files, all passing)
+
+### Agent 2 (Logic) — useWebSocket, useAnimationFrame Hooks & promiseUtils Utility
+- Created `useWebSocket` hook: WebSocket connection management with auto-reconnect
+  - `WebSocketStatus`: 'connecting' | 'connected' | 'disconnected' | 'error'
+  - Returns: `status`, `lastMessage`, `send`, `connect`, `disconnect`, `reconnectCount`
+  - Auto-connects when URL provided, disconnects on URL null
+  - Configurable reconnect with `reconnectInterval`, `reconnectAttempts`, exponential reconnect count tracking
+  - Callbacks: `onOpen`, `onClose`, `onError`, `onMessage`
+  - Protocol support via `protocols` option
+  - Clean teardown on unmount (close WS, clear timers, null handlers)
+  - Stable `send` reference via `useCallback`
+- Created `useAnimationFrame` hook: requestAnimationFrame-based animation loop
+  - Returns: `start`, `stop`, `isRunning`, `elapsed`, `fps`
+  - Tracks delta time and total elapsed via refs
+  - FPS calculated from frame-to-frame delta
+  - Resets elapsed/fps on restart
+  - Uses callback ref for latest callback without re-registering
+  - Prevents double-start, cleans up on unmount
+- Created `promiseUtils` utility with 7 exports:
+  - `TimeoutError`: custom error class for timeout identification
+  - `withTimeout<T>(promise, ms)`: rejects with TimeoutError if promise exceeds ms
+  - `delay(ms)`: simple promise-based delay
+  - `withRetry<T>(fn, options)`: retry with configurable attempts, delay, exponential backoff, onRetry callback
+  - `settleAll<T>(promises)`: like Promise.allSettled with typed results
+  - `deferred<T>()`: creates externally resolvable/rejectable promise
+  - `sequential<T>(tasks)`: execute promise-returning functions one at a time
+  - `pool<T>(tasks, concurrency)`: execute with limited parallel workers, preserving order
+- Added 21 tests for useWebSocket (null url, connect, open, close, error, message, send, not-connected send, onOpen, onClose, onError, onMessage, disconnect, disconnect code/reason, reconnect, max attempts, reconnect reset, protocols, unmount cleanup, url change, stable send)
+- Added 13 tests for useAnimationFrame (init state, start, callback delta/elapsed, stop, no-call-after-stop, elapsed update, fps calc, reset on restart, ignore double-start, unmount cleanup, stable refs, latest callback ref, start/stop cycles)
+- Added 29 tests for promiseUtils (delay resolve, delay timing, withTimeout success, withTimeout reject, TimeoutError msg, promise rejection passthrough, TimeoutError name, withRetry success, retry+succeed, retry exhausted, onRetry callback, exponential backoff, default 3 attempts, settleAll fulfilled, rejected, mixed, empty, deferred resolve, reject, pending, shape, sequential order, empty, error propagation, pool basic, concurrency limit, empty, order preservation, large concurrency)
+- Total tests: 2720 → 2783 (137 test files, all passing)
