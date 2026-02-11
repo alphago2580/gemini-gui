@@ -46,6 +46,9 @@ import AlertBanner from './components/AlertBanner';
 import Breadcrumb from './components/Breadcrumb';
 import type { BreadcrumbItem } from './components/Breadcrumb';
 import Badge from './components/Badge';
+import Rating from './components/Rating';
+import MeterBar from './components/MeterBar';
+import Popover from './components/Popover';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -173,6 +176,12 @@ const App: React.FC = () => {
 
   // Performance monitor
   const perfMonitor = usePerformanceMonitor();
+
+  // Message ratings (persistent)
+  const [messageRatings, setMessageRatings] = useLocalStorage<Record<string, number>>('gemini-message-ratings', {});
+  const handleRateMessage = useCallback((messageId: string, rating: number) => {
+    setMessageRatings(prev => ({ ...prev, [messageId]: rating }));
+  }, [setMessageRatings]);
 
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
@@ -490,7 +499,20 @@ const App: React.FC = () => {
             <h1>{S.APP_TITLE}</h1>
             <Breadcrumb items={breadcrumbItems} separator="›" />
             <p>{S.MODEL_PREFIX} {S.MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
-            <SessionIndicator status={sessionStatus} />
+            <Popover
+              trigger={<SessionIndicator status={sessionStatus} />}
+              position="bottom"
+              align="start"
+              size="small"
+              ariaLabel={S.POPOVER_SESSION_ARIA}
+            >
+              <div className="session-popover-content">
+                <strong>{S.POPOVER_SESSION_TITLE}</strong>
+                <div>{S.POPOVER_SESSION_STATUS}: {sessionStatus}</div>
+                <div>{S.POPOVER_SESSION_MESSAGES}: {messages.length}</div>
+                <div>{S.POPOVER_SESSION_MODEL}: {S.MODEL_DISPLAY_NAMES[settings.model] || settings.model}</div>
+              </div>
+            </Popover>
           </div>
           {messages.length > 0 && (
             <div className="header-actions">
@@ -604,6 +626,16 @@ const App: React.FC = () => {
                     onEdit={editMessage}
                     onFork={forkConversation}
                   />
+                  {message.role === 'assistant' && message.id && !isLoading && (
+                    <Rating
+                      value={messageRatings[message.id] || 0}
+                      onChange={(v) => handleRateMessage(message.id!, v)}
+                      max={5}
+                      size="small"
+                      allowClear={true}
+                      label={S.RATING_LABEL}
+                    />
+                  )}
                   {msgReactions.length > 0 && (
                     <div className="message-reactions">
                       {msgReactions.map(r => (
@@ -642,6 +674,17 @@ const App: React.FC = () => {
                   showPercentage={true}
                   variant={tokenUsage.totalTokens / settings.maxTokens > 0.9 ? 'error' : tokenUsage.totalTokens / settings.maxTokens > 0.7 ? 'warning' : 'default'}
                   size="small"
+                />
+                <MeterBar
+                  value={tokenUsage.totalTokens}
+                  max={settings.maxTokens}
+                  low={settings.maxTokens * 0.3}
+                  high={settings.maxTokens * 0.7}
+                  optimum={settings.maxTokens * 0.5}
+                  size="small"
+                  showValue={true}
+                  label={S.METER_MEMORY_LABEL}
+                  formatValue={(v) => `${Math.round(v / 1000)}K`}
                 />
               </Collapsible>
             )}
