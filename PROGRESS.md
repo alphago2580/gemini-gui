@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5269 tests)
+- **Test Status**: Passing (5356 tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1189,3 +1189,26 @@
 - Added 14 tests for useHistoryState (init default, restore from history, push/push-with-URL, replace/replace-with-URL, popstate, popstate no key, popstate null, cleanup, stable refs, shape, object state, preserve keys)
 - Added 58 tests for measureUtils (formatBytes: 0/bytes/KB/MB/GB/decimals/negative/TB; temperature: same/C→F/F→C/C→K/K→C/F→K/K→F; length: same/m→km/km→mi/in→cm/ft→m/yd→ft/mm→cm; weight: same/kg→g/kg→lb/lb→kg/oz→g/g→mg/ton→kg; distance2D: zero/horizontal/vertical/diagonal/negative; distance3D: zero/axis/diagonal; degrees/radians: 0/180/360/90/PI/roundtrip; duration: ms/seconds/min-sec/min/hour-min/hour/negative/zero; percentage: simple/zero-total/decimals/100%/over/zero-value)
 - Total tests: 5184 → 5269 (194 test files, all passing)
+
+### Agent 2 (Logic) — useFocusTrap, usePageLeave Hooks & regexUtils Utility
+- Created `useFocusTrap` hook: traps keyboard focus within a container element
+  - Tab/Shift+Tab cycling through focusable elements
+  - Auto-focus first element on mount, restore focus on unmount
+  - Configurable enabled/autoFocus/restoreFocus options
+  - Filters out hidden/disabled elements
+- Created `usePageLeave` hook: detects when mouse leaves the page viewport
+  - Tracks hasLeft state and leaveCount
+  - Callback on leave event, manual reset
+  - Detects all viewport edges (top/bottom/left/right)
+- Created `regexUtils` utility for common pattern matching:
+  - `escapeRegex`: escape special regex characters
+  - `isEmail`/`isUrl`/`isIPv4`/`isUUID`: validation functions
+  - `isAlphanumeric`/`isNumeric`/`isHexColor`: format checks
+  - `extractEmails`/`extractUrls`/`extractHashtags`/`extractMentions`: extraction
+  - `matchesGlob`: glob-like pattern matching
+  - `countMatches`: count pattern occurrences
+  - `replaceAll`: safe literal string replacement
+- Added 13 tests for useFocusTrap (autoFocus, no-autoFocus, Tab wrap last→first, Shift+Tab wrap first→last, non-Tab key, disabled, restore focus, no-restore, empty container, null ref, cleanup, mid-focus no-wrap, skip disabled)
+- Added 13 tests for usePageLeave (init, leave top/left/right/bottom, multiple leaves, callback, reset, interior no-trigger, cleanup, stable reset, shape, negative coords)
+- Added 61 tests for regexUtils (escapeRegex: special/brackets/normal/dollar; isEmail: valid/subdomain/dots/missing@/no-domain/empty; isUrl: http/https/query/no-protocol/empty; isIPv4: standard/localhost/max/overflow/few-octets/non-numeric; isAlphanumeric: valid/spaces/special/empty; isHexColor: 6-digit/3-digit/no-hash/invalid/wrong-length; extractEmails: single/multiple/none; extractUrls: single/multiple/none; extractHashtags: basic/Korean/none; extractMentions: basic/none; matchesGlob: star/question/reject/exact/empty; countMatches: string/regex/none/no-global; isUUID: v4/invalid/v1; isNumeric: digits/decimal/negative/empty; replaceAll: basic/none/empty/special)
+- Total tests: 5269 → 5356 (197 test files, all passing)
