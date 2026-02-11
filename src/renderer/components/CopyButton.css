@@ -1,0 +1,109 @@
+/* CopyButton — text copy button with feedback */
+
+.copy-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.copy-button:focus-visible {
+  outline: 2px solid var(--color-accent, #6b9eff);
+  outline-offset: 2px;
+}
+
+.copy-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Variant: default */
+.copy-button-default {
+  border: none;
+  background-color: var(--bg-tertiary, #333);
+  color: var(--text-primary, #e0e0e0);
+}
+
+.copy-button-default:hover:not(:disabled) {
+  background-color: var(--bg-hover, rgba(255, 255, 255, 0.1));
+}
+
+/* Variant: ghost */
+.copy-button-ghost {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #aaa);
+}
+
+.copy-button-ghost:hover:not(:disabled) {
+  color: var(--text-primary, #e0e0e0);
+  background-color: var(--bg-hover, rgba(255, 255, 255, 0.05));
+}
+
+/* Variant: outline */
+.copy-button-outline {
+  border: 1px solid var(--border-color, #3a3a3a);
+  background: transparent;
+  color: var(--text-primary, #e0e0e0);
+}
+
+.copy-button-outline:hover:not(:disabled) {
+  background-color: var(--bg-hover, rgba(255, 255, 255, 0.05));
+  border-color: var(--text-secondary, #aaa);
+}
+
+/* Copied state */
+.copy-button-copied {
+  color: var(--color-success, #2ecc71);
+}
+
+.copy-button-default.copy-button-copied {
+  background-color: rgba(46, 204, 113, 0.1);
+}
+
+.copy-button-outline.copy-button-copied {
+  border-color: rgba(46, 204, 113, 0.3);
+}
+
+/* Sizes */
+.copy-button-small {
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+.copy-button-medium {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.copy-button-large {
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+/* Icon */
+.copy-button-icon {
+  display: inline-flex;
+  font-size: 1em;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.copy-button-copied .copy-button-icon {
+  transform: scale(1.1);
+}
+
+/* Label */
+.copy-button-label {
+  line-height: 1;
+}
+
+/* Disabled */
+.copy-button-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
