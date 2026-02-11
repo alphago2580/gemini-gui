@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (3752+ tests)
+- **Test Status**: Passing (3914 tests)
 - **Last Agent Run**: Agent 4 (Integrator)
 
 ## Completed Features
@@ -968,3 +968,15 @@
 - Added 13 tests for useClipboardPaste (text, html, images, non-image files, separation, no content, acceptTypes text, acceptTypes wildcard, disabled, re-enable, cleanup, targetRef, text+files combo)
 - Added 60 tests for typeGuardUtils (isString 4, isNumber 4, isBoolean 3, isNil 3, isNonNil 3, isPlainObject 4, isArray 3, isFunction 3, isDate 4, isRegExp 3, isPromiseLike 3, isError 3, isMap 2, isSet 2, isNonEmptyString 3, isNonEmptyArray 3, isFiniteNumber 3, isInteger 3, isPositive 3, isNegative 2, hasProperty 4, hasProperties 4, assertType 4)
 - Total tests: 2947 → 3752 (150 test files, all passing)
+
+### Agent 4 (Integrator) — Integrate UserAvatar, NotificationBanner, Accordion
+- Added `UserAvatar` component to `MessageBubble` — each message now displays a role-specific avatar (👤 for user, ✦ for assistant)
+- Integrated `NotificationBanner` into App.tsx — shows error banner when `sessionStatus` is 'error' (connection failures)
+  - Banner includes retry action button and is dismissible
+  - Wired to `useStreamHandler`'s `sessionStatus` state
+- Integrated `Accordion` into Settings dialog — wraps temperature, maxTokens, and fontSize controls
+  - Advanced settings collapsible via accordion (expanded by default)
+  - Replaced inline sliders with Accordion item for cleaner organization
+- Added 6 string constants: `BANNER_CONNECTION_ERROR`, `BANNER_RETRY`, `SETTINGS_SECTION_GENERAL`, `SETTINGS_SECTION_ADVANCED`
+- Added 6 new integration tests: UserAvatar rendering for user/assistant, NotificationBanner visibility, session error banner, Accordion in settings, accordion expand
+- Total tests: 3908 → 3914 (152 test files, all passing)
