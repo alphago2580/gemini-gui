@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (6157+ tests)
+- **Test Status**: Passing (6197+ tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1478,3 +1478,20 @@
 - Added 11 tests for usePointerLock
 - Added 19 tests for finiteStateMachineUtils
 - Total tests: 6077 → 6157 (227 test files, all passing)
+
+### Agent 2 (Logic) — Hooks/Utils Batch 33: usePrefersReducedMotion, useDocumentReadyState, bitmaskUtils
+- Created `usePrefersReducedMotion` hook for tracking prefers-reduced-motion:
+  - Returns boolean for reduced motion preference
+  - Live updates via matchMedia change listener
+- Created `useDocumentReadyState` hook for document ready state:
+  - Tracks document.readyState with live updates via readystatechange event
+  - Boolean helpers: isLoading, isInteractive, isComplete
+- Created `bitmaskUtils` utility for bit manipulation:
+  - hasFlag, addFlag, removeFlag, toggleFlag, setFlag
+  - getFlags, countSetBits, createBitmask
+  - bitmaskToString, fromBitmaskString
+  - hasAnyFlag, hasAllFlags, lowestSetBit, highestSetBit
+- Added 6 tests for usePrefersReducedMotion
+- Added 7 tests for useDocumentReadyState
+- Added 27 tests for bitmaskUtils
+- Total tests: 6157 → 6197 (230 test files, all passing)
