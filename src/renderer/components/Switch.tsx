@@ -10,6 +10,7 @@ export interface SwitchProps {
   disabled?: boolean;
   size?: SwitchSize;
   id?: string;
+  'aria-label'?: string;
 }
 
 const Switch: React.FC<SwitchProps> = ({
@@ -19,6 +20,7 @@ const Switch: React.FC<SwitchProps> = ({
   disabled = false,
   size = 'medium',
   id,
+  'aria-label': ariaLabel,
 }) => {
   const handleClick = useCallback(() => {
     if (!disabled) {
@@ -42,7 +44,7 @@ const Switch: React.FC<SwitchProps> = ({
       role="switch"
       aria-checked={checked}
       aria-disabled={disabled || undefined}
-      aria-label={!label ? '토글' : undefined}
+      aria-label={ariaLabel || (!label ? '토글' : undefined)}
       tabIndex={disabled ? -1 : 0}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
