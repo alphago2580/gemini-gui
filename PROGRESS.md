@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2720 tests)
+- **Test Status**: Passing (2783 tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -682,10 +682,25 @@
 ### Agent 2 (Logic) — useReducerWithMiddleware, useStateWithHistory Hooks & eventBusUtils Utility
 - Created `useReducerWithMiddleware` hook: useReducer with composable middleware support
 - Created `useStateWithHistory` hook: useState with full change history tracking
-- Created `eventBusUtils` utility with type-safe event bus
-- Added 14 tests for useReducerWithMiddleware
-- Added 14 tests for useStateWithHistory
-- Added 25 tests for eventBusUtils
+  - Returns `value`, `setValue`, `history`, `historySize`, `clearHistory`, `goTo`
+  - `history` entries contain `{ value, timestamp }` for each state change
+  - Configurable `maxHistory` (default 100) with sliding window
+  - `goTo(index)` sets value to any historical entry (bounds-checked)
+  - `clearHistory()` retains only current value
+  - Stable callback references across re-renders
+- Created `eventBusUtils` utility with type-safe event bus:
+  - `createEventBus<EventMap>()`: creates typed pub/sub event bus
+  - `on(event, listener)`: subscribe, returns unsubscribe function
+  - `off(event, listener)`: unsubscribe specific listener
+  - `emit(event, data)`: publish event to all listeners (snapshot iteration)
+  - `once(event, listener)`: auto-unsubscribe after first call
+  - `clear(event?)`: clear listeners for one or all events
+  - `listenerCount(event)` and `hasListeners(event)` for introspection
+  - Safe during emit: listeners can remove themselves without issues
+- Added 14 tests for useReducerWithMiddleware (init, dispatch, multi-action, payload, middleware call, getState, chain order, block, transform, re-dispatch, stable ref, empty array, state visibility, three middlewares)
+- Added 14 tests for useStateWithHistory (init, initial history, setValue, history entries, timestamps, maxHistory limit, clearHistory, goTo, negative index, high index, objects, stable refs, default max, middle goTo)
+- Added 25 tests for eventBusUtils (create, on+emit, multiple listeners, cross-event isolation, complex data, repeat emit, unsubscribe, off specific, off non-existent, off empty event, once, once unsubscribe, once with regular, clear event, clear preserves others, clear all, listenerCount zero, listenerCount multiple, listenerCount after off, hasListeners false, hasListeners true, hasListeners after remove, emit no listeners, self-remove during emit, undefined data)
+- Total tests: 2663 → 2720 (134 test files, all passing)
 
 ### Agent 4 (Integrator) — Integrate Switch for Settings Toggles + Tooltip for Header Buttons
 - Replaced 3 manual `toggle-btn` elements in Settings with `Switch` component (high-contrast, notification-sound, show-timestamps)
@@ -695,3 +710,34 @@
 - Updated 2 high contrast tests to match Switch component behavior (no ON/OFF text)
 - Added 4 unit tests for Switch toggle integration (rendering, checked state, toggle click, timestamps)
 - Total tests: 2598 (128 test files, all passing)
+
+### Agent 2 (Logic) — useWebSocket, useAnimationFrame Hooks & promiseUtils Utility
+- Created `useWebSocket` hook: WebSocket connection management with auto-reconnect
+  - `WebSocketStatus`: 'connecting' | 'connected' | 'disconnected' | 'error'
+  - Returns: `status`, `lastMessage`, `send`, `connect`, `disconnect`, `reconnectCount`
+  - Auto-connects when URL provided, disconnects on URL null
+  - Configurable reconnect with `reconnectInterval`, `reconnectAttempts`, exponential reconnect count tracking
+  - Callbacks: `onOpen`, `onClose`, `onError`, `onMessage`
+  - Protocol support via `protocols` option
+  - Clean teardown on unmount (close WS, clear timers, null handlers)
+  - Stable `send` reference via `useCallback`
+- Created `useAnimationFrame` hook: requestAnimationFrame-based animation loop
+  - Returns: `start`, `stop`, `isRunning`, `elapsed`, `fps`
+  - Tracks delta time and total elapsed via refs
+  - FPS calculated from frame-to-frame delta
+  - Resets elapsed/fps on restart
+  - Uses callback ref for latest callback without re-registering
+  - Prevents double-start, cleans up on unmount
+- Created `promiseUtils` utility with 7 exports:
+  - `TimeoutError`: custom error class for timeout identification
+  - `withTimeout<T>(promise, ms)`: rejects with TimeoutError if promise exceeds ms
+  - `delay(ms)`: simple promise-based delay
+  - `withRetry<T>(fn, options)`: retry with configurable attempts, delay, exponential backoff, onRetry callback
+  - `settleAll<T>(promises)`: like Promise.allSettled with typed results
+  - `deferred<T>()`: creates externally resolvable/rejectable promise
+  - `sequential<T>(tasks)`: execute promise-returning functions one at a time
+  - `pool<T>(tasks, concurrency)`: execute with limited parallel workers, preserving order
+- Added 21 tests for useWebSocket (null url, connect, open, close, error, message, send, not-connected send, onOpen, onClose, onError, onMessage, disconnect, disconnect code/reason, reconnect, max attempts, reconnect reset, protocols, unmount cleanup, url change, stable send)
+- Added 13 tests for useAnimationFrame (init state, start, callback delta/elapsed, stop, no-call-after-stop, elapsed update, fps calc, reset on restart, ignore double-start, unmount cleanup, stable refs, latest callback ref, start/stop cycles)
+- Added 29 tests for promiseUtils (delay resolve, delay timing, withTimeout success, withTimeout reject, TimeoutError msg, promise rejection passthrough, TimeoutError name, withRetry success, retry+succeed, retry exhausted, onRetry callback, exponential backoff, default 3 attempts, settleAll fulfilled, rejected, mixed, empty, deferred resolve, reject, pending, shape, sequential order, empty, error propagation, pool basic, concurrency limit, empty, order preservation, large concurrency)
+- Total tests: 2720 → 2783 (137 test files, all passing)
