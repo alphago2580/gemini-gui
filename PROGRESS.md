@@ -3,10 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (4192 tests)
-- **Last Agent Run**: Agent 4 (Integrator)
-
-- **Test Status**: Passing (4195 tests)
+- **Test Status**: Passing (4462 tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -982,7 +979,6 @@
 - Added 6 new integration tests: UserAvatar rendering for user/assistant, NotificationBanner visibility, session error banner, Accordion in settings, accordion expand
 - Total tests: 3966 → 3972+ (157 test files, all passing)
 
-<<<<<<< HEAD
 ### Agent 2 (Logic) — useOrientation, useBattery Hooks & iteratorUtils Utility
 - Created `useOrientation` hook: device orientation detection
   - Returns: `type` ('portrait' | 'landscape'), `angle`, `isPortrait`, `isLandscape`
@@ -1007,7 +1003,7 @@
 - Added 10 tests for useBattery (init, read state, add listeners, remove listeners, level change, charging change, rejection, missing API, dischargingTime, full battery)
 - Added 54 tests for iteratorUtils (range 6, chunk 5, zip 4, take 4, skip 3, filter 3, map 3, flatten 3, enumerate 3, takeWhile 3, skipWhile 3, unique 4, reduce 3, toArray 2, cycle 3, composition 2)
 - Total tests: 3966 → 4195 (160 test files, all passing)
-=======
+
 ### Agent 4 (Integrator) — Integrate SessionIndicator, DropdownMenu, ProgressBar
 - Added `SessionIndicator` to App.tsx header — displays real-time connection status (idle/connecting/connected/error) with colored dot and label
   - Wired to `sessionStatus` from `useStreamHandler` hook
@@ -1021,4 +1017,31 @@
 - Added 4 string constants: `CONV_MENU_LABEL`, `CONV_MENU_OPEN`, `CONV_MENU_DELETE`, `TOKEN_PROGRESS_LABEL`
 - Added 8 new integration tests: SessionIndicator rendering, error status, ProgressBar visibility, token usage bar, DropdownMenu trigger, menu open
 - Total tests: 3972+ → 4192 (158 test files, all passing)
->>>>>>> agent-4/session-dropdown-progress
+
+### Agent 2 (Logic) — useMediaCapture, usePreferredLanguage Hooks & schemaValidationUtils Utility
+- Created `useMediaCapture` hook: webcam/microphone media capture with MediaRecorder
+  - Returns: `status`, `stream`, `start`, `stop`, `pause`, `resume`, `error`, `isSupported`, `chunks`, `getBlob`
+  - Status states: idle → requesting → active → paused/stopped/error
+  - Auto-stop after configurable maxDuration
+  - Collects recording data chunks with onDataAvailable callback
+  - Cleans up MediaStream tracks and timers on unmount
+  - Custom audio/video constraints support
+- Created `usePreferredLanguage` hook: browser language preference detection
+  - Returns: `language` (full tag), `baseLang` (code only), `region` (country code), `languages` (all preferred)
+  - Parses BCP 47 language tags (e.g., 'en-US' → baseLang: 'en', region: 'US')
+  - Handles extended subtags (e.g., 'zh-Hant-TW')
+  - Listens for `languagechange` event for real-time updates
+  - Falls back to navigator.language when navigator.languages is empty
+- Created `schemaValidationUtils` utility with lightweight JSON schema validation:
+  - Type checking: string, number, boolean, object, array, null, union types
+  - String validators: minLength, maxLength, pattern (regex), format (email, url, uuid, iso-date)
+  - Number validators: minimum, maximum, integer
+  - Object validators: required properties, property schemas, additionalProperties
+  - Array validators: minItems, maxItems, uniqueItems, item schemas
+  - Special: enum, const, custom validate function
+  - Deep nested validation with path tracking
+  - Exports: `validate`, `createValidator`, `assertValid`, `isValid`
+- Added 18 tests for useMediaCapture (idle init, isSupported, start/active, stop/release, pause/resume, data chunks, empty chunks, getUserMedia reject, recorder error, maxDuration auto-stop, custom constraints, getBlob combined, getBlob null, cleanup unmount, pause no-op, resume no-op, unsupported API, start when unsupported)
+- Added 10 tests for usePreferredLanguage (current language, base lang, region, null region, all languages, languagechange update, cleanup, extended subtags, empty languages fallback, default en)
+- Added 46 tests for schemaValidationUtils (type: string/wrong/number/boolean/null/array/object/union/no-type; string: minLength/maxLength/pattern/email/url/uuid/iso-date; number: min/max/integer/range; enum/const/enum-error; object: required/property-schemas/reject-additional/allow-additional/nested-path/skip-optional; array: minItems/maxItems/uniqueItems/item-schemas/item-path; custom: true-return/string-message; createValidator; assertValid: no-throw/throw/path; isValid: true/false; complex: user-profile/deep-nested/array-of-objects/multiple-errors)
+- Total tests: 4195 → 4462 (167 test files, all passing)
