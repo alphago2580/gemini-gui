@@ -1,0 +1,118 @@
+.collapsible {
+  border-radius: 6px;
+}
+
+/* Variants */
+.collapsible-bordered {
+  border: 1px solid var(--border-color, #333);
+}
+
+.collapsible-filled {
+  background: var(--bg-secondary, #2a2a2a);
+  border-radius: 8px;
+}
+
+/* Trigger */
+.collapsible-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text-primary, #e0e0e0);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s;
+}
+
+.collapsible-trigger:hover:not(:disabled) {
+  background: var(--bg-hover, #333);
+}
+
+.collapsible-trigger:focus-visible {
+  outline: 2px solid var(--accent-color, #4a9eff);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.collapsible-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.collapsible-small .collapsible-trigger {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.collapsible-medium .collapsible-trigger {
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.collapsible-large .collapsible-trigger {
+  padding: 14px 18px;
+  font-size: 16px;
+}
+
+/* Chevron */
+.collapsible-chevron {
+  font-size: 16px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  width: 16px;
+  justify-content: center;
+}
+
+.collapsible-open .collapsible-chevron {
+  transform: rotate(90deg);
+}
+
+/* Icon */
+.collapsible-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Title */
+.collapsible-title {
+  flex: 1;
+  font-weight: 500;
+}
+
+/* Badge */
+.collapsible-badge {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Content */
+.collapsible-content {
+  overflow: hidden;
+}
+
+.collapsible-animated .collapsible-content {
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+}
+
+.collapsible-body {
+  padding: 0 14px 14px;
+}
+
+.collapsible-small .collapsible-body {
+  padding: 0 10px 10px;
+}
+
+.collapsible-large .collapsible-body {
+  padding: 0 18px 18px;
+}
+
+/* Disabled */
+.collapsible-disabled {
+  opacity: 0.6;
+}
