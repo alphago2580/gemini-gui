@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5667+ tests)
-- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 12
+- **Test Status**: Passing (5736+ tests)
+- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 13
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1189,6 +1189,12 @@
 - Added 14 tests for useHistoryState (init default, restore from history, push/push-with-URL, replace/replace-with-URL, popstate, popstate no key, popstate null, cleanup, stable refs, shape, object state, preserve keys)
 - Added 58 tests for measureUtils (formatBytes: 0/bytes/KB/MB/GB/decimals/negative/TB; temperature: same/C→F/F→C/C→K/K→C/F→K/K→F; length: same/m→km/km→mi/in→cm/ft→m/yd→ft/mm→cm; weight: same/kg→g/kg→lb/lb→kg/oz→g/g→mg/ton→kg; distance2D: zero/horizontal/vertical/diagonal/negative; distance3D: zero/axis/diagonal; degrees/radians: 0/180/360/90/PI/roundtrip; duration: ms/seconds/min-sec/min/hour-min/hour/negative/zero; percentage: simple/zero-total/decimals/100%/over/zero-value)
 - Total tests: 5184 → 5269 (194 test files, all passing)
+
+### Agent 4 (Integrator) — Integration Batch 13: Stepper, Tabs, TreeView
+- Added **Stepper** onboarding progress (환영→준비→대화) on welcome screen
+- Added **Tabs** info panel with underline variant for stats/timeline switching
+- Added **TreeView** conversation structure tree with icon navigation in stats panel
+- Total tests: 5736+ (208 test files, all passing)
 
 ### Agent 4 (Integrator) — Integration Batch 12: CountdownTimer, Pagination, Switch
 - Added **CountdownTimer** (60s) during response loading with warning/danger thresholds
