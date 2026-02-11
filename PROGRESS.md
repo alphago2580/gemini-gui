@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (3047 tests)
+- **Test Status**: Passing (3109 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -778,3 +778,14 @@
 - **useDragAndDrop.test.ts**: Added 8 tests — drop counter reset, drop preventDefault, dragLeave preventDefault, multiple accept patterns, no onDrop callback, nested enter count, nested leave count
 - **useReadingProgress.test.ts**: Added 8 tests — reset stability, 25% progress, container ref 50%, container non-scrollable, container scrollTop 0, container unmount cleanup, throttle suppression
 - Total tests: 2985 → 3047 (128 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 15 (+62 tests)
+- **useThrottle.test.ts**: Added 8 tests — null/undefined/boolean/array values, unmount safety, immediate update after full cycle, very large delay
+- **useAsync.test.ts**: Added 8 tests — unmount safety on success/error, numeric rejection, reset during loading, object/array data types, sequential execute cycle
+- **useClipboard.test.ts**: Added 8 tests — empty string copy, special characters, multiline text, delay boundary, error-then-success clear, rapid copies, zero delay reset
+- **useNetworkStatus.test.ts**: Added 8 tests — result shape validation, dual timestamp updates, multiple offline/online events, rapid cycling, idempotent events, timestamp Date values
+- **usePageVisibility.test.ts**: Added 8 tests — result shape validation, hiddenDuration pre-hide zero, lastHiddenTime updates, duration accumulation, no-options usage, callback isolation, null lastVisibleTime
+- **useNotification.test.ts**: Added 8 tests — result shape validation, unsupported notify returns null, options passthrough, no-options notify, denied permission update, notify stability, initial granted, isSupported true
+- **windowState.test.ts**: Added 9 tests — empty JSON object, empty file, non-boolean isMaximized, zero dimensions invalid, x=0/y=0 valid, negative coords, JSON array fallback, extra properties, optional fields omitted save
+- **Tooltip.test.tsx**: Added 8 tests — wrapper CSS class, content text match, arrow span element, re-enter deduplication, timer clearTimeout, focus/blur cycle, nested children rendering
+- Total tests: 3047 → 3109 (128 test files, all passing)
