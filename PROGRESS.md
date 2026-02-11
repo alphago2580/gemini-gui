@@ -5,6 +5,8 @@
 - **Total Lines**: ~1400
 - **Test Status**: Passing (3558 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
+- **Test Status**: Passing (3752 tests)
+- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -939,3 +941,32 @@
 - **urlUtils.test.ts**: Added 8 tests — data URI valid, subdomain extraction, double extension, duplicate query params, overwrite existing param, stripQueryParams fragment, file protocol, multiple URLs per line
 - **cryptoUtils.test.ts**: Added 8 tests — single byte hex, randomInt variety, similar string different hashes, SHA256 Unicode, base64 valid chars, shortId uniqueness, single char difference, hue determinism range
 - Total tests: 3494 → 3558 (143 test files, all passing)
+### Agent 2 (Logic) — useBreakpoint, useClipboardPaste Hooks & typeGuardUtils Utility
+- Created `useBreakpoint` hook: responsive breakpoint detection
+  - Default breakpoints: xs(0), sm(640), md(768), lg(1024), xl(1280), 2xl(1536)
+  - Returns: `current`, `width`, `isAbove`, `isBelow`, `isAt`, `isBetween`
+  - `isAt` checks if width falls within a breakpoint's range (e.g., md = 768–1023)
+  - `isBetween(min, max)` checks inclusive min, exclusive max
+  - Supports custom breakpoints via `Partial<BreakpointConfig>`
+  - Listens on window resize, cleans up on unmount
+- Created `useClipboardPaste` hook: clipboard paste event handler
+  - Detects text, HTML, image files, and non-image files from paste events
+  - Returns `PasteData`: `text`, `html`, `images`, `files`, `hasContent`
+  - `acceptTypes` filter with wildcard support (e.g., `image/*`)
+  - Optional `targetRef` to listen on specific element instead of document
+  - `enabled` toggle to activate/deactivate listener
+  - Uses refs for stable callback without re-registering listeners
+- Created `typeGuardUtils` utility with 22 type guards + 1 assertion:
+  - Primitives: `isString`, `isNumber` (excludes NaN), `isBoolean`
+  - Nullish: `isNil`, `isNonNil`
+  - Objects: `isPlainObject`, `isArray`, `isFunction`, `isDate` (valid only), `isRegExp`
+  - Collections: `isMap`, `isSet`
+  - Async: `isPromiseLike` (thenable detection)
+  - Errors: `isError`
+  - Refinements: `isNonEmptyString`, `isNonEmptyArray`, `isFiniteNumber`, `isInteger`, `isPositive`, `isNegative`
+  - Property checks: `hasProperty`, `hasProperties`
+  - Assertion: `assertType(value, guard, message?)` — throws TypeError on failure
+- Added 16 tests for useBreakpoint (current lg, xs, sm, md, xl, 2xl, width, resize update, isAbove, isBelow, isAt range, isAt 2xl, isBetween, custom breakpoints, default export, cleanup)
+- Added 13 tests for useClipboardPaste (text, html, images, non-image files, separation, no content, acceptTypes text, acceptTypes wildcard, disabled, re-enable, cleanup, targetRef, text+files combo)
+- Added 60 tests for typeGuardUtils (isString 4, isNumber 4, isBoolean 3, isNil 3, isNonNil 3, isPlainObject 4, isArray 3, isFunction 3, isDate 4, isRegExp 3, isPromiseLike 3, isError 3, isMap 2, isSet 2, isNonEmptyString 3, isNonEmptyArray 3, isFiniteNumber 3, isInteger 3, isPositive 3, isNegative 2, hasProperty 4, hasProperties 4, assertType 4)
+- Total tests: 2947 → 3752 (150 test files, all passing)
