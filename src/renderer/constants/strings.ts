@@ -518,3 +518,18 @@ export const ALERT_BANNER_TOKEN_WARNING = '토큰 사용량이 90%를 초과했�
 // Breadcrumb
 export const BREADCRUMB_HOME = 'Gemini';
 export const BREADCRUMB_CHAT = '대화';
+
+// Rating (message feedback)
+export const RATING_LABEL = '응답 평가';
+export const RATING_ARIA = '응답 품질 평가';
+
+// MeterBar (memory usage)
+export const METER_MEMORY_LABEL = '메모리';
+export const METER_MEMORY_ARIA = '메모리 사용량';
+
+// Popover (session details)
+export const POPOVER_SESSION_ARIA = '세션 상세 정보';
+export const POPOVER_SESSION_TITLE = '세션 정보';
+export const POPOVER_SESSION_STATUS = '상태';
+export const POPOVER_SESSION_MESSAGES = '메시지 수';
+export const POPOVER_SESSION_MODEL = '모델';
