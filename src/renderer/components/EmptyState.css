@@ -1,0 +1,130 @@
+/* EmptyState — placeholder for empty data */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-secondary, #aaa);
+}
+
+/* Sizes */
+.empty-state-small {
+  padding: 16px;
+  gap: 6px;
+}
+
+.empty-state-medium {
+  padding: 32px;
+  gap: 8px;
+}
+
+.empty-state-large {
+  padding: 48px;
+  gap: 12px;
+}
+
+/* Icon */
+.empty-state-icon {
+  line-height: 1;
+}
+
+.empty-state-small .empty-state-icon {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.empty-state-medium .empty-state-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.empty-state-large .empty-state-icon {
+  font-size: 56px;
+  margin-bottom: 12px;
+}
+
+/* Title */
+.empty-state-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-primary, #e0e0e0);
+}
+
+.empty-state-small .empty-state-title {
+  font-size: 13px;
+}
+
+.empty-state-medium .empty-state-title {
+  font-size: 15px;
+}
+
+.empty-state-large .empty-state-title {
+  font-size: 18px;
+}
+
+/* Description */
+.empty-state-description {
+  margin: 0;
+  line-height: 1.5;
+  max-width: 360px;
+}
+
+.empty-state-small .empty-state-description {
+  font-size: 12px;
+}
+
+.empty-state-medium .empty-state-description {
+  font-size: 13px;
+}
+
+.empty-state-large .empty-state-description {
+  font-size: 14px;
+}
+
+/* Content */
+.empty-state-content {
+  margin-top: 4px;
+}
+
+/* Actions */
+.empty-state-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.empty-state-action {
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.empty-state-action:focus-visible {
+  outline: 2px solid var(--color-accent, #6b9eff);
+  outline-offset: 2px;
+}
+
+.empty-state-action-primary {
+  border: none;
+  background-color: var(--color-accent, #6b9eff);
+  color: #fff;
+}
+
+.empty-state-action-primary:hover {
+  background-color: var(--color-accent-hover, #5a8de6);
+}
+
+.empty-state-action-secondary {
+  border: 1px solid var(--border-color, #3a3a3a);
+  background: transparent;
+  color: var(--text-primary, #e0e0e0);
+}
+
+.empty-state-action-secondary:hover {
+  background-color: var(--bg-hover, rgba(255, 255, 255, 0.05));
+}
