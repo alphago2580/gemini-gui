@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2783 tests)
+- **Test Status**: Passing (2947 tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -741,3 +741,30 @@
 - Added 13 tests for useAnimationFrame (init state, start, callback delta/elapsed, stop, no-call-after-stop, elapsed update, fps calc, reset on restart, ignore double-start, unmount cleanup, stable refs, latest callback ref, start/stop cycles)
 - Added 29 tests for promiseUtils (delay resolve, delay timing, withTimeout success, withTimeout reject, TimeoutError msg, promise rejection passthrough, TimeoutError name, withRetry success, retry+succeed, retry exhausted, onRetry callback, exponential backoff, default 3 attempts, settleAll fulfilled, rejected, mixed, empty, deferred resolve, reject, pending, shape, sequential order, empty, error propagation, pool basic, concurrency limit, empty, order preservation, large concurrency)
 - Total tests: 2720 → 2783 (137 test files, all passing)
+
+### Agent 2 (Logic) — useVirtualList, usePermission Hooks & cacheUtils Utility
+- Created `useVirtualList` hook: windowed rendering for large lists
+  - Returns: `virtualItems`, `totalHeight`, `containerProps`, `wrapperProps`, `scrollToIndex`, `visibleRange`
+  - Calculates visible range based on scroll position and container height
+  - Configurable `itemHeight` and `overscan` (default 3) for buffer items
+  - `scrollToIndex(i)` for programmatic scrolling
+  - Container props include `onScroll` handler and overflow styles
+  - Wrapper props set total height for proper scrollbar size
+- Created `usePermission` hook: browser Permissions API integration
+  - Queries and tracks permission state for any `PermissionName`
+  - Returns: `state`, `isGranted`, `isDenied`, `isPrompt`, `isSupported`, `query()`
+  - Auto-queries on mount and listens for permission changes via `change` event
+  - Graceful fallback to 'unsupported' when API unavailable
+  - Cleans up change listener on unmount
+  - Re-queries when permission name changes
+- Created `cacheUtils` utility with 3 exports:
+  - `createTTLCache<K,V>(defaultTtl?)`: time-to-live cache with per-entry or default TTL
+  - `createLRUCache<K,V>(maxSize)`: least-recently-used eviction cache
+  - `memoize<Args,R>(fn, keyFn?)`: function result memoization with custom key support
+  - Both caches implement `Cache<K,V>` interface: get, set, has, delete, clear, size, keys, values
+  - TTL cache auto-expires on access and during size/keys/values enumeration
+  - LRU cache promotes entries on get access, evicts oldest on overflow
+- Added 14 tests for useVirtualList (init, totalHeight, small list, props, offsetTop, scroll range, overscan, bounds clamp, start clamp, empty list, scrollToIndex, items count, default overscan, items change)
+- Added 12 tests for usePermission (init, query mount, granted, denied, change listener, unmount cleanup, change events, query rejection, query return, isSupported, query throws, name change)
+- Added 34 tests for cacheUtils (TTL: set/get, missing, has, delete, delete missing, clear, size, keys, values, expire, default TTL, override TTL, no TTL, expired exclusion, overwrite; LRU: set/get, missing, eviction, get promotes, max size, overwrite, has, delete, clear, keys, values, size 1; memoize: cache, different args, multi args, custom key, strings, falsy)
+- Total tests: 2783 → 2947 (142 test files, all passing)
