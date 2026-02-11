@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (3109 tests)
-- **Last Agent Run**: Agent 3 (Tests & Types)
+- **Test Status**: Passing (2947 tests)
+- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -711,81 +711,60 @@
 - Added 4 unit tests for Switch toggle integration (rendering, checked state, toggle click, timestamps)
 - Total tests: 2598 (128 test files, all passing)
 
-### Agent 3 (Tests & Types) — Deepen Test Coverage Round 9 (+72 tests)
-- **useRetry.test.ts**: Added 8 tests — exponential/fixed backoff delay verification, cancel stops in-progress retries, maxRetries=0 single attempt, execute resets prior state, onRetry receives last error per attempt, attempt count matches maxRetries after failure
-- **useFormattingToolbar.test.ts**: Added 8 tests — bold mid-text cursor positions, italic/code/strikethrough placeholder end positions, link with selection selects url, codeblock wraps in fenced block, unknown action preserves cursor, bold at end of text
-- **useDialogs.test.ts**: Added 8 tests — toggle cycles for command palette/quick switcher/shortcut help, all 18 callbacks stable across rerenders, simultaneous open/close all dialogs, toggleInputPreview 4-step cycle, close already-closed no-op
-- **useCountdown.test.ts**: Added 8 tests — restart clears previous timer, pause+reset, onComplete fires after resume, resume no-op after finish, multiple pauses idempotent, callback stability, does not go below zero
-- **useMessageActions.test.ts**: Added 8 tests — edit/pin/bookmark/emoji context menu actions, handleEmojiSelect toggles reaction and closes picker, emoji select without target is no-op, pin deduplication, unpin by index
-- **Pagination.test.tsx**: Added 8 tests + 3 generatePageRange edge cases — previous/next no-op at bounds, negative totalPages, single page no ellipsis, nav title attributes, CSS classes, 2-page no ellipsis, edge ranges
-- **DropdownMenu.test.tsx**: Added 8 tests — Enter/Space without active item, disabled item click no-op, disabled mouseEnter no activation, empty actionable Home/End keys, ArrowUp wrap-around, menu tabIndex
-- **PinnedMessages.test.tsx**: Added 8 tests — unpin stopPropagation, pin icon content, tabIndex on items, role class matching, non-Enter keyDown ignored, aria-labels on unpin buttons, single-item count, 80-char no-truncate
-- **ColorPicker.test.tsx**: Added 8 tests — trigger title attribute, disabled prevents dropdown, input maxLength/placeholder, preset aria-label, dropdown aria-label, non-selected preset class
-- Total tests: 2583 → 2655 (128 test files, all passing)
+### Agent 2 (Logic) — useWebSocket, useAnimationFrame Hooks & promiseUtils Utility
+- Created `useWebSocket` hook: WebSocket connection management with auto-reconnect
+  - `WebSocketStatus`: 'connecting' | 'connected' | 'disconnected' | 'error'
+  - Returns: `status`, `lastMessage`, `send`, `connect`, `disconnect`, `reconnectCount`
+  - Auto-connects when URL provided, disconnects on URL null
+  - Configurable reconnect with `reconnectInterval`, `reconnectAttempts`, exponential reconnect count tracking
+  - Callbacks: `onOpen`, `onClose`, `onError`, `onMessage`
+  - Protocol support via `protocols` option
+  - Clean teardown on unmount (close WS, clear timers, null handlers)
+  - Stable `send` reference via `useCallback`
+- Created `useAnimationFrame` hook: requestAnimationFrame-based animation loop
+  - Returns: `start`, `stop`, `isRunning`, `elapsed`, `fps`
+  - Tracks delta time and total elapsed via refs
+  - FPS calculated from frame-to-frame delta
+  - Resets elapsed/fps on restart
+  - Uses callback ref for latest callback without re-registering
+  - Prevents double-start, cleans up on unmount
+- Created `promiseUtils` utility with 7 exports:
+  - `TimeoutError`: custom error class for timeout identification
+  - `withTimeout<T>(promise, ms)`: rejects with TimeoutError if promise exceeds ms
+  - `delay(ms)`: simple promise-based delay
+  - `withRetry<T>(fn, options)`: retry with configurable attempts, delay, exponential backoff, onRetry callback
+  - `settleAll<T>(promises)`: like Promise.allSettled with typed results
+  - `deferred<T>()`: creates externally resolvable/rejectable promise
+  - `sequential<T>(tasks)`: execute promise-returning functions one at a time
+  - `pool<T>(tasks, concurrency)`: execute with limited parallel workers, preserving order
+- Added 21 tests for useWebSocket (null url, connect, open, close, error, message, send, not-connected send, onOpen, onClose, onError, onMessage, disconnect, disconnect code/reason, reconnect, max attempts, reconnect reset, protocols, unmount cleanup, url change, stable send)
+- Added 13 tests for useAnimationFrame (init state, start, callback delta/elapsed, stop, no-call-after-stop, elapsed update, fps calc, reset on restart, ignore double-start, unmount cleanup, stable refs, latest callback ref, start/stop cycles)
+- Added 29 tests for promiseUtils (delay resolve, delay timing, withTimeout success, withTimeout reject, TimeoutError msg, promise rejection passthrough, TimeoutError name, withRetry success, retry+succeed, retry exhausted, onRetry callback, exponential backoff, default 3 attempts, settleAll fulfilled, rejected, mixed, empty, deferred resolve, reject, pending, shape, sequential order, empty, error propagation, pool basic, concurrency limit, empty, order preservation, large concurrency)
+- Total tests: 2720 → 2783 (137 test files, all passing)
 
-### Agent 3 (Tests & Types) — Deepen Test Coverage Round 10 (+91 tests)
-- **messageSearch.test.ts**: Added 13 tests — empty conversations array, match at start/end, single occurrence per message, preserves conversationTitle/role, multi-conversation search, getMatchContext no-ellipsis, leading/trailing ellipsis, default contextLength, zero-length match
-- **colorUtils.test.ts**: Added 21 tests — uppercase/mixed-case hex, 4/5-digit hex null, cyan/magenta rgbToHsl paths, dark color saturation, green/blue/white/black hslToRgb, lighten/darken by 0, red vs green luminance, sRGB threshold boundary, contrast >= 1, mix invalid first/default weight, mid-dark/light contrast text, zero alpha rgba
-- **dateUtils.test.ts**: Added 13 tests — timeAgo boundaries (59min, 60min, 23h, 6d, 7d, 28d, 35d), Date.now() default, isSameDay different year, midnight boundary, formatDate/formatTime different values, exact hour formatDuration
-- **useIdle.test.ts**: Added 8 tests — default 60s timeout, no onActive before idle, lastActiveTime update, multiple activity resets, reset-after-idle restarts timer, non-registered events ignored, return shape validation
-- **useQueue.test.ts**: Added 8 tests — enqueue-after-dequeue FIFO, dequeue-all empties queue, peek updates after enqueue/dequeue, isEmpty toggle, contains on empty/mutated queue, toArray empty
-- **useReactions.test.ts**: Added 8 tests — sequential multi-emoji removal, hasReaction after toggle-off, non-existent conversation/message, toggle on-off-on re-add, callback stability, cross-conversation independence
-- **useUndoRedo.test.ts**: Added 8 tests — set-then-undo roundtrip, historySize decreases on undo, redo increases historySize, canUndo/canRedo after exhaustion, reset-then-set cycle, default maxHistory 50, array values
-- **useKeyCombo.test.ts**: Added 8 tests — modifier-only keydown ignored, meta as mod, re-trigger after reset, sequence trim to maxLen, shift/alt modifiers, single-key combo, default 500ms timeout
-- **usePerformanceMonitor.test.ts**: Added 8 tests — stops recording after disable, enable-disable-enable preserves data, multiple resets, reset-then-record fresh, update phase correct, fastest render update, memory rounding
-- Total tests: 2655 → 2746 (128 test files, all passing)
-
-### Agent 3 (Tests & Types) — Deepen Test Coverage Round 11 (+118 tests)
-- **mathRenderer.test.ts**: Added 49 tests — textrm/textbf/bf commands, bar/overline, backslash space, empty input, HTML escaping (ampersand/quotes), single-char sub/superscript, non-mappable <sup>/<sub>, all symbol categories (mp, equiv, sim, arrows, big operators, set theory, logic, misc, dots, brackets, typography, others), all 28 math functions, frac single-char args, all Greek lowercase/uppercase/variant letters
-- **MessageSearch.test.tsx**: Added 10 tests — ArrowDown/ArrowUp selection bounds, Enter with no results, selectedIndex reset on query change, empty query hides count/empty state, panel click stopPropagation, mouseEnter updates selection, mark highlighting, aria-selected
-- **CodeSnippets.test.tsx**: Added 10 tests — non-Escape key ignored, code content in <code>, language labels, active filter CSS class, dialog aria-label, "plain" for no-language blocks, second message navigate index, copy/navigate button titles
-- **syntaxHighlight.test.ts**: Added 20 tests — 0X uppercase hex, identifiers as text, line/block comment behavior, CSS/JSON no line comments/no functions, Python # after code, Python/bash no block comments, whitespace input, multiple punctuation, JS/Python/bash keyword groups, code reconstruction for Python/bash, $/_ identifier starts
-- **LinkCollection.test.tsx**: Added 8 tests — clipboard copy/checkmark/failure, link title attribute, bare-link-only URL, second message navigate, tabIndex -1, label vs URL-only display
-- **KeyboardShortcutHelp.test.tsx**: Added 10 tests — group count, Escape/Enter/Shift+Enter/Ctrl+K/Ctrl+L/Ctrl+, shortcuts, SHORTCUT_GROUPS structure validation, close button text, header/content CSS sections
-- **QuickSwitcher.test.tsx**: Added 9 tests — Enter with empty results, mouseEnter selection, current CSS class, null conversationId, onChange resets index, listbox role, placeholder text, dates meta, empty conversations
-- **conversationStats.test.ts**: Added 12 tests — rounding to 1 decimal, tied longest/shortest picks first, full empty stats shape, 100 conversations stress test, averageMessageLength rounding, only-assistant messages, all-empty-content, formatNumber edge cases (0, boundary values)
-- Total tests: 2746 → 2864 (128 test files, all passing)
-
-### Agent 3 (Tests & Types) — Deepen Test Coverage Round 12 (+58 tests)
-- **useWindowSize.test.ts**: Added 8 tests — height-only resize, interface shape validation, no-throw after unmount, single resize listener registration, very small/large dimensions, simultaneous width+height update
-- **useHover.test.ts**: Added 8 tests — multiple enter/leave cycles, duplicate enter stays true, duplicate leave stays false, ref stable across rerenders, ref stable after state change, interface shape, leave without prior enter
-- **InputPreview.test.tsx**: Added 10 tests — input-preview/label/content CSS classes, tab-only/newline-only whitespace hidden, italic/list rendering, visibility toggle, content change from empty to non-empty
-- **useMediaQuery.test.ts**: Added 8 tests — rapid true/false/true changes, boolean return type, same-value no-change, correct query string, matching-to-non-matching, independent queries, old query listener removal
-- **useMutationObserver.test.ts**: Added 8 tests — options change reconnects, multiple mutations single callback, unmount disconnect, subtree+characterData options, null ref transition, empty mutations array, incremental options changes
-- **useNotificationSound.test.ts**: Added 8 tests — play stability, oscillator→gain connection, gain→destination connection, gain envelope values, enabled→disabled toggle, sine wave type, return shape
-- **useOnClickOutside.test.ts**: Added 8 tests — false→true resubscribe, click on element itself, deeply nested child click, true→false stops firing, default active=true, ref stability, multiple outside clicks
-- **useDocumentTitle.test.ts**: Added 8 tests — very long title, Korean characters, same title multiple times, multiple updates before unmount, HTML entities, newline collapsing, original title captured at mount
-- Total tests: 2864 → 2922 (128 test files, all passing)
-
-### Agent 3 (Tests & Types) — Deepen Test Coverage Round 13 (+63 tests)
-- **useToggle.test.ts**: Added 8 tests — triple toggle, setTrue/setFalse after toggle, setValue stability, return shape, callbacks stable after state change, idempotent setValue, even toggles return to original
-- **usePrevious.test.ts**: Added 8 tests — array values, four sequential updates, empty string initial, object reference identity, zero as falsy, undefined-to-defined transition, same reference rerender, NaN
-- **useEventListener.test.ts**: Added 8 tests — custom element dispatch, remove from custom element, boolean options, re-attach on eventName change, re-attach on element change, multiple events, document listener, capture option
-- **useDebounce.test.ts**: Added 8 tests — boolean values, delay change without value, null value, undefined value, rapid changes final only, same value rerender, delay decrease, empty string
-- **useFocus.test.ts**: Added 8 tests — null blur no-throw, double onFocus, double onBlur, focus/blur/focus cycle, ref stability, callbacks stable after state, return shape, multiple focus calls
-- **useInterval.test.ts**: Added 8 tests — pre-first interval, clearInterval on unmount, short-to-long delay, null-to-null, 1ms delay, multiple delay changes, same delay rerender
-- **useScrollPosition.test.ts**: Added 8 tests — default 100ms throttle, direction none, isAtBottom false, threshold boundary, isAtTop false, return shape, window fallback, clearTimeout on unmount
-- **SessionIndicator.test.tsx**: Added 7 tests — base CSS class, dot/text span elements, text content, title tooltips per status, root div element
-- Total tests: 2922 → 2985 (128 test files, all passing)
-
-### Agent 3 (Tests & Types) — Deepen Test Coverage Round 14 (+62 tests)
-- **useGeolocation.test.ts**: Added 8 tests — error message text, watch mode no-API, watch loading, watch position updates, watch error callback, watch options passthrough, requestPosition stability
-- **useSpeechSynthesis.test.ts**: Added 8 tests — voice option on utterance, null voice, cancel resets state, voiceschanged listener, remove listener on unmount, cancel previous before new, callback stability
-- **useSelection.test.ts**: Added 8 tests — selectionchange listener registration, clear stability, mid-text offsets, null targetRef current, deselection cycle, isCollapsed tracking, direct target element selection
-- **useIntersectionObserver.test.ts**: Added 8 tests — ref stability, intersectionRatio update, frozen state persistence, no freeze when disabled, element observation, boundingClientRect storage, disconnect on options change
-- **PerformancePanel.test.tsx**: Added 13 tests — modal stopPropagation, status dot CSS classes, M/U phase labels, metric card count, empty recent renders, dialog aria-label, toggle active class, formatDuration/formatMemory edge cases
-- **useLongPress.test.ts**: Added 7 tests — touch short press onClick, onEnd after long press, onStart event forwarding, onLongPress event forwarding, mouse leave no onEnd, rapid double click, onMouseLeave stability
-- **useDragAndDrop.test.ts**: Added 8 tests — drop counter reset, drop preventDefault, dragLeave preventDefault, multiple accept patterns, no onDrop callback, nested enter count, nested leave count
-- **useReadingProgress.test.ts**: Added 8 tests — reset stability, 25% progress, container ref 50%, container non-scrollable, container scrollTop 0, container unmount cleanup, throttle suppression
-- Total tests: 2985 → 3047 (128 test files, all passing)
-
-### Agent 3 (Tests & Types) — Deepen Test Coverage Round 15 (+62 tests)
-- **useThrottle.test.ts**: Added 8 tests — null/undefined/boolean/array values, unmount safety, immediate update after full cycle, very large delay
-- **useAsync.test.ts**: Added 8 tests — unmount safety on success/error, numeric rejection, reset during loading, object/array data types, sequential execute cycle
-- **useClipboard.test.ts**: Added 8 tests — empty string copy, special characters, multiline text, delay boundary, error-then-success clear, rapid copies, zero delay reset
-- **useNetworkStatus.test.ts**: Added 8 tests — result shape validation, dual timestamp updates, multiple offline/online events, rapid cycling, idempotent events, timestamp Date values
-- **usePageVisibility.test.ts**: Added 8 tests — result shape validation, hiddenDuration pre-hide zero, lastHiddenTime updates, duration accumulation, no-options usage, callback isolation, null lastVisibleTime
-- **useNotification.test.ts**: Added 8 tests — result shape validation, unsupported notify returns null, options passthrough, no-options notify, denied permission update, notify stability, initial granted, isSupported true
-- **windowState.test.ts**: Added 9 tests — empty JSON object, empty file, non-boolean isMaximized, zero dimensions invalid, x=0/y=0 valid, negative coords, JSON array fallback, extra properties, optional fields omitted save
-- **Tooltip.test.tsx**: Added 8 tests — wrapper CSS class, content text match, arrow span element, re-enter deduplication, timer clearTimeout, focus/blur cycle, nested children rendering
-- Total tests: 3047 → 3109 (128 test files, all passing)
+### Agent 2 (Logic) — useVirtualList, usePermission Hooks & cacheUtils Utility
+- Created `useVirtualList` hook: windowed rendering for large lists
+  - Returns: `virtualItems`, `totalHeight`, `containerProps`, `wrapperProps`, `scrollToIndex`, `visibleRange`
+  - Calculates visible range based on scroll position and container height
+  - Configurable `itemHeight` and `overscan` (default 3) for buffer items
+  - `scrollToIndex(i)` for programmatic scrolling
+  - Container props include `onScroll` handler and overflow styles
+  - Wrapper props set total height for proper scrollbar size
+- Created `usePermission` hook: browser Permissions API integration
+  - Queries and tracks permission state for any `PermissionName`
+  - Returns: `state`, `isGranted`, `isDenied`, `isPrompt`, `isSupported`, `query()`
+  - Auto-queries on mount and listens for permission changes via `change` event
+  - Graceful fallback to 'unsupported' when API unavailable
+  - Cleans up change listener on unmount
+  - Re-queries when permission name changes
+- Created `cacheUtils` utility with 3 exports:
+  - `createTTLCache<K,V>(defaultTtl?)`: time-to-live cache with per-entry or default TTL
+  - `createLRUCache<K,V>(maxSize)`: least-recently-used eviction cache
+  - `memoize<Args,R>(fn, keyFn?)`: function result memoization with custom key support
+  - Both caches implement `Cache<K,V>` interface: get, set, has, delete, clear, size, keys, values
+  - TTL cache auto-expires on access and during size/keys/values enumeration
+  - LRU cache promotes entries on get access, evicts oldest on overflow
+- Added 14 tests for useVirtualList (init, totalHeight, small list, props, offsetTop, scroll range, overscan, bounds clamp, start clamp, empty list, scrollToIndex, items count, default overscan, items change)
+- Added 12 tests for usePermission (init, query mount, granted, denied, change listener, unmount cleanup, change events, query rejection, query return, isSupported, query throws, name change)
+- Added 34 tests for cacheUtils (TTL: set/get, missing, has, delete, delete missing, clear, size, keys, values, expire, default TTL, override TTL, no TTL, expired exclusion, overwrite; LRU: set/get, missing, eviction, get promotes, max size, overwrite, has, delete, clear, keys, values, size 1; memoize: cache, different args, multi args, custom key, strings, falsy)
+- Total tests: 2783 → 2947 (142 test files, all passing)
