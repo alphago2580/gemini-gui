@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5184 tests)
-- **Last Agent Run**: Agent 2 (Logic)
+- **Test Status**: Passing (5184+ tests)
+- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 7
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1113,6 +1113,7 @@
 - Imported **EmptyState** and **Kbd** components for availability in App.tsx
 - Total tests: 4987 → 5054 (185 test files, all passing)
 
+<<<<<<< HEAD
 ### Agent 2 (Logic) — useMousePosition, useColorScheme Hooks & retryUtils Utility
 - Created `useMousePosition` hook: tracks mouse position relative to window or element
   - Absolute (clientX/clientY) and element-relative coordinates
@@ -1157,3 +1158,11 @@
 - Added 14 tests for useMediaDevices (initial state, enumerate, categorize audio in/out/video, error handling, non-Error, devicechange refresh, manual refresh, cleanup, unsupported API, property mapping, shape, empty categories)
 - Added 36 tests for encodingUtils (base64: empty/ASCII/roundtrip/Unicode/decode/special; hex: empty/encode/roundtrip/decode/odd-length/invalid/whitespace; url: space/special/roundtrip/Unicode; base64url: no-padding/no-special-chars/roundtrip/special; html: ampersand/lt/quotes/script/unescape/roundtrip/plain; bytes: empty/encode/roundtrip/decode/odd-length/invalid/whitespace)
 - Total tests: 5121 → 5184 (191 test files, all passing)
+
+### Agent 4 (Integrator) — Integration Batch 7: Select, SpeedDial, AlertBanner
+- Replaced native `<select>` in **Settings** with **Select** component for model selection (searchable dropdown with keyboard nav)
+- Integrated **SpeedDial** floating action button with 5 quick actions: new chat, search, bookmarks, settings, shortcuts
+- Integrated **AlertBanner** for token usage warning when consumption exceeds 90%
+- Updated Settings and App tests to work with new Select-based model selection
+- Added Korean UI strings for SpeedDial and AlertBanner
+- Total tests: 5184+ (191 test files, all passing)
