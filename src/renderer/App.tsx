@@ -67,6 +67,10 @@ import Tabs from './components/Tabs';
 import type { Tab as TabItem } from './components/Tabs';
 import TreeView from './components/TreeView';
 import type { TreeNode } from './components/TreeView';
+import ColorSwatch from './components/ColorSwatch';
+import NumberInput from './components/NumberInput';
+import DropdownMenu from './components/DropdownMenu';
+import type { DropdownMenuEntry } from './components/DropdownMenu';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -195,6 +199,19 @@ const App: React.FC = () => {
   // Performance monitor
   const perfMonitor = usePerformanceMonitor();
 
+  // Accent color (persistent)
+  const ACCENT_COLORS = ['#1976d2', '#388e3c', '#f57c00', '#d32f2f', '#7b1fa2', '#00838f', '#c62828', '#4527a0'];
+  const [accentColor, setAccentColor] = useLocalStorage(S.STORAGE_KEY_ACCENT_COLOR, '#1976d2');
+
+  // More actions dropdown
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const moreMenuItems: DropdownMenuEntry[] = useMemo(() => [
+    { id: 'perf', label: S.ACTION_PERF_MONITOR, icon: '📊', onClick: () => { dialogs.openPerfPanel(); setIsMoreMenuOpen(false); } },
+    { id: 'shortcuts', label: S.ACTION_SHORTCUTS, icon: '⌨️', onClick: () => { dialogs.toggleShortcutHelp(); setIsMoreMenuOpen(false); } },
+    { type: 'separator' as const },
+    { id: 'contrast', label: S.ACTION_HIGH_CONTRAST, icon: highContrast ? '✅' : '⬜', onClick: () => { setHighContrast(!highContrast); setIsMoreMenuOpen(false); } },
+  ], [dialogs, highContrast, setHighContrast]);
+
   // Message ratings (persistent)
   const [messageRatings, setMessageRatings] = useLocalStorage<Record<string, number>>('gemini-message-ratings', {});
   const handleRateMessage = useCallback((messageId: string, rating: number) => {
@@ -250,6 +267,11 @@ const App: React.FC = () => {
   useEffect(() => {
     document.documentElement.setAttribute('data-high-contrast', String(highContrast));
   }, [highContrast]);
+
+  // Apply accent color
+  useEffect(() => {
+    document.documentElement.style.setProperty('--accent-primary', accentColor);
+  }, [accentColor]);
 
   // Apply font size
   useEffect(() => {
@@ -612,6 +634,14 @@ const App: React.FC = () => {
               size="small"
               ariaLabel={S.SEGMENTED_VIEW_ARIA}
             />
+            <ColorSwatch
+              colors={ACCENT_COLORS}
+              value={accentColor}
+              onChange={setAccentColor}
+              size="small"
+              columns={4}
+              label={S.COLOR_SWATCH_LABEL}
+            />
           </div>
           {messages.length > 0 && (
             <div className="header-actions">
@@ -667,6 +697,15 @@ const App: React.FC = () => {
                   </button>
                 </Badge>
               </Tooltip>
+              <DropdownMenu
+                isOpen={isMoreMenuOpen}
+                onClose={() => setIsMoreMenuOpen(false)}
+                onToggle={() => setIsMoreMenuOpen(prev => !prev)}
+                items={moreMenuItems}
+                trigger={<button className="header-action-btn" aria-label={S.MORE_ACTIONS_LABEL}>{S.MORE_ACTIONS_BUTTON}</button>}
+                position="bottom-right"
+                label={S.MORE_ACTIONS_LABEL}
+              />
             </div>
           )}
         </header>
@@ -708,13 +747,23 @@ const App: React.FC = () => {
             onUnpin={msgActions.handleUnpinMessage}
           />
           {totalMessagePages > 1 && (
-            <Pagination
-              currentPage={messagePage}
-              totalPages={totalMessagePages}
-              onPageChange={setMessagePage}
-              siblingCount={1}
-              showFirstLast={true}
-            />
+            <div className="pagination-container">
+              <Pagination
+                currentPage={messagePage}
+                totalPages={totalMessagePages}
+                onPageChange={setMessagePage}
+                siblingCount={1}
+                showFirstLast={true}
+              />
+              <NumberInput
+                value={messagePage}
+                onChange={(v) => setMessagePage(Math.max(1, Math.min(v, totalMessagePages)))}
+                min={1}
+                max={totalMessagePages}
+                size="small"
+                ariaLabel={S.PAGE_JUMP_ARIA}
+              />
+            </div>
           )}
           <div className={`messages${viewMode === 'compact' ? ' messages--compact' : ''}`} role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleScrollWithProgress}>
             <ReadingProgressBar progress={readingProgress} isVisible={messages.length > 0} />

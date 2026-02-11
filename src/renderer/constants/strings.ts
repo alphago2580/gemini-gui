@@ -579,3 +579,17 @@ export const TAB_TIMELINE_LABEL = '타임라인';
 
 // TreeView (conversation structure)
 export const TREE_CONVERSATIONS_LABEL = '대화 구조';
+
+// ColorSwatch (accent colors)
+export const COLOR_SWATCH_LABEL = '강조 색상';
+export const STORAGE_KEY_ACCENT_COLOR = 'gemini-accent-color';
+
+// NumberInput (page jump)
+export const PAGE_JUMP_ARIA = '페이지 이동';
+
+// DropdownMenu (more actions)
+export const MORE_ACTIONS_LABEL = '추가 작업';
+export const MORE_ACTIONS_BUTTON = '⋮';
+export const ACTION_PERF_MONITOR = '성능 모니터';
+export const ACTION_SHORTCUTS = '단축키 도움말';
+export const ACTION_HIGH_CONTRAST = '고대비 모드';

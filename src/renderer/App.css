@@ -737,6 +737,13 @@
   display: none;
 }
 
+.pagination-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+}
+
 .session-popover-content {
   display: flex;
   flex-direction: column;
