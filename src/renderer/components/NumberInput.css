@@ -1,0 +1,130 @@
+/* NumberInput — numeric stepper input */
+
+.number-input {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border-color, #3a3a3a);
+  border-radius: 6px;
+  background-color: var(--bg-secondary, #2a2a2a);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.number-input-focused {
+  border-color: var(--color-accent, #6b9eff);
+  box-shadow: 0 0 0 2px rgba(107, 158, 255, 0.2);
+}
+
+.number-input-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Buttons */
+.number-input-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: var(--bg-tertiary, #333);
+  color: var(--text-primary, #e0e0e0);
+  cursor: pointer;
+  transition: background-color 0.15s;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.number-input-button:hover:not(:disabled) {
+  background-color: var(--bg-hover, rgba(255, 255, 255, 0.1));
+}
+
+.number-input-button:active:not(:disabled) {
+  background-color: var(--bg-active, rgba(255, 255, 255, 0.15));
+}
+
+.number-input-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.number-input-button:focus-visible {
+  outline: 2px solid var(--color-accent, #6b9eff);
+  outline-offset: -2px;
+}
+
+/* Field wrapper */
+.number-input-field {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Input */
+.number-input-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-primary, #e0e0e0);
+  text-align: center;
+  font-family: inherit;
+  outline: none;
+}
+
+.number-input-input::placeholder {
+  color: var(--text-tertiary, #666);
+}
+
+/* Prefix / Suffix */
+.number-input-prefix,
+.number-input-suffix {
+  color: var(--text-secondary, #aaa);
+  font-size: 0.9em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.number-input-prefix {
+  padding-left: 4px;
+}
+
+.number-input-suffix {
+  padding-right: 4px;
+}
+
+/* Sizes */
+.number-input-small .number-input-button {
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
+}
+
+.number-input-small .number-input-input {
+  height: 28px;
+  font-size: 12px;
+  padding: 0 4px;
+}
+
+.number-input-medium .number-input-button {
+  width: 34px;
+  height: 34px;
+  font-size: 15px;
+}
+
+.number-input-medium .number-input-input {
+  height: 34px;
+  font-size: 13px;
+  padding: 0 6px;
+}
+
+.number-input-large .number-input-button {
+  width: 42px;
+  height: 42px;
+  font-size: 18px;
+}
+
+.number-input-large .number-input-input {
+  height: 42px;
+  font-size: 15px;
+  padding: 0 8px;
+}
