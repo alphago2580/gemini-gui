@@ -191,5 +191,129 @@ describe('syntaxHighlight', () => {
       const keywordTokens = tokens.filter(t => t.type === 'keyword');
       expect(keywordTokens).toHaveLength(0);
     });
+
+    it('tokenizes 0X (uppercase X) hex numbers', () => {
+      const tokens = tokenize('0XAB', 'js');
+      expect(tokens[0]).toEqual({ type: 'number', value: '0XAB' });
+    });
+
+    it('identifies identifiers not followed by ( as text', () => {
+      const tokens = tokenize('myVar', 'js');
+      expect(tokens[0]).toEqual({ type: 'text', value: 'myVar' });
+    });
+
+    it('handles single-line comment consuming until newline', () => {
+      const tokens = tokenize('// line1\ncode', 'js');
+      expect(tokens[0]).toEqual({ type: 'comment', value: '// line1' });
+      // Rest should be text with newline
+      expect(tokenValues(tokens).join('')).toBe('// line1\ncode');
+    });
+
+    it('handles block comment spanning multiple lines', () => {
+      const tokens = tokenize('/* line1\nline2 */', 'js');
+      expect(tokens[0]).toEqual({ type: 'comment', value: '/* line1\nline2 */' });
+    });
+
+    it('CSS does not have line comments (// not treated as comment)', () => {
+      const tokens = tokenize('// not comment', 'css');
+      const comments = tokens.filter(t => t.type === 'comment');
+      expect(comments).toHaveLength(0);
+    });
+
+    it('JSON does not have line comments', () => {
+      const tokens = tokenize('// not comment', 'json');
+      const comments = tokens.filter(t => t.type === 'comment');
+      expect(comments).toHaveLength(0);
+    });
+
+    it('JSON does not have function tokens', () => {
+      const tokens = tokenize('foo()', 'json');
+      const fns = tokens.filter(t => t.type === 'function');
+      expect(fns).toHaveLength(0);
+    });
+
+    it('CSS does not have function tokens', () => {
+      const tokens = tokenize('calc(100%)', 'css');
+      const fns = tokens.filter(t => t.type === 'function');
+      expect(fns).toHaveLength(0);
+    });
+
+    it('handles Python # comment after code', () => {
+      const tokens = tokenize('x = 1 # comment', 'python');
+      const comments = tokens.filter(t => t.type === 'comment');
+      expect(comments).toHaveLength(1);
+      expect(comments[0].value).toBe('# comment');
+    });
+
+    it('Python does not have block comments', () => {
+      const tokens = tokenize('/* not block */', 'python');
+      const comments = tokens.filter(t => t.type === 'comment');
+      expect(comments).toHaveLength(0);
+    });
+
+    it('bash does not have block comments', () => {
+      const tokens = tokenize('/* not block */', 'bash');
+      const comments = tokens.filter(t => t.type === 'comment');
+      expect(comments).toHaveLength(0);
+    });
+
+    it('handles whitespace-only input', () => {
+      const tokens = tokenize('   ', 'js');
+      expect(tokens).toHaveLength(1);
+      expect(tokens[0].type).toBe('text');
+      expect(tokens[0].value).toBe('   ');
+    });
+
+    it('handles multiple punctuation operators', () => {
+      const tokens = tokenize('a + b - c * d / e', 'js');
+      const punct = tokens.filter(t => t.type === 'punctuation');
+      expect(punct).toHaveLength(4);
+      expect(punct.map(t => t.value)).toEqual(['+', '-', '*', '/']);
+    });
+
+    it('handles all JS keyword types (type, enum, readonly)', () => {
+      const tokens = tokenize('type Foo = enum', 'ts');
+      const kws = tokens.filter(t => t.type === 'keyword');
+      expect(kws.map(t => t.value)).toContain('type');
+      expect(kws.map(t => t.value)).toContain('enum');
+    });
+
+    it('handles Python keywords (lambda, yield, global)', () => {
+      const tokens = tokenize('lambda x: yield global', 'python');
+      const kws = tokens.filter(t => t.type === 'keyword');
+      expect(kws.map(t => t.value)).toContain('lambda');
+      expect(kws.map(t => t.value)).toContain('yield');
+      expect(kws.map(t => t.value)).toContain('global');
+    });
+
+    it('handles bash keywords (fi, done, esac)', () => {
+      const tokens = tokenize('fi done esac', 'bash');
+      const kws = tokens.filter(t => t.type === 'keyword');
+      expect(kws.map(t => t.value)).toEqual(['fi', 'done', 'esac']);
+    });
+
+    it('preserves code reconstruction for Python', () => {
+      const code = 'def hello(name):\n    print(f"Hi {name}")\n    return True';
+      const tokens = tokenize(code, 'python');
+      expect(tokenValues(tokens).join('')).toBe(code);
+    });
+
+    it('preserves code reconstruction for Bash', () => {
+      const code = 'if [ -f file ]; then\n  echo "found"\nfi';
+      const tokens = tokenize(code, 'bash');
+      expect(tokenValues(tokens).join('')).toBe(code);
+    });
+
+    it('tokenizes $ as identifier start', () => {
+      const tokens = tokenize('$var', 'js');
+      expect(tokens[0].type).toBe('text');
+      expect(tokens[0].value).toBe('$var');
+    });
+
+    it('tokenizes underscore as identifier start', () => {
+      const tokens = tokenize('_private', 'js');
+      expect(tokens[0].type).toBe('text');
+      expect(tokens[0].value).toBe('_private');
+    });
   });
 });

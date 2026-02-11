@@ -178,4 +178,91 @@ describe('QuickSwitcher', () => {
     // All conversations should be visible again
     expect(screen.getByText('TypeScript 질문')).toBeInTheDocument();
   });
+
+  it('does not select on Enter when no filtered results', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    const input = screen.getByLabelText('대화 검색');
+    fireEvent.change(input, { target: { value: 'nonexistent' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('mouseEnter updates selected index', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    const options = screen.getAllByRole('option');
+    fireEvent.mouseEnter(options[2]); // hover over 3rd item
+    fireEvent.keyDown(screen.getByLabelText('대화 검색'), { key: 'Enter' });
+    expect(onSelect).toHaveBeenCalledWith('3');
+  });
+
+  it('current conversation has "current" CSS class', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    const options = screen.getAllByRole('option');
+    expect(options[0].classList.contains('current')).toBe(true);
+    expect(options[1].classList.contains('current')).toBe(false);
+  });
+
+  it('does not show current badge for non-active conversations', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    // Only one badge should exist
+    expect(screen.getAllByText('현재')).toHaveLength(1);
+  });
+
+  it('handles null currentConversationId', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId={null} onSelect={onSelect} />
+    );
+    expect(screen.queryByText('현재')).not.toBeInTheDocument();
+  });
+
+  it('onChange resets selectedIndex to 0', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    const input = screen.getByLabelText('대화 검색');
+    // Navigate to second item
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    // Type to filter — selectedIndex should reset to 0
+    fireEvent.change(input, { target: { value: 'TypeScript' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onSelect).toHaveBeenCalledWith('2'); // First (and only) filtered result
+  });
+
+  it('has listbox role on the list container', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+  });
+
+  it('has correct placeholder text', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    expect(screen.getByPlaceholderText('대화 전환...')).toBeInTheDocument();
+  });
+
+  it('shows date for each conversation', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    // Dates should be rendered via toLocaleDateString
+    const meta = document.querySelectorAll('.quick-switcher-item-meta');
+    expect(meta.length).toBe(3);
+  });
+
+  it('handles empty conversations list', () => {
+    render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={[]} currentConversationId={null} onSelect={onSelect} />
+    );
+    expect(screen.getByText('일치하는 대화가 없습니다')).toBeInTheDocument();
+  });
 });

@@ -153,4 +153,82 @@ describe('CodeSnippets', () => {
     fireEvent.click(screen.getByLabelText('전체 언어 필터'));
     expect(container.querySelectorAll('.code-snippet-item').length).toBe(3);
   });
+
+  it('does not close on non-Escape key', () => {
+    const onClose = vi.fn();
+    render(<CodeSnippets {...defaultProps} onClose={onClose} />);
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'a' });
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('displays code content in <code> elements', () => {
+    const { container } = render(<CodeSnippets {...defaultProps} />);
+    const codeElements = container.querySelectorAll('code');
+    expect(codeElements.length).toBe(3);
+    expect(codeElements[0].textContent).toBe('console.log("hi");');
+  });
+
+  it('shows language label for each snippet', () => {
+    const { container } = render(<CodeSnippets {...defaultProps} />);
+    const langSpans = container.querySelectorAll('.code-snippet-lang');
+    expect(langSpans.length).toBe(3);
+    expect(langSpans[0].textContent).toBe('js');
+    expect(langSpans[1].textContent).toBe('python');
+    expect(langSpans[2].textContent).toBe('js');
+  });
+
+  it('active filter button has active CSS class', () => {
+    render(<CodeSnippets {...defaultProps} />);
+    const allBtn = screen.getByLabelText('전체 언어 필터');
+    expect(allBtn.classList.contains('active')).toBe(true);
+    fireEvent.click(screen.getByLabelText('python 필터'));
+    expect(allBtn.classList.contains('active')).toBe(false);
+    expect(screen.getByLabelText('python 필터').classList.contains('active')).toBe(true);
+  });
+
+  it('dialog has correct aria-label', () => {
+    render(<CodeSnippets {...defaultProps} />);
+    expect(screen.getByRole('dialog').getAttribute('aria-label')).toBe('코드 스니펫');
+  });
+
+  it('displays "plain" for code blocks without language', () => {
+    const msgs = [
+      { role: 'user' as const, content: '```\nno lang\n```' },
+    ];
+    render(<CodeSnippets {...defaultProps} messages={msgs} />);
+    const { container } = render(<CodeSnippets {...defaultProps} messages={msgs} />);
+    const langSpan = container.querySelector('.code-snippet-lang');
+    expect(langSpan?.textContent).toBe('plain');
+  });
+
+  it('navigate button calls onNavigateToMessage with correct index for second message', () => {
+    render(<CodeSnippets {...defaultProps} />);
+    const navButtons = screen.getAllByLabelText('메시지로 이동');
+    // Second snippet is from message index 1
+    fireEvent.click(navButtons[1]);
+    expect(defaultProps.onNavigateToMessage).toHaveBeenCalledWith(1);
+  });
+
+  it('shows "no matching" empty message when filtered to nonexistent language', () => {
+    const msgs = [
+      { role: 'user' as const, content: '```python\nprint("hi")\n```' },
+      { role: 'assistant' as const, content: '```js\nconst x=1\n```' },
+    ];
+    const { container } = render(<CodeSnippets {...defaultProps} messages={msgs} />);
+    // Filter to js shows 1
+    fireEvent.click(screen.getByLabelText('js 필터'));
+    expect(container.querySelectorAll('.code-snippet-item').length).toBe(1);
+  });
+
+  it('copy buttons have correct title attribute', () => {
+    render(<CodeSnippets {...defaultProps} />);
+    const copyButtons = screen.getAllByTitle('코드 복사');
+    expect(copyButtons.length).toBe(3);
+  });
+
+  it('navigate buttons have correct title attribute', () => {
+    render(<CodeSnippets {...defaultProps} />);
+    const navButtons = screen.getAllByTitle('메시지로 이동');
+    expect(navButtons.length).toBe(3);
+  });
 });

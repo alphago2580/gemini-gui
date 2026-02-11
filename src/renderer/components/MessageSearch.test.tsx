@@ -179,4 +179,185 @@ describe('MessageSearch Component', () => {
     expect(screen.getByText('사용자')).toBeInTheDocument();
     expect(screen.getByText('Gemini')).toBeInTheDocument();
   });
+
+  it('navigates with ArrowDown and selects second result with Enter', () => {
+    render(
+      <MessageSearch
+        isOpen={true}
+        onClose={onClose}
+        conversations={conversations}
+        onNavigateToResult={onNavigateToResult}
+      />
+    );
+    const input = screen.getByPlaceholderText('전체 대화 내용 검색...');
+    fireEvent.change(input, { target: { value: 'React' } });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(onNavigateToResult).toHaveBeenCalledWith('1', 1);
+  });
+
+  it('ArrowUp does not go below zero', () => {
+    render(
+      <MessageSearch
+        isOpen={true}
+        onClose={onClose}
+        conversations={conversations}
+        onNavigateToResult={onNavigateToResult}
+      />
+    );
+    const input = screen.getByPlaceholderText('전체 대화 내용 검색...');
+    fireEvent.change(input, { target: { value: 'React' } });
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    // Should stay at index 0
+    expect(onNavigateToResult).toHaveBeenCalledWith('1', 0);
+  });
+
+  it('ArrowDown does not exceed results length', () => {
+    render(
+      <MessageSearch
+        isOpen={true}
+        onClose={onClose}
+        conversations={conversations}
+        onNavigateToResult={onNavigateToResult}
+      />
+    );
+    const input = screen.getByPlaceholderText('전체 대화 내용 검색...');
+    fireEvent.change(input, { target: { value: 'React' } });
+    // 2 results: ArrowDown twice to go past end
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    // Should clamp to last item index 1
+    expect(onNavigateToResult).toHaveBeenCalledWith('1', 1);
+  });
+
+  it('does not call onNavigateToResult on Enter with no results', () => {
+    render(
+      <MessageSearch
+        isOpen={true}
+        onClose={onClose}
+        conversations={conversations}
+        onNavigateToResult={onNavigateToResult}
+      />
+    );
+    const input = screen.getByPlaceholderText('전체 대화 내용 검색...');
+    fireEvent.change(input, { target: { value: 'nonexistent' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(onNavigateToResult).not.toHaveBeenCalled();
+  });
+
+  it('resets selectedIndex when query changes', () => {
+    render(
+      <MessageSearch
+        isOpen={true}
+        onClose={onClose}
+        conversations={conversations}
+        onNavigateToResult={onNavigateToResult}
+      />
+    );
+    const input = screen.getByPlaceholderText('전체 대화 내용 검색...');
+    fireEvent.change(input, { target: { value: 'React' } });
+    fireEvent.keyDown(input, { key: 'ArrowDown' }); // go to index 1
+    // Change query: selectedIndex should reset to 0
+    fireEvent.change(input, { target: { value: 'TypeScript' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(onNavigateToResult).toHaveBeenCalledWith('2', 0);
+  });
+
+  it('does not show count when query is empty', () => {
+    render(
+      <MessageSearch
+        isOpen={true}
+        onClose={onClose}
+        conversations={conversations}
+        onNavigateToResult={onNavigateToResult}
+      />
+    );
+    expect(document.querySelector('.message-search-count')).not.toBeInTheDocument();
+  });
+
+  it('does not show empty state when query is empty', () => {
+    render(
+      <MessageSearch
+        isOpen={true}
+        onClose={onClose}
+        conversations={conversations}
+        onNavigateToResult={onNavigateToResult}
+      />
+    );
+    expect(screen.queryByText('검색 결과가 없습니다')).not.toBeInTheDocument();
+  });
+
+  it('does not propagate click from panel to overlay', () => {
+    render(
+      <MessageSearch
+        isOpen={true}
+        onClose={onClose}
+        conversations={conversations}
+        onNavigateToResult={onNavigateToResult}
+      />
+    );
+    const panel = document.querySelector('.message-search-panel')!;
+    fireEvent.click(panel);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('mouseEnter on result item updates selected index', () => {
+    render(
+      <MessageSearch
+        isOpen={true}
+        onClose={onClose}
+        conversations={conversations}
+        onNavigateToResult={onNavigateToResult}
+      />
+    );
+    const input = screen.getByPlaceholderText('전체 대화 내용 검색...');
+    fireEvent.change(input, { target: { value: 'React' } });
+
+    const options = screen.getAllByRole('option');
+    fireEvent.mouseEnter(options[1]);
+    // Now Enter should navigate to the second result
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onNavigateToResult).toHaveBeenCalledWith('1', 1);
+  });
+
+  it('highlights matching text with <mark> elements', () => {
+    const { container } = render(
+      <MessageSearch
+        isOpen={true}
+        onClose={onClose}
+        conversations={conversations}
+        onNavigateToResult={onNavigateToResult}
+      />
+    );
+    const input = screen.getByPlaceholderText('전체 대화 내용 검색...');
+    fireEvent.change(input, { target: { value: 'React' } });
+
+    const marks = container.querySelectorAll('mark');
+    expect(marks.length).toBeGreaterThan(0);
+  });
+
+  it('has correct aria-selected on result items', () => {
+    render(
+      <MessageSearch
+        isOpen={true}
+        onClose={onClose}
+        conversations={conversations}
+        onNavigateToResult={onNavigateToResult}
+      />
+    );
+    const input = screen.getByPlaceholderText('전체 대화 내용 검색...');
+    fireEvent.change(input, { target: { value: 'React' } });
+
+    const options = screen.getAllByRole('option');
+    expect(options[0].getAttribute('aria-selected')).toBe('true');
+    expect(options[1].getAttribute('aria-selected')).toBe('false');
+  });
 });

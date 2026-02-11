@@ -382,4 +382,285 @@ describe('mathRenderer', () => {
       expect(containsMath('')).toBe(false);
     });
   });
+
+  describe('renderMathToHtml edge cases', () => {
+    it('renders \\textrm as text', () => {
+      const result = renderMathToHtml('\\textrm{abc}');
+      expect(result).toContain('math-text');
+      expect(result).toContain('abc');
+    });
+
+    it('renders \\textbf as bold', () => {
+      const result = renderMathToHtml('\\textbf{F}');
+      expect(result).toContain('math-bold');
+      expect(result).toContain('F');
+    });
+
+    it('renders \\bf as bold', () => {
+      const result = renderMathToHtml('\\bf{x}');
+      expect(result).toContain('math-bold');
+    });
+
+    it('renders \\bar as overline', () => {
+      const result = renderMathToHtml('\\bar{z}');
+      expect(result).toContain('math-overline');
+      expect(result).toContain('z');
+    });
+
+    it('renders backslash space as em space', () => {
+      const result = renderMathToHtml('a\\ b');
+      expect(result).toContain('\u2003');
+    });
+
+    it('handles empty input', () => {
+      expect(renderMathToHtml('')).toBe('');
+    });
+
+    it('handles backslash at end of input', () => {
+      const result = renderMathToHtml('x\\');
+      // backslash with no following char → cmd is empty string
+      expect(result).toContain('x');
+    });
+
+    it('escapes ampersand in normal text', () => {
+      const result = renderMathToHtml('a & b');
+      expect(result).toContain('&amp;');
+    });
+
+    it('escapes double-quote in normal text', () => {
+      const result = renderMathToHtml('a"b');
+      expect(result).toContain('&quot;');
+    });
+
+    it('renders single char superscript without braces', () => {
+      const result = renderMathToHtml('x^n');
+      expect(result).toContain('\u207F'); // superscript n
+    });
+
+    it('renders single char subscript without braces', () => {
+      const result = renderMathToHtml('x_0');
+      expect(result).toBe('x\u2080');
+    });
+
+    it('uses <sup> for non-mappable superscript chars', () => {
+      const result = renderMathToHtml('x^{abc}');
+      expect(result).toContain('<sup');
+      expect(result).toContain('math-sup');
+    });
+
+    it('renders misc math symbols: mp, equiv, sim', () => {
+      expect(renderMathToHtml('\\mp')).toBe('\u2213');
+      expect(renderMathToHtml('\\equiv')).toBe('\u2261');
+      expect(renderMathToHtml('\\sim')).toBe('\u223C');
+    });
+
+    it('renders arrows: Leftarrow, leftrightarrow, Leftrightarrow', () => {
+      expect(renderMathToHtml('\\Leftarrow')).toBe('\u21D0');
+      expect(renderMathToHtml('\\leftrightarrow')).toBe('\u2194');
+      expect(renderMathToHtml('\\Leftrightarrow')).toBe('\u21D4');
+    });
+
+    it('renders uparrow, downarrow, mapsto', () => {
+      expect(renderMathToHtml('\\uparrow')).toBe('\u2191');
+      expect(renderMathToHtml('\\downarrow')).toBe('\u2193');
+      expect(renderMathToHtml('\\mapsto')).toBe('\u21A6');
+    });
+
+    it('renders iint, iiint, oint, coprod, bigcup, bigcap', () => {
+      expect(renderMathToHtml('\\iint')).toBe('\u222C');
+      expect(renderMathToHtml('\\iiint')).toBe('\u222D');
+      expect(renderMathToHtml('\\oint')).toBe('\u222E');
+      expect(renderMathToHtml('\\coprod')).toBe('\u2210');
+      expect(renderMathToHtml('\\bigcup')).toBe('\u22C3');
+      expect(renderMathToHtml('\\bigcap')).toBe('\u22C2');
+    });
+
+    it('renders set theory: notin, ni, supset, subseteq, supseteq, varnothing', () => {
+      expect(renderMathToHtml('\\notin')).toBe('\u2209');
+      expect(renderMathToHtml('\\ni')).toBe('\u220B');
+      expect(renderMathToHtml('\\supset')).toBe('\u2283');
+      expect(renderMathToHtml('\\subseteq')).toBe('\u2286');
+      expect(renderMathToHtml('\\supseteq')).toBe('\u2287');
+      expect(renderMathToHtml('\\varnothing')).toBe('\u2205');
+    });
+
+    it('renders logic: nexists, land, lor, neg, lnot, implies, iff', () => {
+      expect(renderMathToHtml('\\nexists')).toBe('\u2204');
+      expect(renderMathToHtml('\\land')).toBe('\u2227');
+      expect(renderMathToHtml('\\lor')).toBe('\u2228');
+      expect(renderMathToHtml('\\neg')).toBe('\u00AC');
+      expect(renderMathToHtml('\\lnot')).toBe('\u00AC');
+      expect(renderMathToHtml('\\implies')).toBe('\u21D2');
+      expect(renderMathToHtml('\\iff')).toBe('\u21D4');
+    });
+
+    it('renders misc: partial, nabla, hbar, ell, Re, Im, aleph, wp', () => {
+      expect(renderMathToHtml('\\partial')).toBe('\u2202');
+      expect(renderMathToHtml('\\nabla')).toBe('\u2207');
+      expect(renderMathToHtml('\\hbar')).toBe('\u210F');
+      expect(renderMathToHtml('\\ell')).toBe('\u2113');
+      expect(renderMathToHtml('\\Re')).toBe('\u211C');
+      expect(renderMathToHtml('\\Im')).toBe('\u2111');
+      expect(renderMathToHtml('\\aleph')).toBe('\u2135');
+      expect(renderMathToHtml('\\wp')).toBe('\u2118');
+    });
+
+    it('renders dots: vdots, ddots, dots', () => {
+      expect(renderMathToHtml('\\vdots')).toBe('\u22EE');
+      expect(renderMathToHtml('\\ddots')).toBe('\u22F1');
+      expect(renderMathToHtml('\\dots')).toBe('\u2026');
+    });
+
+    it('renders bracket symbols: langle, rangle, lceil, rceil, lfloor, rfloor', () => {
+      expect(renderMathToHtml('\\langle')).toBe('\u27E8');
+      expect(renderMathToHtml('\\rangle')).toBe('\u27E9');
+      expect(renderMathToHtml('\\lceil')).toBe('\u2308');
+      expect(renderMathToHtml('\\rceil')).toBe('\u2309');
+      expect(renderMathToHtml('\\lfloor')).toBe('\u230A');
+      expect(renderMathToHtml('\\rfloor')).toBe('\u230B');
+    });
+
+    it('renders typography: qquad', () => {
+      const result = renderMathToHtml('a\\qquad b');
+      expect(result).toContain('\u2003\u2003');
+    });
+
+    it('renders others: star, circ, bullet, dagger, ddagger', () => {
+      expect(renderMathToHtml('\\star')).toBe('\u22C6');
+      expect(renderMathToHtml('\\circ')).toBe('\u2218');
+      expect(renderMathToHtml('\\bullet')).toBe('\u2022');
+      expect(renderMathToHtml('\\dagger')).toBe('\u2020');
+      expect(renderMathToHtml('\\ddagger')).toBe('\u2021');
+    });
+
+    it('renders relation symbols: propto, ll, gg, le, ge, ne', () => {
+      expect(renderMathToHtml('\\propto')).toBe('\u221D');
+      expect(renderMathToHtml('\\ll')).toBe('\u226A');
+      expect(renderMathToHtml('\\gg')).toBe('\u226B');
+      expect(renderMathToHtml('\\le')).toBe('\u2264');
+      expect(renderMathToHtml('\\ge')).toBe('\u2265');
+      expect(renderMathToHtml('\\ne')).toBe('\u2260');
+    });
+
+    it('renders all math functions', () => {
+      const funcs = ['sin', 'cos', 'tan', 'cot', 'sec', 'csc', 'arcsin', 'arccos', 'arctan',
+        'sinh', 'cosh', 'tanh', 'log', 'ln', 'exp', 'lim', 'sup', 'inf', 'max', 'min',
+        'det', 'dim', 'ker', 'deg', 'gcd', 'hom', 'arg', 'mod'];
+      for (const f of funcs) {
+        const result = renderMathToHtml(`\\${f}`);
+        expect(result).toContain('math-func');
+        expect(result).toContain(f);
+      }
+    });
+
+    it('handles frac with single-char args (no braces)', () => {
+      const result = renderMathToHtml('\\frac ab');
+      expect(result).toContain('math-frac');
+      expect(result).toContain('a');
+    });
+
+    it('renders superscript with + and - Unicode chars', () => {
+      const result = renderMathToHtml('^{+-}');
+      expect(result).toContain('\u207A'); // superscript +
+      expect(result).toContain('\u207B'); // superscript -
+    });
+
+    it('renders subscript with all available letters', () => {
+      const result = renderMathToHtml('_{aeiox}');
+      expect(result).toContain('\u2090'); // subscript a
+      expect(result).toContain('\u2091'); // subscript e
+    });
+
+    it('handles extractBraceContent at end of string', () => {
+      // ^ at end of input with no following content
+      const result = renderMathToHtml('x^');
+      expect(result).toContain('x');
+    });
+
+    it('renders deeply nested braces', () => {
+      const result = renderMathToHtml('{{a}}');
+      expect(result).toContain('a');
+    });
+
+    it('renders Greek letters: remaining lowercase', () => {
+      expect(renderMathToHtml('\\delta')).toBe('\u03B4');
+      expect(renderMathToHtml('\\epsilon')).toBe('\u03B5');
+      expect(renderMathToHtml('\\zeta')).toBe('\u03B6');
+      expect(renderMathToHtml('\\eta')).toBe('\u03B7');
+      expect(renderMathToHtml('\\theta')).toBe('\u03B8');
+      expect(renderMathToHtml('\\iota')).toBe('\u03B9');
+      expect(renderMathToHtml('\\kappa')).toBe('\u03BA');
+      expect(renderMathToHtml('\\lambda')).toBe('\u03BB');
+      expect(renderMathToHtml('\\mu')).toBe('\u03BC');
+      expect(renderMathToHtml('\\nu')).toBe('\u03BD');
+      expect(renderMathToHtml('\\xi')).toBe('\u03BE');
+      expect(renderMathToHtml('\\rho')).toBe('\u03C1');
+      expect(renderMathToHtml('\\sigma')).toBe('\u03C3');
+      expect(renderMathToHtml('\\tau')).toBe('\u03C4');
+      expect(renderMathToHtml('\\upsilon')).toBe('\u03C5');
+      expect(renderMathToHtml('\\phi')).toBe('\u03C6');
+      expect(renderMathToHtml('\\chi')).toBe('\u03C7');
+      expect(renderMathToHtml('\\psi')).toBe('\u03C8');
+    });
+
+    it('renders Greek: remaining uppercase', () => {
+      expect(renderMathToHtml('\\Beta')).toBe('\u0392');
+      expect(renderMathToHtml('\\Gamma')).toBe('\u0393');
+      expect(renderMathToHtml('\\Epsilon')).toBe('\u0395');
+      expect(renderMathToHtml('\\Zeta')).toBe('\u0396');
+      expect(renderMathToHtml('\\Eta')).toBe('\u0397');
+      expect(renderMathToHtml('\\Theta')).toBe('\u0398');
+      expect(renderMathToHtml('\\Iota')).toBe('\u0399');
+      expect(renderMathToHtml('\\Kappa')).toBe('\u039A');
+      expect(renderMathToHtml('\\Lambda')).toBe('\u039B');
+      expect(renderMathToHtml('\\Mu')).toBe('\u039C');
+      expect(renderMathToHtml('\\Nu')).toBe('\u039D');
+      expect(renderMathToHtml('\\Xi')).toBe('\u039E');
+      expect(renderMathToHtml('\\Omicron')).toBe('\u039F');
+      expect(renderMathToHtml('\\Pi')).toBe('\u03A0');
+      expect(renderMathToHtml('\\Rho')).toBe('\u03A1');
+      expect(renderMathToHtml('\\Tau')).toBe('\u03A4');
+      expect(renderMathToHtml('\\Upsilon')).toBe('\u03A5');
+      expect(renderMathToHtml('\\Phi')).toBe('\u03A6');
+      expect(renderMathToHtml('\\Chi')).toBe('\u03A7');
+      expect(renderMathToHtml('\\Psi')).toBe('\u03A8');
+    });
+
+    it('renders variant Greek: varpi, varrho, varsigma', () => {
+      expect(renderMathToHtml('\\varpi')).toBe('\u03D6');
+      expect(renderMathToHtml('\\varrho')).toBe('\u03F1');
+      expect(renderMathToHtml('\\varsigma')).toBe('\u03C2');
+    });
+  });
+
+  describe('parseMathSegments edge cases', () => {
+    it('handles trailing text after math', () => {
+      const result = parseMathSegments('$a$ end');
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({ type: 'inline-math', content: 'a' });
+      expect(result[1]).toEqual({ type: 'text', content: ' end' });
+    });
+
+    it('handles block math with surrounding whitespace', () => {
+      const result = parseMathSegments('$$  x + y  $$');
+      expect(result).toHaveLength(1);
+      expect(result[0].type).toBe('block-math');
+      expect(result[0].content).toBe('x + y');
+    });
+
+    it('handles multiple block math expressions', () => {
+      const result = parseMathSegments('$$a$$ text $$b$$');
+      expect(result).toHaveLength(3);
+      expect(result[0].type).toBe('block-math');
+      expect(result[1].type).toBe('text');
+      expect(result[2].type).toBe('block-math');
+    });
+
+    it('handles text only before math', () => {
+      const result = parseMathSegments('prefix $x$');
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({ type: 'text', content: 'prefix ' });
+      expect(result[1]).toEqual({ type: 'inline-math', content: 'x' });
+    });
+  });
 });

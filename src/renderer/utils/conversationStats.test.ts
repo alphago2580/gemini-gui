@@ -106,6 +106,123 @@ describe('conversationStats', () => {
     expect(stats.longestConversation?.messageCount).toBe(1);
     expect(stats.shortestConversation?.messageCount).toBe(1);
   });
+
+  it('averageMessagesPerConversation rounds to 1 decimal', () => {
+    const conversations = [
+      {
+        id: '1', title: 'A', timestamp: new Date(),
+        messages: [
+          { role: 'user' as const, content: 'a' },
+          { role: 'assistant' as const, content: 'b' },
+          { role: 'user' as const, content: 'c' },
+        ],
+      },
+      {
+        id: '2', title: 'B', timestamp: new Date(),
+        messages: [{ role: 'user' as const, content: 'd' }],
+      },
+      {
+        id: '3', title: 'C', timestamp: new Date(),
+        messages: [{ role: 'user' as const, content: 'e' }],
+      },
+    ];
+    const stats = calculateConversationStats(conversations);
+    // 5 / 3 = 1.6666... → rounds to 1.7
+    expect(stats.averageMessagesPerConversation).toBe(1.7);
+  });
+
+  it('longestConversation picks first when tied', () => {
+    const conversations = [
+      { id: '1', title: 'First', timestamp: new Date(), messages: [{ role: 'user' as const, content: 'x' }, { role: 'assistant' as const, content: 'y' }] },
+      { id: '2', title: 'Second', timestamp: new Date(), messages: [{ role: 'user' as const, content: 'a' }, { role: 'assistant' as const, content: 'b' }] },
+    ];
+    const stats = calculateConversationStats(conversations);
+    // First one is set first; second doesn't exceed so first remains
+    expect(stats.longestConversation?.title).toBe('First');
+  });
+
+  it('shortestConversation picks first when tied', () => {
+    const conversations = [
+      { id: '1', title: 'First', timestamp: new Date(), messages: [{ role: 'user' as const, content: 'x' }] },
+      { id: '2', title: 'Second', timestamp: new Date(), messages: [{ role: 'user' as const, content: 'a' }] },
+    ];
+    const stats = calculateConversationStats(conversations);
+    expect(stats.shortestConversation?.title).toBe('First');
+  });
+
+  it('all fields present in empty stats', () => {
+    const stats = calculateConversationStats([]);
+    expect(stats).toEqual({
+      totalConversations: 0,
+      totalMessages: 0,
+      userMessages: 0,
+      assistantMessages: 0,
+      averageMessagesPerConversation: 0,
+      longestConversation: null,
+      shortestConversation: null,
+      totalCharacters: 0,
+      averageMessageLength: 0,
+      emptyConversations: 0,
+    });
+  });
+
+  it('handles many conversations correctly', () => {
+    const conversations = Array.from({ length: 100 }, (_, i) => ({
+      id: `${i}`, title: `Conv ${i}`, timestamp: new Date(),
+      messages: Array.from({ length: i % 5 }, (_, j) => ({
+        role: (j % 2 === 0 ? 'user' : 'assistant') as 'user' | 'assistant',
+        content: 'x'.repeat(i + 1),
+      })),
+    }));
+    const stats = calculateConversationStats(conversations);
+    expect(stats.totalConversations).toBe(100);
+    expect(stats.totalMessages).toBeGreaterThan(0);
+  });
+
+  it('averageMessageLength rounds to integer', () => {
+    const conversations = [
+      {
+        id: '1', title: 'A', timestamp: new Date(),
+        messages: [
+          { role: 'user' as const, content: 'abc' },  // 3
+          { role: 'assistant' as const, content: 'de' }, // 2
+        ],
+      },
+    ];
+    const stats = calculateConversationStats(conversations);
+    // 5 / 2 = 2.5 → Math.round → 3
+    expect(stats.averageMessageLength).toBe(3);
+  });
+
+  it('handles only-assistant messages', () => {
+    const conversations = [
+      {
+        id: '1', title: 'Bot', timestamp: new Date(),
+        messages: [
+          { role: 'assistant' as const, content: 'Hi' },
+          { role: 'assistant' as const, content: 'Hello' },
+        ],
+      },
+    ];
+    const stats = calculateConversationStats(conversations);
+    expect(stats.userMessages).toBe(0);
+    expect(stats.assistantMessages).toBe(2);
+  });
+
+  it('handles all-empty-content messages', () => {
+    const conversations = [
+      {
+        id: '1', title: 'Empty msgs', timestamp: new Date(),
+        messages: [
+          { role: 'user' as const, content: '' },
+          { role: 'assistant' as const, content: '' },
+        ],
+      },
+    ];
+    const stats = calculateConversationStats(conversations);
+    expect(stats.totalCharacters).toBe(0);
+    expect(stats.averageMessageLength).toBe(0);
+  });
 });
 
 describe('formatNumber', () => {
@@ -122,5 +239,21 @@ describe('formatNumber', () => {
   it('formats millions with M', () => {
     expect(formatNumber(1_000_000)).toBe('1.0M');
     expect(formatNumber(2_500_000)).toBe('2.5M');
+  });
+
+  it('formats 0', () => {
+    expect(formatNumber(0)).toBe('0');
+  });
+
+  it('formats 999999 as K', () => {
+    expect(formatNumber(999999)).toBe('1000.0K');
+  });
+
+  it('formats exact boundary 1000000 as M', () => {
+    expect(formatNumber(1000000)).toBe('1.0M');
+  });
+
+  it('formats 1500 as 1.5K', () => {
+    expect(formatNumber(1500)).toBe('1.5K');
   });
 });

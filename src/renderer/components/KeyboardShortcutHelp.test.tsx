@@ -89,4 +89,66 @@ describe('KeyboardShortcutHelp', () => {
     expect(screen.getByText('Ctrl+F')).toBeInTheDocument();
     expect(screen.getByText('대화 내 검색')).toBeInTheDocument();
   });
+
+  it('includes all 4 shortcut group titles', () => {
+    render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    const { container } = render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    const groups = container.querySelectorAll('.shortcut-group');
+    expect(groups).toHaveLength(SHORTCUT_GROUPS.length);
+  });
+
+  it('includes Escape shortcut with close description', () => {
+    render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    expect(screen.getAllByText('Escape').length).toBeGreaterThan(0);
+  });
+
+  it('includes message shortcuts (Enter, Shift+Enter)', () => {
+    render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    expect(screen.getByText('Enter')).toBeInTheDocument();
+    expect(screen.getByText('Shift+Enter')).toBeInTheDocument();
+  });
+
+  it('includes previous tab shortcut', () => {
+    render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    expect(screen.getByText('Ctrl+Shift+Tab')).toBeInTheDocument();
+  });
+
+  it('includes Ctrl+K quick switch shortcut', () => {
+    render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    expect(screen.getByText('Ctrl+K')).toBeInTheDocument();
+  });
+
+  it('includes Ctrl+L clear shortcut', () => {
+    render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    expect(screen.getByText('Ctrl+L')).toBeInTheDocument();
+  });
+
+  it('includes Ctrl+, settings shortcut', () => {
+    render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    expect(screen.getByText('Ctrl+,')).toBeInTheDocument();
+  });
+
+  it('SHORTCUT_GROUPS has correct structure', () => {
+    for (const group of SHORTCUT_GROUPS) {
+      expect(group).toHaveProperty('title');
+      expect(group).toHaveProperty('shortcuts');
+      expect(Array.isArray(group.shortcuts)).toBe(true);
+      for (const shortcut of group.shortcuts) {
+        expect(shortcut).toHaveProperty('keys');
+        expect(shortcut).toHaveProperty('description');
+      }
+    }
+  });
+
+  it('close button has × text', () => {
+    render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    const closeBtn = screen.getByLabelText('단축키 도움말 닫기');
+    expect(closeBtn.textContent).toBe('×');
+  });
+
+  it('has shortcut-help-header and shortcut-help-content sections', () => {
+    const { container } = render(<KeyboardShortcutHelp isOpen={true} onClose={vi.fn()} />);
+    expect(container.querySelector('.shortcut-help-header')).toBeTruthy();
+    expect(container.querySelector('.shortcut-help-content')).toBeTruthy();
+  });
 });
