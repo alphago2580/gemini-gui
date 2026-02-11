@@ -54,6 +54,10 @@ import type { SegmentedControlOption } from './components/SegmentedControl';
 import Timeline from './components/Timeline';
 import type { TimelineItem } from './components/Timeline';
 import TagInput from './components/TagInput';
+import Avatar from './components/Avatar';
+import AvatarGroup from './components/AvatarGroup';
+import type { AvatarGroupItem } from './components/AvatarGroup';
+import Divider from './components/Divider';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -275,6 +279,12 @@ const App: React.FC = () => {
       variant: idx === 0 ? 'info' as const : 'default' as const,
     }));
   }, [conversations]);
+
+  // Conversation participants (for stats display)
+  const conversationParticipants: AvatarGroupItem[] = useMemo(() => [
+    { id: 'user', name: S.AVATAR_USER_NAME },
+    { id: 'assistant', name: S.AVATAR_ASSISTANT_NAME },
+  ], []);
 
   // Current conversation title (for window title sync)
   const currentConvTitle = useMemo(() => {
@@ -652,6 +662,12 @@ const App: React.FC = () => {
               const msgReactions = currentConversationId ? msgActions.getReactions(currentConversationId, index) : [];
               return (
                 <div key={message.id || index} data-message-index={index} onContextMenu={(e) => msgActions.handleMessageContextMenu(e, index)}>
+                  <Avatar
+                    name={message.role === 'user' ? S.AVATAR_USER_NAME : S.AVATAR_ASSISTANT_NAME}
+                    size="small"
+                    shape="circle"
+                    status={message.role === 'assistant' && isStreaming && index === messages.length - 1 ? 'busy' : 'online'}
+                  />
                   <MessageBubble
                     message={message}
                     index={index}
@@ -734,14 +750,17 @@ const App: React.FC = () => {
               </Collapsible>
             )}
             {!isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
-              <button
-                className="regenerate-btn"
-                onClick={handleRegenerate}
-                aria-label={S.ARIA_REGENERATE}
-                title={S.REGENERATE_TITLE}
-              >
-                {S.REGENERATE_BUTTON}
-              </button>
+              <>
+                <Divider spacing="small" variant="dashed" label={S.DIVIDER_TOKEN_LABEL} />
+                <button
+                  className="regenerate-btn"
+                  onClick={handleRegenerate}
+                  aria-label={S.ARIA_REGENERATE}
+                  title={S.REGENERATE_TITLE}
+                >
+                  {S.REGENERATE_BUTTON}
+                </button>
+              </>
             )}
             <div ref={messagesEndRef} />
           </div>
@@ -863,8 +882,13 @@ const App: React.FC = () => {
         onClose={dialogs.closeStats}
         stats={conversationStatsData}
       />
-      {dialogs.isStatsOpen && recentTimelineItems.length > 0 && (
-        <Timeline items={recentTimelineItems} orientation="vertical" />
+      {dialogs.isStatsOpen && (
+        <>
+          <AvatarGroup items={conversationParticipants} size="small" />
+          {recentTimelineItems.length > 0 && (
+            <Timeline items={recentTimelineItems} orientation="vertical" />
+          )}
+        </>
       )}
       <Drawer
         open={dialogs.isBookmarkDrawerOpen}
