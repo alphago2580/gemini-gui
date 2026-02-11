@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (3972+ tests)
+- **Test Status**: Passing (4192 tests)
 - **Last Agent Run**: Agent 4 (Integrator)
 
 ## Completed Features
@@ -978,3 +978,17 @@
 - Added 6 string constants: `BANNER_CONNECTION_ERROR`, `BANNER_RETRY`, `SETTINGS_SECTION_GENERAL`, `SETTINGS_SECTION_ADVANCED`
 - Added 6 new integration tests: UserAvatar rendering for user/assistant, NotificationBanner visibility, session error banner, Accordion in settings, accordion expand
 - Total tests: 3966 → 3972+ (157 test files, all passing)
+
+### Agent 4 (Integrator) — Integrate SessionIndicator, DropdownMenu, ProgressBar
+- Added `SessionIndicator` to App.tsx header — displays real-time connection status (idle/connecting/connected/error) with colored dot and label
+  - Wired to `sessionStatus` from `useStreamHandler` hook
+- Replaced Sidebar delete buttons with `DropdownMenu` — each conversation now has a ⋮ options menu
+  - Menu includes "대화 열기" (open) and "삭제" (delete) actions
+  - Click on menu items doesn't propagate to conversation selection
+  - Updated 9 existing tests to use DropdownMenu interaction pattern
+- Added `ProgressBar` to display token usage after stream completion
+  - Shows total tokens vs maxTokens with percentage
+  - Variant changes dynamically: default (<70%), warning (70-90%), error (>90%)
+- Added 4 string constants: `CONV_MENU_LABEL`, `CONV_MENU_OPEN`, `CONV_MENU_DELETE`, `TOKEN_PROGRESS_LABEL`
+- Added 8 new integration tests: SessionIndicator rendering, error status, ProgressBar visibility, token usage bar, DropdownMenu trigger, menu open
+- Total tests: 3972+ → 4192 (158 test files, all passing)
