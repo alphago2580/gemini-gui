@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5736+ tests)
-- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 13
+- **Test Status**: Passing (5898 tests)
+- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1341,3 +1341,28 @@
 - Created `RadioGroup` component: radio buttons with card variant, descriptions, keyboard nav, horizontal/vertical, disabled (36 tests)
 - Created `CheckboxGroup` component: multi-select checkboxes with select-all, max limit, descriptions, sizes, orientations (34 tests)
 - Total tests: 4712 → 5304 (191 test files, all passing)
+
+### Agent 2 (Logic) — Hooks/Utils Batch 29: useMediaRecorder, useSpeechRecognition, linkedListUtils
+- Created `useMediaRecorder` hook for recording audio/video via MediaRecorder API:
+  - Start/stop/pause/resume recording
+  - Data chunk collection with onDataAvailable callback
+  - Final blob creation on stop with onStop callback
+  - Error handling with onError callback
+  - Reset and configurable mimeType, audioBitsPerSecond, videoBitsPerSecond
+- Created `useSpeechRecognition` hook for speech-to-text via Web Speech API:
+  - Start/stop/reset recognition
+  - Final and interim transcript tracking
+  - Configurable language (default ko-KR), continuous, interimResults
+  - onResult, onError, onEnd callbacks
+  - isSupported detection (SpeechRecognition + webkitSpeechRecognition)
+- Created `linkedListUtils` utility with LinkedList class:
+  - Append, prepend, insertAt operations
+  - removeFirst, removeLast, removeAt operations
+  - get, indexOf, contains, find queries
+  - reverse, map, filter, forEach functional operations
+  - clone, clear, toArray, static from()
+  - Size tracking and isEmpty property
+- Added 13 tests for useMediaRecorder (init, start, stop+blob, onDataAvailable, empty chunks, pause/resume, state guards, error, reset, stopWhenInactive, mimeType, clearPrevious)
+- Added 14 tests for useSpeechRecognition (init, unsupported, start, lang/options, default-ko, final/interim result, accumulate, stop, end, error, reset, unsupported-start, webkit)
+- Added 41 tests for linkedListUtils (create, from, append, prepend, insertAt, removeFirst/Last/At, get, indexOf, contains, find, reverse, map, filter, forEach, clear, clone, toArray, strings)
+- Total tests: 5727 → 5898 (218 test files, all passing)
