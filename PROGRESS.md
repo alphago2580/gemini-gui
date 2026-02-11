@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2594 tests)
-- **Last Agent Run**: Agent 4 (Integrator)
+- **Test Status**: Passing (3282 tests)
+- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -650,3 +650,32 @@
 - Added 3 string constants for Settings section labels (`SETTINGS_SECTION_APPEARANCE`, `SETTINGS_SECTION_NOTIFICATIONS`, `SETTINGS_SECTION_MODEL`)
 - Added 4 unit tests for Settings Divider (section labels, separator roles)
 - Total tests: 2590 → 2594 (128 test files, all passing)
+
+### Agent 2 (Logic) — useFormValidation, useDevicePixelRatio Hooks & stateManagementUtils Utility
+- Created `useFormValidation` hook: comprehensive form validation with field-level state management
+  - Per-field state tracking: value, error, touched, dirty
+  - Configurable validators with `validateOnChange` and `validateOnBlur` options
+  - `validate()` validates all fields at once, returns boolean
+  - `validateField(name)` validates single field, returns error string or null
+  - `setValue`, `setError`, `handleBlur` for field interactions
+  - `reset()` and `resetField(name)` for form/field reset
+  - Derived state: `isValid`, `isDirty`, `isTouched`, `values`, `errors`
+  - 6 built-in validators: `required`, `minLength`, `maxLength`, `pattern`, `minValue`, `maxValue`
+  - Validators receive allValues for cross-field validation support
+- Created `useDevicePixelRatio` hook: display pixel density detection
+  - Returns `pixelRatio`, `isHighDPI` (>1), `isRetina` (>=2)
+  - Reactive updates via matchMedia `resolution` query change listener
+  - Handles zoom changes and multi-monitor transitions
+  - Fallback to 1 when devicePixelRatio is unavailable
+- Created `stateManagementUtils` utility with 7 exports:
+  - `createStore<S,A>`: Redux-like store with getState, dispatch, subscribe, select
+  - `combineReducers`: merges multiple reducers into one (returns same ref when unchanged)
+  - `loggerMiddleware`: pass-through middleware for debugging
+  - `thunkMiddleware`: enables dispatching functions for async workflows
+  - `createSelector`: memoized selector with 1-2 input selectors
+  - `createAction<P>`: action creator factory with type property
+  - Middleware chaining with right-to-left composition
+- Added 37 tests for useFormValidation (init, setValue, dirty, validate-on-change, blur, validate-all, validate-field, reset, resetField, setError, clear error, chained validators, number validators, no-validators fields, built-in validators)
+- Added 10 tests for useDevicePixelRatio (1x, 1.5x, 2x, 3x, change, matchMedia, cleanup, falsy fallback, shape)
+- Added 26 tests for stateManagementUtils (createStore: init/dispatch/multi/subscribe/no-change/unsubscribe/multi-sub/select/middleware/chain/payload/prevState; combineReducers: combine/same-ref/new-ref/multi-slice; loggerMiddleware; thunkMiddleware: function/passthrough; createSelector: compute/memoize/recompute/two-input/two-memo; createAction: no-payload/payload/type/object)
+- Total tests: 3203 → 3282 (165 test files, all passing)
