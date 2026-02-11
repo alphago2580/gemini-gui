@@ -253,4 +253,119 @@ describe('useDragAndDrop', () => {
     rerender();
     expect(result.current.dragProps).toBe(first);
   });
+
+  it('drop resets dragCounter to 0', () => {
+    const { result } = renderHook(() => useDragAndDrop());
+    // Enter twice (nested)
+    act(() => {
+      result.current.dragProps.onDragEnter(createDragEvent());
+    });
+    act(() => {
+      result.current.dragProps.onDragEnter(createDragEvent());
+    });
+    expect(result.current.isOver).toBe(true);
+
+    // Drop resets everything
+    act(() => {
+      result.current.dragProps.onDrop(createDragEvent());
+    });
+    expect(result.current.isOver).toBe(false);
+    expect(result.current.isDragging).toBe(false);
+  });
+
+  it('drop calls preventDefault and stopPropagation', () => {
+    const { result } = renderHook(() => useDragAndDrop());
+    const e = createDragEvent();
+    act(() => {
+      result.current.dragProps.onDrop(e);
+    });
+    expect(e.preventDefault).toHaveBeenCalled();
+    expect(e.stopPropagation).toHaveBeenCalled();
+  });
+
+  it('dragLeave calls preventDefault and stopPropagation', () => {
+    const { result } = renderHook(() => useDragAndDrop());
+    act(() => {
+      result.current.dragProps.onDragEnter(createDragEvent());
+    });
+    const e = createDragEvent();
+    act(() => {
+      result.current.dragProps.onDragLeave(e);
+    });
+    expect(e.preventDefault).toHaveBeenCalled();
+    expect(e.stopPropagation).toHaveBeenCalled();
+  });
+
+  it('multiple accept patterns work together', () => {
+    const onDrop = vi.fn();
+    const { result } = renderHook(() => useDragAndDrop({
+      onDrop,
+      accept: ['image/*', 'text/plain'],
+    }));
+    const imgFile = new File(['img'], 'photo.png', { type: 'image/png' });
+    const txtFile = new File(['text'], 'doc.txt', { type: 'text/plain' });
+    const pdfFile = new File(['pdf'], 'doc.pdf', { type: 'application/pdf' });
+    const files = createFileList([imgFile, txtFile, pdfFile]);
+
+    act(() => {
+      result.current.dragProps.onDrop(createDragEvent({
+        dataTransfer: { files } as unknown as DataTransfer,
+      }));
+    });
+
+    expect(onDrop).toHaveBeenCalledWith([imgFile, txtFile]);
+  });
+
+  it('works without onDrop callback', () => {
+    const { result } = renderHook(() => useDragAndDrop());
+    const file = new File(['content'], 'test.txt', { type: 'text/plain' });
+    const files = createFileList([file]);
+
+    // Should not throw
+    act(() => {
+      result.current.dragProps.onDrop(createDragEvent({
+        dataTransfer: { files } as unknown as DataTransfer,
+      }));
+    });
+
+    expect(result.current.isDragging).toBe(false);
+  });
+
+  it('onDragEnter is not called on subsequent nested enters', () => {
+    const onDragEnter = vi.fn();
+    const { result } = renderHook(() => useDragAndDrop({ onDragEnter }));
+
+    act(() => {
+      result.current.dragProps.onDragEnter(createDragEvent());
+    });
+    act(() => {
+      result.current.dragProps.onDragEnter(createDragEvent());
+    });
+    act(() => {
+      result.current.dragProps.onDragEnter(createDragEvent());
+    });
+
+    expect(onDragEnter).toHaveBeenCalledTimes(1);
+  });
+
+  it('onDragLeave not called when counter is still positive', () => {
+    const onDragLeave = vi.fn();
+    const { result } = renderHook(() => useDragAndDrop({ onDragLeave }));
+
+    // Enter twice
+    act(() => {
+      result.current.dragProps.onDragEnter(createDragEvent());
+    });
+    act(() => {
+      result.current.dragProps.onDragEnter(createDragEvent());
+    });
+
+    // Leave once - counter goes to 1, not 0
+    act(() => {
+      result.current.dragProps.onDragLeave(createDragEvent());
+    });
+
+    expect(onDragLeave).not.toHaveBeenCalled();
+    expect(result.current.isOver).toBe(true);
+  });
 });

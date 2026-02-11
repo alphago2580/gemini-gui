@@ -212,4 +212,163 @@ describe('useIntersectionObserver', () => {
     expect(result.current.isVisible).toBe(false);
     expect(result.current.entry.isIntersecting).toBe(false);
   });
+
+  it('ref is stable across rerenders', () => {
+    const { result, rerender } = renderHook(() => useIntersectionObserver());
+    const firstRef = result.current.ref;
+    rerender();
+    expect(result.current.ref).toBe(firstRef);
+  });
+
+  it('updates intersectionRatio correctly', () => {
+    const { result, rerender } = renderHook(
+      ({ opts }) => useIntersectionObserver(opts),
+      { initialProps: { opts: {} } }
+    );
+
+    const element = document.createElement('div');
+    (result.current.ref as React.MutableRefObject<Element | null>).current = element;
+    rerender({ opts: { threshold: 0 } });
+
+    if (observeCallbacks.length > 0) {
+      const cb = observeCallbacks[observeCallbacks.length - 1];
+      act(() => {
+        cb([{
+          isIntersecting: true,
+          intersectionRatio: 0.5,
+          boundingClientRect: { x: 0, y: 0, width: 100, height: 50, top: 0, right: 100, bottom: 50, left: 0, toJSON: () => ({}) } as DOMRectReadOnly,
+        }]);
+      });
+
+      expect(result.current.entry.intersectionRatio).toBe(0.5);
+    }
+  });
+
+  it('does not update state when freezeOnceVisible is true and already frozen', () => {
+    const { result, rerender } = renderHook(
+      ({ opts }) => useIntersectionObserver(opts),
+      { initialProps: { opts: { freezeOnceVisible: true } as UseIntersectionObserverOptions } }
+    );
+
+    const element = document.createElement('div');
+    (result.current.ref as React.MutableRefObject<Element | null>).current = element;
+    rerender({ opts: { freezeOnceVisible: true, threshold: 0.1 } });
+
+    if (observeCallbacks.length > 0) {
+      const cb = observeCallbacks[observeCallbacks.length - 1];
+
+      // Become visible - triggers freeze
+      act(() => {
+        cb([{
+          isIntersecting: true,
+          intersectionRatio: 1.0,
+          boundingClientRect: { x: 0, y: 0, width: 100, height: 50, top: 0, right: 100, bottom: 50, left: 0, toJSON: () => ({}) } as DOMRectReadOnly,
+        }]);
+      });
+
+      expect(result.current.entry.intersectionRatio).toBe(1.0);
+
+      // Try to change ratio - should stay frozen
+      act(() => {
+        cb([{
+          isIntersecting: true,
+          intersectionRatio: 0.3,
+          boundingClientRect: { x: 0, y: 0, width: 100, height: 50, top: 0, right: 100, bottom: 50, left: 0, toJSON: () => ({}) } as DOMRectReadOnly,
+        }]);
+      });
+
+      // Should still be 1.0 because it's frozen
+      expect(result.current.entry.intersectionRatio).toBe(1.0);
+    }
+  });
+
+  it('does not freeze when freezeOnceVisible is false', () => {
+    const { result, rerender } = renderHook(
+      ({ opts }) => useIntersectionObserver(opts),
+      { initialProps: { opts: { freezeOnceVisible: false } as UseIntersectionObserverOptions } }
+    );
+
+    const element = document.createElement('div');
+    (result.current.ref as React.MutableRefObject<Element | null>).current = element;
+    rerender({ opts: { freezeOnceVisible: false, threshold: 0.1 } });
+
+    if (observeCallbacks.length > 0) {
+      const cb = observeCallbacks[observeCallbacks.length - 1];
+
+      act(() => {
+        cb([{
+          isIntersecting: true,
+          intersectionRatio: 1.0,
+          boundingClientRect: { x: 0, y: 0, width: 100, height: 50, top: 0, right: 100, bottom: 50, left: 0, toJSON: () => ({}) } as DOMRectReadOnly,
+        }]);
+      });
+
+      expect(result.current.isVisible).toBe(true);
+
+      act(() => {
+        cb([{
+          isIntersecting: false,
+          intersectionRatio: 0,
+          boundingClientRect: null as unknown as DOMRectReadOnly,
+        }]);
+      });
+
+      // Should update because freezeOnceVisible is false
+      expect(result.current.isVisible).toBe(false);
+    }
+  });
+
+  it('observes the element set on the ref', () => {
+    const { result, rerender } = renderHook(
+      ({ opts }) => useIntersectionObserver(opts),
+      { initialProps: { opts: {} } }
+    );
+
+    const element = document.createElement('div');
+    (result.current.ref as React.MutableRefObject<Element | null>).current = element;
+    rerender({ opts: { threshold: 0.3 } });
+
+    expect(observedElements).toContain(element);
+  });
+
+  it('boundingClientRect is stored in entry', () => {
+    const { result, rerender } = renderHook(
+      ({ opts }) => useIntersectionObserver(opts),
+      { initialProps: { opts: {} } }
+    );
+
+    const element = document.createElement('div');
+    (result.current.ref as React.MutableRefObject<Element | null>).current = element;
+    rerender({ opts: { threshold: 0 } });
+
+    if (observeCallbacks.length > 0) {
+      const cb = observeCallbacks[observeCallbacks.length - 1];
+      const rect = { x: 10, y: 20, width: 200, height: 100, top: 20, right: 210, bottom: 120, left: 10, toJSON: () => ({}) } as DOMRectReadOnly;
+      act(() => {
+        cb([{
+          isIntersecting: true,
+          intersectionRatio: 0.8,
+          boundingClientRect: rect,
+        }]);
+      });
+
+      expect(result.current.entry.boundingClientRect).toBe(rect);
+    }
+  });
+
+  it('disconnects on rerender with new options', () => {
+    const { result, rerender } = renderHook(
+      ({ opts }) => useIntersectionObserver(opts),
+      { initialProps: { opts: {} } }
+    );
+
+    const element = document.createElement('div');
+    (result.current.ref as React.MutableRefObject<Element | null>).current = element;
+    rerender({ opts: { threshold: 0.1 } });
+
+    const disconnectsAfterFirst = disconnectCalls;
+    rerender({ opts: { threshold: 0.5 } });
+
+    expect(disconnectCalls).toBeGreaterThan(disconnectsAfterFirst);
+  });
 });

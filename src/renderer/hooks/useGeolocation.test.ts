@@ -150,4 +150,102 @@ describe('useGeolocation', () => {
     expect(result.current.error?.code).toBe(2);
     expect(result.current.loading).toBe(false);
   });
+
+  it('error message contains "Geolocation not supported" when API missing', () => {
+    Object.defineProperty(navigator, 'geolocation', {
+      value: undefined,
+      writable: true,
+      configurable: true,
+    });
+
+    const { result } = renderHook(() => useGeolocation());
+
+    act(() => {
+      result.current.requestPosition();
+    });
+
+    expect(result.current.error?.message).toBe('Geolocation not supported');
+  });
+
+  it('watch mode does nothing when geolocation API is missing', () => {
+    Object.defineProperty(navigator, 'geolocation', {
+      value: undefined,
+      writable: true,
+      configurable: true,
+    });
+
+    const { result } = renderHook(() => useGeolocation({ watch: true }));
+    expect(result.current.loading).toBe(false);
+    expect(mockWatchPosition).not.toHaveBeenCalled();
+  });
+
+  it('watch mode sets loading to true initially', () => {
+    const { result } = renderHook(() => useGeolocation({ watch: true }));
+    expect(result.current.loading).toBe(true);
+  });
+
+  it('watch mode receives position updates', () => {
+    mockWatchPosition.mockImplementation((success: PositionCallback) => {
+      success({
+        coords: {
+          latitude: 35.0,
+          longitude: 129.0,
+          accuracy: 20,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          speed: null,
+        },
+        timestamp: 9999999,
+      } as GeolocationPosition);
+      return 42;
+    });
+
+    const { result } = renderHook(() => useGeolocation({ watch: true }));
+
+    expect(result.current.latitude).toBe(35.0);
+    expect(result.current.longitude).toBe(129.0);
+    expect(result.current.altitude).toBeNull();
+    expect(result.current.loading).toBe(false);
+  });
+
+  it('watch mode handles error callback', () => {
+    const geoError = {
+      code: 3,
+      message: 'Timeout',
+      PERMISSION_DENIED: 1,
+      POSITION_UNAVAILABLE: 2,
+      TIMEOUT: 3,
+    } as GeolocationPositionError;
+
+    mockWatchPosition.mockImplementation((_s: PositionCallback, error: PositionErrorCallback) => {
+      error(geoError);
+      return 42;
+    });
+
+    const { result } = renderHook(() => useGeolocation({ watch: true }));
+
+    expect(result.current.error).toBe(geoError);
+    expect(result.current.error?.code).toBe(3);
+    expect(result.current.loading).toBe(false);
+  });
+
+  it('passes options to watchPosition', () => {
+    renderHook(() =>
+      useGeolocation({ watch: true, enableHighAccuracy: true, timeout: 3000, maximumAge: 500 })
+    );
+
+    expect(mockWatchPosition).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.any(Function),
+      { enableHighAccuracy: true, timeout: 3000, maximumAge: 500 }
+    );
+  });
+
+  it('requestPosition callback is stable across rerenders', () => {
+    const { result, rerender } = renderHook(() => useGeolocation());
+    const first = result.current.requestPosition;
+    rerender();
+    expect(result.current.requestPosition).toBe(first);
+  });
 });

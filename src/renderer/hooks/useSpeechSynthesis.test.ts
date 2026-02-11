@@ -242,4 +242,97 @@ describe('useSpeechSynthesis', () => {
 
     expect(result.current.voices).toEqual(mockVoices);
   });
+
+  it('sets voice on utterance when voice option provided', () => {
+    const mockVoice = { name: 'Google Korean', lang: 'ko-KR' } as SpeechSynthesisVoice;
+    const { result } = renderHook(() => useSpeechSynthesis({ voice: mockVoice }));
+
+    act(() => {
+      result.current.speak('테스트');
+    });
+
+    expect(mockUtteranceInstance.voice).toBe(mockVoice);
+  });
+
+  it('does not set voice when voice option is null', () => {
+    const { result } = renderHook(() => useSpeechSynthesis({ voice: null }));
+
+    act(() => {
+      result.current.speak('테스트');
+    });
+
+    expect(mockUtteranceInstance.voice).toBeNull();
+  });
+
+  it('cancel resets isSpeaking and isPaused to false', () => {
+    const { result } = renderHook(() => useSpeechSynthesis());
+
+    act(() => {
+      result.current.speak('text');
+    });
+    act(() => {
+      mockUtteranceInstance.onstart?.();
+    });
+    act(() => {
+      mockUtteranceInstance.onpause?.();
+    });
+    expect(result.current.isSpeaking).toBe(true);
+    expect(result.current.isPaused).toBe(true);
+
+    act(() => {
+      result.current.cancel();
+    });
+    expect(result.current.isSpeaking).toBe(false);
+    expect(result.current.isPaused).toBe(false);
+  });
+
+  it('registers voiceschanged listener on mount', () => {
+    renderHook(() => useSpeechSynthesis());
+
+    expect(mockSpeechSynthesis.addEventListener).toHaveBeenCalledWith(
+      'voiceschanged',
+      expect.any(Function)
+    );
+  });
+
+  it('removes voiceschanged listener on unmount', () => {
+    const { unmount } = renderHook(() => useSpeechSynthesis());
+    unmount();
+
+    expect(mockSpeechSynthesis.removeEventListener).toHaveBeenCalledWith(
+      'voiceschanged',
+      expect.any(Function)
+    );
+  });
+
+  it('cancels previous speech before starting new', () => {
+    const { result } = renderHook(() => useSpeechSynthesis());
+
+    act(() => {
+      result.current.speak('first');
+    });
+    mockSpeechSynthesis.cancel.mockClear();
+
+    act(() => {
+      result.current.speak('second');
+    });
+
+    expect(mockSpeechSynthesis.cancel).toHaveBeenCalledTimes(1);
+    expect(mockUtteranceInstance.text).toBe('second');
+  });
+
+  it('speak/cancel/pause/resume are stable callback references', () => {
+    const { result, rerender } = renderHook(() => useSpeechSynthesis());
+    const first = {
+      speak: result.current.speak,
+      cancel: result.current.cancel,
+      pause: result.current.pause,
+      resume: result.current.resume,
+    };
+    rerender();
+    expect(result.current.speak).toBe(first.speak);
+    expect(result.current.cancel).toBe(first.cancel);
+    expect(result.current.pause).toBe(first.pause);
+    expect(result.current.resume).toBe(first.resume);
+  });
 });

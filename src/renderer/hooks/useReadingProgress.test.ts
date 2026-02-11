@@ -168,4 +168,136 @@ describe('useReadingProgress', () => {
     expect(result.current.progress).toBeLessThanOrEqual(100);
     expect(result.current.progress).toBeGreaterThanOrEqual(0);
   });
+
+  it('reset function is stable across rerenders', () => {
+    const { result, rerender } = renderHook(() => useReadingProgress());
+    const first = result.current.reset;
+    rerender();
+    expect(result.current.reset).toBe(first);
+  });
+
+  it('calculates 25% progress correctly', () => {
+    Object.defineProperty(document.documentElement, 'scrollHeight', { value: 2000, configurable: true });
+    Object.defineProperty(document.documentElement, 'clientHeight', { value: 400, configurable: true });
+    Object.defineProperty(document.documentElement, 'scrollTop', { value: 400, configurable: true });
+    Object.defineProperty(window, 'scrollY', { value: 400, configurable: true });
+
+    const { result } = renderHook(() => useReadingProgress({ throttleMs: 0 }));
+
+    act(() => {
+      for (const listener of scrollListeners) {
+        if (typeof listener === 'function') listener(new Event('scroll'));
+      }
+    });
+
+    expect(result.current.progress).toBe(25);
+  });
+
+  it('container ref calculates progress from element scroll', () => {
+    const container = document.createElement('div');
+    Object.defineProperty(container, 'scrollTop', { value: 300, writable: true, configurable: true });
+    Object.defineProperty(container, 'scrollHeight', { value: 1000, writable: true, configurable: true });
+    Object.defineProperty(container, 'clientHeight', { value: 400, writable: true, configurable: true });
+
+    const containerListeners: Array<EventListenerOrEventListenerObject> = [];
+    vi.spyOn(container, 'addEventListener').mockImplementation((event, handler) => {
+      if (event === 'scroll') containerListeners.push(handler);
+    });
+    vi.spyOn(container, 'removeEventListener').mockImplementation(() => {});
+
+    const containerRef = { current: container };
+    const { result } = renderHook(() => useReadingProgress({ containerRef, throttleMs: 0 }));
+
+    act(() => {
+      for (const listener of containerListeners) {
+        if (typeof listener === 'function') listener(new Event('scroll'));
+      }
+    });
+
+    // 300 / (1000 - 400) = 0.5 = 50%
+    expect(result.current.progress).toBe(50);
+    expect(result.current.isVisible).toBe(true);
+  });
+
+  it('container ref returns 0 when not scrollable', () => {
+    const container = document.createElement('div');
+    Object.defineProperty(container, 'scrollTop', { value: 0, writable: true, configurable: true });
+    Object.defineProperty(container, 'scrollHeight', { value: 400, writable: true, configurable: true });
+    Object.defineProperty(container, 'clientHeight', { value: 400, writable: true, configurable: true });
+
+    vi.spyOn(container, 'addEventListener').mockImplementation(() => {});
+    vi.spyOn(container, 'removeEventListener').mockImplementation(() => {});
+
+    const containerRef = { current: container };
+    const { result } = renderHook(() => useReadingProgress({ containerRef, throttleMs: 0 }));
+
+    expect(result.current.progress).toBe(0);
+    expect(result.current.isVisible).toBe(false);
+  });
+
+  it('container ref isVisible false when scrollTop is 0', () => {
+    const container = document.createElement('div');
+    Object.defineProperty(container, 'scrollTop', { value: 0, writable: true, configurable: true });
+    Object.defineProperty(container, 'scrollHeight', { value: 2000, writable: true, configurable: true });
+    Object.defineProperty(container, 'clientHeight', { value: 400, writable: true, configurable: true });
+
+    vi.spyOn(container, 'addEventListener').mockImplementation(() => {});
+    vi.spyOn(container, 'removeEventListener').mockImplementation(() => {});
+
+    const containerRef = { current: container };
+    const { result } = renderHook(() => useReadingProgress({ containerRef, throttleMs: 0 }));
+
+    expect(result.current.isVisible).toBe(false);
+  });
+
+  it('removes container scroll listener on unmount', () => {
+    const container = document.createElement('div');
+    Object.defineProperty(container, 'scrollTop', { value: 0, writable: true, configurable: true });
+    Object.defineProperty(container, 'scrollHeight', { value: 1000, writable: true, configurable: true });
+    Object.defineProperty(container, 'clientHeight', { value: 400, writable: true, configurable: true });
+
+    vi.spyOn(container, 'addEventListener').mockImplementation(() => {});
+    const removeSpy = vi.spyOn(container, 'removeEventListener').mockImplementation(() => {});
+
+    const containerRef = { current: container };
+    const { unmount } = renderHook(() => useReadingProgress({ containerRef }));
+    unmount();
+
+    expect(removeSpy).toHaveBeenCalledWith('scroll', expect.any(Function));
+  });
+
+  it('throttles scroll events based on throttleMs', () => {
+    const now = Date.now();
+    vi.spyOn(Date, 'now').mockReturnValue(now);
+
+    Object.defineProperty(document.documentElement, 'scrollHeight', { value: 2000, configurable: true });
+    Object.defineProperty(document.documentElement, 'clientHeight', { value: 500, configurable: true });
+    Object.defineProperty(document.documentElement, 'scrollTop', { value: 750, configurable: true });
+    Object.defineProperty(window, 'scrollY', { value: 750, configurable: true });
+
+    const { result } = renderHook(() => useReadingProgress({ throttleMs: 100 }));
+
+    // First scroll event
+    act(() => {
+      for (const listener of scrollListeners) {
+        if (typeof listener === 'function') listener(new Event('scroll'));
+      }
+    });
+    expect(result.current.progress).toBe(50);
+
+    // Change scroll position but fire within throttle window
+    Object.defineProperty(document.documentElement, 'scrollTop', { value: 1500, configurable: true });
+    Object.defineProperty(window, 'scrollY', { value: 1500, configurable: true });
+
+    vi.spyOn(Date, 'now').mockReturnValue(now + 50); // only 50ms later
+
+    act(() => {
+      for (const listener of scrollListeners) {
+        if (typeof listener === 'function') listener(new Event('scroll'));
+      }
+    });
+
+    // Should still be 50 because throttle hasn't expired
+    expect(result.current.progress).toBe(50);
+  });
 });

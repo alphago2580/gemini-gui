@@ -234,4 +234,154 @@ describe('PerformancePanel', () => {
     );
     expect(screen.getByLabelText('모니터링 중지')).toBeInTheDocument();
   });
+
+  it('does not call onClose when modal body is clicked (stopPropagation)', () => {
+    const onClose = vi.fn();
+    render(
+      <PerformancePanel
+        isOpen={true}
+        onClose={onClose}
+        data={createMockData()}
+        isMonitoring={false}
+        onToggleMonitoring={vi.fn()}
+        onReset={vi.fn()}
+      />
+    );
+    fireEvent.click(screen.getByText('성능 모니터'));
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('displays perf-status-dot with monitoring class', () => {
+    const { container } = render(
+      <PerformancePanel
+        isOpen={true}
+        onClose={vi.fn()}
+        data={createMockData()}
+        isMonitoring={true}
+        onToggleMonitoring={vi.fn()}
+        onReset={vi.fn()}
+      />
+    );
+    const dot = container.querySelector('.perf-status-dot');
+    expect(dot?.classList.contains('monitoring')).toBe(true);
+  });
+
+  it('displays perf-status-dot with stopped class when not monitoring', () => {
+    const { container } = render(
+      <PerformancePanel
+        isOpen={true}
+        onClose={vi.fn()}
+        data={createMockData()}
+        isMonitoring={false}
+        onToggleMonitoring={vi.fn()}
+        onReset={vi.fn()}
+      />
+    );
+    const dot = container.querySelector('.perf-status-dot');
+    expect(dot?.classList.contains('stopped')).toBe(true);
+  });
+
+  it('shows M for mount phase and U for update phase in recent renders', () => {
+    const data = createMockData({
+      recentRenders: [
+        { id: 'App', phase: 'mount', actualDuration: 3.0, baseDuration: 5, startTime: 0, commitTime: 3 },
+        { id: 'App', phase: 'update', actualDuration: 1.0, baseDuration: 5, startTime: 10, commitTime: 11 },
+      ],
+    });
+    render(
+      <PerformancePanel
+        isOpen={true}
+        onClose={vi.fn()}
+        data={data}
+        isMonitoring={false}
+        onToggleMonitoring={vi.fn()}
+        onReset={vi.fn()}
+      />
+    );
+    expect(screen.getByText('M')).toBeInTheDocument();
+    expect(screen.getByText('U')).toBeInTheDocument();
+  });
+
+  it('displays 6 metric cards', () => {
+    const { container } = render(
+      <PerformancePanel
+        isOpen={true}
+        onClose={vi.fn()}
+        data={createMockData()}
+        isMonitoring={false}
+        onToggleMonitoring={vi.fn()}
+        onReset={vi.fn()}
+      />
+    );
+    const cards = container.querySelectorAll('.perf-metric-card');
+    expect(cards.length).toBe(6);
+  });
+
+  it('does not show recent renders section when empty', () => {
+    render(
+      <PerformancePanel
+        isOpen={true}
+        onClose={vi.fn()}
+        data={createMockData({ recentRenders: [] })}
+        isMonitoring={false}
+        onToggleMonitoring={vi.fn()}
+        onReset={vi.fn()}
+      />
+    );
+    expect(screen.queryByText(/최근 렌더/)).not.toBeInTheDocument();
+  });
+
+  it('has dialog role and aria-label', () => {
+    render(
+      <PerformancePanel
+        isOpen={true}
+        onClose={vi.fn()}
+        data={createMockData()}
+        isMonitoring={false}
+        onToggleMonitoring={vi.fn()}
+        onReset={vi.fn()}
+      />
+    );
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveAttribute('aria-label', '성능 모니터');
+  });
+
+  it('toggle button has active class when monitoring', () => {
+    const { container } = render(
+      <PerformancePanel
+        isOpen={true}
+        onClose={vi.fn()}
+        data={createMockData()}
+        isMonitoring={true}
+        onToggleMonitoring={vi.fn()}
+        onReset={vi.fn()}
+      />
+    );
+    const btn = container.querySelector('.perf-toggle-btn');
+    expect(btn?.classList.contains('active')).toBe(true);
+  });
+});
+
+describe('formatDuration edge cases', () => {
+  it('formats exactly 1ms', () => {
+    expect(formatDuration(1)).toBe('1.0ms');
+  });
+
+  it('formats exactly 1000ms as seconds', () => {
+    expect(formatDuration(1000)).toBe('1.00s');
+  });
+
+  it('formats sub-millisecond precisely', () => {
+    expect(formatDuration(0.001)).toBe('1\u00b5s');
+  });
+});
+
+describe('formatMemory edge cases', () => {
+  it('formats exactly 1 MB', () => {
+    expect(formatMemory(1)).toBe('1.0 MB');
+  });
+
+  it('formats very small sub-MB value', () => {
+    expect(formatMemory(0.001)).toBe('1 KB');
+  });
 });

@@ -150,4 +150,103 @@ describe('useLongPress', () => {
     expect(onLongPress).toHaveBeenCalledTimes(1);
     expect(onClick).not.toHaveBeenCalled();
   });
+
+  it('touch short press calls onClick', () => {
+    const onLongPress = vi.fn();
+    const onClick = vi.fn();
+    const { result } = renderHook(() =>
+      useLongPress({ onLongPress, onClick, threshold: 500 })
+    );
+
+    const mockEvent = {} as React.TouchEvent;
+    act(() => result.current.onTouchStart(mockEvent));
+    act(() => vi.advanceTimersByTime(100));
+    act(() => result.current.onTouchEnd(mockEvent));
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onLongPress).not.toHaveBeenCalled();
+  });
+
+  it('onEnd is called after long press completes on mouseUp', () => {
+    const onEnd = vi.fn();
+    const onLongPress = vi.fn();
+    const { result } = renderHook(() =>
+      useLongPress({ onLongPress, onEnd, threshold: 200 })
+    );
+
+    const mockEvent = {} as React.MouseEvent;
+    act(() => result.current.onMouseDown(mockEvent));
+    act(() => vi.advanceTimersByTime(200));
+    act(() => result.current.onMouseUp(mockEvent));
+
+    expect(onLongPress).toHaveBeenCalledTimes(1);
+    expect(onEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it('onStart receives the event object', () => {
+    const onStart = vi.fn();
+    const { result } = renderHook(() =>
+      useLongPress({ onLongPress: vi.fn(), onStart })
+    );
+
+    const mockEvent = { clientX: 100 } as React.MouseEvent;
+    act(() => result.current.onMouseDown(mockEvent));
+
+    expect(onStart).toHaveBeenCalledWith(mockEvent);
+  });
+
+  it('onLongPress receives the original event', () => {
+    const onLongPress = vi.fn();
+    const { result } = renderHook(() =>
+      useLongPress({ onLongPress, threshold: 100 })
+    );
+
+    const mockEvent = { clientY: 50 } as React.MouseEvent;
+    act(() => result.current.onMouseDown(mockEvent));
+    act(() => vi.advanceTimersByTime(100));
+
+    expect(onLongPress).toHaveBeenCalledWith(mockEvent);
+  });
+
+  it('mouse leave does not call onEnd', () => {
+    const onEnd = vi.fn();
+    const { result } = renderHook(() =>
+      useLongPress({ onLongPress: vi.fn(), onEnd })
+    );
+
+    const mockEvent = {} as React.MouseEvent;
+    act(() => result.current.onMouseDown(mockEvent));
+    act(() => result.current.onMouseLeave(mockEvent));
+
+    expect(onEnd).not.toHaveBeenCalled();
+  });
+
+  it('rapid mouseDown-mouseUp-mouseDown-mouseUp produces two clicks', () => {
+    const onClick = vi.fn();
+    const onLongPress = vi.fn();
+    const { result } = renderHook(() =>
+      useLongPress({ onLongPress, onClick, threshold: 500 })
+    );
+
+    const mockEvent = {} as React.MouseEvent;
+    act(() => result.current.onMouseDown(mockEvent));
+    act(() => result.current.onMouseUp(mockEvent));
+    act(() => result.current.onMouseDown(mockEvent));
+    act(() => result.current.onMouseUp(mockEvent));
+
+    expect(onClick).toHaveBeenCalledTimes(2);
+    expect(onLongPress).not.toHaveBeenCalled();
+  });
+
+  it('onMouseLeave handler is stable when options do not change', () => {
+    const onLongPress = vi.fn();
+    const { result, rerender } = renderHook(
+      ({ opts }) => useLongPress(opts),
+      { initialProps: { opts: { onLongPress } } }
+    );
+    const firstLeave = result.current.onMouseLeave;
+    rerender({ opts: { onLongPress } });
+    // onMouseLeave has no deps on options callbacks, should be stable
+    expect(result.current.onMouseLeave).toBe(firstLeave);
+  });
 });
