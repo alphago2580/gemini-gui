@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (6518+ tests)
+- **Test Status**: Passing (6590+ tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1545,3 +1545,25 @@
 - Added 11 tests for useElementSize
 - Added 37 tests for trieUtils
 - Total tests: 6455 → 6518 (242 test files, all passing)
+
+### Agent 2 (Logic) — useImageLoad, useEventSource, bloomFilterUtils
+- Added `useImageLoad` hook — image load state tracking with:
+  - isLoading, isLoaded, isError states with natural dimensions
+  - crossOrigin, referrerPolicy options
+  - onLoad/onError callbacks with ref pattern for latest reference
+  - reload() method for retry on error
+- Added `useEventSource` hook — Server-Sent Events management with:
+  - Auto-connect on URL, status tracking (connecting/open/closed/error)
+  - Custom named event listeners, onOpen/onError/onMessage callbacks
+  - Auto-reconnect with configurable interval and max attempts
+  - Manual close/open control, latest callback ref pattern
+- Added `bloomFilterUtils` utility — Bloom filter probabilistic data structure with:
+  - createBloomFilter factory with add, has, clear operations
+  - Configurable size and hash count, false positive rate calculation
+  - merge() for combining filters, toJSON/fromJSON serialization
+  - bloomFilterFromJSON for deserialization, optimalBloomFilterParams calculator
+  - Generic type support, Unicode string handling
+- Added 19 tests for useImageLoad
+- Added 22 tests for useEventSource
+- Added 33 tests for bloomFilterUtils
+- Total tests: 6518 → 6590 (245 test files, all passing)
