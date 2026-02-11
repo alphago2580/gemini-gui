@@ -372,4 +372,57 @@ describe('Rating', () => {
     fireEvent.keyDown(screen.getByRole('slider'), { key: 'End' });
     expect(onChange).not.toHaveBeenCalled();
   });
+
+  // -- Additional round 17 tests --
+  it('does not have aria-disabled when not disabled', () => {
+    render(<Rating value={0} onChange={() => {}} />);
+    expect(screen.getByRole('slider')).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('does not have aria-readonly when not readonly', () => {
+    render(<Rating value={0} onChange={() => {}} />);
+    expect(screen.getByRole('slider')).not.toHaveAttribute('aria-readonly');
+  });
+
+  it('does not show label text when label is not provided', () => {
+    const { container } = render(<Rating value={0} />);
+    expect(container.querySelector('.rating-label')).not.toBeInTheDocument();
+  });
+
+  it('half filled star renders half container', () => {
+    const { container } = render(<Rating value={1.5} allowHalf />);
+    expect(container.querySelector('.rating-star-half-container')).toBeInTheDocument();
+  });
+
+  it('half filled star contains both filled and empty icons', () => {
+    const { container } = render(<Rating value={0.5} allowHalf icon="❤" emptyIcon="♡" />);
+    const halfFilled = container.querySelector('.rating-star-half-filled');
+    const halfEmpty = container.querySelector('.rating-star-half-empty');
+    expect(halfFilled?.textContent).toBe('❤');
+    expect(halfEmpty?.textContent).toBe('♡');
+  });
+
+  it('ArrowDown decreases by half step with allowHalf', () => {
+    const onChange = vi.fn();
+    render(<Rating value={3} onChange={onChange} allowHalf />);
+    fireEvent.keyDown(screen.getByRole('slider'), { key: 'ArrowDown' });
+    expect(onChange).toHaveBeenCalledWith(2.5);
+  });
+
+  it('max=3 renders only 3 stars', () => {
+    const { container } = render(<Rating value={2} max={3} />);
+    const stars = container.querySelectorAll('.rating-star');
+    expect(stars).toHaveLength(3);
+    const filled = container.querySelectorAll('.rating-star--filled');
+    expect(filled).toHaveLength(2);
+  });
+
+  it('does not clear when allowClear is false and clicking same value', () => {
+    const onChange = vi.fn();
+    const { container } = render(<Rating value={3} onChange={onChange} />);
+    const stars = container.querySelectorAll('.rating-star');
+    fireEvent.click(stars[2]);
+    // Without allowClear, clicking same value still sets the same value
+    expect(onChange).toHaveBeenCalledWith(3);
+  });
 });

@@ -262,4 +262,68 @@ describe('useWebSocket', () => {
     rerender();
     expect(result.current.send).toBe(firstSend);
   });
+
+  it('returns stable disconnect reference', () => {
+    const { result, rerender } = renderHook(() => useWebSocket('ws://localhost'));
+    const firstDisconnect = result.current.disconnect;
+    rerender();
+    expect(result.current.disconnect).toBe(firstDisconnect);
+  });
+
+  it('clears reconnect timer on manual disconnect', () => {
+    const { result } = renderHook(() =>
+      useWebSocket('ws://localhost', { reconnect: true, reconnectInterval: 1000, reconnectAttempts: 5 })
+    );
+    act(() => getLastInstance().simulateOpen());
+    act(() => getLastInstance().simulateClose());
+    act(() => result.current.disconnect());
+    const countBefore = instances.length;
+    act(() => { vi.advanceTimersByTime(2000); });
+    expect(instances.length).toBe(countBefore);
+  });
+
+  it('does not connect when url is null', () => {
+    renderHook(() => useWebSocket(null));
+    expect(instances.length).toBe(0);
+  });
+
+  it('sends multiple messages in order', () => {
+    const { result } = renderHook(() => useWebSocket('ws://localhost'));
+    act(() => getLastInstance().simulateOpen());
+    act(() => {
+      result.current.send('msg1');
+      result.current.send('msg2');
+      result.current.send('msg3');
+    });
+    expect(getLastInstance().sentMessages).toEqual(['msg1', 'msg2', 'msg3']);
+  });
+
+  it('stores latest message overwriting previous', () => {
+    const { result } = renderHook(() => useWebSocket('ws://localhost'));
+    act(() => getLastInstance().simulateOpen());
+    act(() => getLastInstance().simulateMessage('first'));
+    act(() => getLastInstance().simulateMessage('second'));
+    expect(result.current.lastMessage?.data).toBe('second');
+  });
+
+  it('closes previous connection when url changes', () => {
+    const { rerender } = renderHook(
+      ({ url }) => useWebSocket(url),
+      { initialProps: { url: 'ws://localhost:1' } }
+    );
+    const first = getLastInstance();
+    rerender({ url: 'ws://localhost:2' });
+    expect(first.closeCalled).toBe(true);
+  });
+
+  it('resets reconnectCount on manual disconnect', () => {
+    const { result } = renderHook(() =>
+      useWebSocket('ws://localhost', { reconnect: true, reconnectInterval: 100, reconnectAttempts: 5 })
+    );
+    act(() => getLastInstance().simulateClose());
+    act(() => { vi.advanceTimersByTime(100); });
+    expect(result.current.reconnectCount).toBe(1);
+    act(() => result.current.disconnect());
+    expect(result.current.reconnectCount).toBe(0);
+  });
 });

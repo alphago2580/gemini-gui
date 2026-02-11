@@ -298,4 +298,36 @@ describe('validators', () => {
   it('maxValue: fails high number', () => {
     expect(maxValue(100)(200, {})).toBe('Maximum value is 100');
   });
+
+  it('maxLength: custom message', () => {
+    expect(maxLength(3, 'Too long')('abcd', {})).toBe('Too long');
+  });
+
+  it('pattern: default message', () => {
+    expect(pattern(/^\d+$/)('abc', {})).toBe('Invalid format');
+  });
+
+  it('minValue: custom message', () => {
+    expect(minValue(10, 'At least 10')(5, {})).toBe('At least 10');
+  });
+
+  it('maxValue: custom message', () => {
+    expect(maxValue(50, 'Too high')(100, {})).toBe('Too high');
+  });
+
+  it('minValue: passes exact boundary', () => {
+    expect(minValue(5)(5, {})).toBeNull();
+  });
+
+  it('maxValue: passes exact boundary', () => {
+    expect(maxValue(100)(100, {})).toBeNull();
+  });
+
+  it('minLength: passes exact boundary', () => {
+    expect(minLength(3)('abc', {})).toBeNull();
+  });
+
+  it('maxLength: passes exact boundary', () => {
+    expect(maxLength(5)('abcde', {})).toBeNull();
+  });
 });

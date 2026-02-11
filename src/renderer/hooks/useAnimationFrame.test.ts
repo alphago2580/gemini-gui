@@ -163,4 +163,75 @@ describe('useAnimationFrame', () => {
     act(() => flushFrame(200));
     expect(cb).toHaveBeenCalledTimes(1);
   });
+
+  it('fps is 0 before any frame', () => {
+    const cb = vi.fn();
+    const { result } = renderHook(() => useAnimationFrame(cb));
+    act(() => result.current.start());
+    expect(result.current.fps).toBe(0);
+  });
+
+  it('fps resets to 0 on restart', () => {
+    const cb = vi.fn();
+    const { result } = renderHook(() => useAnimationFrame(cb));
+    act(() => result.current.start());
+    act(() => flushFrame(100));
+    act(() => flushFrame(116));
+    expect(result.current.fps).toBeGreaterThan(0);
+    act(() => result.current.stop());
+    act(() => result.current.start());
+    expect(result.current.fps).toBe(0);
+  });
+
+  it('stop is safe to call when not running', () => {
+    const cb = vi.fn();
+    const { result } = renderHook(() => useAnimationFrame(cb));
+    expect(() => act(() => result.current.stop())).not.toThrow();
+  });
+
+  it('elapsed remains 0 after first frame only', () => {
+    const cb = vi.fn();
+    const { result } = renderHook(() => useAnimationFrame(cb));
+    act(() => result.current.start());
+    act(() => flushFrame(500));
+    expect(result.current.elapsed).toBe(0);
+  });
+
+  it('reports correct elapsed after multiple frames', () => {
+    const cb = vi.fn();
+    const { result } = renderHook(() => useAnimationFrame(cb));
+    act(() => result.current.start());
+    act(() => flushFrame(1000));
+    act(() => flushFrame(1050));
+    act(() => flushFrame(1100));
+    expect(result.current.elapsed).toBe(100);
+  });
+
+  it('delta is 0 on first frame', () => {
+    const cb = vi.fn();
+    const { result } = renderHook(() => useAnimationFrame(cb));
+    act(() => result.current.start());
+    act(() => flushFrame(100));
+    expect(cb.mock.calls[0][0]).toBe(0);
+  });
+
+  it('schedules next frame after each animation callback', () => {
+    const cb = vi.fn();
+    const { result } = renderHook(() => useAnimationFrame(cb));
+    act(() => result.current.start());
+    const rafCallsBefore = (window.requestAnimationFrame as unknown as { mock: { calls: unknown[][] } }).mock.calls.length;
+    act(() => flushFrame(100));
+    const rafCallsAfter = (window.requestAnimationFrame as unknown as { mock: { calls: unknown[][] } }).mock.calls.length;
+    expect(rafCallsAfter).toBeGreaterThan(rafCallsBefore);
+  });
+
+  it('does not schedule frame after stop during callback', () => {
+    const cb = vi.fn();
+    const { result } = renderHook(() => useAnimationFrame(cb));
+    act(() => result.current.start());
+    act(() => flushFrame(100));
+    act(() => result.current.stop());
+    const cancelCount = (window.cancelAnimationFrame as unknown as { mock: { calls: unknown[][] } }).mock.calls.length;
+    expect(cancelCount).toBeGreaterThan(0);
+  });
 });

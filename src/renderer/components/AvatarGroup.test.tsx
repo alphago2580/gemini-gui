@@ -109,4 +109,57 @@ describe('AvatarGroup', () => {
     render(<AvatarGroup items={items} />);
     expect(screen.getByText('L')).toBeInTheDocument();
   });
+
+  it('applies correct width and height for small size', () => {
+    render(<AvatarGroup items={[mockItems[0]]} size="small" />);
+    const avatar = screen.getByTitle('Alice');
+    expect(avatar).toHaveStyle({ width: '24px', height: '24px' });
+  });
+
+  it('applies correct width and height for large size', () => {
+    render(<AvatarGroup items={[mockItems[0]]} size="large" />);
+    const avatar = screen.getByTitle('Alice');
+    expect(avatar).toHaveStyle({ width: '40px', height: '40px' });
+  });
+
+  it('overflow element has z-index 0', () => {
+    render(<AvatarGroup items={mockItems} max={3} />);
+    const overflow = screen.getByTitle('외 3명');
+    expect(overflow.style.zIndex).toBe('0');
+  });
+
+  it('overflow has avatar-group-overflow class', () => {
+    render(<AvatarGroup items={mockItems} max={3} />);
+    const overflow = screen.getByTitle('외 3명');
+    expect(overflow).toHaveClass('avatar-group-overflow');
+  });
+
+  it('each avatar has avatar-group-item class', () => {
+    const { container } = render(<AvatarGroup items={mockItems.slice(0, 2)} />);
+    const items = container.querySelectorAll('.avatar-group-item');
+    expect(items).toHaveLength(2);
+  });
+
+  it('generates different colors for different names', () => {
+    const items: AvatarGroupItem[] = [
+      { id: '1', name: 'Alice' },
+      { id: '2', name: 'Zack' },
+    ];
+    render(<AvatarGroup items={items} />);
+    const alice = screen.getByTitle('Alice');
+    const zack = screen.getByTitle('Zack');
+    expect(alice.style.backgroundColor).not.toBe(zack.style.backgroundColor);
+  });
+
+  it('each avatar has aria-label with name', () => {
+    render(<AvatarGroup items={[mockItems[0], mockItems[1]]} />);
+    expect(screen.getByLabelText('Alice')).toBeInTheDocument();
+    expect(screen.getByLabelText('Bob')).toBeInTheDocument();
+  });
+
+  it('max=0 shows only overflow', () => {
+    render(<AvatarGroup items={mockItems.slice(0, 3)} max={0} />);
+    expect(screen.getByText('+3')).toBeInTheDocument();
+    expect(screen.queryByText('A')).not.toBeInTheDocument();
+  });
 });

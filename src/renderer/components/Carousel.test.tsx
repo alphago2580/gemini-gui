@@ -323,4 +323,57 @@ describe('Carousel', () => {
     expect(indicators[1]).toHaveClass('carousel-indicator--active');
     expect(indicators[0]).not.toHaveClass('carousel-indicator--active');
   });
+
+  // -- Additional round 17 tests --
+  it('ignores unrelated key presses', () => {
+    const onChange = vi.fn();
+    render(<Carousel onChange={onChange}>{slides}</Carousel>);
+    fireEvent.keyDown(screen.getByRole('region'), { key: 'a' });
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('Home is no-op when already at first slide', () => {
+    const onChange = vi.fn();
+    render(<Carousel onChange={onChange}>{slides}</Carousel>);
+    fireEvent.keyDown(screen.getByRole('region'), { key: 'Home' });
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('End is no-op when already at last slide', () => {
+    const onChange = vi.fn();
+    render(<Carousel startIndex={2} onChange={onChange}>{slides}</Carousel>);
+    fireEvent.keyDown(screen.getByRole('region'), { key: 'End' });
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('indicator click on current slide is no-op', () => {
+    const onChange = vi.fn();
+    render(<Carousel onChange={onChange}>{slides}</Carousel>);
+    const tabs = screen.getAllByRole('tab');
+    fireEvent.click(tabs[0]);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('does not auto-play when autoPlay is false', () => {
+    const onChange = vi.fn();
+    render(<Carousel autoPlay={false} autoPlayInterval={100} onChange={onChange}>{slides}</Carousel>);
+    act(() => { vi.advanceTimersByTime(500); });
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('empty carousel uses custom label', () => {
+    render(<Carousel label="빈 갤러리">{[]}</Carousel>);
+    expect(screen.getByRole('region')).toHaveAttribute('aria-label', '빈 갤러리');
+  });
+
+  it('carousel-viewport exists', () => {
+    const { container } = render(<Carousel>{slides}</Carousel>);
+    expect(container.querySelector('.carousel-viewport')).toBeInTheDocument();
+  });
+
+  it('slide labels show "2 / 3" for second slide', () => {
+    render(<Carousel>{slides}</Carousel>);
+    const groups = screen.getAllByRole('group', { hidden: true });
+    expect(groups[1]).toHaveAttribute('aria-label', '2 / 3');
+  });
 });

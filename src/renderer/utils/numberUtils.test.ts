@@ -139,4 +139,44 @@ describe('numberUtils', () => {
       expect(formatCompact(0)).toBe('0');
     });
   });
+
+  describe('clamp edge cases', () => {
+    it('clamps negative value below negative min', () => {
+      expect(clamp(-100, -50, -10)).toBe(-50);
+    });
+
+    it('returns exact min when value equals min', () => {
+      expect(clamp(0, 0, 10)).toBe(0);
+    });
+
+    it('returns exact max when value equals max', () => {
+      expect(clamp(10, 0, 10)).toBe(10);
+    });
+  });
+
+  describe('formatBytes edge cases', () => {
+    it('formats terabytes', () => {
+      expect(formatBytes(1099511627776)).toBe('1 TB');
+    });
+
+    it('formats fractional megabytes', () => {
+      expect(formatBytes(2621440, 2)).toBe('2.5 MB');
+    });
+  });
+
+  describe('roundTo edge cases', () => {
+    it('rounds to 1 decimal', () => {
+      expect(roundTo(2.55, 1)).toBe(2.6);
+    });
+
+    it('rounds negative number', () => {
+      expect(roundTo(-3.456, 2)).toBe(-3.46);
+    });
+  });
+
+  describe('lerp edge cases', () => {
+    it('handles negative t extrapolation', () => {
+      expect(lerp(0, 100, -0.5)).toBe(-50);
+    });
+  });
 });

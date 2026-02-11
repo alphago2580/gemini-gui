@@ -201,4 +201,74 @@ describe('GeminiProcess', () => {
         const args = mockSpawn.mock.calls[0][1] as string[];
         expect(args).not.toContain('--system-instruction');
     });
+
+    it('always passes --yolo flag', () => {
+        gemini.start('dummy/path', '/tmp');
+        const args = mockSpawn.mock.calls[0][1] as string[];
+        expect(args).toContain('--yolo');
+    });
+
+    it('always passes --output-format stream-json', () => {
+        gemini.start('dummy/path', '/tmp');
+        const args = mockSpawn.mock.calls[0][1] as string[];
+        const idx = args.indexOf('--output-format');
+        expect(idx).toBeGreaterThan(-1);
+        expect(args[idx + 1]).toBe('stream-json');
+    });
+
+    it('handles multiple JSON objects in single data chunk', () => {
+        gemini.start('dummy/path', '/tmp');
+        const proc = mockSpawn.mock.results[0].value;
+        const listener = vi.fn();
+        gemini.on('json', listener);
+        proc.emit('data', '{"type":"a"}\n{"type":"b"}\n');
+        expect(listener).toHaveBeenCalledTimes(2);
+        expect(listener).toHaveBeenCalledWith({ type: 'a' });
+        expect(listener).toHaveBeenCalledWith({ type: 'b' });
+    });
+
+    it('uses node as executable', () => {
+        gemini.start('dummy/path', '/tmp');
+        expect(mockSpawn).toHaveBeenCalledWith(
+            'node',
+            expect.any(Array),
+            expect.any(Object)
+        );
+    });
+
+    it('passes cwd to pty spawn options', () => {
+        gemini.start('dummy/path', '/home/user');
+        expect(mockSpawn).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.any(Array),
+            expect.objectContaining({ cwd: '/home/user' })
+        );
+    });
+
+    it('can restart after stop', () => {
+        gemini.start('dummy/path', '/tmp');
+        gemini.stop();
+        gemini.start('dummy/path', '/tmp');
+        expect(mockSpawn).toHaveBeenCalledTimes(2);
+    });
+
+    it('ignores lines that start with { but do not end with }', () => {
+        gemini.start('dummy/path', '/tmp');
+        const proc = mockSpawn.mock.results[0].value;
+        const listener = vi.fn();
+        gemini.on('json', listener);
+        proc.emit('data', '{partial data without closing\n');
+        expect(listener).not.toHaveBeenCalled();
+    });
+
+    it('buffer accumulates partial JSON until newline arrives', () => {
+        gemini.start('dummy/path', '/tmp');
+        const proc = mockSpawn.mock.results[0].value;
+        const listener = vi.fn();
+        gemini.on('json', listener);
+        proc.emit('data', '{"type":');
+        expect(listener).not.toHaveBeenCalled();
+        proc.emit('data', '"buffered"}\n');
+        expect(listener).toHaveBeenCalledWith({ type: 'buffered' });
+    });
 });
