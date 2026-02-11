@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (3752+ tests)
-- **Last Agent Run**: Agent 4 (Integrator)
+- **Test Status**: Passing (3558 tests)
+- **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -821,47 +821,6 @@
 - Added 29 tests for promiseUtils (delay resolve, delay timing, withTimeout success, withTimeout reject, TimeoutError msg, promise rejection passthrough, TimeoutError name, withRetry success, retry+succeed, retry exhausted, onRetry callback, exponential backoff, default 3 attempts, settleAll fulfilled, rejected, mixed, empty, deferred resolve, reject, pending, shape, sequential order, empty, error propagation, pool basic, concurrency limit, empty, order preservation, large concurrency)
 - Total tests: 2720 → 2783 (137 test files, all passing)
 
-### Agent 2 (Logic) — useVirtualList, usePermission Hooks & cacheUtils Utility
-- Created `useVirtualList` hook: windowed rendering for large lists
-  - Returns: `virtualItems`, `totalHeight`, `containerProps`, `wrapperProps`, `scrollToIndex`, `visibleRange`
-  - Calculates visible range based on scroll position and container height
-  - Configurable `itemHeight` and `overscan` (default 3) for buffer items
-  - `scrollToIndex(i)` for programmatic scrolling
-  - Container props include `onScroll` handler and overflow styles
-  - Wrapper props set total height for proper scrollbar size
-- Created `usePermission` hook: browser Permissions API integration
-  - Queries and tracks permission state for any `PermissionName`
-  - Returns: `state`, `isGranted`, `isDenied`, `isPrompt`, `isSupported`, `query()`
-  - Auto-queries on mount and listens for permission changes via `change` event
-  - Graceful fallback to 'unsupported' when API unavailable
-  - Cleans up change listener on unmount
-  - Re-queries when permission name changes
-- Created `cacheUtils` utility with 3 exports:
-  - `createTTLCache<K,V>(defaultTtl?)`: time-to-live cache with per-entry or default TTL
-  - `createLRUCache<K,V>(maxSize)`: least-recently-used eviction cache
-  - `memoize<Args,R>(fn, keyFn?)`: function result memoization with custom key support
-  - Both caches implement `Cache<K,V>` interface: get, set, has, delete, clear, size, keys, values
-  - TTL cache auto-expires on access and during size/keys/values enumeration
-  - LRU cache promotes entries on get access, evicts oldest on overflow
-- Added 14 tests for useVirtualList (init, totalHeight, small list, props, offsetTop, scroll range, overscan, bounds clamp, start clamp, empty list, scrollToIndex, items count, default overscan, items change)
-- Added 12 tests for usePermission (init, query mount, granted, denied, change listener, unmount cleanup, change events, query rejection, query return, isSupported, query throws, name change)
-- Added 34 tests for cacheUtils (TTL: set/get, missing, has, delete, delete missing, clear, size, keys, values, expire, default TTL, override TTL, no TTL, expired exclusion, overwrite; LRU: set/get, missing, eviction, get promotes, max size, overwrite, has, delete, clear, keys, values, size 1; memoize: cache, different args, multi args, custom key, strings, falsy)
-- Total tests: 2783 → 2947 (142 test files, all passing)
-
-### Agent 4 (Integrator) — Integrate Badge, Skeleton, ConfirmDialog
-- Replaced manual `message-count-badge` span in Sidebar with `Badge` component (primary variant, max 999)
-- Added `Skeleton` loading placeholder in message area — shows shimmer animation while waiting for stream to start
-- Skeleton visible during loading before streaming begins, hidden once streaming data arrives
-- Integrated `ConfirmDialog` for destructive actions:
-  - Clear conversation: warning variant, shows "모든 메시지가 삭제됩니다. 계속하시겠습니까?"
-  - Delete conversation: danger variant, shows conversation title with confirmation prompt
-  - Cancel dismisses dialog without performing action
-- Added 4 string constants for confirm dialog messages (`CONFIRM_CLEAR_TITLE`, `CONFIRM_CLEAR_MESSAGE`, `CONFIRM_DELETE_TITLE`, `CONFIRM_DELETE_MESSAGE`)
-- Added `.skeleton-loading-placeholder` CSS for proper layout within message area
-- Updated 5 existing tests to work with confirm dialog behavior (clear and delete tests)
-- Added 7 new integration tests: skeleton visibility, skeleton hide on stream, confirm dialog show, confirm dialog cancel, delete confirm, delete cancel, badge rendering
-- Total tests: 2724 → 2731 (134 test files, all passing)
-
 ### Agent 3 (Tests & Types) — Deepen Test Coverage Round 10 (+91 tests)
 - **messageSearch.test.ts**: Added 13 tests — empty conversations array, match at start/end, single occurrence per message, preserves conversationTitle/role, multi-conversation search, getMatchContext no-ellipsis, leading/trailing ellipsis, default contextLength, zero-length match
 - **colorUtils.test.ts**: Added 21 tests — uppercase/mixed-case hex, 4/5-digit hex null, cyan/magenta rgbToHsl paths, dark color saturation, green/blue/white/black hslToRgb, lighten/darken by 0, red vs green luminance, sRGB threshold boundary, contrast >= 1, mix invalid first/default weight, mid-dark/light contrast text, zero alpha rgba
@@ -939,32 +898,3 @@
 - **urlUtils.test.ts**: Added 8 tests — data URI valid, subdomain extraction, double extension, duplicate query params, overwrite existing param, stripQueryParams fragment, file protocol, multiple URLs per line
 - **cryptoUtils.test.ts**: Added 8 tests — single byte hex, randomInt variety, similar string different hashes, SHA256 Unicode, base64 valid chars, shortId uniqueness, single char difference, hue determinism range
 - Total tests: 3494 → 3558 (143 test files, all passing)
-### Agent 2 (Logic) — useBreakpoint, useClipboardPaste Hooks & typeGuardUtils Utility
-- Created `useBreakpoint` hook: responsive breakpoint detection
-  - Default breakpoints: xs(0), sm(640), md(768), lg(1024), xl(1280), 2xl(1536)
-  - Returns: `current`, `width`, `isAbove`, `isBelow`, `isAt`, `isBetween`
-  - `isAt` checks if width falls within a breakpoint's range (e.g., md = 768–1023)
-  - `isBetween(min, max)` checks inclusive min, exclusive max
-  - Supports custom breakpoints via `Partial<BreakpointConfig>`
-  - Listens on window resize, cleans up on unmount
-- Created `useClipboardPaste` hook: clipboard paste event handler
-  - Detects text, HTML, image files, and non-image files from paste events
-  - Returns `PasteData`: `text`, `html`, `images`, `files`, `hasContent`
-  - `acceptTypes` filter with wildcard support (e.g., `image/*`)
-  - Optional `targetRef` to listen on specific element instead of document
-  - `enabled` toggle to activate/deactivate listener
-  - Uses refs for stable callback without re-registering listeners
-- Created `typeGuardUtils` utility with 22 type guards + 1 assertion:
-  - Primitives: `isString`, `isNumber` (excludes NaN), `isBoolean`
-  - Nullish: `isNil`, `isNonNil`
-  - Objects: `isPlainObject`, `isArray`, `isFunction`, `isDate` (valid only), `isRegExp`
-  - Collections: `isMap`, `isSet`
-  - Async: `isPromiseLike` (thenable detection)
-  - Errors: `isError`
-  - Refinements: `isNonEmptyString`, `isNonEmptyArray`, `isFiniteNumber`, `isInteger`, `isPositive`, `isNegative`
-  - Property checks: `hasProperty`, `hasProperties`
-  - Assertion: `assertType(value, guard, message?)` — throws TypeError on failure
-- Added 16 tests for useBreakpoint (current lg, xs, sm, md, xl, 2xl, width, resize update, isAbove, isBelow, isAt range, isAt 2xl, isBetween, custom breakpoints, default export, cleanup)
-- Added 13 tests for useClipboardPaste (text, html, images, non-image files, separation, no content, acceptTypes text, acceptTypes wildcard, disabled, re-enable, cleanup, targetRef, text+files combo)
-- Added 60 tests for typeGuardUtils (isString 4, isNumber 4, isBoolean 3, isNil 3, isNonNil 3, isPlainObject 4, isArray 3, isFunction 3, isDate 4, isRegExp 3, isPromiseLike 3, isError 3, isMap 2, isSet 2, isNonEmptyString 3, isNonEmptyArray 3, isFiniteNumber 3, isInteger 3, isPositive 3, isNegative 2, hasProperty 4, hasProperties 4, assertType 4)
-- Total tests: 2947 → 3752 (150 test files, all passing)
