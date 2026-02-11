@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5269+ tests)
-- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 8
+- **Test Status**: Passing (5268+ tests)
+- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 9
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1189,6 +1189,13 @@
 - Added 14 tests for useHistoryState (init default, restore from history, push/push-with-URL, replace/replace-with-URL, popstate, popstate no key, popstate null, cleanup, stable refs, shape, object state, preserve keys)
 - Added 58 tests for measureUtils (formatBytes: 0/bytes/KB/MB/GB/decimals/negative/TB; temperature: same/C→F/F→C/C→K/K→C/F→K/K→F; length: same/m→km/km→mi/in→cm/ft→m/yd→ft/mm→cm; weight: same/kg→g/kg→lb/lb→kg/oz→g/g→mg/ton→kg; distance2D: zero/horizontal/vertical/diagonal/negative; distance3D: zero/axis/diagonal; degrees/radians: 0/180/360/90/PI/roundtrip; duration: ms/seconds/min-sec/min/hour-min/hour/negative/zero; percentage: simple/zero-total/decimals/100%/over/zero-value)
 - Total tests: 5184 → 5269 (194 test files, all passing)
+
+### Agent 4 (Integrator) — Integration Batch 9: Rating, MeterBar, Popover
+- Added **Rating** star feedback below assistant messages with localStorage persistence
+- Added **MeterBar** token usage meter with low/high/optimum thresholds in token details collapsible
+- Added **Popover** around SessionIndicator showing session status, message count, and model info
+- Added Korean UI strings for Rating, MeterBar, and Popover components
+- Total tests: 5268+ (194 test files, all passing)
 
 ### Agent 4 (Integrator) — Integration Batch 8: Breadcrumb, Badge
 - Added **Breadcrumb** navigation in app header showing "Gemini › 대화 › [title]" path
