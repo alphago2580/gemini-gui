@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2922 tests)
+- **Test Status**: Passing (2985 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -756,3 +756,14 @@
 - **useOnClickOutside.test.ts**: Added 8 tests — false→true resubscribe, click on element itself, deeply nested child click, true→false stops firing, default active=true, ref stability, multiple outside clicks
 - **useDocumentTitle.test.ts**: Added 8 tests — very long title, Korean characters, same title multiple times, multiple updates before unmount, HTML entities, newline collapsing, original title captured at mount
 - Total tests: 2864 → 2922 (128 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 13 (+63 tests)
+- **useToggle.test.ts**: Added 8 tests — triple toggle, setTrue/setFalse after toggle, setValue stability, return shape, callbacks stable after state change, idempotent setValue, even toggles return to original
+- **usePrevious.test.ts**: Added 8 tests — array values, four sequential updates, empty string initial, object reference identity, zero as falsy, undefined-to-defined transition, same reference rerender, NaN
+- **useEventListener.test.ts**: Added 8 tests — custom element dispatch, remove from custom element, boolean options, re-attach on eventName change, re-attach on element change, multiple events, document listener, capture option
+- **useDebounce.test.ts**: Added 8 tests — boolean values, delay change without value, null value, undefined value, rapid changes final only, same value rerender, delay decrease, empty string
+- **useFocus.test.ts**: Added 8 tests — null blur no-throw, double onFocus, double onBlur, focus/blur/focus cycle, ref stability, callbacks stable after state, return shape, multiple focus calls
+- **useInterval.test.ts**: Added 8 tests — pre-first interval, clearInterval on unmount, short-to-long delay, null-to-null, 1ms delay, multiple delay changes, same delay rerender
+- **useScrollPosition.test.ts**: Added 8 tests — default 100ms throttle, direction none, isAtBottom false, threshold boundary, isAtTop false, return shape, window fallback, clearTimeout on unmount
+- **SessionIndicator.test.tsx**: Added 7 tests — base CSS class, dot/text span elements, text content, title tooltips per status, root div element
+- Total tests: 2922 → 2985 (128 test files, all passing)
