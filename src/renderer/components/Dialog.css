@@ -1,0 +1,122 @@
+.dialog__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: dialog-overlay-in 0.15s ease-out;
+}
+
+@keyframes dialog-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dialog {
+  background: var(--bg-primary, #fff);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  outline: none;
+  animation: dialog-slide-in 0.2s ease-out;
+}
+
+@keyframes dialog-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Sizes */
+.dialog--small {
+  width: 360px;
+  max-width: 90vw;
+}
+
+.dialog--medium {
+  width: 520px;
+  max-width: 90vw;
+}
+
+.dialog--large {
+  width: 720px;
+  max-width: 90vw;
+}
+
+.dialog--fullscreen {
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+}
+
+/* Header */
+.dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.dialog__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.dialog__close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  color: var(--text-secondary, #666);
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.dialog__close-btn:hover {
+  background: var(--bg-hover, #f0f0f0);
+  color: var(--text-primary, #1a1a1a);
+}
+
+.dialog__close-btn:focus-visible {
+  outline: 2px solid var(--focus-ring, #4a90d9);
+  outline-offset: 1px;
+}
+
+/* Body */
+.dialog__body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+  color: var(--text-primary, #1a1a1a);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Footer */
+.dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--border-color, #e0e0e0);
+}
