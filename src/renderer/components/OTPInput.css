@@ -1,0 +1,85 @@
+.otp-input {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.otp-input-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.otp-input--disabled {
+  opacity: 0.5;
+}
+
+.otp-input-fields {
+  display: flex;
+  gap: 8px;
+}
+
+.otp-input-field {
+  text-align: center;
+  border: 1px solid var(--border-color, #555);
+  border-radius: 6px;
+  background: var(--bg-secondary, #2a2a2a);
+  color: var(--text-primary);
+  font-weight: 600;
+  caret-color: var(--accent-color, #4a9eff);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.otp-input-field:focus {
+  border-color: var(--accent-color, #4a9eff);
+  box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.25);
+}
+
+.otp-input-field--filled {
+  border-color: var(--accent-color, #4a9eff);
+}
+
+.otp-input--error .otp-input-field {
+  border-color: var(--error-color, #e53e3e);
+}
+
+.otp-input--error .otp-input-field:focus {
+  border-color: var(--error-color, #e53e3e);
+  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.25);
+}
+
+/* Sizes */
+.otp-input--small .otp-input-field {
+  width: 32px;
+  height: 36px;
+  font-size: 16px;
+}
+
+.otp-input--small .otp-input-fields {
+  gap: 6px;
+}
+
+.otp-input--small .otp-input-label {
+  font-size: 12px;
+}
+
+.otp-input--medium .otp-input-field {
+  width: 40px;
+  height: 44px;
+  font-size: 20px;
+}
+
+.otp-input--large .otp-input-field {
+  width: 50px;
+  height: 54px;
+  font-size: 24px;
+}
+
+.otp-input--large .otp-input-fields {
+  gap: 10px;
+}
+
+.otp-input--large .otp-input-label {
+  font-size: 16px;
+}
