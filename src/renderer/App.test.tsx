@@ -1143,7 +1143,7 @@ describe('App Component', () => {
     });
 
     describe('Delete Conversation', () => {
-        it('shows delete buttons on conversation items in sidebar', async () => {
+        it('shows conversation options menu on conversation items in sidebar', async () => {
             const user = userEvent.setup();
             render(<App />);
             // Create a conversation with a message
@@ -1152,11 +1152,11 @@ describe('App Component', () => {
             await user.type(input, 'Hello');
             await user.click(screen.getByText('전송'));
 
-            // Delete button should be present on the conversation item
-            expect(screen.getByRole('button', { name: /대화 삭제:/ })).toBeInTheDocument();
+            // Options menu trigger should be present on the conversation item
+            expect(screen.getByRole('button', { name: '대화 옵션' })).toBeInTheDocument();
         });
 
-        it('removes conversation from sidebar when delete is clicked and confirmed', async () => {
+        it('removes conversation from sidebar when delete is clicked via menu and confirmed', async () => {
             const user = userEvent.setup();
             render(<App />);
 
@@ -1172,9 +1172,10 @@ describe('App Component', () => {
             const realConvItems = convItems.filter(item => item.classList.contains('conversation-item'));
             expect(realConvItems).toHaveLength(2);
 
-            // Delete the first one (not currently selected)
-            const deleteButtons = screen.getAllByRole('button', { name: /대화 삭제:/ });
-            await user.click(deleteButtons[1]); // second in DOM = older conversation
+            // Open dropdown menu for second conversation and click delete
+            const menuTriggers = screen.getAllByRole('button', { name: '대화 옵션' });
+            await user.click(menuTriggers[1]); // second in DOM = older conversation
+            await user.click(screen.getByText('삭제'));
 
             // Confirm dialog should appear
             expect(screen.getByText('대화 삭제')).toBeInTheDocument();
@@ -1184,7 +1185,7 @@ describe('App Component', () => {
             expect(remainingItems).toHaveLength(1);
         });
 
-        it('clears messages when deleting the current conversation and confirmed', async () => {
+        it('clears messages when deleting the current conversation via menu and confirmed', async () => {
             const user = userEvent.setup();
             render(<App />);
 
@@ -1198,9 +1199,10 @@ describe('App Component', () => {
             const articles = screen.getAllByRole('article');
             expect(articles.some(a => a.textContent?.includes('Test message for deletion'))).toBe(true);
 
-            // Delete the current conversation
-            const deleteBtn = screen.getByRole('button', { name: /대화 삭제:/ });
-            await user.click(deleteBtn);
+            // Open dropdown menu and click delete
+            const menuTrigger = screen.getByRole('button', { name: '대화 옵션' });
+            await user.click(menuTrigger);
+            await user.click(screen.getByText('삭제'));
 
             // Confirm dialog should appear
             expect(screen.getByText('대화 삭제')).toBeInTheDocument();
@@ -1993,7 +1995,7 @@ describe('App Component', () => {
             expect(screen.getByText('Keep this message')).toBeInTheDocument();
         });
 
-        it('shows confirm dialog when deleting a conversation', async () => {
+        it('shows confirm dialog when deleting a conversation via menu', async () => {
             const user = userEvent.setup();
             render(<App />);
             await user.click(screen.getByText('새 대화'));
@@ -2001,8 +2003,9 @@ describe('App Component', () => {
             await user.type(input, 'Hello');
             await user.click(screen.getByText('전송'));
 
-            const deleteBtn = screen.getByRole('button', { name: /대화 삭제:/ });
-            await user.click(deleteBtn);
+            const menuTrigger = screen.getByRole('button', { name: '대화 옵션' });
+            await user.click(menuTrigger);
+            await user.click(screen.getByText('삭제'));
 
             expect(screen.getByText('대화 삭제')).toBeInTheDocument();
             expect(screen.getByText(/대화를 삭제하시겠습니까/)).toBeInTheDocument();
@@ -2016,12 +2019,13 @@ describe('App Component', () => {
             await user.type(input, 'Keep this');
             await user.click(screen.getByText('전송'));
 
-            const deleteBtn = screen.getByRole('button', { name: /대화 삭제:/ });
-            await user.click(deleteBtn);
+            const menuTrigger = screen.getByRole('button', { name: '대화 옵션' });
+            await user.click(menuTrigger);
+            await user.click(screen.getByText('삭제'));
             await user.click(screen.getByRole('button', { name: '취소' }));
 
             // Conversation should still exist
-            expect(screen.getByRole('button', { name: /대화 삭제:/ })).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: '대화 옵션' })).toBeInTheDocument();
         });
     });
 
@@ -2142,6 +2146,116 @@ describe('App Component', () => {
 
             await waitFor(() => {
                 expect(screen.getByLabelText(/Temperature/)).toBeInTheDocument();
+            });
+        });
+    });
+
+    describe('SessionIndicator in App header', () => {
+        it('renders session indicator with idle status by default', () => {
+            render(<App />);
+            expect(screen.getByRole('status')).toBeInTheDocument();
+            expect(screen.getByText('대기 중')).toBeInTheDocument();
+        });
+
+        it('shows error status when session has error', () => {
+            mockElectronAPI.onStreamData.mockImplementation(() => {});
+            mockElectronAPI.onStreamComplete.mockImplementation(() => {});
+            (mockElectronAPI as Record<string, unknown>).onSessionStatus = vi.fn((cb: (data: { status: string }) => void) => {
+                cb({ status: 'error' });
+            });
+            render(<App />);
+            expect(screen.getByText('연결 오류')).toBeInTheDocument();
+            delete (mockElectronAPI as Record<string, unknown>).onSessionStatus;
+        });
+    });
+
+    describe('ProgressBar for token usage', () => {
+        it('does not show progress bar when no token usage', () => {
+            render(<App />);
+            expect(screen.queryByText('토큰 사용량')).not.toBeInTheDocument();
+        });
+
+        it('shows progress bar after stream completes with token data', async () => {
+            const callbacks = setupStreamCallbacks();
+            const user = userEvent.setup();
+            render(<App />);
+
+            // Type and send a message
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            // Simulate streaming message
+            await act(() => {
+                if (callbacks.streamData) {
+                    callbacks.streamData({
+                        type: 'message',
+                        role: 'assistant',
+                        content: 'Response',
+                        delta: true,
+                    });
+                }
+            });
+
+            // Simulate result with token stats
+            await act(() => {
+                if (callbacks.streamData) {
+                    callbacks.streamData({
+                        type: 'result',
+                        stats: { inputTokens: 100, outputTokens: 50, totalTokens: 150 },
+                    });
+                }
+            });
+
+            // Simulate stream complete
+            await act(() => {
+                if (callbacks.streamComplete) {
+                    callbacks.streamComplete();
+                }
+            });
+
+            expect(screen.getByRole('progressbar', { name: /토큰 사용량/ })).toBeInTheDocument();
+            expect(screen.getByText('토큰 사용량')).toBeInTheDocument();
+        });
+    });
+
+    describe('DropdownMenu in Sidebar', () => {
+        it('renders conversation options menu trigger', async () => {
+            // Store a conversation so sidebar shows it
+            localStorage.setItem('gemini-conversations', JSON.stringify([
+                { id: 'test-1', title: 'Test Conv', messages: [{ id: 'm1', role: 'user', content: 'hi', timestamp: new Date().toISOString() }], timestamp: new Date().toISOString() }
+            ]));
+            localStorage.setItem('gemini-current-conversation', '"test-1"');
+            render(<App />);
+
+            // The sidebar should show the conversation with a menu trigger
+            await waitFor(() => {
+                expect(screen.getByText('Test Conv')).toBeInTheDocument();
+            });
+            // Check for menu trigger button (⋮)
+            const menuTrigger = screen.getByRole('button', { name: '대화 옵션' });
+            expect(menuTrigger).toBeInTheDocument();
+        });
+
+        it('opens dropdown menu when trigger is clicked', async () => {
+            const user = userEvent.setup();
+            localStorage.setItem('gemini-conversations', JSON.stringify([
+                { id: 'test-2', title: 'Conv 2', messages: [{ id: 'm2', role: 'user', content: 'test', timestamp: new Date().toISOString() }], timestamp: new Date().toISOString() }
+            ]));
+            localStorage.setItem('gemini-current-conversation', '"test-2"');
+            render(<App />);
+
+            await waitFor(() => {
+                expect(screen.getByText('Conv 2')).toBeInTheDocument();
+            });
+
+            const menuTrigger = screen.getByRole('button', { name: '대화 옵션' });
+            await user.click(menuTrigger);
+
+            await waitFor(() => {
+                expect(screen.getByRole('menu')).toBeInTheDocument();
+                expect(screen.getByText('대화 열기')).toBeInTheDocument();
+                expect(screen.getByText('삭제')).toBeInTheDocument();
             });
         });
     });
