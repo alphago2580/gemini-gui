@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (1201 tests)
-- **Last Agent Run**: Agent 3 (Tests & Types)
+- **Test Status**: Passing (2589 tests)
+- **Last Agent Run**: Agent 4 (Integrator)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -625,3 +625,14 @@
 - **TokenUsage.test.tsx**: Added 8 tests — token-usage CSS class, token-usage-label span, token-usage-item count, token-usage-total span, token-icon spans content, single digit tokens, root element is div, rerender updates display
 - **TypingIndicator.test.tsx**: Added 8 tests — typing-indicator-header role span, typing-indicator-content container, typing-text span content, explicit isStreaming=false, dots are empty spans, root element class, streaming-to-non-streaming rerender, role status contains dots+text
 - Total tests: 1153 → 1201 (47 test files, all passing)
+
+### Agent 4 (Integrator) — Integrate SplitButton Export + ProgressBar TokenUsage
+- Replaced separate Export + PDF header buttons with `SplitButton` component — primary action triggers MD export, dropdown menu offers PDF export option
+- Integrated `ProgressBar` into `TokenUsage` component — shows token usage ratio vs `maxTokens` setting
+- ProgressBar color-coded: default (< 70%), warning (70–90%), error (> 90%)
+- Added optional `maxTokens` prop to `TokenUsageProps` interface
+- App.tsx passes `settings.maxTokens` to `TokenUsage` for visual usage tracking
+- Added `EXPORT_OPTIONS_LABEL`, `EXPORT_MD_OPTION`, `EXPORT_PDF_OPTION`, `TOKEN_USAGE_PROGRESS_LABEL` string constants
+- Added 7 unit tests for TokenUsage ProgressBar (no maxTokens, with maxTokens, zero maxTokens, percentage display, warning/error/default variants)
+- Updated 4 App tests for SplitButton export behavior (no button when empty, split button visible, dropdown toggle, PDF via dropdown)
+- Total tests: 2583 → 2589 (128 test files, all passing)
