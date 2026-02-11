@@ -1,0 +1,259 @@
+/* SpeedDial — floating action button with expanding actions */
+
+.speed-dial {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Trigger button */
+.speed-dial-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.3s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+}
+
+.speed-dial-trigger:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.speed-dial-trigger:focus-visible {
+  outline: 2px solid var(--color-accent, #6b9eff);
+  outline-offset: 2px;
+}
+
+.speed-dial-trigger-open {
+  transform: rotate(45deg);
+}
+
+.speed-dial-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.speed-dial-trigger-icon {
+  font-size: 1.25em;
+  line-height: 1;
+}
+
+/* Variant colors */
+.speed-dial-primary .speed-dial-trigger {
+  background-color: var(--color-accent, #6b9eff);
+  color: #fff;
+}
+
+.speed-dial-primary .speed-dial-trigger:hover:not(:disabled) {
+  background-color: var(--color-accent-hover, #5a8de6);
+}
+
+.speed-dial-secondary .speed-dial-trigger {
+  background-color: var(--bg-secondary, #2a2a2a);
+  color: var(--text-primary, #e0e0e0);
+}
+
+.speed-dial-secondary .speed-dial-trigger:hover:not(:disabled) {
+  background-color: var(--bg-tertiary, #333);
+}
+
+.speed-dial-danger .speed-dial-trigger {
+  background-color: var(--color-danger, #e74c3c);
+  color: #fff;
+}
+
+.speed-dial-danger .speed-dial-trigger:hover:not(:disabled) {
+  background-color: #c0392b;
+}
+
+/* Sizes */
+.speed-dial-small .speed-dial-trigger {
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+}
+
+.speed-dial-medium .speed-dial-trigger {
+  width: 48px;
+  height: 48px;
+  font-size: 18px;
+}
+
+.speed-dial-large .speed-dial-trigger {
+  width: 60px;
+  height: 60px;
+  font-size: 22px;
+}
+
+/* Actions container */
+.speed-dial-actions {
+  position: absolute;
+  display: flex;
+  gap: 8px;
+  z-index: 1;
+}
+
+/* Direction layouts */
+.speed-dial-up .speed-dial-actions {
+  flex-direction: column-reverse;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding-bottom: 8px;
+}
+
+.speed-dial-down .speed-dial-actions {
+  flex-direction: column;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding-top: 8px;
+}
+
+.speed-dial-left .speed-dial-actions {
+  flex-direction: row-reverse;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  padding-right: 8px;
+}
+
+.speed-dial-right .speed-dial-actions {
+  flex-direction: row;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  padding-left: 8px;
+}
+
+/* Action item */
+.speed-dial-action {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: speed-dial-fade-in 0.2s ease-out forwards;
+  opacity: 0;
+  animation-delay: calc(var(--action-index, 0) * 0.04s);
+}
+
+@keyframes speed-dial-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Action button */
+.speed-dial-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--bg-secondary, #2a2a2a);
+  color: var(--text-primary, #e0e0e0);
+  cursor: pointer;
+  transition: background-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.speed-dial-action-button:hover:not(:disabled) {
+  background-color: var(--bg-tertiary, #333);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.speed-dial-action-button:focus-visible {
+  outline: 2px solid var(--color-accent, #6b9eff);
+  outline-offset: 2px;
+}
+
+.speed-dial-action-active .speed-dial-action-button {
+  background-color: var(--bg-tertiary, #333);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.speed-dial-action-disabled .speed-dial-action-button {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Action button sizes */
+.speed-dial-small .speed-dial-action-button {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+
+.speed-dial-medium .speed-dial-action-button {
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+}
+
+.speed-dial-large .speed-dial-action-button {
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+}
+
+/* Tooltip */
+.speed-dial-action-tooltip {
+  position: absolute;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: var(--bg-primary, #1e1e1e);
+  color: var(--text-primary, #e0e0e0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.speed-dial-action:hover .speed-dial-action-tooltip,
+.speed-dial-action-active .speed-dial-action-tooltip {
+  opacity: 1;
+}
+
+/* Tooltip positions */
+.speed-dial-tooltip-left .speed-dial-action-tooltip {
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.speed-dial-tooltip-right .speed-dial-action-tooltip {
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.speed-dial-tooltip-top .speed-dial-action-tooltip {
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.speed-dial-tooltip-bottom .speed-dial-action-tooltip {
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Disabled state */
+.speed-dial-disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
