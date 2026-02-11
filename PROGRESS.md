@@ -978,3 +978,28 @@
 - Added 6 string constants: `BANNER_CONNECTION_ERROR`, `BANNER_RETRY`, `SETTINGS_SECTION_GENERAL`, `SETTINGS_SECTION_ADVANCED`
 - Added 6 new integration tests: UserAvatar rendering for user/assistant, NotificationBanner visibility, session error banner, Accordion in settings, accordion expand
 - Total tests: 3966 → 3972+ (157 test files, all passing)
+
+### Agent 2 (Logic) — useOrientation, useBattery Hooks & iteratorUtils Utility
+- Created `useOrientation` hook: device orientation detection
+  - Returns: `type` ('portrait' | 'landscape'), `angle`, `isPortrait`, `isLandscape`
+  - Uses Screen Orientation API with resize event fallback
+  - Angle-based detection: 0/180 = portrait, 90/270 = landscape
+  - Falls back to window dimensions when API unavailable
+  - Listens for both orientation change and resize events
+- Created `useBattery` hook: Battery Status API integration
+  - Returns: `isSupported`, `charging`, `chargingTime`, `dischargingTime`, `level`
+  - Async getBattery() with graceful fallback for unsupported browsers
+  - Listens for: chargingchange, chargingtimechange, dischargingtimechange, levelchange
+  - Cleans up all 4 event listeners on unmount
+- Created `iteratorUtils` utility with 15 lazy generator functions:
+  - Generation: `range(start, end, step)` — numeric ranges with step
+  - Transformation: `map`, `filter`, `flatten`, `chunk`
+  - Selection: `take`, `skip`, `takeWhile`, `skipWhile`
+  - Combination: `zip`, `enumerate`, `cycle`
+  - Deduplication: `unique` with optional key function
+  - Aggregation: `reduce`, `toArray`
+  - All generators are lazy — only compute values on demand
+- Added 10 tests for useOrientation (portrait 0°, landscape 90°, portrait 180°, landscape 270°, orientation listener, resize listener, update on change, cleanup, fallback landscape, fallback portrait)
+- Added 10 tests for useBattery (init, read state, add listeners, remove listeners, level change, charging change, rejection, missing API, dischargingTime, full battery)
+- Added 54 tests for iteratorUtils (range 6, chunk 5, zip 4, take 4, skip 3, filter 3, map 3, flatten 3, enumerate 3, takeWhile 3, skipWhile 3, unique 4, reduce 3, toArray 2, cycle 3, composition 2)
+- Total tests: 3966 → 4195 (160 test files, all passing)
