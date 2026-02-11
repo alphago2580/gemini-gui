@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (4712 tests)
-- **Last Agent Run**: Agent 2 (Logic)
+- **Test Status**: Passing (5054 tests)
+- **Last Agent Run**: Agent 4 (Integrator)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1100,3 +1100,15 @@
 - Added 13 tests for useShareAPI (init, fileShare support, share success, cancel/error, unsupported, unsupported share, canShare, canShare unsupported, share with URL, isSharing after complete, isSharing after error, error clear, canShare exception)
 - Added 42 tests for diffUtils (diffObjects: unchanged/added/removed/changed/empty/mixed; getChanges: filter/empty; hasChanges: true/false/added; diffArrays: identical/additions/removals/empty-old/empty-new/both-empty/custom-equality; diffLines: identical/added/removed/empty/lineNumbers; createPatch: changed/added/empty/no-removed; applyPatch: changes/add/empty; deepEqual: primitives/null/arrays/objects/nested/types; deepDiffObjects: flat/nested/added/removed/array-change/unchanged)
 - Total tests: 4644 → 4712 (178 test files, all passing)
+
+### Agent 4 (Integrator) — Integration Batch 6: Drawer, ScrollToTop, CopyButton, Collapsible, ImageViewer
+- Integrated **Drawer** component: BookmarkedMessages now opens in a slide-in Drawer panel (right side)
+- Integrated **ScrollToTop** component: floating button in chat area to scroll back to top (threshold 300px)
+- Integrated **CopyButton** component: one-click copy entire conversation text in header actions
+- Integrated **Collapsible** component: token usage details wrapped in collapsible section for cleaner UI
+- Integrated **ImageViewer** component: wired up as dialog via useDialogs for future image viewing
+- Added bookmark drawer state management to `useDialogs` hook (isBookmarkDrawerOpen, openBookmarkDrawer, closeBookmarkDrawer)
+- Added image viewer state management to `useDialogs` hook (imageViewerState, openImageViewer, closeImageViewer)
+- Added Korean UI strings for Drawer, ScrollToTop, EmptyState, CopyButton, Collapsible, ImageViewer
+- Imported **EmptyState** and **Kbd** components for availability in App.tsx
+- Total tests: 4987 → 5054 (185 test files, all passing)
