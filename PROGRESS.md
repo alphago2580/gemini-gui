@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5951+ tests)
-- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 14
+- **Test Status**: Passing (5994+ tests)
+- **Last Agent Run**: Agent 1 (Components) — PasswordInput
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1387,3 +1387,17 @@
   - Full ARIA compliance: combobox role, aria-expanded, aria-autocomplete, aria-activedescendant
 - Added 53 tests for Combobox (rendering, selection, filtering, keyboard nav, disabled options, free input, clear, error, loading, sizes, icons, descriptions, callbacks, accessibility, auto-highlight, arrow toggle, escape revert)
 - Total tests: 5898 → 5951 (all passing)
+
+### Agent 1 (Components) — PasswordInput Component
+- Created `PasswordInput` component — password field with visibility toggle and strength meter
+  - Visibility toggle (show/hide password) with emoji icons
+  - Password strength meter (weak/fair/good/strong) with color-coded progress bar
+  - Configurable requirements checklist with met/unmet visual indicators
+  - Default requirements: 8+ chars, uppercase, lowercase, digit, special char
+  - Custom requirements support via PasswordRequirement[] prop
+  - Exported `calculateStrength` utility function for reuse
+  - Three sizes (sm/md/lg), disabled state, error display with alert role
+  - maxLength and autoComplete props
+  - Full ARIA: aria-label, aria-invalid, role=alert
+- Added 43 tests for PasswordInput (rendering, visibility toggle, onChange, disabled, error, sizes, strength meter levels, requirements met/unmet, custom requirements, accessibility, maxLength, autoComplete, calculateStrength)
+- Total tests: 5951 → 5994 (all passing)
