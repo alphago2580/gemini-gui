@@ -28,6 +28,8 @@ import PinnedMessages from './components/PinnedMessages';
 import SplitButton from './components/SplitButton';
 import Chip from './components/Chip';
 import Tooltip from './components/Tooltip';
+import Skeleton from './components/Skeleton';
+import ConfirmDialog from './components/ConfirmDialog';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -134,6 +136,19 @@ const App: React.FC = () => {
 
   // Dialog/panel state (extracted to custom hook)
   const dialogs = useDialogs();
+
+  // Confirm dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    variant: 'danger' | 'warning' | 'info';
+    onConfirm: () => void;
+  }>({ isOpen: false, title: '', message: '', variant: 'danger', onConfirm: () => {} });
+
+  const closeConfirmDialog = useCallback(() => {
+    setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+  }, []);
 
   // UI state (localStorage-persisted)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage(S.STORAGE_KEY_SIDEBAR_COLLAPSED, false);
@@ -304,12 +319,36 @@ const App: React.FC = () => {
     [perfMonitor, messages.length, conversations.length]
   );
 
-  // Clear current conversation messages
+  // Clear current conversation messages (with confirmation)
   const handleClearConversation = useCallback(() => {
-    if (currentConversationId) {
-      updateCurrentConversation([]);
-    }
-  }, [currentConversationId, updateCurrentConversation]);
+    if (!currentConversationId || messages.length === 0) return;
+    setConfirmDialog({
+      isOpen: true,
+      title: S.CONFIRM_CLEAR_TITLE,
+      message: S.CONFIRM_CLEAR_MESSAGE,
+      variant: 'warning',
+      onConfirm: () => {
+        updateCurrentConversation([]);
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+      },
+    });
+  }, [currentConversationId, messages.length, updateCurrentConversation]);
+
+  // Delete conversation (with confirmation)
+  const handleDeleteConversation = useCallback((id: string) => {
+    const conv = conversations.find(c => c.id === id);
+    const title = conv?.title || S.UNTITLED_CONVERSATION;
+    setConfirmDialog({
+      isOpen: true,
+      title: S.CONFIRM_DELETE_TITLE,
+      message: `"${title}" ${S.CONFIRM_DELETE_MESSAGE}`,
+      variant: 'danger',
+      onConfirm: () => {
+        deleteConversation(id);
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+      },
+    });
+  }, [conversations, deleteConversation]);
 
   // Toggle sidebar collapse
   const handleToggleSidebar = useCallback(() => {
@@ -387,7 +426,7 @@ const App: React.FC = () => {
         conversations={conversations}
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
-        onDeleteConversation={deleteConversation}
+        onDeleteConversation={handleDeleteConversation}
         searchInputRef={searchInputRef}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={handleToggleSidebar}
@@ -506,6 +545,11 @@ const App: React.FC = () => {
                 </div>
               );
             })}
+            {isLoading && !isStreaming && (
+              <div className="skeleton-loading-placeholder">
+                <Skeleton variant="text" lines={3} />
+              </div>
+            )}
             {isLoading && (
               <TypingIndicator isStreaming={isStreaming} />
             )}
@@ -674,6 +718,14 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        variant={confirmDialog.variant}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={closeConfirmDialog}
+      />
     </div>
   );
 };

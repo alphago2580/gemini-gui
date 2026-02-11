@@ -458,3 +458,9 @@ export const STORAGE_KEY_SIDEBAR_COLLAPSED = 'gemini-sidebar-collapsed';
 export const STORAGE_KEY_HIGH_CONTRAST = 'gemini-high-contrast';
 export const STORAGE_KEY_OPEN_TABS = 'gemini-open-tabs';
 export const STORAGE_KEY_PINNED_MESSAGES = 'gemini-pinned-messages';
+
+// ConfirmDialog
+export const CONFIRM_CLEAR_TITLE = '대화 지우기';
+export const CONFIRM_CLEAR_MESSAGE = '모든 메시지가 삭제됩니다. 계속하시겠습니까?';
+export const CONFIRM_DELETE_TITLE = '대화 삭제';
+export const CONFIRM_DELETE_MESSAGE = '대화를 삭제하시겠습니까?';

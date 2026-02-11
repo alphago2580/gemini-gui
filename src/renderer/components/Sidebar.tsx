@@ -3,6 +3,7 @@ import './Sidebar.css';
 import * as S from '../constants/strings';
 import type { Conversation } from '../../preload/types';
 import { useDebounce } from '../hooks/useDebounce';
+import Badge from './Badge';
 
 export interface SidebarProps {
   onNewChat: () => void;
@@ -108,13 +109,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                       {conv.timestamp.toLocaleDateString()}
                     </span>
                     {conv.messages && conv.messages.length > 0 && (
-                      <span
-                        className="message-count-badge"
-                        aria-label={`${conv.messages.length}${S.MESSAGE_COUNT_SUFFIX}`}
-                        title={`${conv.messages.length}${S.MESSAGE_COUNT_SUFFIX}`}
-                      >
-                        {conv.messages.length}
-                      </span>
+                      <Badge
+                        count={conv.messages.length}
+                        variant="primary"
+                        maxCount={999}
+                      />
                     )}
                   </div>
                   {onDeleteConversation && (

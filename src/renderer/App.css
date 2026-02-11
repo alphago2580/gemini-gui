@@ -720,3 +720,9 @@
   background: var(--bg-secondary);
   color: var(--text-primary);
 }
+
+.skeleton-loading-placeholder {
+  padding: 16px 20px;
+  max-width: 70%;
+  margin-left: 12px;
+}

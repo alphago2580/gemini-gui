@@ -4,7 +4,7 @@
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
 - **Test Status**: Passing (3109+ tests)
-- **Last Agent Run**: Agent 2 (Logic)
+- **Last Agent Run**: Agent 4 (Integrator)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -847,3 +847,17 @@
 - Added 12 tests for usePermission (init, query mount, granted, denied, change listener, unmount cleanup, change events, query rejection, query return, isSupported, query throws, name change)
 - Added 34 tests for cacheUtils (TTL: set/get, missing, has, delete, delete missing, clear, size, keys, values, expire, default TTL, override TTL, no TTL, expired exclusion, overwrite; LRU: set/get, missing, eviction, get promotes, max size, overwrite, has, delete, clear, keys, values, size 1; memoize: cache, different args, multi args, custom key, strings, falsy)
 - Total tests: 2783 → 2947 (142 test files, all passing)
+
+### Agent 4 (Integrator) — Integrate Badge, Skeleton, ConfirmDialog
+- Replaced manual `message-count-badge` span in Sidebar with `Badge` component (primary variant, max 999)
+- Added `Skeleton` loading placeholder in message area — shows shimmer animation while waiting for stream to start
+- Skeleton visible during loading before streaming begins, hidden once streaming data arrives
+- Integrated `ConfirmDialog` for destructive actions:
+  - Clear conversation: warning variant, shows "모든 메시지가 삭제됩니다. 계속하시겠습니까?"
+  - Delete conversation: danger variant, shows conversation title with confirmation prompt
+  - Cancel dismisses dialog without performing action
+- Added 4 string constants for confirm dialog messages (`CONFIRM_CLEAR_TITLE`, `CONFIRM_CLEAR_MESSAGE`, `CONFIRM_DELETE_TITLE`, `CONFIRM_DELETE_MESSAGE`)
+- Added `.skeleton-loading-placeholder` CSS for proper layout within message area
+- Updated 5 existing tests to work with confirm dialog behavior (clear and delete tests)
+- Added 7 new integration tests: skeleton visibility, skeleton hide on stream, confirm dialog show, confirm dialog cancel, delete confirm, delete cancel, badge rendering
+- Total tests: 2724 → 2731 (134 test files, all passing)
