@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (6455+ tests)
+- **Test Status**: Passing (6518+ tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1533,3 +1533,15 @@
 - Added 19 tests for useKeyPress
 - Added 40 tests for heapUtils
 - Total tests: 6381 → 6455 (239 test files, all passing)
+
+### Agent 2 (Logic) — useOnlineStatus, useElementSize, trieUtils
+- Added `useOnlineStatus` hook — online/offline detection with callbacks and timestamp
+- Added `useElementSize` hook — track element dimensions via ResizeObserver with ref callback
+- Added `trieUtils` utility — trie data structure with:
+  - Trie class with insert, search, startsWith, remove, clear
+  - getWordsWithPrefix, getAllWords, countWordsWithPrefix, longestCommonPrefix
+  - createTrie factory, autoComplete, spellCheck helpers
+- Added 15 tests for useOnlineStatus
+- Added 11 tests for useElementSize
+- Added 37 tests for trieUtils
+- Total tests: 6455 → 6518 (242 test files, all passing)
