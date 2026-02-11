@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5898 tests)
-- **Last Agent Run**: Agent 2 (Logic)
+- **Test Status**: Passing (5951 tests)
+- **Last Agent Run**: Agent 1 (Components)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1366,3 +1366,17 @@
 - Added 14 tests for useSpeechRecognition (init, unsupported, start, lang/options, default-ko, final/interim result, accumulate, stop, end, error, reset, unsupported-start, webkit)
 - Added 41 tests for linkedListUtils (create, from, append, prepend, insertAt, removeFirst/Last/At, get, indexOf, contains, find, reverse, map, filter, forEach, clear, clone, toArray, strings)
 - Total tests: 5727 → 5898 (218 test files, all passing)
+
+### Agent 1 (Components) — Combobox Component
+- Created `Combobox` component — autocomplete input with dropdown filtering
+  - Text input with real-time option filtering by label and description
+  - Keyboard navigation: ArrowUp/Down, Home/End, Enter to select, Escape to close
+  - Free text input mode (allowFreeInput) for custom values not in option list
+  - Option descriptions and icons for rich option display
+  - Loading state with spinner animation
+  - Three sizes (sm/md/lg), disabled state, error display with alert role
+  - Auto-highlight first matching option (configurable)
+  - Clear button, arrow toggle, outside click to close
+  - Full ARIA compliance: combobox role, aria-expanded, aria-autocomplete, aria-activedescendant
+- Added 53 tests for Combobox (rendering, selection, filtering, keyboard nav, disabled options, free input, clear, error, loading, sizes, icons, descriptions, callbacks, accessibility, auto-highlight, arrow toggle, escape revert)
+- Total tests: 5898 → 5951 (all passing)
