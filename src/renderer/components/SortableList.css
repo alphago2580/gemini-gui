@@ -1,0 +1,64 @@
+.sortable-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sortable-list--disabled {
+  opacity: 0.5;
+}
+
+.sortable-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-secondary, #2a2a2a);
+  border: 1px solid var(--border-color, #444);
+  border-radius: 6px;
+  cursor: grab;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  outline: none;
+}
+
+.sortable-list-item:hover {
+  background: var(--bg-tertiary, #333);
+}
+
+.sortable-list-item:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.sortable-list-item--dragging {
+  opacity: 0.4;
+}
+
+.sortable-list-item--over {
+  border-color: var(--accent-color, #4a9eff);
+  background: var(--bg-tertiary, #333);
+}
+
+.sortable-list--disabled .sortable-list-item {
+  cursor: not-allowed;
+}
+
+.sortable-list-handle {
+  color: var(--text-tertiary, #999);
+  font-size: 14px;
+  line-height: 1;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.sortable-list--disabled .sortable-list-handle {
+  cursor: not-allowed;
+}
+
+.sortable-list-content {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 14px;
+  min-width: 0;
+}
