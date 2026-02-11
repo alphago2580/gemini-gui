@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5667+ tests)
-- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 12
+- **Test Status**: Passing (5727 tests)
+- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1298,3 +1298,31 @@
 - Added 20 tests for useClampedValue (init, custom value, clamp, increment/decrement, step, boundaries, setValue, reset, percentage, equal min/max, loop mode, negative ranges)
 - Added 39 tests for treeUtils (createNode, findNode, findNodeBy, flatten, getDepth, countNodes, getPath, mapTree, filterTree, getLeaves, getAncestors, getSiblings, insertChild, removeNode, walkTree)
 - Total tests: 5439 → 5570 (207 test files, all passing)
+
+### Agent 2 (Logic) — Hooks/Utils Batch 28: useThrottledCallback, useFileReader, graphUtils
+- Created `useThrottledCallback` hook for throttled function execution:
+  - Configurable delay with leading/trailing edge control
+  - Cancel pending invocation
+  - isPending status indicator
+  - Latest function reference always used
+  - Cleanup on unmount
+- Created `useFileReader` hook for reading files via FileReader API:
+  - Read as text, dataURL, arrayBuffer, or binaryString
+  - Progress tracking with percentage
+  - onLoad, onError, onProgress callbacks
+  - Abort in-flight reads
+  - Reset state
+- Created `graphUtils` utility with Graph class:
+  - Directed and undirected graph support
+  - Vertex/edge CRUD operations (add, remove, has)
+  - BFS and DFS traversal
+  - Shortest path via BFS
+  - Topological sort for DAGs
+  - Cycle detection (directed and undirected)
+  - Connectivity check
+  - Clone for immutable operations
+  - Degree, vertex count, edge count metrics
+- Added 12 tests for useThrottledCallback (leading, trailing, throttle, cancel, args, ref update, unmount cleanup, leading=false, both=false, rapid calls)
+- Added 12 tests for useFileReader (default state, text/dataURL/arrayBuffer/binaryString read, onLoad, progress, error, reset, isLoading, clear previous, abort)
+- Added 36 tests for graphUtils (undirected: add/remove vertex/edge, neighbors, degree, BFS, DFS, shortest path, cycle, connectivity, clone, topo-sort null; directed: edges, topo-sort, cycle, path, clone; numeric vertices)
+- Total tests: 5570 → 5727 (212 test files, all passing)
