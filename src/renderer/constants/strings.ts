@@ -546,3 +546,13 @@ export const TIMELINE_ARIA = '대화 타임라인';
 export const TAG_INPUT_PLACEHOLDER = '태그 추가...';
 export const TAG_INPUT_LABEL = '메시지 태그';
 export const STORAGE_KEY_MESSAGE_TAGS = 'gemini-message-tags';
+
+// Avatar
+export const AVATAR_USER_NAME = '사용자';
+export const AVATAR_ASSISTANT_NAME = 'Gemini';
+
+// AvatarGroup (conversation participants)
+export const AVATAR_GROUP_ARIA = '대화 참여자';
+
+// Divider
+export const DIVIDER_TOKEN_LABEL = '상세 정보';
