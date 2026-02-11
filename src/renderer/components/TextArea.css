@@ -1,0 +1,116 @@
+.textarea-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Label */
+.textarea-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-color, #e0e0e0);
+}
+
+/* Field */
+.textarea-field {
+  background: var(--bg-secondary, #1e1e1e);
+  border: 1px solid var(--border-color, #404040);
+  border-radius: 6px;
+  color: var(--text-color, #e0e0e0);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.textarea-field::placeholder {
+  color: var(--text-secondary, #aaa);
+}
+
+.textarea-field:hover:not(:disabled):not([readonly]) {
+  border-color: var(--accent-color, #4a90d9);
+}
+
+/* Focused */
+.textarea--focused .textarea-field {
+  border-color: var(--accent-color, #4a90d9);
+  box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
+}
+
+/* Disabled */
+.textarea--disabled .textarea-field {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Read-only */
+.textarea--readonly .textarea-field {
+  background: var(--bg-tertiary, #2a2a2a);
+  cursor: default;
+}
+
+/* Error */
+.textarea--error .textarea-field {
+  border-color: var(--error-color, #f44336);
+}
+
+.textarea--error.textarea--focused .textarea-field {
+  box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+}
+
+/* Size: sm */
+.textarea--sm .textarea-field {
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* Size: md */
+.textarea--md .textarea-field {
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* Size: lg */
+.textarea--lg .textarea-field {
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+/* Footer */
+.textarea-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 16px;
+}
+
+/* Error message */
+.textarea-error {
+  font-size: 12px;
+  color: var(--error-color, #f44336);
+}
+
+/* Helper text */
+.textarea-helper {
+  font-size: 12px;
+  color: var(--text-secondary, #aaa);
+}
+
+/* Character count */
+.textarea-count {
+  font-size: 11px;
+  color: var(--text-secondary, #aaa);
+  margin-left: auto;
+}
+
+.textarea-count--over {
+  color: var(--error-color, #f44336);
+}
+
+/* Over limit container style */
+.textarea--over-limit .textarea-field {
+  border-color: var(--error-color, #f44336);
+}
