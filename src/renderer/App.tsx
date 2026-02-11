@@ -30,6 +30,7 @@ import Chip from './components/Chip';
 import Tooltip from './components/Tooltip';
 import Skeleton from './components/Skeleton';
 import ConfirmDialog from './components/ConfirmDialog';
+import NotificationBanner from './components/NotificationBanner';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -126,6 +127,7 @@ const App: React.FC = () => {
     clearTokenUsage,
     startLoading,
     stopLoading,
+    sessionStatus,
   } = useStreamHandler({
     currentConversationId,
     setMessages,
@@ -433,6 +435,14 @@ const App: React.FC = () => {
       />
 
       <main className="main-content">
+        {sessionStatus === 'error' && (
+          <NotificationBanner
+            message={S.BANNER_CONNECTION_ERROR}
+            variant="error"
+            dismissible={true}
+            action={{ label: S.BANNER_RETRY, onClick: handleSend }}
+          />
+        )}
         <header className="app-header">
           <div className="header-title">
             <h1>{S.APP_TITLE}</h1>

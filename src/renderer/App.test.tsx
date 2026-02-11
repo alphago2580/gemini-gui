@@ -2049,4 +2049,100 @@ describe('App Component', () => {
             expect(countBadge).toBeTruthy();
         });
     });
+
+    describe('UserAvatar in MessageBubble', () => {
+        it('shows user avatar with role img for user messages', async () => {
+            const callbacks = setupStreamCallbacks();
+            render(<App />);
+
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await userEvent.type(input, '안녕하세요');
+            await userEvent.click(screen.getByRole('button', { name: '메시지 전송' }));
+
+            await waitFor(() => {
+                const avatars = screen.getAllByRole('img');
+                const userAvatar = avatars.find(a => a.getAttribute('aria-label') === '사용자');
+                expect(userAvatar).toBeTruthy();
+            });
+        });
+
+        it('shows assistant avatar for assistant messages', async () => {
+            const callbacks = setupStreamCallbacks();
+            render(<App />);
+
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await userEvent.type(input, '테스트');
+            await userEvent.click(screen.getByRole('button', { name: '메시지 전송' }));
+
+            act(() => {
+                callbacks.streamData?.({
+                    type: 'message',
+                    role: 'assistant',
+                    content: '응답입니다',
+                    delta: false,
+                });
+                callbacks.streamComplete?.();
+            });
+
+            await waitFor(() => {
+                const avatars = screen.getAllByRole('img');
+                const assistantAvatar = avatars.find(a => a.getAttribute('aria-label') === 'AI 어시스턴트');
+                expect(assistantAvatar).toBeTruthy();
+            });
+        });
+    });
+
+    describe('NotificationBanner Integration', () => {
+        it('does not show error banner when session status is not error', () => {
+            render(<App />);
+            expect(screen.queryByText('서버 연결에 실패했습니다. 네트워크 상태를 확인해 주세요.')).not.toBeInTheDocument();
+        });
+
+        it('shows error banner when session status changes to error', async () => {
+            let sessionStatusCb: ((data: { status: string }) => void) | null = null;
+            mockElectronAPI.onStreamData.mockImplementation(() => {});
+            mockElectronAPI.onStreamComplete.mockImplementation(() => {});
+            (mockElectronAPI as Record<string, unknown>).onSessionStatus = vi.fn((cb: (data: { status: string }) => void) => {
+                sessionStatusCb = cb;
+            });
+
+            render(<App />);
+
+            act(() => {
+                sessionStatusCb?.({ status: 'error' });
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('서버 연결에 실패했습니다. 네트워크 상태를 확인해 주세요.')).toBeInTheDocument();
+            });
+
+            // Cleanup
+            delete (mockElectronAPI as Record<string, unknown>).onSessionStatus;
+        });
+    });
+
+    describe('Accordion in Settings', () => {
+        it('shows advanced settings section as accordion in settings', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            await user.click(screen.getByText('설정'));
+
+            // Should see the accordion button for "고급 설정"
+            expect(screen.getByText('고급 설정')).toBeInTheDocument();
+        });
+
+        it('expands advanced settings accordion to reveal temperature slider', async () => {
+            const user = userEvent.setup();
+            render(<App />);
+            await user.click(screen.getByText('설정'));
+
+            // Click to expand advanced settings
+            const advancedButton = screen.getByRole('button', { name: '고급 설정' });
+            await user.click(advancedButton);
+
+            await waitFor(() => {
+                expect(screen.getByLabelText(/Temperature/)).toBeInTheDocument();
+            });
+        });
+    });
 });

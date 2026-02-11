@@ -464,3 +464,11 @@ export const CONFIRM_CLEAR_TITLE = '대화 지우기';
 export const CONFIRM_CLEAR_MESSAGE = '모든 메시지가 삭제됩니다. 계속하시겠습니까?';
 export const CONFIRM_DELETE_TITLE = '대화 삭제';
 export const CONFIRM_DELETE_MESSAGE = '대화를 삭제하시겠습니까?';
+
+// NotificationBanner
+export const BANNER_CONNECTION_ERROR = '서버 연결에 실패했습니다. 네트워크 상태를 확인해 주세요.';
+export const BANNER_RETRY = '다시 시도';
+
+// Settings Accordion sections
+export const SETTINGS_SECTION_GENERAL = '일반';
+export const SETTINGS_SECTION_ADVANCED = '고급 설정';

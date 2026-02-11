@@ -3,6 +3,8 @@ import './Settings.css';
 import type { AppSettings, ThemeMode } from '../../preload/types';
 import Divider from './Divider';
 import Switch from './Switch';
+import Accordion from './Accordion';
+import type { AccordionItem } from './Accordion';
 import * as S from '../constants/strings';
 
 export interface SettingsProps {
@@ -38,6 +40,63 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
     onSave(localSettings);
     onClose();
   };
+
+  const advancedItems: AccordionItem[] = [
+    {
+      id: 'advanced',
+      title: S.SETTINGS_SECTION_ADVANCED,
+      content: (
+        <>
+          <div className="setting-group">
+            <label htmlFor="temperature">
+              Temperature: {localSettings.temperature}
+              <span className="hint">{S.TEMPERATURE_HINT}</span>
+            </label>
+            <input
+              type="range"
+              id="temperature"
+              min="0"
+              max="2"
+              step="0.1"
+              value={localSettings.temperature}
+              onChange={(e) => setLocalSettings({ ...localSettings, temperature: parseFloat(e.target.value) })}
+            />
+          </div>
+          <div className="setting-group">
+            <label htmlFor="maxTokens">
+              {S.MAX_TOKENS_PREFIX} {localSettings.maxTokens}
+              <span className="hint">{S.MAX_TOKENS_HINT}</span>
+            </label>
+            <input
+              type="range"
+              id="maxTokens"
+              min="256"
+              max="8192"
+              step="256"
+              value={localSettings.maxTokens}
+              onChange={(e) => setLocalSettings({ ...localSettings, maxTokens: parseInt(e.target.value) })}
+            />
+          </div>
+          <div className="setting-group">
+            <label htmlFor="fontSize">
+              {S.FONT_SIZE_PREFIX} {localSettings.fontSize}px
+              <span className="hint">{S.FONT_SIZE_HINT}</span>
+            </label>
+            <input
+              type="range"
+              id="fontSize"
+              min="12"
+              max="20"
+              step="1"
+              value={localSettings.fontSize}
+              onChange={(e) => setLocalSettings({ ...localSettings, fontSize: parseInt(e.target.value) })}
+              aria-label={S.ARIA_FONT_SIZE}
+            />
+          </div>
+        </>
+      ),
+    },
+  ];
 
   return (
     <div className="settings-overlay" onClick={onClose} role="presentation">
@@ -156,54 +215,11 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
             </select>
           </div>
 
-          <div className="setting-group">
-            <label htmlFor="temperature">
-              Temperature: {localSettings.temperature}
-              <span className="hint">{S.TEMPERATURE_HINT}</span>
-            </label>
-            <input
-              type="range"
-              id="temperature"
-              min="0"
-              max="2"
-              step="0.1"
-              value={localSettings.temperature}
-              onChange={(e) => setLocalSettings({ ...localSettings, temperature: parseFloat(e.target.value) })}
-            />
-          </div>
-
-          <div className="setting-group">
-            <label htmlFor="maxTokens">
-              {S.MAX_TOKENS_PREFIX} {localSettings.maxTokens}
-              <span className="hint">{S.MAX_TOKENS_HINT}</span>
-            </label>
-            <input
-              type="range"
-              id="maxTokens"
-              min="256"
-              max="8192"
-              step="256"
-              value={localSettings.maxTokens}
-              onChange={(e) => setLocalSettings({ ...localSettings, maxTokens: parseInt(e.target.value) })}
-            />
-          </div>
-
-          <div className="setting-group">
-            <label htmlFor="fontSize">
-              {S.FONT_SIZE_PREFIX} {localSettings.fontSize}px
-              <span className="hint">{S.FONT_SIZE_HINT}</span>
-            </label>
-            <input
-              type="range"
-              id="fontSize"
-              min="12"
-              max="20"
-              step="1"
-              value={localSettings.fontSize}
-              onChange={(e) => setLocalSettings({ ...localSettings, fontSize: parseInt(e.target.value) })}
-              aria-label={S.ARIA_FONT_SIZE}
-            />
-          </div>
+          <Accordion
+            items={advancedItems}
+            multiple={true}
+            defaultExpanded={['advanced']}
+          />
 
           <div className="info-section">
             <h3>{S.INFO_TITLE}</h3>
