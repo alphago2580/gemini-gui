@@ -39,6 +39,9 @@ export const ARIA_EXPORT = '대화 내보내기';
 export const TITLE_EXPORT = 'Markdown으로 내보내기';
 export const ARIA_EXPORT_PDF = 'PDF로 내보내기';
 export const TITLE_EXPORT_PDF = 'PDF로 내보내기';
+export const EXPORT_OPTIONS_LABEL = '내보내기 옵션';
+export const EXPORT_MD_OPTION = 'Markdown으로 내보내기';
+export const EXPORT_PDF_OPTION = 'PDF로 내보내기';
 
 // Command palette
 export const CMD_NEW_CHAT = '새 대화';
@@ -141,6 +144,7 @@ export const ARIA_TOKEN_USAGE = '토큰 사용량';
 export const TOKEN_INPUT_TITLE = '입력 토큰';
 export const TOKEN_OUTPUT_TITLE = '출력 토큰';
 export const TOKEN_TOTAL_TITLE = '총 토큰';
+export const TOKEN_USAGE_PROGRESS_LABEL = '토큰 사용률';
 
 // FileAttachment
 export const ARIA_FILE_ATTACHMENT = '파일 첨부';

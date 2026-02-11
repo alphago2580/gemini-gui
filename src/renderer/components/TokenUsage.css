@@ -32,3 +32,10 @@
   color: var(--text-secondary);
   font-weight: 600;
 }
+
+.token-usage-progress {
+  display: inline-flex;
+  align-items: center;
+  min-width: 80px;
+  margin-left: 0.25rem;
+}

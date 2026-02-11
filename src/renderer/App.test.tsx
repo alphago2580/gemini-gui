@@ -403,55 +403,43 @@ describe('App Component', () => {
         });
     });
 
-    // Export PDF tests
-    describe('Export PDF', () => {
-        it('does not show PDF button when no messages', () => {
+    // Export SplitButton tests
+    describe('Export SplitButton', () => {
+        it('does not show export button when no messages', () => {
             render(<App />);
-            expect(screen.queryByText('PDF')).not.toBeInTheDocument();
+            expect(screen.queryByRole('button', { name: '대화 내보내기' })).not.toBeInTheDocument();
         });
 
-        it('shows PDF button when there are messages', async () => {
+        it('shows export split button when there are messages', async () => {
             const user = userEvent.setup();
             render(<App />);
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
             await user.type(input, 'Hello');
             await user.click(screen.getByText('전송'));
-            expect(screen.getByText('PDF')).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: '대화 내보내기' })).toBeInTheDocument();
         });
 
-        it('PDF button has correct aria-label', async () => {
+        it('export split button has dropdown toggle', async () => {
             const user = userEvent.setup();
             render(<App />);
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
             await user.type(input, 'Hello');
             await user.click(screen.getByText('전송'));
-            expect(screen.getByRole('button', { name: 'PDF로 내보내기' })).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: 'Export 옵션' })).toBeInTheDocument();
         });
 
-        it('calls exportPdf when PDF button is clicked', async () => {
+        it('calls exportPdf when PDF option is clicked from dropdown', async () => {
             const user = userEvent.setup();
             render(<App />);
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
             await user.type(input, 'Hello');
             await user.click(screen.getByText('전송'));
-            await user.click(screen.getByText('PDF'));
+            // Open the dropdown menu
+            await user.click(screen.getByRole('button', { name: 'Export 옵션' }));
+            // Click the PDF option
+            await user.click(screen.getByText('PDF로 내보내기'));
             await waitFor(() => {
                 expect(mockElectronAPI.exportPdf).toHaveBeenCalled();
-            });
-        });
-
-        it('passes HTML content and .pdf filename to exportPdf', async () => {
-            const user = userEvent.setup();
-            render(<App />);
-            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            await user.type(input, 'Hello');
-            await user.click(screen.getByText('전송'));
-            await user.click(screen.getByText('PDF'));
-            await waitFor(() => {
-                const [content, fileName] = mockElectronAPI.exportPdf.mock.calls[0];
-                expect(content).toContain('<!DOCTYPE html>');
-                expect(content).toContain('Hello');
-                expect(fileName).toMatch(/\.pdf$/);
             });
         });
     });

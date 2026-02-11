@@ -25,6 +25,8 @@ import PerformancePanel from './components/PerformancePanel';
 import MessageSearch from './components/MessageSearch';
 import InputPreview from './components/InputPreview';
 import PinnedMessages from './components/PinnedMessages';
+import SplitButton from './components/SplitButton';
+import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
 import EmojiReactionPicker from './components/EmojiReactionPicker';
@@ -319,6 +321,12 @@ const App: React.FC = () => {
     currentConversationId,
   });
 
+  // Export split button options
+  const exportOptions: SplitButtonOption[] = useMemo(() => [
+    { id: 'export-md', label: S.EXPORT_MD_OPTION, icon: '📄', onClick: handleExport },
+    { id: 'export-pdf', label: S.EXPORT_PDF_OPTION, icon: '📑', onClick: handleExportPdf },
+  ], [handleExport, handleExportPdf]);
+
   // Command palette commands
   const commands: Command[] = useMemo(() => [
     { id: 'new-chat', label: S.CMD_NEW_CHAT, shortcut: 'Ctrl+N', action: handleNewChat },
@@ -399,22 +407,14 @@ const App: React.FC = () => {
               >
                 {S.CLEAR_BUTTON}
               </button>
-              <button
-                className="header-action-btn"
+              <SplitButton
+                label={S.EXPORT_BUTTON}
                 onClick={handleExport}
-                aria-label={S.ARIA_EXPORT}
-                title={S.TITLE_EXPORT}
-              >
-                {S.EXPORT_BUTTON}
-              </button>
-              <button
-                className="header-action-btn"
-                onClick={handleExportPdf}
-                aria-label={S.ARIA_EXPORT_PDF}
-                title={S.TITLE_EXPORT_PDF}
-              >
-                {S.PDF_BUTTON}
-              </button>
+                options={exportOptions}
+                variant="secondary"
+                size="small"
+                ariaLabel={S.ARIA_EXPORT}
+              />
               <button
                 className="header-action-btn"
                 onClick={dialogs.openCodeSnippets}
@@ -501,7 +501,7 @@ const App: React.FC = () => {
               <TypingIndicator isStreaming={isStreaming} />
             )}
             {tokenUsage && !isLoading && (
-              <TokenUsage usage={tokenUsage} />
+              <TokenUsage usage={tokenUsage} maxTokens={settings.maxTokens} />
             )}
             {!isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
               <button

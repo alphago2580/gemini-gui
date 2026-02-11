@@ -119,4 +119,43 @@ describe('TokenUsage', () => {
     expect(screen.getByText('= 800')).toBeInTheDocument();
     expect(screen.queryByText('100')).not.toBeInTheDocument();
   });
+
+  describe('ProgressBar integration', () => {
+    it('does not show progress bar without maxTokens', () => {
+      const { container } = render(<TokenUsage usage={defaultUsage} />);
+      expect(container.querySelector('.token-usage-progress')).not.toBeInTheDocument();
+    });
+
+    it('shows progress bar when maxTokens is provided', () => {
+      render(<TokenUsage usage={defaultUsage} maxTokens={1000} />);
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    });
+
+    it('does not show progress bar when maxTokens is 0', () => {
+      const { container } = render(<TokenUsage usage={defaultUsage} maxTokens={0} />);
+      expect(container.querySelector('.token-usage-progress')).not.toBeInTheDocument();
+    });
+
+    it('shows percentage on progress bar', () => {
+      render(<TokenUsage usage={defaultUsage} maxTokens={1000} />);
+      expect(screen.getByText('15%')).toBeInTheDocument();
+    });
+
+    it('uses warning variant when usage exceeds 70%', () => {
+      const highUsage = { inputTokens: 500, outputTokens: 300, totalTokens: 800 };
+      const { container } = render(<TokenUsage usage={highUsage} maxTokens={1000} />);
+      expect(container.querySelector('.progress-fill--warning')).toBeInTheDocument();
+    });
+
+    it('uses error variant when usage exceeds 90%', () => {
+      const veryHighUsage = { inputTokens: 600, outputTokens: 400, totalTokens: 1000 };
+      const { container } = render(<TokenUsage usage={veryHighUsage} maxTokens={1000} />);
+      expect(container.querySelector('.progress-fill--error')).toBeInTheDocument();
+    });
+
+    it('uses default variant when usage is below 70%', () => {
+      const { container } = render(<TokenUsage usage={defaultUsage} maxTokens={1000} />);
+      expect(container.querySelector('.progress-fill--default')).toBeInTheDocument();
+    });
+  });
 });
