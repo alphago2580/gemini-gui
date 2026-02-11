@@ -300,17 +300,15 @@ describe('Settings', () => {
       expect(screen.getByRole('switch', { name: '고대비 모드' })).toBeInTheDocument();
     });
 
-    it('shows OFF when high contrast is disabled', () => {
+    it('shows unchecked state when high contrast is disabled', () => {
       render(<Settings {...defaultProps} highContrast={false} onHighContrastChange={vi.fn()} />);
       const toggle = screen.getByRole('switch', { name: '고대비 모드' });
-      expect(toggle).toHaveTextContent('OFF');
       expect(toggle).toHaveAttribute('aria-checked', 'false');
     });
 
-    it('shows ON when high contrast is enabled', () => {
+    it('shows checked state when high contrast is enabled', () => {
       render(<Settings {...defaultProps} highContrast={true} onHighContrastChange={vi.fn()} />);
       const toggle = screen.getByRole('switch', { name: '고대비 모드' });
-      expect(toggle).toHaveTextContent('ON');
       expect(toggle).toHaveAttribute('aria-checked', 'true');
     });
 
@@ -385,6 +383,37 @@ describe('Settings', () => {
     it('high contrast hint text is displayed', () => {
       render(<Settings {...defaultProps} highContrast={false} onHighContrastChange={vi.fn()} />);
       expect(screen.getByText('가독성을 높인 고대비 색상')).toBeInTheDocument();
+    });
+  });
+
+  describe('Switch toggle integration', () => {
+    it('renders Switch components for notification and timestamp toggles', () => {
+      render(<Settings {...defaultProps} settings={{ ...defaultSettings, notificationSound: false, showTimestamps: false }} />);
+      const switches = screen.getAllByRole('switch');
+      expect(switches.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('notification sound Switch reflects checked state', () => {
+      render(<Settings {...defaultProps} settings={{ ...defaultSettings, notificationSound: true }} />);
+      const toggle = screen.getByRole('switch', { name: '알림음' });
+      expect(toggle).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('notification sound Switch toggles on click', () => {
+      render(<Settings {...defaultProps} settings={{ ...defaultSettings, notificationSound: false }} />);
+      const toggle = screen.getByRole('switch', { name: '알림음' });
+      fireEvent.click(toggle);
+      // Save and verify the new value
+      fireEvent.click(screen.getByText('저장'));
+      expect(defaultProps.onSave).toHaveBeenCalledWith(
+        expect.objectContaining({ notificationSound: true })
+      );
+    });
+
+    it('show-timestamps Switch reflects checked state', () => {
+      render(<Settings {...defaultProps} settings={{ ...defaultSettings, showTimestamps: true }} />);
+      const toggle = screen.getByRole('switch', { name: '타임스탬프 표시' });
+      expect(toggle).toHaveAttribute('aria-checked', 'true');
     });
   });
 

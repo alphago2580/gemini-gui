@@ -27,6 +27,7 @@ import InputPreview from './components/InputPreview';
 import PinnedMessages from './components/PinnedMessages';
 import SplitButton from './components/SplitButton';
 import Chip from './components/Chip';
+import Tooltip from './components/Tooltip';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -400,14 +401,15 @@ const App: React.FC = () => {
           </div>
           {messages.length > 0 && (
             <div className="header-actions">
-              <button
-                className="header-action-btn"
-                onClick={handleClearConversation}
-                aria-label={S.ARIA_CLEAR}
-                title={S.TITLE_CLEAR}
-              >
-                {S.CLEAR_BUTTON}
-              </button>
+              <Tooltip content={S.TITLE_CLEAR} position="bottom">
+                <button
+                  className="header-action-btn"
+                  onClick={handleClearConversation}
+                  aria-label={S.ARIA_CLEAR}
+                >
+                  {S.CLEAR_BUTTON}
+                </button>
+              </Tooltip>
               <SplitButton
                 label={S.EXPORT_BUTTON}
                 onClick={handleExport}
@@ -416,30 +418,33 @@ const App: React.FC = () => {
                 size="small"
                 ariaLabel={S.ARIA_EXPORT}
               />
-              <button
-                className="header-action-btn"
-                onClick={dialogs.openCodeSnippets}
-                aria-label={S.ARIA_CODE_SNIPPETS}
-                title={S.TITLE_CODE_SNIPPETS}
-              >
-                {S.CODE_BUTTON}
-              </button>
-              <button
-                className="header-action-btn"
-                onClick={dialogs.openLinkCollection}
-                aria-label={S.ARIA_LINK_COLLECTION}
-                title={S.TITLE_LINK_COLLECTION}
-              >
-                {S.LINKS_BUTTON}
-              </button>
-              <button
-                className="header-action-btn"
-                onClick={dialogs.openStats}
-                aria-label={S.ARIA_CONVERSATION_STATS}
-                title={S.TITLE_CONVERSATION_STATS}
-              >
-                {S.STATS_BUTTON}
-              </button>
+              <Tooltip content={S.TITLE_CODE_SNIPPETS} position="bottom">
+                <button
+                  className="header-action-btn"
+                  onClick={dialogs.openCodeSnippets}
+                  aria-label={S.ARIA_CODE_SNIPPETS}
+                >
+                  {S.CODE_BUTTON}
+                </button>
+              </Tooltip>
+              <Tooltip content={S.TITLE_LINK_COLLECTION} position="bottom">
+                <button
+                  className="header-action-btn"
+                  onClick={dialogs.openLinkCollection}
+                  aria-label={S.ARIA_LINK_COLLECTION}
+                >
+                  {S.LINKS_BUTTON}
+                </button>
+              </Tooltip>
+              <Tooltip content={S.TITLE_CONVERSATION_STATS} position="bottom">
+                <button
+                  className="header-action-btn"
+                  onClick={dialogs.openStats}
+                  aria-label={S.ARIA_CONVERSATION_STATS}
+                >
+                  {S.STATS_BUTTON}
+                </button>
+              </Tooltip>
             </div>
           )}
         </header>

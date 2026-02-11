@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Settings.css';
 import type { AppSettings, ThemeMode } from '../../preload/types';
 import Divider from './Divider';
+import Switch from './Switch';
 import * as S from '../constants/strings';
 
 export interface SettingsProps {
@@ -70,16 +71,13 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
                 {S.HIGH_CONTRAST_LABEL}
                 <span className="hint">{S.HIGH_CONTRAST_HINT}</span>
               </label>
-              <button
+              <Switch
                 id="high-contrast"
-                className={`toggle-btn${highContrast ? ' active' : ''}`}
-                onClick={() => onHighContrastChange(!highContrast)}
-                role="switch"
-                aria-checked={highContrast}
+                checked={highContrast}
+                onChange={(val) => onHighContrastChange(val)}
+                size="small"
                 aria-label={S.ARIA_HIGH_CONTRAST}
-              >
-                {highContrast ? 'ON' : 'OFF'}
-              </button>
+              />
             </div>
           )}
 
@@ -90,16 +88,13 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
               {S.NOTIFICATION_SOUND_LABEL}
               <span className="hint">{S.NOTIFICATION_SOUND_HINT}</span>
             </label>
-            <button
+            <Switch
               id="notification-sound"
-              className={`toggle-btn${localSettings.notificationSound ? ' active' : ''}`}
-              onClick={() => setLocalSettings({ ...localSettings, notificationSound: !localSettings.notificationSound })}
-              role="switch"
-              aria-checked={localSettings.notificationSound}
+              checked={localSettings.notificationSound ?? false}
+              onChange={(val) => setLocalSettings({ ...localSettings, notificationSound: val })}
+              size="small"
               aria-label={S.ARIA_NOTIFICATION_SOUND}
-            >
-              {localSettings.notificationSound ? 'ON' : 'OFF'}
-            </button>
+            />
           </div>
 
           <div className="setting-group">
@@ -107,16 +102,13 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
               {S.SHOW_TIMESTAMPS_LABEL}
               <span className="hint">{S.SHOW_TIMESTAMPS_HINT}</span>
             </label>
-            <button
+            <Switch
               id="show-timestamps"
-              className={`toggle-btn${localSettings.showTimestamps ? ' active' : ''}`}
-              onClick={() => setLocalSettings({ ...localSettings, showTimestamps: !localSettings.showTimestamps })}
-              role="switch"
-              aria-checked={localSettings.showTimestamps}
+              checked={localSettings.showTimestamps ?? false}
+              onChange={(val) => setLocalSettings({ ...localSettings, showTimestamps: val })}
+              size="small"
               aria-label={S.ARIA_SHOW_TIMESTAMPS}
-            >
-              {localSettings.showTimestamps ? 'ON' : 'OFF'}
-            </button>
+            />
           </div>
 
           <div className="setting-group">
