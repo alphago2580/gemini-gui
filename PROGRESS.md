@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2746 tests)
+- **Test Status**: Passing (2864 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -734,3 +734,14 @@
 - **useKeyCombo.test.ts**: Added 8 tests — modifier-only keydown ignored, meta as mod, re-trigger after reset, sequence trim to maxLen, shift/alt modifiers, single-key combo, default 500ms timeout
 - **usePerformanceMonitor.test.ts**: Added 8 tests — stops recording after disable, enable-disable-enable preserves data, multiple resets, reset-then-record fresh, update phase correct, fastest render update, memory rounding
 - Total tests: 2655 → 2746 (128 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 11 (+118 tests)
+- **mathRenderer.test.ts**: Added 49 tests — textrm/textbf/bf commands, bar/overline, backslash space, empty input, HTML escaping (ampersand/quotes), single-char sub/superscript, non-mappable <sup>/<sub>, all symbol categories (mp, equiv, sim, arrows, big operators, set theory, logic, misc, dots, brackets, typography, others), all 28 math functions, frac single-char args, all Greek lowercase/uppercase/variant letters
+- **MessageSearch.test.tsx**: Added 10 tests — ArrowDown/ArrowUp selection bounds, Enter with no results, selectedIndex reset on query change, empty query hides count/empty state, panel click stopPropagation, mouseEnter updates selection, mark highlighting, aria-selected
+- **CodeSnippets.test.tsx**: Added 10 tests — non-Escape key ignored, code content in <code>, language labels, active filter CSS class, dialog aria-label, "plain" for no-language blocks, second message navigate index, copy/navigate button titles
+- **syntaxHighlight.test.ts**: Added 20 tests — 0X uppercase hex, identifiers as text, line/block comment behavior, CSS/JSON no line comments/no functions, Python # after code, Python/bash no block comments, whitespace input, multiple punctuation, JS/Python/bash keyword groups, code reconstruction for Python/bash, $/_ identifier starts
+- **LinkCollection.test.tsx**: Added 8 tests — clipboard copy/checkmark/failure, link title attribute, bare-link-only URL, second message navigate, tabIndex -1, label vs URL-only display
+- **KeyboardShortcutHelp.test.tsx**: Added 10 tests — group count, Escape/Enter/Shift+Enter/Ctrl+K/Ctrl+L/Ctrl+, shortcuts, SHORTCUT_GROUPS structure validation, close button text, header/content CSS sections
+- **QuickSwitcher.test.tsx**: Added 9 tests — Enter with empty results, mouseEnter selection, current CSS class, null conversationId, onChange resets index, listbox role, placeholder text, dates meta, empty conversations
+- **conversationStats.test.ts**: Added 12 tests — rounding to 1 decimal, tied longest/shortest picks first, full empty stats shape, 100 conversations stress test, averageMessageLength rounding, only-assistant messages, all-empty-content, formatNumber edge cases (0, boundary values)
+- Total tests: 2746 → 2864 (128 test files, all passing)
