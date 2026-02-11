@@ -49,6 +49,11 @@ import Badge from './components/Badge';
 import Rating from './components/Rating';
 import MeterBar from './components/MeterBar';
 import Popover from './components/Popover';
+import SegmentedControl from './components/SegmentedControl';
+import type { SegmentedControlOption } from './components/SegmentedControl';
+import Timeline from './components/Timeline';
+import type { TimelineItem } from './components/Timeline';
+import TagInput from './components/TagInput';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -183,6 +188,19 @@ const App: React.FC = () => {
     setMessageRatings(prev => ({ ...prev, [messageId]: rating }));
   }, [setMessageRatings]);
 
+  // View mode (chat / compact)
+  const [viewMode, setViewMode] = useLocalStorage('gemini-view-mode', 'chat');
+  const viewModeOptions: SegmentedControlOption[] = useMemo(() => [
+    { id: 'chat', label: S.SEGMENTED_VIEW_CHAT },
+    { id: 'compact', label: S.SEGMENTED_VIEW_COMPACT },
+  ], []);
+
+  // Message tags (persistent)
+  const [messageTags, setMessageTags] = useLocalStorage<Record<string, string[]>>(S.STORAGE_KEY_MESSAGE_TAGS, {});
+  const handleTagsChange = useCallback((messageId: string, tags: string[]) => {
+    setMessageTags(prev => ({ ...prev, [messageId]: tags }));
+  }, [setMessageTags]);
+
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
 
@@ -247,6 +265,16 @@ const App: React.FC = () => {
     () => calculateConversationStats(conversations),
     [conversations]
   );
+
+  // Timeline from recent conversations (for stats panel)
+  const recentTimelineItems: TimelineItem[] = useMemo(() => {
+    return conversations.slice(0, 5).map((conv, idx) => ({
+      id: conv.id,
+      title: conv.title || S.UNTITLED_CONVERSATION,
+      description: `${conv.messages?.length || 0}${S.MESSAGE_COUNT_SUFFIX}`,
+      variant: idx === 0 ? 'info' as const : 'default' as const,
+    }));
+  }, [conversations]);
 
   // Current conversation title (for window title sync)
   const currentConvTitle = useMemo(() => {
@@ -513,6 +541,13 @@ const App: React.FC = () => {
                 <div>{S.POPOVER_SESSION_MODEL}: {S.MODEL_DISPLAY_NAMES[settings.model] || settings.model}</div>
               </div>
             </Popover>
+            <SegmentedControl
+              options={viewModeOptions}
+              value={viewMode}
+              onChange={setViewMode}
+              size="small"
+              ariaLabel={S.SEGMENTED_VIEW_ARIA}
+            />
           </div>
           {messages.length > 0 && (
             <div className="header-actions">
@@ -608,7 +643,7 @@ const App: React.FC = () => {
             onNavigate={msgActions.handleNavigateToMessage}
             onUnpin={msgActions.handleUnpinMessage}
           />
-          <div className="messages" role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleScrollWithProgress}>
+          <div className={`messages${viewMode === 'compact' ? ' messages--compact' : ''}`} role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleScrollWithProgress}>
             <ReadingProgressBar progress={readingProgress} isVisible={messages.length > 0} />
             {messages.length === 0 && (
               <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
@@ -647,6 +682,16 @@ const App: React.FC = () => {
                         />
                       ))}
                     </div>
+                  )}
+                  {message.id && !isLoading && (
+                    <TagInput
+                      tags={messageTags[message.id] || []}
+                      onChange={(tags) => handleTagsChange(message.id!, tags)}
+                      placeholder={S.TAG_INPUT_PLACEHOLDER}
+                      size="small"
+                      maxTags={5}
+                      label={S.TAG_INPUT_LABEL}
+                    />
                   )}
                 </div>
               );
@@ -818,6 +863,9 @@ const App: React.FC = () => {
         onClose={dialogs.closeStats}
         stats={conversationStatsData}
       />
+      {dialogs.isStatsOpen && recentTimelineItems.length > 0 && (
+        <Timeline items={recentTimelineItems} orientation="vertical" />
+      )}
       <Drawer
         open={dialogs.isBookmarkDrawerOpen}
         onClose={dialogs.closeBookmarkDrawer}

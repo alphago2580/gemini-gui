@@ -533,3 +533,16 @@ export const POPOVER_SESSION_TITLE = '세션 정보';
 export const POPOVER_SESSION_STATUS = '상태';
 export const POPOVER_SESSION_MESSAGES = '메시지 수';
 export const POPOVER_SESSION_MODEL = '모델';
+
+// SegmentedControl (view mode)
+export const SEGMENTED_VIEW_ARIA = '보기 모드';
+export const SEGMENTED_VIEW_CHAT = '채팅';
+export const SEGMENTED_VIEW_COMPACT = '간략';
+
+// Timeline (conversation activity)
+export const TIMELINE_ARIA = '대화 타임라인';
+
+// TagInput (message tags)
+export const TAG_INPUT_PLACEHOLDER = '태그 추가...';
+export const TAG_INPUT_LABEL = '메시지 태그';
+export const STORAGE_KEY_MESSAGE_TAGS = 'gemini-message-tags';
