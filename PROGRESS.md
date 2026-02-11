@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5054 tests)
-- **Last Agent Run**: Agent 4 (Integrator)
+- **Test Status**: Passing (5053 tests)
+- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 7
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1112,3 +1112,11 @@
 - Added Korean UI strings for Drawer, ScrollToTop, EmptyState, CopyButton, Collapsible, ImageViewer
 - Imported **EmptyState** and **Kbd** components for availability in App.tsx
 - Total tests: 4987 → 5054 (185 test files, all passing)
+
+### Agent 4 (Integrator) — Integration Batch 7: Select, SpeedDial, AlertBanner
+- Replaced native `<select>` in **Settings** with **Select** component for model selection (searchable dropdown with keyboard nav)
+- Integrated **SpeedDial** floating action button with 5 quick actions: new chat, search, bookmarks, settings, shortcuts
+- Integrated **AlertBanner** for token usage warning when consumption exceeds 90%
+- Updated Settings and App tests to work with new Select-based model selection
+- Added Korean UI strings for SpeedDial and AlertBanner
+- Total tests: 5053 (185 test files, all passing)
