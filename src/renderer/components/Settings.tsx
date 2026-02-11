@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './Settings.css';
 import type { AppSettings, ThemeMode } from '../../preload/types';
 import Divider from './Divider';
 import Switch from './Switch';
 import Accordion from './Accordion';
 import type { AccordionItem } from './Accordion';
+import Select from './Select';
+import type { SelectOption } from './Select';
 import * as S from '../constants/strings';
 
 export interface SettingsProps {
@@ -26,6 +28,11 @@ const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
 
 const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, themeMode, onThemeChange, highContrast = false, onHighContrastChange }) => {
   const [localSettings, setLocalSettings] = useState(settings);
+
+  const modelOptions: SelectOption[] = useMemo(() =>
+    Object.entries(S.MODEL_DISPLAY_NAMES).map(([value, label]) => ({ value, label })),
+    []
+  );
 
   // Reset local settings when dialog opens or settings change externally
   useEffect(() => {
@@ -199,20 +206,14 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
           <Divider label={S.SETTINGS_SECTION_MODEL} spacing="small" />
 
           <div className="setting-group">
-            <label htmlFor="model">
-              {S.MODEL_SELECT_LABEL}
-              <span className="hint">{S.MODEL_SELECT_HINT}</span>
-            </label>
-            <select
-              id="model"
+            <Select
+              label={S.MODEL_SELECT_LABEL}
+              options={modelOptions}
               value={localSettings.model}
-              onChange={(e) => setLocalSettings({ ...localSettings, model: e.target.value })}
-              aria-label={S.ARIA_MODEL_SELECT}
-            >
-              {Object.entries(S.MODEL_DISPLAY_NAMES).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
+              onChange={(val) => setLocalSettings({ ...localSettings, model: val as string })}
+              size="md"
+              variant="outlined"
+            />
           </div>
 
           <Accordion

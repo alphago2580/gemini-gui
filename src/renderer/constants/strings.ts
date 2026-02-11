@@ -501,3 +501,16 @@ export const COLLAPSIBLE_TOKEN_DETAILS = '토큰 상세 정보';
 
 // ImageViewer
 export const IMAGE_VIEWER_ARIA = '이미지 뷰어';
+
+// SpeedDial
+export const SPEED_DIAL_ARIA = '빠른 액션';
+export const SPEED_DIAL_NEW_CHAT = '새 대화';
+export const SPEED_DIAL_SEARCH = '검색';
+export const SPEED_DIAL_BOOKMARKS = '북마크';
+export const SPEED_DIAL_SETTINGS = '설정';
+export const SPEED_DIAL_SHORTCUTS = '단축키';
+
+// AlertBanner
+export const ALERT_BANNER_STREAMING = '응답 생성 중입니다. 잠시 기다려 주세요.';
+export const ALERT_BANNER_TOKEN_WARNING_TITLE = '토큰 한도 경고';
+export const ALERT_BANNER_TOKEN_WARNING = '토큰 사용량이 90%를 초과했습니다.';

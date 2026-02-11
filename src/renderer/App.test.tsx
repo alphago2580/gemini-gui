@@ -1306,9 +1306,10 @@ describe('App Component', () => {
             // Open settings
             fireEvent.keyDown(document, { key: ',', ctrlKey: true });
 
-            // Change model
-            const modelSelect = screen.getByLabelText('모델 선택');
-            fireEvent.change(modelSelect, { target: { value: 'gemini-2.0-flash' } });
+            // Change model via Select component
+            const combobox = screen.getByRole('combobox', { name: '모델 선택' });
+            fireEvent.click(combobox);
+            fireEvent.click(screen.getByText('Gemini 2.0 Flash'));
 
             // Save settings
             await user.click(screen.getByText('저장'));
@@ -1323,7 +1324,10 @@ describe('App Component', () => {
         it('displays model selection in settings with all options', async () => {
             render(<App />);
             fireEvent.keyDown(document, { key: ',', ctrlKey: true });
-            expect(screen.getByLabelText('모델 선택')).toBeInTheDocument();
+            const combobox = screen.getByRole('combobox', { name: '모델 선택' });
+            expect(combobox).toBeInTheDocument();
+            // Open the Select dropdown to see model options
+            fireEvent.click(combobox);
             expect(screen.getByText('Gemini 2.5 Pro')).toBeInTheDocument();
             expect(screen.getByText('Gemini 2.5 Flash')).toBeInTheDocument();
         });
