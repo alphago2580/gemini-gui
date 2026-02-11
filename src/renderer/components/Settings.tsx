@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Settings.css';
 import type { AppSettings, ThemeMode } from '../../preload/types';
+import Divider from './Divider';
 import * as S from '../constants/strings';
 
 export interface SettingsProps {
@@ -61,6 +62,8 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
             </div>
           </div>
 
+          <Divider label={S.SETTINGS_SECTION_APPEARANCE} spacing="small" />
+
           {onHighContrastChange && (
             <div className="setting-group">
               <label htmlFor="high-contrast">
@@ -79,6 +82,8 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
               </button>
             </div>
           )}
+
+          <Divider label={S.SETTINGS_SECTION_NOTIFICATIONS} spacing="small" />
 
           <div className="setting-group">
             <label htmlFor="notification-sound">
@@ -139,6 +144,8 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
               </button>
             )}
           </div>
+
+          <Divider label={S.SETTINGS_SECTION_MODEL} spacing="small" />
 
           <div className="setting-group">
             <label htmlFor="model">

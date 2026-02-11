@@ -387,4 +387,27 @@ describe('Settings', () => {
       expect(screen.getByText('가독성을 높인 고대비 색상')).toBeInTheDocument();
     });
   });
+
+  describe('Divider section separators', () => {
+    it('renders appearance section divider', () => {
+      render(<Settings {...defaultProps} onHighContrastChange={vi.fn()} />);
+      expect(screen.getByText('외관')).toBeInTheDocument();
+    });
+
+    it('renders notifications section divider', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByText('알림 및 표시')).toBeInTheDocument();
+    });
+
+    it('renders model section divider', () => {
+      render(<Settings {...defaultProps} />);
+      expect(screen.getByText('모델 설정')).toBeInTheDocument();
+    });
+
+    it('renders three separator roles', () => {
+      render(<Settings {...defaultProps} onHighContrastChange={vi.fn()} />);
+      const separators = screen.getAllByRole('separator');
+      expect(separators.length).toBeGreaterThanOrEqual(3);
+    });
+  });
 });

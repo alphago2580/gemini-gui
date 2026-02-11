@@ -26,6 +26,7 @@ import MessageSearch from './components/MessageSearch';
 import InputPreview from './components/InputPreview';
 import PinnedMessages from './components/PinnedMessages';
 import SplitButton from './components/SplitButton';
+import Chip from './components/Chip';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -488,9 +489,12 @@ const App: React.FC = () => {
                   {msgReactions.length > 0 && (
                     <div className="message-reactions">
                       {msgReactions.map(r => (
-                        <span key={r.emoji} className="message-reaction-badge" title={`${r.emoji} ${r.count}`}>
-                          {r.emoji}{r.count > 1 ? ` ${r.count}` : ''}
-                        </span>
+                        <Chip
+                          key={r.emoji}
+                          label={r.count > 1 ? `${r.emoji} ${r.count}` : r.emoji}
+                          variant="default"
+                          icon={undefined}
+                        />
                       ))}
                     </div>
                   )}

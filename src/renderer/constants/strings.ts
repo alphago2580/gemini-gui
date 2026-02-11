@@ -80,6 +80,9 @@ export const MESSAGE_COUNT_SUFFIX = '개 메시지';
 // Settings
 export const SETTINGS_TITLE = '설정';
 export const ARIA_SETTINGS = '설정';
+export const SETTINGS_SECTION_APPEARANCE = '외관';
+export const SETTINGS_SECTION_NOTIFICATIONS = '알림 및 표시';
+export const SETTINGS_SECTION_MODEL = '모델 설정';
 export const ARIA_CLOSE_SETTINGS = '설정 닫기';
 export const THEME_LABEL = '테마';
 export const THEME_LIGHT = '라이트';
