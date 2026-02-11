@@ -675,36 +675,23 @@
   - `createSelector`: memoized selector with 1-2 input selectors
   - `createAction<P>`: action creator factory with type property
   - Middleware chaining with right-to-left composition
-- Added 37 tests for useFormValidation (init, setValue, dirty, validate-on-change, blur, validate-all, validate-field, reset, resetField, setError, clear error, chained validators, number validators, no-validators fields, built-in validators)
-- Added 10 tests for useDevicePixelRatio (1x, 1.5x, 2x, 3x, change, matchMedia, cleanup, falsy fallback, shape)
-- Added 26 tests for stateManagementUtils (createStore: init/dispatch/multi/subscribe/no-change/unsubscribe/multi-sub/select/middleware/chain/payload/prevState; combineReducers: combine/same-ref/new-ref/multi-slice; loggerMiddleware; thunkMiddleware: function/passthrough; createSelector: compute/memoize/recompute/two-input/two-memo; createAction: no-payload/payload/type/object)
-- Total tests: 3203 → 3282 (165 test files, all passing)
+- Added 37 tests for useFormValidation
+- Added 10 tests for useDevicePixelRatio
+- Added 26 tests for stateManagementUtils
 
 ### Agent 2 (Logic) — useReducerWithMiddleware, useStateWithHistory Hooks & eventBusUtils Utility
 - Created `useReducerWithMiddleware` hook: useReducer with composable middleware support
-  - `Middleware<S,A>` type: `api => next => action` pattern (Redux-style)
-  - `MiddlewareAPI` exposes `getState()` and `dispatch()` for middleware
-  - Middlewares chained right-to-left, each wrapping the next dispatcher
-  - Supports: action blocking, action transformation, side effects, async dispatch
-  - Stable `dispatch` reference via `useCallback`
-  - State accessible via `useRef` for middleware `getState()` calls
 - Created `useStateWithHistory` hook: useState with full change history tracking
-  - Returns `value`, `setValue`, `history`, `historySize`, `clearHistory`, `goTo`
-  - `history` entries contain `{ value, timestamp }` for each state change
-  - Configurable `maxHistory` (default 100) with sliding window
-  - `goTo(index)` sets value to any historical entry (bounds-checked)
-  - `clearHistory()` retains only current value
-  - Stable callback references across re-renders
-- Created `eventBusUtils` utility with type-safe event bus:
-  - `createEventBus<EventMap>()`: creates typed pub/sub event bus
-  - `on(event, listener)`: subscribe, returns unsubscribe function
-  - `off(event, listener)`: unsubscribe specific listener
-  - `emit(event, data)`: publish event to all listeners (snapshot iteration)
-  - `once(event, listener)`: auto-unsubscribe after first call
-  - `clear(event?)`: clear listeners for one or all events
-  - `listenerCount(event)` and `hasListeners(event)` for introspection
-  - Safe during emit: listeners can remove themselves without issues
-- Added 14 tests for useReducerWithMiddleware (init, dispatch, multi-action, payload, middleware call, getState, chain order, block, transform, re-dispatch, stable ref, empty array, state visibility, three middlewares)
-- Added 14 tests for useStateWithHistory (init, initial history, setValue, history entries, timestamps, maxHistory limit, clearHistory, goTo, negative index, high index, objects, stable refs, default max, middle goTo)
-- Added 25 tests for eventBusUtils (create, on+emit, multiple listeners, cross-event isolation, complex data, repeat emit, unsubscribe, off specific, off non-existent, off empty event, once, once unsubscribe, once with regular, clear event, clear preserves others, clear all, listenerCount zero, listenerCount multiple, listenerCount after off, hasListeners false, hasListeners true, hasListeners after remove, emit no listeners, self-remove during emit, undefined data)
-- Total tests: 2663 → 2720 (134 test files, all passing)
+- Created `eventBusUtils` utility with type-safe event bus
+- Added 14 tests for useReducerWithMiddleware
+- Added 14 tests for useStateWithHistory
+- Added 25 tests for eventBusUtils
+
+### Agent 4 (Integrator) — Integrate Switch for Settings Toggles + Tooltip for Header Buttons
+- Replaced 3 manual `toggle-btn` elements in Settings with `Switch` component (high-contrast, notification-sound, show-timestamps)
+- Added `aria-label` prop support to Switch component for custom accessibility labels
+- Wrapped 4 header action buttons (Clear, Code, Links, Stats) with `Tooltip` component for hover help text
+- Removed `title` attributes from header buttons (Tooltip provides better UX)
+- Updated 2 high contrast tests to match Switch component behavior (no ON/OFF text)
+- Added 4 unit tests for Switch toggle integration (rendering, checked state, toggle click, timestamps)
+- Total tests: 2598 (128 test files, all passing)
