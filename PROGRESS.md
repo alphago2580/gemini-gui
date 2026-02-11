@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5184+ tests)
-- **Last Agent Run**: Agent 4 (Integrator) — Integration Batch 7
+- **Test Status**: Passing (5269 tests)
+- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1113,7 +1113,6 @@
 - Imported **EmptyState** and **Kbd** components for availability in App.tsx
 - Total tests: 4987 → 5054 (185 test files, all passing)
 
-<<<<<<< HEAD
 ### Agent 2 (Logic) — useMousePosition, useColorScheme Hooks & retryUtils Utility
 - Created `useMousePosition` hook: tracks mouse position relative to window or element
   - Absolute (clientX/clientY) and element-relative coordinates
@@ -1166,3 +1165,27 @@
 - Updated Settings and App tests to work with new Select-based model selection
 - Added Korean UI strings for SpeedDial and AlertBanner
 - Total tests: 5184+ (191 test files, all passing)
+
+### Agent 2 (Logic) — useScrollLock, useHistoryState Hooks & measureUtils Utility
+- Created `useScrollLock` hook: locks/unlocks document body scrolling
+  - Preserves and restores scroll position on unlock
+  - lock/unlock/toggle functions with stable references
+  - Restores original overflow on unmount
+- Created `useHistoryState` hook: manages state synced with browser History API
+  - push/replace state with optional URL updates
+  - Responds to popstate events (back/forward navigation)
+  - Preserves other history state keys
+  - Restores initial state on mount from history
+- Created `measureUtils` utility for measurements and unit conversions:
+  - `formatBytes`: human-readable file size formatting (B/KB/MB/GB/TB/PB)
+  - `convertTemperature`: Celsius/Fahrenheit/Kelvin conversion
+  - `convertLength`: mm/cm/m/km/in/ft/yd/mi conversion
+  - `convertWeight`: mg/g/kg/oz/lb/ton conversion
+  - `distance2D`/`distance3D`: point distance calculations
+  - `degreesToRadians`/`radiansToDegrees`: angle conversion
+  - `formatDuration`: ms to human-readable duration (ms/s/m/h)
+  - `percentage`: percentage calculation with configurable precision
+- Added 13 tests for useScrollLock (init unlocked/locked, lock, unlock, toggle, restore scroll position, restore on unmount, stable refs x3, shape, idempotent lock/unlock)
+- Added 14 tests for useHistoryState (init default, restore from history, push/push-with-URL, replace/replace-with-URL, popstate, popstate no key, popstate null, cleanup, stable refs, shape, object state, preserve keys)
+- Added 58 tests for measureUtils (formatBytes: 0/bytes/KB/MB/GB/decimals/negative/TB; temperature: same/C→F/F→C/C→K/K→C/F→K/K→F; length: same/m→km/km→mi/in→cm/ft→m/yd→ft/mm→cm; weight: same/kg→g/kg→lb/lb→kg/oz→g/g→mg/ton→kg; distance2D: zero/horizontal/vertical/diagonal/negative; distance3D: zero/axis/diagonal; degrees/radians: 0/180/360/90/PI/roundtrip; duration: ms/seconds/min-sec/min/hour-min/hour/negative/zero; percentage: simple/zero-total/decimals/100%/over/zero-value)
+- Total tests: 5184 → 5269 (194 test files, all passing)
