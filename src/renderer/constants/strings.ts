@@ -472,3 +472,11 @@ export const BANNER_RETRY = '다시 시도';
 // Settings Accordion sections
 export const SETTINGS_SECTION_GENERAL = '일반';
 export const SETTINGS_SECTION_ADVANCED = '고급 설정';
+
+// Conversation DropdownMenu
+export const CONV_MENU_LABEL = '대화 옵션';
+export const CONV_MENU_OPEN = '대화 열기';
+export const CONV_MENU_DELETE = '삭제';
+
+// ProgressBar — token usage
+export const TOKEN_PROGRESS_LABEL = '토큰 사용량';

@@ -1,9 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import './Sidebar.css';
 import * as S from '../constants/strings';
 import type { Conversation } from '../../preload/types';
 import { useDebounce } from '../hooks/useDebounce';
 import Badge from './Badge';
+import DropdownMenu from './DropdownMenu';
+import type { DropdownMenuEntry } from './DropdownMenu';
 
 export interface SidebarProps {
   onNewChat: () => void;
@@ -30,6 +32,18 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 200);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  const getConversationMenuItems = useCallback((convId: string): DropdownMenuEntry[] => {
+    const items: DropdownMenuEntry[] = [
+      { id: 'select', label: S.CONV_MENU_OPEN, icon: '💬', onClick: () => { onSelectConversation(convId); setOpenMenuId(null); } },
+      { type: 'separator' as const },
+    ];
+    if (onDeleteConversation) {
+      items.push({ id: 'delete', label: S.CONV_MENU_DELETE, icon: '🗑', danger: true, onClick: () => { onDeleteConversation(convId); setOpenMenuId(null); } });
+    }
+    return items;
+  }, [onSelectConversation, onDeleteConversation]);
 
   const filteredConversations = useMemo(() => {
     if (!debouncedSearchQuery.trim()) return conversations;
@@ -116,19 +130,17 @@ const Sidebar: React.FC<SidebarProps> = ({
                       />
                     )}
                   </div>
-                  {onDeleteConversation && (
-                    <button
-                      className="delete-conversation-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteConversation(conv.id);
-                      }}
-                      aria-label={`${S.DELETE_CONVERSATION_PREFIX} ${conv.title}`}
-                      title={S.DELETE_CONVERSATION_TITLE}
-                    >
-                      &times;
-                    </button>
-                  )}
+                  <div className="conversation-actions" onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu
+                      isOpen={openMenuId === conv.id}
+                      onClose={() => setOpenMenuId(null)}
+                      onToggle={() => setOpenMenuId(prev => prev === conv.id ? null : conv.id)}
+                      items={getConversationMenuItems(conv.id)}
+                      trigger={<span aria-hidden="true">⋮</span>}
+                      position="bottom-right"
+                      label={S.CONV_MENU_LABEL}
+                    />
+                  </div>
                 </div>
               ))
             )}

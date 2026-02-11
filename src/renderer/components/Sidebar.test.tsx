@@ -256,9 +256,9 @@ describe('Sidebar', () => {
     });
   });
 
-  // Delete conversation tests
+  // Delete conversation tests (via DropdownMenu)
   describe('Delete Conversation', () => {
-    it('shows delete button on conversation items when onDeleteConversation is provided', () => {
+    it('shows conversation options menu on conversation items when onDeleteConversation is provided', () => {
       render(
         <Sidebar
           {...defaultProps}
@@ -266,21 +266,23 @@ describe('Sidebar', () => {
           onDeleteConversation={vi.fn()}
         />
       );
-      const deleteButtons = screen.getAllByRole('button', { name: /대화 삭제:/ });
-      expect(deleteButtons).toHaveLength(3);
+      const menuTriggers = screen.getAllByRole('button', { name: '대화 옵션' });
+      expect(menuTriggers).toHaveLength(3);
     });
 
-    it('does not show delete button when onDeleteConversation is not provided', () => {
+    it('shows conversation options menu even when onDeleteConversation is not provided', () => {
       render(
         <Sidebar
           {...defaultProps}
           conversations={mockConversations}
         />
       );
-      expect(screen.queryByRole('button', { name: /대화 삭제:/ })).not.toBeInTheDocument();
+      // Menu trigger still appears (but delete option won't be in it)
+      const menuTriggers = screen.getAllByRole('button', { name: '대화 옵션' });
+      expect(menuTriggers).toHaveLength(3);
     });
 
-    it('calls onDeleteConversation with correct id when delete button is clicked', async () => {
+    it('calls onDeleteConversation with correct id when delete is clicked via menu', async () => {
       const onDeleteConversation = vi.fn();
       const user = userEvent.setup();
       render(
@@ -290,12 +292,13 @@ describe('Sidebar', () => {
           onDeleteConversation={onDeleteConversation}
         />
       );
-      const deleteBtn = screen.getByRole('button', { name: '대화 삭제: 두 번째 대화' });
-      await user.click(deleteBtn);
+      const menuTriggers = screen.getAllByRole('button', { name: '대화 옵션' });
+      await user.click(menuTriggers[1]); // second conversation
+      await user.click(screen.getByText('삭제'));
       expect(onDeleteConversation).toHaveBeenCalledWith('2');
     });
 
-    it('does not trigger onSelectConversation when delete button is clicked', async () => {
+    it('does not trigger onSelectConversation when delete is clicked via menu', async () => {
       const onDeleteConversation = vi.fn();
       const user = userEvent.setup();
       render(
@@ -305,13 +308,14 @@ describe('Sidebar', () => {
           onDeleteConversation={onDeleteConversation}
         />
       );
-      const deleteBtn = screen.getByRole('button', { name: '대화 삭제: 첫 번째 대화' });
-      await user.click(deleteBtn);
+      const menuTriggers = screen.getAllByRole('button', { name: '대화 옵션' });
+      await user.click(menuTriggers[0]); // first conversation
+      await user.click(screen.getByText('삭제'));
       expect(onDeleteConversation).toHaveBeenCalledWith('1');
       expect(defaultProps.onSelectConversation).not.toHaveBeenCalled();
     });
 
-    it('delete button has correct aria-label with conversation title', () => {
+    it('each conversation has options menu trigger', () => {
       render(
         <Sidebar
           {...defaultProps}
@@ -319,9 +323,8 @@ describe('Sidebar', () => {
           onDeleteConversation={vi.fn()}
         />
       );
-      expect(screen.getByRole('button', { name: '대화 삭제: 첫 번째 대화' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: '대화 삭제: 두 번째 대화' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: '대화 삭제: 세 번째 대화' })).toBeInTheDocument();
+      const menuTriggers = screen.getAllByRole('button', { name: '대화 옵션' });
+      expect(menuTriggers).toHaveLength(3);
     });
   });
 

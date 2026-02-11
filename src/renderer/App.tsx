@@ -31,6 +31,8 @@ import Tooltip from './components/Tooltip';
 import Skeleton from './components/Skeleton';
 import ConfirmDialog from './components/ConfirmDialog';
 import NotificationBanner from './components/NotificationBanner';
+import SessionIndicator from './components/SessionIndicator';
+import ProgressBar from './components/ProgressBar';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -447,6 +449,7 @@ const App: React.FC = () => {
           <div className="header-title">
             <h1>{S.APP_TITLE}</h1>
             <p>{S.MODEL_PREFIX} {S.MODEL_DISPLAY_NAMES[settings.model] || settings.model}</p>
+            <SessionIndicator status={sessionStatus} />
           </div>
           {messages.length > 0 && (
             <div className="header-actions">
@@ -564,7 +567,17 @@ const App: React.FC = () => {
               <TypingIndicator isStreaming={isStreaming} />
             )}
             {tokenUsage && !isLoading && (
-              <TokenUsage usage={tokenUsage} maxTokens={settings.maxTokens} />
+              <>
+                <TokenUsage usage={tokenUsage} maxTokens={settings.maxTokens} />
+                <ProgressBar
+                  value={tokenUsage.totalTokens}
+                  max={settings.maxTokens}
+                  label={S.TOKEN_PROGRESS_LABEL}
+                  showPercentage={true}
+                  variant={tokenUsage.totalTokens / settings.maxTokens > 0.9 ? 'error' : tokenUsage.totalTokens / settings.maxTokens > 0.7 ? 'warning' : 'default'}
+                  size="small"
+                />
+              </>
             )}
             {!isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
               <button
