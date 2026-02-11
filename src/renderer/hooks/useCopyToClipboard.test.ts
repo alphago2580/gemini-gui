@@ -211,4 +211,84 @@ describe('useCopyToClipboard', () => {
 
     expect(result.current.isCopied).toBe(true);
   });
+
+  it('stores copiedText after successful copy', async () => {
+    const { result } = renderHook(() => useCopyToClipboard());
+    await act(async () => {
+      await result.current.copy('hello world');
+    });
+    expect(result.current.copiedText).toBe('hello world');
+  });
+
+  it('isLoading is false after successful copy', async () => {
+    const { result } = renderHook(() => useCopyToClipboard());
+    await act(async () => {
+      await result.current.copy('test');
+    });
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('error is set on copy failure', async () => {
+    mockWriteText.mockRejectedValueOnce(new Error('Clipboard blocked'));
+    const { result } = renderHook(() => useCopyToClipboard());
+    await act(async () => {
+      const success = await result.current.copy('test');
+      expect(success).toBe(false);
+    });
+    expect(result.current.error).toBeInstanceOf(Error);
+    expect(result.current.error?.message).toBe('Clipboard blocked');
+  });
+
+  it('isCopied is false after error', async () => {
+    mockWriteText.mockRejectedValueOnce(new Error('fail'));
+    const { result } = renderHook(() => useCopyToClipboard());
+    await act(async () => {
+      await result.current.copy('test');
+    });
+    expect(result.current.isCopied).toBe(false);
+  });
+
+  it('reset clears all state', async () => {
+    const { result } = renderHook(() => useCopyToClipboard());
+    await act(async () => {
+      await result.current.copy('data');
+    });
+    expect(result.current.isCopied).toBe(true);
+    act(() => result.current.reset());
+    expect(result.current.isCopied).toBe(false);
+    expect(result.current.copiedText).toBeNull();
+    expect(result.current.error).toBeNull();
+  });
+
+  it('onSuccess callback is called with copied text', async () => {
+    const onSuccess = vi.fn();
+    const { result } = renderHook(() => useCopyToClipboard({ onSuccess }));
+    await act(async () => {
+      await result.current.copy('copied!');
+    });
+    expect(onSuccess).toHaveBeenCalledWith('copied!');
+  });
+
+  it('onError callback is called on failure', async () => {
+    const onError = vi.fn();
+    mockWriteText.mockRejectedValueOnce(new Error('denied'));
+    const { result } = renderHook(() => useCopyToClipboard({ onError }));
+    await act(async () => {
+      await result.current.copy('test');
+    });
+    expect(onError).toHaveBeenCalledWith(expect.objectContaining({ message: 'denied' }));
+  });
+
+  it('second copy clears previous timer and updates copiedText', async () => {
+    const { result } = renderHook(() => useCopyToClipboard({ resetDelay: 5000 }));
+    await act(async () => {
+      await result.current.copy('first');
+    });
+    expect(result.current.copiedText).toBe('first');
+    await act(async () => {
+      await result.current.copy('second');
+    });
+    expect(result.current.copiedText).toBe('second');
+    expect(result.current.isCopied).toBe(true);
+  });
 });

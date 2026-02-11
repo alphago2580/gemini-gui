@@ -192,4 +192,101 @@ describe('useReducerWithMiddleware', () => {
     expect(order).toEqual(['a', 'b', 'c']);
     expect(result.current.state).toEqual({ count: 1 });
   });
+
+  it('middleware receives correct action type', () => {
+    const receivedTypes: string[] = [];
+    const spy: Middleware<State, Action> = () => next => action => {
+      receivedTypes.push(action.type);
+      next(action);
+    };
+    const { result } = renderHook(() =>
+      useReducerWithMiddleware(reducer, { count: 0 }, [spy])
+    );
+    act(() => result.current.dispatch({ type: 'increment' }));
+    act(() => result.current.dispatch({ type: 'decrement' }));
+    act(() => result.current.dispatch({ type: 'set', payload: 5 }));
+    expect(receivedTypes).toEqual(['increment', 'decrement', 'set']);
+  });
+
+  it('set action with payload updates state correctly through middleware', () => {
+    const logger: Middleware<State, Action> = () => next => action => next(action);
+    const { result } = renderHook(() =>
+      useReducerWithMiddleware(reducer, { count: 0 }, [logger])
+    );
+    act(() => result.current.dispatch({ type: 'set', payload: 100 }));
+    expect(result.current.state.count).toBe(100);
+  });
+
+  it('middleware can conditionally modify actions', () => {
+    const clamp: Middleware<State, Action> = (api) => next => action => {
+      if (action.type === 'set' && action.payload > 50) {
+        next({ type: 'set', payload: 50 } as Action);
+      } else {
+        next(action);
+      }
+    };
+    const { result } = renderHook(() =>
+      useReducerWithMiddleware(reducer, { count: 0 }, [clamp])
+    );
+    act(() => result.current.dispatch({ type: 'set', payload: 999 }));
+    expect(result.current.state.count).toBe(50);
+  });
+
+  it('decrement below zero works', () => {
+    const { result } = renderHook(() =>
+      useReducerWithMiddleware(reducer, { count: 0 })
+    );
+    act(() => result.current.dispatch({ type: 'decrement' }));
+    expect(result.current.state.count).toBe(-1);
+  });
+
+  it('rapid mixed dispatches produce correct result', () => {
+    const { result } = renderHook(() =>
+      useReducerWithMiddleware(reducer, { count: 0 })
+    );
+    act(() => {
+      result.current.dispatch({ type: 'increment' });
+      result.current.dispatch({ type: 'increment' });
+      result.current.dispatch({ type: 'decrement' });
+      result.current.dispatch({ type: 'set', payload: 10 });
+      result.current.dispatch({ type: 'increment' });
+    });
+    expect(result.current.state.count).toBe(11);
+  });
+
+  it('middleware getState before dispatch returns previous state', () => {
+    let stateBefore: number | null = null;
+    const checker: Middleware<State, Action> = (api) => next => action => {
+      stateBefore = api.getState().count;
+      next(action);
+    };
+    const { result } = renderHook(() =>
+      useReducerWithMiddleware(reducer, { count: 0 }, [checker])
+    );
+    act(() => result.current.dispatch({ type: 'set', payload: 42 }));
+    expect(stateBefore).toBe(0);
+    expect(result.current.state.count).toBe(42);
+  });
+
+  it('two middlewares both see the action', () => {
+    const seen1: string[] = [];
+    const seen2: string[] = [];
+    const m1: Middleware<State, Action> = () => next => action => { seen1.push(action.type); next(action); };
+    const m2: Middleware<State, Action> = () => next => action => { seen2.push(action.type); next(action); };
+    const { result } = renderHook(() =>
+      useReducerWithMiddleware(reducer, { count: 0 }, [m1, m2])
+    );
+    act(() => result.current.dispatch({ type: 'increment' }));
+    expect(seen1).toEqual(['increment']);
+    expect(seen2).toEqual(['increment']);
+  });
+
+  it('initial state with non-zero count works', () => {
+    const { result } = renderHook(() =>
+      useReducerWithMiddleware(reducer, { count: 50 })
+    );
+    expect(result.current.state.count).toBe(50);
+    act(() => result.current.dispatch({ type: 'decrement' }));
+    expect(result.current.state.count).toBe(49);
+  });
 });

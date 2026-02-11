@@ -114,4 +114,74 @@ describe('useStateWithHistory', () => {
     act(() => result.current.goTo(2));
     expect(result.current.value).toBe('c');
   });
+
+  it('goTo last index sets to latest value', () => {
+    const { result } = renderHook(() => useStateWithHistory(0));
+    act(() => result.current.setValue(1));
+    act(() => result.current.setValue(2));
+    act(() => result.current.goTo(2));
+    expect(result.current.value).toBe(2);
+  });
+
+  it('clearHistory followed by setValue tracks new history', () => {
+    const { result } = renderHook(() => useStateWithHistory('a'));
+    act(() => result.current.setValue('b'));
+    act(() => result.current.clearHistory());
+    expect(result.current.historySize).toBe(1);
+    act(() => result.current.setValue('c'));
+    expect(result.current.historySize).toBe(2);
+    expect(result.current.history[0].value).toBe('b');
+    expect(result.current.history[1].value).toBe('c');
+  });
+
+  it('setValue with same value still adds to history', () => {
+    const { result } = renderHook(() => useStateWithHistory(5));
+    act(() => result.current.setValue(5));
+    act(() => result.current.setValue(5));
+    expect(result.current.historySize).toBe(3);
+  });
+
+  it('goTo boundary: index 0 after many values', () => {
+    const { result } = renderHook(() => useStateWithHistory(0, 50));
+    for (let i = 1; i <= 10; i++) {
+      act(() => result.current.setValue(i));
+    }
+    act(() => result.current.goTo(0));
+    expect(result.current.value).toBe(0);
+  });
+
+  it('history entries preserve the exact values', () => {
+    const { result } = renderHook(() => useStateWithHistory({ key: 'val1' }));
+    act(() => result.current.setValue({ key: 'val2' }));
+    expect(result.current.history[0].value).toEqual({ key: 'val1' });
+    expect(result.current.history[1].value).toEqual({ key: 'val2' });
+  });
+
+  it('maxHistory of 2 keeps only last 2 entries', () => {
+    const { result } = renderHook(() => useStateWithHistory(0, 2));
+    act(() => result.current.setValue(1));
+    act(() => result.current.setValue(2));
+    act(() => result.current.setValue(3));
+    expect(result.current.historySize).toBe(2);
+    expect(result.current.history[0].value).toBe(2);
+    expect(result.current.history[1].value).toBe(3);
+  });
+
+  it('clearHistory preserves current value', () => {
+    const { result } = renderHook(() => useStateWithHistory(100));
+    act(() => result.current.setValue(200));
+    act(() => result.current.setValue(300));
+    act(() => result.current.clearHistory());
+    expect(result.current.value).toBe(300);
+    expect(result.current.history[0].value).toBe(300);
+  });
+
+  it('goTo does not modify history array', () => {
+    const { result } = renderHook(() => useStateWithHistory('a'));
+    act(() => result.current.setValue('b'));
+    act(() => result.current.setValue('c'));
+    const sizeBeforeGoTo = result.current.historySize;
+    act(() => result.current.goTo(0));
+    expect(result.current.historySize).toBe(sizeBeforeGoTo);
+  });
 });

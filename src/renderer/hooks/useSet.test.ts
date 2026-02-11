@@ -123,4 +123,60 @@ describe('useSet', () => {
     expect(result.current.has(2)).toBe(true);
     expect(result.current.has(3)).toBe(false);
   });
+
+  it('initializes with empty set when no initial values', () => {
+    const { result } = renderHook(() => useSet<number>());
+    expect(result.current.size).toBe(0);
+    expect(result.current.values).toEqual([]);
+  });
+
+  it('toggle adds value when absent', () => {
+    const { result } = renderHook(() => useSet<string>());
+    act(() => result.current.toggle('x'));
+    expect(result.current.has('x')).toBe(true);
+    expect(result.current.size).toBe(1);
+  });
+
+  it('toggle removes value when present', () => {
+    const { result } = renderHook(() => useSet(['x']));
+    act(() => result.current.toggle('x'));
+    expect(result.current.has('x')).toBe(false);
+    expect(result.current.size).toBe(0);
+  });
+
+  it('remove on non-existent value does not change set', () => {
+    const { result } = renderHook(() => useSet([1, 2]));
+    act(() => result.current.remove(99));
+    expect(result.current.size).toBe(2);
+  });
+
+  it('add duplicate value does not increase size', () => {
+    const { result } = renderHook(() => useSet([1, 2]));
+    act(() => result.current.add(1));
+    expect(result.current.size).toBe(2);
+  });
+
+  it('clear then add works correctly', () => {
+    const { result } = renderHook(() => useSet([1, 2, 3]));
+    act(() => result.current.clear());
+    expect(result.current.size).toBe(0);
+    act(() => result.current.add(10));
+    expect(result.current.size).toBe(1);
+    expect(result.current.has(10)).toBe(true);
+  });
+
+  it('values returns array representation of the set', () => {
+    const { result } = renderHook(() => useSet([3, 1, 2]));
+    expect(result.current.values).toContain(1);
+    expect(result.current.values).toContain(2);
+    expect(result.current.values).toContain(3);
+    expect(result.current.values.length).toBe(3);
+  });
+
+  it('has returns false after clear', () => {
+    const { result } = renderHook(() => useSet(['a', 'b']));
+    act(() => result.current.clear());
+    expect(result.current.has('a')).toBe(false);
+    expect(result.current.has('b')).toBe(false);
+  });
 });

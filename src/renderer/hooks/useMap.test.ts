@@ -117,4 +117,56 @@ describe('useMap', () => {
     expect(result.current.size).toBe(1);
     expect(result.current.get('a')).toBe(1);
   });
+
+  it('initializes empty when no initial entries provided', () => {
+    const { result } = renderHook(() => useMap<string, number>());
+    expect(result.current.size).toBe(0);
+    expect(result.current.entries).toEqual([]);
+    expect(result.current.keys).toEqual([]);
+    expect(result.current.values).toEqual([]);
+  });
+
+  it('remove on non-existent key does not change size', () => {
+    const { result } = renderHook(() => useMap<string, number>([['a', 1]]));
+    act(() => result.current.remove('z'));
+    expect(result.current.size).toBe(1);
+  });
+
+  it('set overwrites existing key value', () => {
+    const { result } = renderHook(() => useMap<string, number>([['a', 1]]));
+    act(() => result.current.set('a', 99));
+    expect(result.current.get('a')).toBe(99);
+    expect(result.current.size).toBe(1);
+  });
+
+  it('has returns false for non-existent key', () => {
+    const { result } = renderHook(() => useMap<string, number>([['a', 1]]));
+    expect(result.current.has('b')).toBe(false);
+  });
+
+  it('clear then set works correctly', () => {
+    const { result } = renderHook(() => useMap<string, number>([['a', 1], ['b', 2]]));
+    act(() => result.current.clear());
+    expect(result.current.size).toBe(0);
+    act(() => result.current.set('c', 3));
+    expect(result.current.size).toBe(1);
+    expect(result.current.get('c')).toBe(3);
+  });
+
+  it('keys returns array of all keys', () => {
+    const { result } = renderHook(() => useMap<string, number>([['x', 1], ['y', 2]]));
+    expect(result.current.keys).toContain('x');
+    expect(result.current.keys).toContain('y');
+    expect(result.current.keys.length).toBe(2);
+  });
+
+  it('entries returns array of key-value pairs', () => {
+    const { result } = renderHook(() => useMap<string, number>([['a', 10]]));
+    expect(result.current.entries).toEqual([['a', 10]]);
+  });
+
+  it('get returns undefined for missing key', () => {
+    const { result } = renderHook(() => useMap<string, number>([['a', 1]]));
+    expect(result.current.get('missing')).toBeUndefined();
+  });
 });

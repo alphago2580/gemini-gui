@@ -192,4 +192,78 @@ describe('useBookmarks', () => {
     expect(first.removeBookmark).toBe(second.removeBookmark);
     expect(first.clearBookmarks).toBe(second.clearBookmarks);
   });
+
+  it('addBookmark allows different conversations same messageIndex', () => {
+    const { result } = renderHook(() => useBookmarks());
+    act(() => {
+      result.current.addBookmark(makeBookmark({ conversationId: 'c1', messageIndex: 0 }));
+      result.current.addBookmark(makeBookmark({ conversationId: 'c2', messageIndex: 0 }));
+    });
+    expect(result.current.bookmarks).toHaveLength(2);
+  });
+
+  it('toggleBookmark twice returns to original state', () => {
+    const { result } = renderHook(() => useBookmarks());
+    const bm = makeBookmark();
+    act(() => result.current.toggleBookmark(bm));
+    expect(result.current.bookmarks).toHaveLength(1);
+    act(() => result.current.toggleBookmark(bm));
+    expect(result.current.bookmarks).toHaveLength(0);
+  });
+
+  it('removeBookmark with wrong conversationId does not remove', () => {
+    const { result } = renderHook(() => useBookmarks());
+    act(() => result.current.addBookmark(makeBookmark({ conversationId: 'c1', messageIndex: 0 })));
+    act(() => result.current.removeBookmark('wrong-id', 0));
+    expect(result.current.bookmarks).toHaveLength(1);
+  });
+
+  it('isBookmarked after removeBookmark returns false', () => {
+    const { result } = renderHook(() => useBookmarks());
+    act(() => result.current.addBookmark(makeBookmark({ conversationId: 'c1', messageIndex: 5 })));
+    expect(result.current.isBookmarked('c1', 5)).toBe(true);
+    act(() => result.current.removeBookmark('c1', 5));
+    expect(result.current.isBookmarked('c1', 5)).toBe(false);
+  });
+
+  it('clearBookmarks then addBookmark works', () => {
+    const { result } = renderHook(() => useBookmarks());
+    act(() => result.current.addBookmark(makeBookmark()));
+    act(() => result.current.clearBookmarks());
+    act(() => result.current.addBookmark(makeBookmark({ messageIndex: 10 })));
+    expect(result.current.bookmarks).toHaveLength(1);
+    expect(result.current.bookmarks[0].messageIndex).toBe(10);
+  });
+
+  it('getBookmarksForConversation preserves bookmark order', () => {
+    const { result } = renderHook(() => useBookmarks());
+    act(() => {
+      result.current.addBookmark(makeBookmark({ conversationId: 'c1', messageIndex: 3 }));
+      result.current.addBookmark(makeBookmark({ conversationId: 'c1', messageIndex: 1 }));
+      result.current.addBookmark(makeBookmark({ conversationId: 'c1', messageIndex: 7 }));
+    });
+    const bms = result.current.getBookmarksForConversation('c1');
+    expect(bms.map(b => b.messageIndex)).toEqual([3, 1, 7]);
+  });
+
+  it('bookmark stores role correctly', () => {
+    const { result } = renderHook(() => useBookmarks());
+    act(() => {
+      result.current.addBookmark(makeBookmark({ role: 'assistant', messageIndex: 0 }));
+      result.current.addBookmark(makeBookmark({ role: 'user', messageIndex: 1 }));
+    });
+    expect(result.current.bookmarks[0].role).toBe('assistant');
+    expect(result.current.bookmarks[1].role).toBe('user');
+  });
+
+  it('multiple conversations bookmarks are independent', () => {
+    const { result } = renderHook(() => useBookmarks());
+    act(() => {
+      result.current.addBookmark(makeBookmark({ conversationId: 'c1', messageIndex: 0 }));
+      result.current.addBookmark(makeBookmark({ conversationId: 'c2', messageIndex: 0 }));
+    });
+    act(() => result.current.removeBookmark('c1', 0));
+    expect(result.current.getBookmarksForConversation('c1')).toHaveLength(0);
+    expect(result.current.getBookmarksForConversation('c2')).toHaveLength(1);
+  });
 });
