@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (4420+ tests)
-- **Last Agent Run**: Agent 4 (Integrator)
+- **Test Status**: Passing (4695+ tests)
+- **Last Agent Run**: Agent 1 (Components)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1017,3 +1017,16 @@
 - Added 4 string constants: `CONV_MENU_LABEL`, `CONV_MENU_OPEN`, `CONV_MENU_DELETE`, `TOKEN_PROGRESS_LABEL`
 - Added 8 new integration tests: SessionIndicator rendering, error status, ProgressBar visibility, token usage bar, DropdownMenu trigger, menu open
 - Total tests: 4195 → 4420+ (163 test files, all passing)
+
+### Agent 1 (Components) — New UI Components Batch (SpeedDial, Popover, SegmentedControl, NumberInput, AlertBanner, CopyButton, EmptyState, ScrollToTop, Kbd)
+- **SpeedDial**: Floating action button with expanding actions, 4 directions, keyboard nav, sizes, variants, tooltips (59 tests)
+- **Popover**: Click-triggered popup with 4 positions, 3 alignments, sizes, arrow, focus trap, controlled/uncontrolled modes (42 tests)
+- **SegmentedControl**: Radio button group with keyboard nav, sizes, 3 variants, full-width, disabled support (35 tests)
+- **NumberInput**: Numeric stepper with increment/decrement, min/max, step, precision, keyboard nav, sizes, prefix/suffix (45 tests)
+- **AlertBanner**: Inline alerts with 4 variants (info/success/warning/error), dismiss, actions, sizes, bordered, role-based a11y (29 tests)
+- **CopyButton**: Clipboard copy button with feedback state, reset delay, sizes, 3 variants, callbacks (24 tests)
+- **EmptyState**: Empty data placeholder with icon, title, description, actions, sizes (18 tests)
+- **ScrollToTop**: Floating scroll-to-top button with threshold, smooth scroll, sizes, variants, positions, custom target (23 tests)
+- **Kbd**: Keyboard key display with symbol mapping (Ctrl→⌃, Cmd→⌘, etc.), sizes, variants, separator customization (29 tests)
+- Total new tests: 304 tests across 9 components
+- Total tests: 4420 → 4695+ (172 test files, all passing)
