@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (6381+ tests)
+- **Test Status**: Passing (6455+ tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1519,3 +1519,17 @@
 - Added 15 tests for useDocumentVisibility
 - Added 58 tests for sortUtils
 - Total tests: 6295 → 6381 (236 test files, all passing)
+
+### Agent 2 (Logic) — useMediaSession, useKeyPress, heapUtils
+- Added `useMediaSession` hook — Media Session API wrapper with metadata, playback state, action handlers
+- Added `useKeyPress` hook — track key press state and callback with modifier support
+  - `useKeyPress` returns boolean for key state tracking
+  - `useKeyPressCallback` triggers callback with ctrl/shift/alt/meta modifier matching
+- Added `heapUtils` utility — binary heap data structure and helpers:
+  - BinaryHeap class with push, pop, peek, contains, clear, toArray
+  - createMinHeap, createMaxHeap factory functions
+  - heapify, nSmallest, nLargest, isMinHeap, mergeHeaps
+- Added 15 tests for useMediaSession
+- Added 19 tests for useKeyPress
+- Added 40 tests for heapUtils
+- Total tests: 6381 → 6455 (239 test files, all passing)
