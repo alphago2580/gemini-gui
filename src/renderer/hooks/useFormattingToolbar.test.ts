@@ -160,3 +160,55 @@ describe('useFormattingToolbar', () => {
     expect(setText).toHaveBeenCalledWith('*test*');
   });
 });
+
+describe('applyFormatting — additional edge cases', () => {
+  it('bold in the middle of text preserves surrounding text', () => {
+    const result = applyFormatting('foo bar baz', 4, 7, 'bold');
+    expect(result.text).toBe('foo **bar** baz');
+    expect(result.selectionStart).toBe(6);
+    expect(result.selectionEnd).toBe(9);
+  });
+
+  it('italic placeholder end position is correct', () => {
+    const result = applyFormatting('', 0, 0, 'italic');
+    expect(result.selectionEnd).toBe(1 + '기울임 텍스트'.length);
+  });
+
+  it('code placeholder end position is correct', () => {
+    const result = applyFormatting('pre', 3, 3, 'code');
+    expect(result.text).toBe('pre`코드`');
+    expect(result.selectionStart).toBe(4);
+    expect(result.selectionEnd).toBe(4 + '코드'.length);
+  });
+
+  it('strikethrough placeholder end position is correct', () => {
+    const result = applyFormatting('', 0, 0, 'strikethrough');
+    expect(result.selectionEnd).toBe(2 + '취소선 텍스트'.length);
+  });
+
+  it('link with selection selects the url part', () => {
+    const result = applyFormatting('see this link', 4, 8, 'link');
+    expect(result.text).toBe('see [this](url) link');
+    expect(result.selectionStart).toBe(11);
+    expect(result.selectionEnd).toBe(14);
+  });
+
+  it('codeblock with selection wraps in fenced block', () => {
+    const result = applyFormatting('let x = 1', 0, 9, 'codeblock');
+    expect(result.text).toContain('```\nlet x = 1\n```');
+    expect(result.selectionStart).toBe(5);
+    expect(result.selectionEnd).toBe(5 + 9);
+  });
+
+  it('unknown action preserves original cursor positions', () => {
+    const result = applyFormatting('hello', 2, 3, 'nonexistent');
+    expect(result.text).toBe('hello');
+    expect(result.selectionStart).toBe(2);
+    expect(result.selectionEnd).toBe(3);
+  });
+
+  it('bold at the end of text', () => {
+    const result = applyFormatting('end', 3, 3, 'bold');
+    expect(result.text).toBe('end**굵은 텍스트**');
+  });
+});

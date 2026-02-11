@@ -188,4 +188,79 @@ describe('Pagination', () => {
       expect(el).toHaveAttribute('aria-hidden', 'true');
     });
   });
+
+  it('does not call onPageChange for previous when on first page', () => {
+    render(<Pagination {...defaultProps} currentPage={1} />);
+    fireEvent.click(screen.getByLabelText('이전 페이지'));
+    expect(defaultProps.onPageChange).not.toHaveBeenCalled();
+  });
+
+  it('does not call onPageChange for next when on last page', () => {
+    render(<Pagination {...defaultProps} currentPage={5} />);
+    fireEvent.click(screen.getByLabelText('다음 페이지'));
+    expect(defaultProps.onPageChange).not.toHaveBeenCalled();
+  });
+
+  it('renders nothing for negative totalPages', () => {
+    const { container } = render(
+      <Pagination currentPage={1} totalPages={-1} onPageChange={vi.fn()} />
+    );
+    expect(container.querySelector('.pagination')).toBeNull();
+  });
+
+  it('renders single page without ellipsis', () => {
+    const { container } = render(
+      <Pagination currentPage={1} totalPages={1} onPageChange={vi.fn()} />
+    );
+    expect(container.querySelector('.pagination__ellipsis')).toBeNull();
+    expect(screen.getByLabelText('1 페이지')).toBeInTheDocument();
+  });
+
+  it('nav buttons have title attributes', () => {
+    render(<Pagination {...defaultProps} currentPage={3} />);
+    expect(screen.getByLabelText('이전 페이지')).toHaveAttribute('title', '이전 페이지');
+    expect(screen.getByLabelText('다음 페이지')).toHaveAttribute('title', '다음 페이지');
+    expect(screen.getByLabelText('첫 페이지')).toHaveAttribute('title', '첫 페이지');
+    expect(screen.getByLabelText('마지막 페이지')).toHaveAttribute('title', '마지막 페이지');
+  });
+
+  it('pagination__list class exists', () => {
+    const { container } = render(<Pagination {...defaultProps} />);
+    expect(container.querySelector('.pagination__list')).toBeInTheDocument();
+  });
+
+  it('pagination__btn--nav class on nav buttons', () => {
+    const { container } = render(<Pagination {...defaultProps} />);
+    const navButtons = container.querySelectorAll('.pagination__btn--nav');
+    expect(navButtons.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('two pages renders without ellipsis', () => {
+    const { container } = render(
+      <Pagination currentPage={1} totalPages={2} onPageChange={vi.fn()} />
+    );
+    expect(container.querySelector('.pagination__ellipsis')).toBeNull();
+    expect(screen.getByLabelText('1 페이지')).toBeInTheDocument();
+    expect(screen.getByLabelText('2 페이지')).toBeInTheDocument();
+  });
+});
+
+describe('generatePageRange — additional', () => {
+  it('returns [1] for totalPages <= 1', () => {
+    expect(generatePageRange(1, 0, 1)).toEqual([1]);
+  });
+
+  it('adjacent to first page shows no left ellipsis', () => {
+    const result = generatePageRange(2, 10, 1);
+    expect(result[0]).toBe(1);
+    // No ellipsis between 1 and 2
+    expect(result[1]).toBe(2);
+    expect(result[2]).toBe(3);
+  });
+
+  it('adjacent to last page shows no right ellipsis', () => {
+    const result = generatePageRange(9, 10, 1);
+    expect(result[result.length - 1]).toBe(10);
+    expect(result[result.length - 2]).toBe(9);
+  });
 });

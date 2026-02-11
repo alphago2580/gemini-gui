@@ -137,4 +137,137 @@ describe('useDialogs', () => {
     expect(result.current.isSettingsOpen).toBe(false);
     expect(result.current.isCodeSnippetsOpen).toBe(true);
   });
+
+  it('toggleCommandPalette toggles from true to false', () => {
+    const { result } = renderHook(() => useDialogs());
+    act(() => result.current.toggleCommandPalette());
+    expect(result.current.isCommandPaletteOpen).toBe(true);
+    act(() => result.current.toggleCommandPalette());
+    expect(result.current.isCommandPaletteOpen).toBe(false);
+  });
+
+  it('toggleQuickSwitcher toggles from true to false', () => {
+    const { result } = renderHook(() => useDialogs());
+    act(() => result.current.toggleQuickSwitcher());
+    expect(result.current.isQuickSwitcherOpen).toBe(true);
+    act(() => result.current.toggleQuickSwitcher());
+    expect(result.current.isQuickSwitcherOpen).toBe(false);
+  });
+
+  it('toggleShortcutHelp toggles from true to false', () => {
+    const { result } = renderHook(() => useDialogs());
+    act(() => result.current.toggleShortcutHelp());
+    expect(result.current.isShortcutHelpOpen).toBe(true);
+    act(() => result.current.toggleShortcutHelp());
+    expect(result.current.isShortcutHelpOpen).toBe(false);
+  });
+
+  it('all open/close callbacks are stable across rerenders', () => {
+    const { result, rerender } = renderHook(() => useDialogs());
+    const first = {
+      openSettings: result.current.openSettings,
+      closeSettings: result.current.closeSettings,
+      toggleSettings: result.current.toggleSettings,
+      toggleCommandPalette: result.current.toggleCommandPalette,
+      closeCommandPalette: result.current.closeCommandPalette,
+      openCodeSnippets: result.current.openCodeSnippets,
+      closeCodeSnippets: result.current.closeCodeSnippets,
+      openLinkCollection: result.current.openLinkCollection,
+      closeLinkCollection: result.current.closeLinkCollection,
+      openStats: result.current.openStats,
+      closeStats: result.current.closeStats,
+      openBookmarks: result.current.openBookmarks,
+      closeBookmarks: result.current.closeBookmarks,
+      openPerfPanel: result.current.openPerfPanel,
+      closePerfPanel: result.current.closePerfPanel,
+      openMessageSearch: result.current.openMessageSearch,
+      closeMessageSearch: result.current.closeMessageSearch,
+      toggleInputPreview: result.current.toggleInputPreview,
+    };
+    rerender();
+    expect(result.current.openSettings).toBe(first.openSettings);
+    expect(result.current.closeSettings).toBe(first.closeSettings);
+    expect(result.current.toggleSettings).toBe(first.toggleSettings);
+    expect(result.current.toggleCommandPalette).toBe(first.toggleCommandPalette);
+    expect(result.current.closeCommandPalette).toBe(first.closeCommandPalette);
+    expect(result.current.openCodeSnippets).toBe(first.openCodeSnippets);
+    expect(result.current.closeCodeSnippets).toBe(first.closeCodeSnippets);
+    expect(result.current.openLinkCollection).toBe(first.openLinkCollection);
+    expect(result.current.closeLinkCollection).toBe(first.closeLinkCollection);
+    expect(result.current.openStats).toBe(first.openStats);
+    expect(result.current.closeStats).toBe(first.closeStats);
+    expect(result.current.openBookmarks).toBe(first.openBookmarks);
+    expect(result.current.closeBookmarks).toBe(first.closeBookmarks);
+    expect(result.current.openPerfPanel).toBe(first.openPerfPanel);
+    expect(result.current.closePerfPanel).toBe(first.closePerfPanel);
+    expect(result.current.openMessageSearch).toBe(first.openMessageSearch);
+    expect(result.current.closeMessageSearch).toBe(first.closeMessageSearch);
+    expect(result.current.toggleInputPreview).toBe(first.toggleInputPreview);
+  });
+
+  it('opening all dialogs works simultaneously', () => {
+    const { result } = renderHook(() => useDialogs());
+    act(() => {
+      result.current.openSettings();
+      result.current.openCodeSnippets();
+      result.current.openLinkCollection();
+      result.current.openStats();
+      result.current.openBookmarks();
+      result.current.openPerfPanel();
+      result.current.openMessageSearch();
+    });
+    expect(result.current.isSettingsOpen).toBe(true);
+    expect(result.current.isCodeSnippetsOpen).toBe(true);
+    expect(result.current.isLinkCollectionOpen).toBe(true);
+    expect(result.current.isStatsOpen).toBe(true);
+    expect(result.current.isBookmarksOpen).toBe(true);
+    expect(result.current.isPerfPanelOpen).toBe(true);
+    expect(result.current.isMessageSearchOpen).toBe(true);
+  });
+
+  it('closing all dialogs works after opening all', () => {
+    const { result } = renderHook(() => useDialogs());
+    act(() => {
+      result.current.openSettings();
+      result.current.openCodeSnippets();
+      result.current.openLinkCollection();
+      result.current.openStats();
+      result.current.openBookmarks();
+      result.current.openPerfPanel();
+      result.current.openMessageSearch();
+    });
+    act(() => {
+      result.current.closeSettings();
+      result.current.closeCodeSnippets();
+      result.current.closeLinkCollection();
+      result.current.closeStats();
+      result.current.closeBookmarks();
+      result.current.closePerfPanel();
+      result.current.closeMessageSearch();
+    });
+    expect(result.current.isSettingsOpen).toBe(false);
+    expect(result.current.isCodeSnippetsOpen).toBe(false);
+    expect(result.current.isLinkCollectionOpen).toBe(false);
+    expect(result.current.isStatsOpen).toBe(false);
+    expect(result.current.isBookmarksOpen).toBe(false);
+    expect(result.current.isPerfPanelOpen).toBe(false);
+    expect(result.current.isMessageSearchOpen).toBe(false);
+  });
+
+  it('toggleInputPreview cycle', () => {
+    const { result } = renderHook(() => useDialogs());
+    act(() => result.current.toggleInputPreview());
+    act(() => result.current.toggleInputPreview());
+    act(() => result.current.toggleInputPreview());
+    expect(result.current.isInputPreviewVisible).toBe(true);
+    act(() => result.current.toggleInputPreview());
+    expect(result.current.isInputPreviewVisible).toBe(false);
+  });
+
+  it('close on already-closed dialog is a no-op', () => {
+    const { result } = renderHook(() => useDialogs());
+    expect(result.current.isSettingsOpen).toBe(false);
+    act(() => result.current.closeSettings());
+    expect(result.current.isSettingsOpen).toBe(false);
+  });
 });

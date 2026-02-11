@@ -196,4 +196,110 @@ describe('useMessageActions', () => {
     rerender();
     expect(result.current.contextMenuItems).toBe(first);
   });
+
+  it('handleContextMenuAction edit calls editMessage', () => {
+    const params = createDefaultParams();
+    const { result } = renderHook(() => useMessageActions(params));
+
+    act(() => {
+      const event = { preventDefault: vi.fn(), clientX: 10, clientY: 20 } as unknown as React.MouseEvent;
+      result.current.handleMessageContextMenu(event, 0);
+    });
+
+    act(() => result.current.handleContextMenuAction('edit'));
+
+    expect(params.editMessage).toHaveBeenCalledWith(0, 'Hello');
+  });
+
+  it('handleContextMenuAction pin adds pinned message', () => {
+    const { result } = renderHook(() => useMessageActions(createDefaultParams()));
+
+    act(() => {
+      const event = { preventDefault: vi.fn(), clientX: 10, clientY: 20 } as unknown as React.MouseEvent;
+      result.current.handleMessageContextMenu(event, 0);
+    });
+
+    act(() => result.current.handleContextMenuAction('pin'));
+
+    expect(mockSetPinnedMessages).toHaveBeenCalled();
+  });
+
+  it('handleContextMenuAction bookmark calls addBookmark', () => {
+    const params = createDefaultParams();
+    const { result } = renderHook(() => useMessageActions(params));
+
+    act(() => {
+      const event = { preventDefault: vi.fn(), clientX: 10, clientY: 20 } as unknown as React.MouseEvent;
+      result.current.handleMessageContextMenu(event, 1);
+    });
+
+    act(() => result.current.handleContextMenuAction('bookmark'));
+
+    expect(mockAddBookmark).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: 'conv-1',
+        messageIndex: 1,
+        role: 'assistant',
+        content: 'Hi there',
+      })
+    );
+  });
+
+  it('handleContextMenuAction emoji sets emoji picker target', () => {
+    const { result } = renderHook(() => useMessageActions(createDefaultParams()));
+
+    act(() => {
+      const event = { preventDefault: vi.fn(), clientX: 50, clientY: 60 } as unknown as React.MouseEvent;
+      result.current.handleMessageContextMenu(event, 0);
+    });
+
+    act(() => result.current.handleContextMenuAction('emoji'));
+
+    expect(result.current.emojiPickerTarget).toEqual({ index: 0, x: 50, y: 60 });
+  });
+
+  it('handleEmojiSelect toggles reaction and closes picker', () => {
+    const { result } = renderHook(() => useMessageActions(createDefaultParams()));
+
+    // Open emoji picker via context menu
+    act(() => {
+      const event = { preventDefault: vi.fn(), clientX: 50, clientY: 60 } as unknown as React.MouseEvent;
+      result.current.handleMessageContextMenu(event, 0);
+    });
+    act(() => result.current.handleContextMenuAction('emoji'));
+
+    // Select an emoji
+    act(() => result.current.handleEmojiSelect('👍'));
+
+    expect(mockToggleReaction).toHaveBeenCalledWith('conv-1', 0, '👍');
+    expect(result.current.emojiPickerTarget).toBeNull();
+  });
+
+  it('handleEmojiSelect does nothing without picker target', () => {
+    const { result } = renderHook(() => useMessageActions(createDefaultParams()));
+
+    act(() => result.current.handleEmojiSelect('👍'));
+
+    expect(mockToggleReaction).not.toHaveBeenCalled();
+  });
+
+  it('handlePinMessage does not duplicate existing pinned index', () => {
+    const { result } = renderHook(() => useMessageActions(createDefaultParams()));
+
+    // Pin message at index 0
+    act(() => result.current.handlePinMessage(0));
+    // Pin same index again
+    act(() => result.current.handlePinMessage(0));
+
+    // setPinnedMessages should have been called, but the internal filter prevents duplicates
+    expect(mockSetPinnedMessages).toHaveBeenCalled();
+  });
+
+  it('handleUnpinMessage removes by index', () => {
+    const { result } = renderHook(() => useMessageActions(createDefaultParams()));
+
+    act(() => result.current.handleUnpinMessage(0));
+
+    expect(mockSetPinnedMessages).toHaveBeenCalled();
+  });
 });

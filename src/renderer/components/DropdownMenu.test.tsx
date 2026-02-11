@@ -334,4 +334,85 @@ describe('DropdownMenu', () => {
     const menuItems = container.querySelectorAll('.dropdown-menu-item');
     expect(menuItems[2]).toHaveClass('dropdown-menu-item-active');
   });
+
+  it('Enter on no active item does nothing', () => {
+    render(<DropdownMenu {...defaultProps} />);
+    const menu = screen.getByRole('menu');
+    // Press Enter without navigating — activeIndex is -1
+    fireEvent.keyDown(menu, { key: 'Enter' });
+    const editItem = mockItems[0] as unknown as { onClick: ReturnType<typeof vi.fn> };
+    expect(editItem.onClick).not.toHaveBeenCalled();
+    expect(defaultProps.onClose).not.toHaveBeenCalled();
+  });
+
+  it('Space on no active item does nothing', () => {
+    render(<DropdownMenu {...defaultProps} />);
+    const menu = screen.getByRole('menu');
+    fireEvent.keyDown(menu, { key: ' ' });
+    const editItem = mockItems[0] as unknown as { onClick: ReturnType<typeof vi.fn> };
+    expect(editItem.onClick).not.toHaveBeenCalled();
+  });
+
+  it('click on disabled item does not call onClick or onClose', () => {
+    const disabledClick = vi.fn();
+    const items: DropdownMenuEntry[] = [
+      { id: 'dis', label: '비활성', disabled: true, onClick: disabledClick },
+    ];
+    render(<DropdownMenu {...defaultProps} items={items} />);
+    fireEvent.click(screen.getByText('비활성'));
+    expect(disabledClick).not.toHaveBeenCalled();
+    expect(defaultProps.onClose).not.toHaveBeenCalled();
+  });
+
+  it('mouse enter on disabled item does not activate it', () => {
+    const items: DropdownMenuEntry[] = [
+      { id: 'normal', label: '정상', onClick: vi.fn() },
+      { id: 'dis', label: '비활성', disabled: true, onClick: vi.fn() },
+    ];
+    const { container } = render(<DropdownMenu {...defaultProps} items={items} />);
+    const menuItems = container.querySelectorAll('.dropdown-menu-item');
+    fireEvent.mouseEnter(menuItems[1]); // disabled item
+    expect(menuItems[1]).not.toHaveClass('dropdown-menu-item-active');
+  });
+
+  it('Home key with empty actionable items does nothing', () => {
+    const items: DropdownMenuEntry[] = [
+      { type: 'separator' },
+    ];
+    render(<DropdownMenu {...defaultProps} items={items} />);
+    const menu = screen.getByRole('menu');
+    fireEvent.keyDown(menu, { key: 'Home' });
+    // No error, no active item
+  });
+
+  it('End key with empty actionable items does nothing', () => {
+    const items: DropdownMenuEntry[] = [
+      { type: 'separator' },
+    ];
+    render(<DropdownMenu {...defaultProps} items={items} />);
+    const menu = screen.getByRole('menu');
+    fireEvent.keyDown(menu, { key: 'End' });
+    // No error, no active item
+  });
+
+  it('wraps around when navigating past the beginning', () => {
+    const { container } = render(<DropdownMenu {...defaultProps} />);
+    const menu = screen.getByRole('menu');
+
+    // ArrowUp from -1 goes to last item
+    fireEvent.keyDown(menu, { key: 'ArrowUp' });
+    // ArrowUp again wraps from first actionable (delete at index 3) to copy (index 1)... etc
+    fireEvent.keyDown(menu, { key: 'ArrowUp' });
+    fireEvent.keyDown(menu, { key: 'ArrowUp' });
+    fireEvent.keyDown(menu, { key: 'ArrowUp' }); // wraps back to last
+
+    const items = container.querySelectorAll('.dropdown-menu-item');
+    expect(items[items.length - 1]).toHaveClass('dropdown-menu-item-active');
+  });
+
+  it('menu has tabIndex -1 for focus', () => {
+    render(<DropdownMenu {...defaultProps} />);
+    const menu = screen.getByRole('menu');
+    expect(menu).toHaveAttribute('tabindex', '-1');
+  });
 });

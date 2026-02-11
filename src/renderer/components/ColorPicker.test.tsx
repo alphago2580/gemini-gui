@@ -207,4 +207,46 @@ describe('ColorPicker', () => {
     rerender(<ColorPicker {...defaultProps} value="#ff0000" />);
     expect(screen.getByLabelText('색상 코드')).toHaveValue('#ff0000');
   });
+
+  it('trigger button has title showing current value', () => {
+    render(<ColorPicker {...defaultProps} />);
+    expect(screen.getByLabelText('색상 선택')).toHaveAttribute('title', '#2196f3');
+  });
+
+  it('does not open dropdown when disabled', () => {
+    const { container } = render(<ColorPicker {...defaultProps} disabled={true} />);
+    fireEvent.click(screen.getByLabelText('색상 선택'));
+    expect(container.querySelector('.color-picker__dropdown')).toBeNull();
+  });
+
+  it('input maxLength is 7', () => {
+    render(<ColorPicker {...defaultProps} />);
+    expect(screen.getByLabelText('색상 코드')).toHaveAttribute('maxlength', '7');
+  });
+
+  it('input placeholder is #000000', () => {
+    render(<ColorPicker {...defaultProps} />);
+    expect(screen.getByLabelText('색상 코드')).toHaveAttribute('placeholder', '#000000');
+  });
+
+  it('preset aria-label matches color code', () => {
+    render(<ColorPicker {...defaultProps} presetColors={['#ff0000']} />);
+    fireEvent.click(screen.getByLabelText('색상 선택'));
+    expect(screen.getByLabelText('#ff0000')).toBeInTheDocument();
+  });
+
+  it('dropdown aria-label is 프리셋 색상', () => {
+    render(<ColorPicker {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText('색상 선택'));
+    expect(screen.getByLabelText('프리셋 색상')).toBeInTheDocument();
+  });
+
+  it('non-selected preset does not have --selected class', () => {
+    const { container } = render(
+      <ColorPicker {...defaultProps} value="#ff0000" presetColors={['#ff0000', '#00ff00']} />
+    );
+    fireEvent.click(screen.getByLabelText('색상 선택'));
+    const presets = container.querySelectorAll('.color-picker__preset');
+    expect(presets[1]).not.toHaveClass('color-picker__preset--selected');
+  });
 });
