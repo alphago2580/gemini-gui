@@ -3,11 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (4192 tests)
+- **Test Status**: Passing (4420+ tests)
 - **Last Agent Run**: Agent 4 (Integrator)
-
-- **Test Status**: Passing (4195 tests)
-- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -982,7 +979,6 @@
 - Added 6 new integration tests: UserAvatar rendering for user/assistant, NotificationBanner visibility, session error banner, Accordion in settings, accordion expand
 - Total tests: 3966 → 3972+ (157 test files, all passing)
 
-<<<<<<< HEAD
 ### Agent 2 (Logic) — useOrientation, useBattery Hooks & iteratorUtils Utility
 - Created `useOrientation` hook: device orientation detection
   - Returns: `type` ('portrait' | 'landscape'), `angle`, `isPortrait`, `isLandscape`
@@ -1007,7 +1003,7 @@
 - Added 10 tests for useBattery (init, read state, add listeners, remove listeners, level change, charging change, rejection, missing API, dischargingTime, full battery)
 - Added 54 tests for iteratorUtils (range 6, chunk 5, zip 4, take 4, skip 3, filter 3, map 3, flatten 3, enumerate 3, takeWhile 3, skipWhile 3, unique 4, reduce 3, toArray 2, cycle 3, composition 2)
 - Total tests: 3966 → 4195 (160 test files, all passing)
-=======
+
 ### Agent 4 (Integrator) — Integrate SessionIndicator, DropdownMenu, ProgressBar
 - Added `SessionIndicator` to App.tsx header — displays real-time connection status (idle/connecting/connected/error) with colored dot and label
   - Wired to `sessionStatus` from `useStreamHandler` hook
@@ -1020,5 +1016,4 @@
   - Variant changes dynamically: default (<70%), warning (70-90%), error (>90%)
 - Added 4 string constants: `CONV_MENU_LABEL`, `CONV_MENU_OPEN`, `CONV_MENU_DELETE`, `TOKEN_PROGRESS_LABEL`
 - Added 8 new integration tests: SessionIndicator rendering, error status, ProgressBar visibility, token usage bar, DropdownMenu trigger, menu open
-- Total tests: 3972+ → 4192 (158 test files, all passing)
->>>>>>> agent-4/session-dropdown-progress
+- Total tests: 4195 → 4420+ (163 test files, all passing)
