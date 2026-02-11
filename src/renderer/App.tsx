@@ -61,6 +61,12 @@ import Divider from './components/Divider';
 import CountdownTimer from './components/CountdownTimer';
 import Pagination from './components/Pagination';
 import Switch from './components/Switch';
+import Stepper from './components/Stepper';
+import type { StepItem } from './components/Stepper';
+import Tabs from './components/Tabs';
+import type { Tab as TabItem } from './components/Tabs';
+import TreeView from './components/TreeView';
+import type { TreeNode } from './components/TreeView';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -283,6 +289,34 @@ const App: React.FC = () => {
       setReadingProgress(pct);
     }
   }, [handleMessagesScroll]);
+
+  // Onboarding stepper (shows on WelcomeScreen)
+  const onboardingSteps: StepItem[] = useMemo(() => [
+    { label: S.STEPPER_WELCOME, icon: '👋' },
+    { label: S.STEPPER_SETUP, icon: '⚙️' },
+    { label: S.STEPPER_START, icon: '🚀' },
+  ], []);
+  const onboardingStep = useMemo(() => {
+    if (messages.length > 0) return 2; // Started
+    if (settings.model !== 'auto') return 1; // Configured
+    return 0; // New user
+  }, [messages.length, settings.model]);
+
+  // Info panel tabs (for stats panel area)
+  const infoPanelTabs: TabItem[] = useMemo(() => [
+    { id: 'stats', label: S.TAB_STATS_LABEL },
+    { id: 'timeline', label: S.TAB_TIMELINE_LABEL },
+  ], []);
+  const [activeInfoTab, setActiveInfoTab] = useState('stats');
+
+  // Conversation tree structure (for sidebar-like navigation)
+  const conversationTreeNodes: TreeNode[] = useMemo(() => {
+    return conversations.slice(0, 10).map(conv => ({
+      id: conv.id,
+      label: conv.title || S.UNTITLED_CONVERSATION,
+      icon: conv.id === currentConversationId ? '💬' : '📝',
+    }));
+  }, [conversations, currentConversationId]);
 
   // Conversation stats (computed)
   const conversationStatsData = useMemo(
@@ -685,7 +719,10 @@ const App: React.FC = () => {
           <div className={`messages${viewMode === 'compact' ? ' messages--compact' : ''}`} role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleScrollWithProgress}>
             <ReadingProgressBar progress={readingProgress} isVisible={messages.length > 0} />
             {messages.length === 0 && (
-              <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
+              <>
+                <Stepper steps={onboardingSteps} activeStep={onboardingStep} orientation="horizontal" />
+                <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
+              </>
             )}
             {paginatedMessages.map((message, index) => {
               const globalIndex = (messagePage - 1) * MESSAGES_PER_PAGE + index;
@@ -932,8 +969,26 @@ const App: React.FC = () => {
       {dialogs.isStatsOpen && (
         <>
           <AvatarGroup items={conversationParticipants} size="small" />
-          {recentTimelineItems.length > 0 && (
+          <Tabs
+            tabs={infoPanelTabs}
+            activeTab={activeInfoTab}
+            onChange={setActiveInfoTab}
+            variant="underline"
+            size="small"
+            ariaLabel={S.TABS_INFO_ARIA}
+          />
+          {activeInfoTab === 'timeline' && recentTimelineItems.length > 0 && (
             <Timeline items={recentTimelineItems} orientation="vertical" />
+          )}
+          {activeInfoTab === 'stats' && conversationTreeNodes.length > 0 && (
+            <TreeView
+              nodes={conversationTreeNodes}
+              selectedId={currentConversationId || undefined}
+              onSelect={handleSelectConversation}
+              size="small"
+              showLines={true}
+              label={S.TREE_CONVERSATIONS_LABEL}
+            />
           )}
         </>
       )}
