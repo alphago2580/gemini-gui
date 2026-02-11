@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (4462 tests)
-- **Last Agent Run**: Agent 2 (Logic)
+- **Test Status**: Passing (4695+ tests)
+- **Last Agent Run**: Agent 1 (Components)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1041,7 +1041,20 @@
   - Special: enum, const, custom validate function
   - Deep nested validation with path tracking
   - Exports: `validate`, `createValidator`, `assertValid`, `isValid`
-- Added 18 tests for useMediaCapture (idle init, isSupported, start/active, stop/release, pause/resume, data chunks, empty chunks, getUserMedia reject, recorder error, maxDuration auto-stop, custom constraints, getBlob combined, getBlob null, cleanup unmount, pause no-op, resume no-op, unsupported API, start when unsupported)
-- Added 10 tests for usePreferredLanguage (current language, base lang, region, null region, all languages, languagechange update, cleanup, extended subtags, empty languages fallback, default en)
-- Added 46 tests for schemaValidationUtils (type: string/wrong/number/boolean/null/array/object/union/no-type; string: minLength/maxLength/pattern/email/url/uuid/iso-date; number: min/max/integer/range; enum/const/enum-error; object: required/property-schemas/reject-additional/allow-additional/nested-path/skip-optional; array: minItems/maxItems/uniqueItems/item-schemas/item-path; custom: true-return/string-message; createValidator; assertValid: no-throw/throw/path; isValid: true/false; complex: user-profile/deep-nested/array-of-objects/multiple-errors)
+- Added 18 tests for useMediaCapture
+- Added 10 tests for usePreferredLanguage
+- Added 46 tests for schemaValidationUtils
 - Total tests: 4420+ → 4462 (167 test files, all passing)
+
+### Agent 1 (Components) — New UI Components Batch (SpeedDial, Popover, SegmentedControl, NumberInput, AlertBanner, CopyButton, EmptyState, ScrollToTop, Kbd)
+- **SpeedDial**: Floating action button with expanding actions, 4 directions, keyboard nav, sizes, variants, tooltips (59 tests)
+- **Popover**: Click-triggered popup with 4 positions, 3 alignments, sizes, arrow, focus trap, controlled/uncontrolled modes (42 tests)
+- **SegmentedControl**: Radio button group with keyboard nav, sizes, 3 variants, full-width, disabled support (35 tests)
+- **NumberInput**: Numeric stepper with increment/decrement, min/max, step, precision, keyboard nav, sizes, prefix/suffix (45 tests)
+- **AlertBanner**: Inline alerts with 4 variants (info/success/warning/error), dismiss, actions, sizes, bordered, role-based a11y (29 tests)
+- **CopyButton**: Clipboard copy button with feedback state, reset delay, sizes, 3 variants, callbacks (24 tests)
+- **EmptyState**: Empty data placeholder with icon, title, description, actions, sizes (18 tests)
+- **ScrollToTop**: Floating scroll-to-top button with threshold, smooth scroll, sizes, variants, positions, custom target (23 tests)
+- **Kbd**: Keyboard key display with symbol mapping (Ctrl→⌃, Cmd→⌘, etc.), sizes, variants, separator customization (29 tests)
+- Total new tests: 304 tests across 9 components
+- Total tests: 4462 → 4695+ (172 test files, all passing)
