@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5994+ tests)
-- **Last Agent Run**: Agent 1 (Components) — PasswordInput
+- **Test Status**: Passing (5935+ tests)
+- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1401,3 +1401,26 @@
   - Full ARIA: aria-label, aria-invalid, role=alert
 - Added 43 tests for PasswordInput (rendering, visibility toggle, onChange, disabled, error, sizes, strength meter levels, requirements met/unmet, custom requirements, accessibility, maxLength, autoComplete, calculateStrength)
 - Total tests: 5951 → 5994 (all passing)
+
+### Agent 2 (Logic) — Hooks/Utils Batch 30: useAbortController, useEyeDropper, priorityQueueUtils
+- Created `useAbortController` hook for cancellable operations:
+  - getSignal: obtain current AbortSignal
+  - abort: cancel with optional reason
+  - isAborted: check aborted status
+  - reset: create fresh controller/signal
+- Created `useEyeDropper` hook for screen color picking via EyeDropper API:
+  - open: async color pick returning sRGBHex
+  - isSupported detection
+  - isOpen status tracking
+  - Error handling for unsupported browsers and user cancellation
+  - reset state
+- Created `priorityQueueUtils` utility with PriorityQueue class:
+  - Min-heap by default, custom comparator support
+  - enqueue, dequeue, peek operations
+  - contains, toArray (sorted), clear, clone
+  - fromArray static factory
+  - Works with numbers, strings, and custom objects
+- Added 9 tests for useAbortController (init, signal, abort, reason, reset, same-signal, different-after-reset, multi-abort, event-listener)
+- Added 8 tests for useEyeDropper (init, unsupported, pick-color, error, non-Error-thrown, unsupported-returns-null, reset, multi-pick)
+- Added 20 tests for priorityQueueUtils (empty, enqueue/peek, dequeue-order, empty-dequeue, single, duplicates, contains, clear, max-queue, object-queue, fromArray, toArray, clone, strings, stress-test)
+- Total tests: 5898 → 5935 (221 test files, all passing)
