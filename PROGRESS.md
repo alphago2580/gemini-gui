@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (6031 tests)
-- **Last Agent Run**: Agent 1 (Components)
+- **Test Status**: Passing (6077+ tests)
+- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1436,3 +1436,25 @@
   - Full ARIA: aria-label, aria-invalid, aria-describedby
 - Added 37 tests for TextArea (rendering, onChange, maxLength, disabled, readOnly, error, helper, count, sizes, resize, accessibility, focus, auto-resize)
 - Total tests: 5994 → 6031 (all passing)
+
+### Agent 2 (Logic) — Hooks/Utils Batch 31: useVibration, useGamepad, observableUtils
+- Created `useVibration` hook for Vibration API:
+  - Vibrate with number or pattern (array of durations)
+  - Auto-stops isVibrating state after duration/pattern completes
+  - Manual stop(), isSupported detection, returns success boolean
+- Created `useGamepad` hook for Gamepad API:
+  - Polls connected gamepads via requestAnimationFrame
+  - Maps buttons (pressed, touched, value) and axes
+  - Responds to gamepadconnected/gamepaddisconnected events
+  - Configurable pollInterval, getGamepad(index) accessor
+- Created `observableUtils` utility with reactive Observable pattern:
+  - Observable base class with subscribe, next, complete, getValue, subscriberCount
+  - BehaviorSubject: emits current value to new subscribers
+  - ReplaySubject: replays buffered values to new subscribers (configurable buffer size)
+  - Operators: map, filter, scan, distinctUntilChanged, take, skip
+  - Combinators: merge, combineLatest
+  - Pipe support for chaining operators
+- Added 10 tests for useVibration
+- Added 12 tests for useGamepad
+- Added 24 tests for observableUtils
+- Total tests: 6031 → 6077 (223 test files, all passing)
