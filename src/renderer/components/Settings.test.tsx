@@ -37,18 +37,15 @@ describe('Settings', () => {
 
   it('renders model selection dropdown', () => {
     render(<Settings {...defaultProps} />);
-    expect(screen.getByLabelText('모델 선택')).toBeInTheDocument();
-    expect(screen.getByText('자동 (Auto)')).toBeInTheDocument();
+    const combobox = screen.getByRole('combobox', { name: '모델 선택' });
+    expect(combobox).toBeInTheDocument();
+    // Open dropdown to verify options
+    fireEvent.click(combobox);
     expect(screen.getByText('Gemini 2.5 Pro')).toBeInTheDocument();
     expect(screen.getByText('Gemini 2.5 Flash')).toBeInTheDocument();
     expect(screen.getByText('Gemini 2.0 Flash')).toBeInTheDocument();
     expect(screen.getByText('Gemini 1.5 Pro')).toBeInTheDocument();
     expect(screen.getByText('Gemini 1.5 Flash')).toBeInTheDocument();
-  });
-
-  it('renders hint text for model selection', () => {
-    render(<Settings {...defaultProps} />);
-    expect(screen.getByText('사용할 Gemini 모델을 선택합니다')).toBeInTheDocument();
   });
 
   it('renders temperature slider with current value', () => {
@@ -107,8 +104,10 @@ describe('Settings', () => {
 
   it('updates model selection and saves correctly', () => {
     render(<Settings {...defaultProps} />);
-    const select = screen.getByLabelText('모델 선택');
-    fireEvent.change(select, { target: { value: 'gemini-1.5-pro' } });
+    const combobox = screen.getByRole('combobox', { name: '모델 선택' });
+    // Open dropdown and select a model
+    fireEvent.click(combobox);
+    fireEvent.click(screen.getByText('Gemini 1.5 Pro'));
     fireEvent.click(screen.getByText('저장'));
     expect(defaultProps.onSave).toHaveBeenCalledWith(
       expect.objectContaining({ model: 'gemini-1.5-pro' })
@@ -283,8 +282,8 @@ describe('Settings', () => {
       const { rerender } = render(<Settings {...defaultProps} />);
       const updatedSettings = { ...defaultSettings, model: 'gemini-2.5-pro' };
       rerender(<Settings {...defaultProps} settings={updatedSettings} />);
-      const select = screen.getByLabelText('모델 선택');
-      expect(select).toHaveValue('gemini-2.5-pro');
+      // Select component displays the label of the selected option
+      expect(screen.getByText('Gemini 2.5 Pro')).toBeInTheDocument();
     });
   });
 

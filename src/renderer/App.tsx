@@ -40,6 +40,9 @@ import CopyButton from './components/CopyButton';
 import Collapsible from './components/Collapsible';
 import Kbd from './components/Kbd';
 import ImageViewer from './components/ImageViewer';
+import SpeedDial from './components/SpeedDial';
+import type { SpeedDialAction } from './components/SpeedDial';
+import AlertBanner from './components/AlertBanner';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -395,6 +398,21 @@ const App: React.FC = () => {
     { id: 'regenerate', label: S.REGENERATE_TITLE, action: handleRegenerate },
   ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch, dialogs, handleRegenerate]);
 
+  // SpeedDial quick actions
+  const speedDialActions: SpeedDialAction[] = useMemo(() => [
+    { id: 'sd-new-chat', label: S.SPEED_DIAL_NEW_CHAT, icon: '💬', onClick: handleNewChat },
+    { id: 'sd-search', label: S.SPEED_DIAL_SEARCH, icon: '🔍', onClick: () => inlineSearch.open() },
+    { id: 'sd-bookmarks', label: S.SPEED_DIAL_BOOKMARKS, icon: '⭐', onClick: dialogs.openBookmarkDrawer },
+    { id: 'sd-settings', label: S.SPEED_DIAL_SETTINGS, icon: '⚙️', onClick: dialogs.openSettings },
+    { id: 'sd-shortcuts', label: S.SPEED_DIAL_SHORTCUTS, icon: '⌨️', onClick: dialogs.toggleShortcutHelp },
+  ], [handleNewChat, inlineSearch, dialogs]);
+
+  // Token warning
+  const showTokenWarning = useMemo(() => {
+    if (!tokenUsage || isLoading) return false;
+    return tokenUsage.totalTokens / settings.maxTokens > 0.9;
+  }, [tokenUsage, isLoading, settings.maxTokens]);
+
   // Native menu actions (agent4)
   useEffect(() => {
     const api = window.electronAPI;
@@ -513,6 +531,18 @@ const App: React.FC = () => {
             </div>
           )}
         </header>
+
+        {showTokenWarning && (
+          <AlertBanner
+            variant="warning"
+            title={S.ALERT_BANNER_TOKEN_WARNING_TITLE}
+            dismissible={true}
+            size="small"
+            bordered={true}
+          >
+            {S.ALERT_BANNER_TOKEN_WARNING}
+          </AlertBanner>
+        )}
 
         <TabBar
           tabs={tabs}
@@ -791,6 +821,15 @@ const App: React.FC = () => {
         open={dialogs.imageViewerState.open}
         onClose={dialogs.closeImageViewer}
         ariaLabel={S.IMAGE_VIEWER_ARIA}
+      />
+      <SpeedDial
+        actions={speedDialActions}
+        icon="⚡"
+        openIcon="✕"
+        direction="up"
+        size="medium"
+        variant="primary"
+        ariaLabel={S.SPEED_DIAL_ARIA}
       />
     </div>
   );
