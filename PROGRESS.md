@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (2985 tests)
+- **Test Status**: Passing (3047 tests)
 - **Last Agent Run**: Agent 3 (Tests & Types)
 
 ## Completed Features
@@ -767,3 +767,14 @@
 - **useScrollPosition.test.ts**: Added 8 tests — default 100ms throttle, direction none, isAtBottom false, threshold boundary, isAtTop false, return shape, window fallback, clearTimeout on unmount
 - **SessionIndicator.test.tsx**: Added 7 tests — base CSS class, dot/text span elements, text content, title tooltips per status, root div element
 - Total tests: 2922 → 2985 (128 test files, all passing)
+
+### Agent 3 (Tests & Types) — Deepen Test Coverage Round 14 (+62 tests)
+- **useGeolocation.test.ts**: Added 8 tests — error message text, watch mode no-API, watch loading, watch position updates, watch error callback, watch options passthrough, requestPosition stability
+- **useSpeechSynthesis.test.ts**: Added 8 tests — voice option on utterance, null voice, cancel resets state, voiceschanged listener, remove listener on unmount, cancel previous before new, callback stability
+- **useSelection.test.ts**: Added 8 tests — selectionchange listener registration, clear stability, mid-text offsets, null targetRef current, deselection cycle, isCollapsed tracking, direct target element selection
+- **useIntersectionObserver.test.ts**: Added 8 tests — ref stability, intersectionRatio update, frozen state persistence, no freeze when disabled, element observation, boundingClientRect storage, disconnect on options change
+- **PerformancePanel.test.tsx**: Added 13 tests — modal stopPropagation, status dot CSS classes, M/U phase labels, metric card count, empty recent renders, dialog aria-label, toggle active class, formatDuration/formatMemory edge cases
+- **useLongPress.test.ts**: Added 7 tests — touch short press onClick, onEnd after long press, onStart event forwarding, onLongPress event forwarding, mouse leave no onEnd, rapid double click, onMouseLeave stability
+- **useDragAndDrop.test.ts**: Added 8 tests — drop counter reset, drop preventDefault, dragLeave preventDefault, multiple accept patterns, no onDrop callback, nested enter count, nested leave count
+- **useReadingProgress.test.ts**: Added 8 tests — reset stability, 25% progress, container ref 50%, container non-scrollable, container scrollTop 0, container unmount cleanup, throttle suppression
+- Total tests: 2985 → 3047 (128 test files, all passing)
