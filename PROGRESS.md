@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5935+ tests)
-- **Last Agent Run**: Agent 2 (Logic)
+- **Test Status**: Passing (6031 tests)
+- **Last Agent Run**: Agent 1 (Components)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1424,3 +1424,15 @@
 - Added 8 tests for useEyeDropper (init, unsupported, pick-color, error, non-Error-thrown, unsupported-returns-null, reset, multi-pick)
 - Added 20 tests for priorityQueueUtils (empty, enqueue/peek, dequeue-order, empty-dequeue, single, duplicates, contains, clear, max-queue, object-queue, fromArray, toArray, clone, strings, stress-test)
 - Total tests: 5898 → 5935 (221 test files, all passing)
+
+### Agent 1 (Components) — TextArea Component
+- Created `TextArea` component — multiline input with character count and auto-resize
+  - Character count display with optional maxLength format (5/100)
+  - Auto-resize mode that grows/shrinks with content (minRows/maxRows)
+  - Manual resize options: none, vertical, horizontal, both
+  - Helper text and error message with priority (error > helper)
+  - Three sizes (sm/md/lg), disabled/readOnly states
+  - Focus state visual feedback
+  - Full ARIA: aria-label, aria-invalid, aria-describedby
+- Added 37 tests for TextArea (rendering, onChange, maxLength, disabled, readOnly, error, helper, count, sizes, resize, accessibility, focus, auto-resize)
+- Total tests: 5994 → 6031 (all passing)
