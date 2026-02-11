@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5148 tests)
+- **Test Status**: Passing (5184 tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1135,3 +1135,25 @@
 - Added 15 tests for useColorScheme (default system/light, system dark, explicit light/dark, switch to system, persist, restore, restore system, invalid localStorage, system change response, system change with explicit, cleanup, shape, stable setScheme, persist system)
 - Added 36 tests for retryUtils (calculateDelay: first/backoff/maxDelay/default-multiplier/default-max; addJitter: range/max/integer/zero; sleep: resolve/not-early; retry: first-success/retry-success/all-fail/onRetry/shouldRetry/backoff/defaults; retrySync: first/retry/exhaust/shouldRetry-false/pass-args/default-attempts; withRetry: wrap/args/retry; isNetworkError: fetch/messages/non-network/non-error; isRetryableStatus: 429/502/503/504/non-retryable)
 - Total tests: 5054 → 5121 (188 test files, all passing)
+
+### Agent 2 (Logic) — useClickCount, useMediaDevices Hooks & encodingUtils Utility
+- Created `useClickCount` hook: detects single/double/triple clicks on elements
+  - Configurable threshold for click grouping
+  - Automatic reset after threshold expiry
+  - Manual reset function
+- Created `useMediaDevices` hook: enumerates available media devices
+  - Categorized lists (audioInputs, audioOutputs, videoInputs)
+  - Auto-refresh on devicechange events
+  - Manual refresh, loading and error states
+  - Support detection for MediaDevices API
+- Created `encodingUtils` utility for encoding/decoding operations:
+  - `toBase64`/`fromBase64`: Base64 with Unicode support
+  - `toHex`/`fromHex`: hexadecimal string encoding
+  - `urlEncode`/`urlDecode`: URL component encoding
+  - `toBase64Url`/`fromBase64Url`: URL-safe Base64 variant
+  - `escapeHtml`/`unescapeHtml`: HTML entity encoding
+  - `bytesToHex`/`hexToBytes`: Uint8Array ↔ hex conversion
+- Added 13 tests for useClickCount (init, single/double/triple click, threshold reset, manual reset, beyond triple, default threshold, custom threshold, shape, null ref, boundary at/past threshold)
+- Added 14 tests for useMediaDevices (initial state, enumerate, categorize audio in/out/video, error handling, non-Error, devicechange refresh, manual refresh, cleanup, unsupported API, property mapping, shape, empty categories)
+- Added 36 tests for encodingUtils (base64: empty/ASCII/roundtrip/Unicode/decode/special; hex: empty/encode/roundtrip/decode/odd-length/invalid/whitespace; url: space/special/roundtrip/Unicode; base64url: no-padding/no-special-chars/roundtrip/special; html: ampersand/lt/quotes/script/unescape/roundtrip/plain; bytes: empty/encode/roundtrip/decode/odd-length/invalid/whitespace)
+- Total tests: 5121 → 5184 (191 test files, all passing)
