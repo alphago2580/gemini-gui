@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (6197+ tests)
+- **Test Status**: Passing (6295+ tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1495,3 +1495,16 @@
 - Added 7 tests for useDocumentReadyState
 - Added 27 tests for bitmaskUtils
 - Total tests: 6157 → 6197 (230 test files, all passing)
+
+### Agent 2 (Logic) — useWakeLock, useScreenCapture, matrixUtils
+- Added `useWakeLock` hook — Screen Wake Lock API wrapper with request/release/auto-cleanup
+- Added `useScreenCapture` hook — Screen Capture API wrapper with start/stop/error handling
+- Added `matrixUtils` utility — matrix operations:
+  - createMatrix, identity, add, subtract, multiply, scalarMultiply
+  - transpose, determinant, minor, cofactor, inverse
+  - trace, isSquare, isSymmetric, isDiagonal, isIdentity
+  - flatten, fromFlat, getRow, getColumn, equals, dimensions
+- Added 16 tests for useWakeLock
+- Added 17 tests for useScreenCapture
+- Added 65 tests for matrixUtils
+- Total tests: 6197 → 6295 (233 test files, all passing)
