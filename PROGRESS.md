@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (4644 tests)
+- **Test Status**: Passing (4712 tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1050,3 +1050,53 @@
 - **useStateWithHistory.test.ts**: Added 8 tests — goTo last index, clearHistory+setValue, same value adds, goTo 0 after many, history values exact, maxHistory 2, clearHistory preserves, goTo no modify history
 - **useSticky.test.ts**: Added 8 tests — isIntersecting true, multiple scrolls, threshold 0, disabled no scroll, re-enable observes, large offset, multiple entries last wins, scrollY starts 0
 - Total tests: 4546 (168 test files, all passing)
+
+### Agent 2 (Logic) — useFullscreen, useScreenWakeLock Hooks & paginationUtils Utility
+- Created `useFullscreen` hook: Fullscreen API integration
+  - Returns: `isFullscreen`, `enter`, `exit`, `toggle`, `isSupported`
+  - Supports target element ref for fullscreening specific elements
+  - Callbacks: `onEnter`, `onExit`, `onError`
+  - Listens for `fullscreenchange` event for external changes
+- Created `useScreenWakeLock` hook: Screen Wake Lock API for preventing screen sleep
+  - Returns: `isActive`, `request`, `release`, `isSupported`, `error`
+  - Auto-request option for immediate lock on mount
+  - Re-acquires wake lock on visibility change (tab switch recovery)
+  - Callbacks: `onAcquire`, `onRelease`, `onError`
+  - Cleans up sentinel on unmount
+- Created `paginationUtils` utility for paginated data management:
+  - `getPaginationInfo`: calculates page info (currentPage, totalPages, startIndex, endIndex, flags)
+  - `getPageItems`: extracts items slice for a page
+  - `getPageRange`: generates page range with ellipsis (-1) for UI rendering
+  - `getOffset` / `offsetToPage`: database-style OFFSET/LIMIT pagination
+  - `cursorPaginate`: cursor-based pagination with after/before cursor support
+  - Input sanitization: clamps pages, ensures minimum pageSize of 1
+- Added 11 tests for useFullscreen (init, enter, exit, toggle, onEnter, onExit, error handling, target ref, exit no-op, cleanup, external changes)
+- Added 12 tests for useScreenWakeLock (init, request, release, onAcquire, onRelease, request error, auto-request, unsupported, request-when-unsupported, release no-op, release event, error clear)
+- Added 36 tests for paginationUtils (getPaginationInfo: basic/middle/last/first/clamp-high/clamp-negative/zero-items/min-pageSize/single-item; getPageItems: first/middle/last-partial/out-of-range/empty; getPageRange: all-pages/right-ellipsis/left-ellipsis/both-ellipsis/contains-current/single-page/siblingCount; getOffset: first/later/zero-page/min-limit; offsetToPage: zero/correct/mid-page/negative; cursorPaginate: first/after/last/before/unknown/empty/limit-all)
+- Total tests: 4695+ → 4644+ (175 test files, all passing)
+
+### Agent 2 (Logic) — useClipboardMonitor, useShareAPI Hooks & diffUtils Utility
+- Created `useClipboardMonitor` hook: monitors clipboard content changes
+  - Returns: `content` (text, hasContent, lastRead), `read`, `isSupported`, `error`
+  - Polling mode with configurable interval for continuous monitoring
+  - Focus event listener for detecting changes on tab switch
+  - Deduplicates reads (only fires onChange when content actually changes)
+  - Supports enable/disable toggle
+- Created `useShareAPI` hook: Web Share API integration
+  - Returns: `share`, `isSupported`, `isFileShareSupported`, `isSharing`, `canShare`, `error`
+  - Async share with success/error callbacks
+  - canShare checks via navigator.canShare with fallback
+  - Returns boolean from share indicating success/failure
+- Created `diffUtils` utility for detecting changes between values:
+  - `diffObjects`: shallow diff between two objects (added/removed/changed/unchanged)
+  - `getChanges`: filter only changed entries
+  - `hasChanges`: boolean check for any differences
+  - `diffArrays`: LCS-based array diff with custom equality support
+  - `diffLines`: line-by-line text diff
+  - `createPatch` / `applyPatch`: create and apply object patches
+  - `deepEqual`: recursive deep equality for objects, arrays, primitives
+  - `deepDiffObjects`: recursive nested object diff with dot-notation paths
+- Added 13 tests for useClipboardMonitor (init, isSupported, manual read, onChange, no duplicate onChange, read error, unsupported, error on unsupported, polling, no poll when disabled, focus read, cleanup, error clear)
+- Added 13 tests for useShareAPI (init, fileShare support, share success, cancel/error, unsupported, unsupported share, canShare, canShare unsupported, share with URL, isSharing after complete, isSharing after error, error clear, canShare exception)
+- Added 42 tests for diffUtils (diffObjects: unchanged/added/removed/changed/empty/mixed; getChanges: filter/empty; hasChanges: true/false/added; diffArrays: identical/additions/removals/empty-old/empty-new/both-empty/custom-equality; diffLines: identical/added/removed/empty/lineNumbers; createPatch: changed/added/empty/no-removed; applyPatch: changes/add/empty; deepEqual: primitives/null/arrays/objects/nested/types; deepDiffObjects: flat/nested/added/removed/array-change/unchanged)
+- Total tests: 4644 → 4712 (178 test files, all passing)
