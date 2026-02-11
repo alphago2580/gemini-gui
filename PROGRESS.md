@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5356 tests)
+- **Test Status**: Passing (5439 tests)
 - **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
@@ -1218,3 +1218,27 @@
 - Added 13 tests for usePageLeave (init, leave top/left/right/bottom, multiple leaves, callback, reset, interior no-trigger, cleanup, stable reset, shape, negative coords)
 - Added 61 tests for regexUtils (escapeRegex: special/brackets/normal/dollar; isEmail: valid/subdomain/dots/missing@/no-domain/empty; isUrl: http/https/query/no-protocol/empty; isIPv4: standard/localhost/max/overflow/few-octets/non-numeric; isAlphanumeric: valid/spaces/special/empty; isHexColor: 6-digit/3-digit/no-hash/invalid/wrong-length; extractEmails: single/multiple/none; extractUrls: single/multiple/none; extractHashtags: basic/Korean/none; extractMentions: basic/none; matchesGlob: star/question/reject/exact/empty; countMatches: string/regex/none/no-global; isUUID: v4/invalid/v1; isNumeric: digits/decimal/negative/empty; replaceAll: basic/none/empty/special)
 - Total tests: 5269 → 5356 (197 test files, all passing)
+
+### Agent 2 (Logic) — useResizeObserver, useTextSelection Hooks & slugUtils Utility
+- Created `useResizeObserver` hook: observes element resize changes via ResizeObserver API
+  - Returns width, height, inlineSize, blockSize measurements
+  - Supports box option (content-box, border-box)
+  - Optional onResize callback (ref-stable, no observer recreation)
+  - Graceful fallback when ResizeObserver is unavailable
+- Created `useTextSelection` hook: tracks text selection in the document
+  - Returns selection text, isCollapsed, anchorNode, focusNode, rangeCount, bounding rect
+  - hasSelection convenience boolean
+  - clearSelection to programmatically remove selection
+  - Listens to selectionchange events
+- Created `slugUtils` utility for URL-friendly string conversion:
+  - `slugify`: convert string to slug with diacritical mark removal
+  - `unslugify`: convert slug back to title case
+  - `uniqueSlug`: generate unique slug with numeric suffix
+  - `truncateSlug`: truncate at separator boundary within max length
+  - `isValidSlug`: validate slug format
+  - `filePathToSlug`: convert file path to slug
+  - `camelToSlug`/`slugToCamel`: convert between camelCase and slug format
+- Added 14 tests for useResizeObserver (default state, size update, inlineSize/blockSize, contentRect fallback, onResize callback, box option, disconnect, empty entries, missing API, ref stability, callback update, observer recreation, size fields, shorthand match)
+- Added 13 tests for useTextSelection (default state, text selected, bounding rect, collapsed rect, clearSelection, empty text, event listener, unmount cleanup, null getSelection, anchorNode/focusNode, rangeCount, null rect, stable clearSelection)
+- Added 57 tests for slugUtils (slugify: basic/spaces/special/diacriticals/trim/separator/empty/special-only/hyphens/uppercase/numbers/mixed; unslugify: title/single/custom/multi/empty; uniqueSlug: no-conflict/append-1/increment/custom/empty; truncateSlug: short/separator-boundary/mid-word-cutback/no-separator/exact/long; isValidSlug: valid/single/uppercase/spaces/special/leading-sep/trailing-sep/double-sep/numbers/custom/empty; filePathToSlug: filename/fullpath/windows/no-ext/custom/nested; camelToSlug: camel/pascal/consecutive-caps/single/custom/multi; slugToCamel: basic/single/multi/custom/empty/inverse)
+- Total tests: 5356 → 5439 (200 test files, all passing)
