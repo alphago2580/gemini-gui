@@ -566,3 +566,16 @@ export const PAGINATION_ARIA = '메시지 페이지 이동';
 // Switch (quick toggle)
 export const SWITCH_PREVIEW_LABEL = '미리보기';
 export const SWITCH_PREVIEW_ARIA = '입력 미리보기 토글';
+
+// Stepper (onboarding)
+export const STEPPER_WELCOME = '환영';
+export const STEPPER_SETUP = '준비';
+export const STEPPER_START = '대화';
+
+// Tabs (panel tabs)
+export const TABS_INFO_ARIA = '정보 탭';
+export const TAB_STATS_LABEL = '통계';
+export const TAB_TIMELINE_LABEL = '타임라인';
+
+// TreeView (conversation structure)
+export const TREE_CONVERSATIONS_LABEL = '대화 구조';
