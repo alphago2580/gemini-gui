@@ -3,8 +3,8 @@
 ## Current Status
 - **Version**: 0.1.0
 - **Total Lines**: ~1400
-- **Test Status**: Passing (5054 tests)
-- **Last Agent Run**: Agent 4 (Integrator)
+- **Test Status**: Passing (5148 tests)
+- **Last Agent Run**: Agent 2 (Logic)
 
 ## Completed Features
 - [x] Basic Electron + React shell
@@ -1112,3 +1112,26 @@
 - Added Korean UI strings for Drawer, ScrollToTop, EmptyState, CopyButton, Collapsible, ImageViewer
 - Imported **EmptyState** and **Kbd** components for availability in App.tsx
 - Total tests: 4987 → 5054 (185 test files, all passing)
+
+### Agent 2 (Logic) — useMousePosition, useColorScheme Hooks & retryUtils Utility
+- Created `useMousePosition` hook: tracks mouse position relative to window or element
+  - Absolute (clientX/clientY) and element-relative coordinates
+  - `isInside` detection for element boundary checking
+  - Configurable throttling for performance
+  - Automatic cleanup of event listeners
+- Created `useColorScheme` hook: system color scheme detection and user preference management
+  - Detects system `prefers-color-scheme` preference with live updates
+  - Supports explicit light/dark/system mode with localStorage persistence
+  - Stable `setScheme` callback reference across renders
+- Created `retryUtils` utility for retry logic with configurable strategies:
+  - `calculateDelay`: exponential backoff calculation with max delay cap
+  - `addJitter`: random jitter to prevent thundering herd
+  - `retry`: async retry with backoff, shouldRetry predicate, onRetry callback
+  - `retrySync`: synchronous retry for non-async functions
+  - `withRetry`: higher-order function wrapper for pre-configured retry
+  - `isNetworkError`: detect common network error patterns
+  - `isRetryableStatus`: identify retryable HTTP status codes (429, 502, 503, 504)
+- Added 16 tests for useMousePosition (init, window tracking, element-relative, isInside true/false, boundary edge, bottom-right corner, throttle, no-throttle, cleanup window/element, clear timer, shape, multiple moves, no-ref defaults, negative throttle)
+- Added 15 tests for useColorScheme (default system/light, system dark, explicit light/dark, switch to system, persist, restore, restore system, invalid localStorage, system change response, system change with explicit, cleanup, shape, stable setScheme, persist system)
+- Added 36 tests for retryUtils (calculateDelay: first/backoff/maxDelay/default-multiplier/default-max; addJitter: range/max/integer/zero; sleep: resolve/not-early; retry: first-success/retry-success/all-fail/onRetry/shouldRetry/backoff/defaults; retrySync: first/retry/exhaust/shouldRetry-false/pass-args/default-attempts; withRetry: wrap/args/retry; isNetworkError: fetch/messages/non-network/non-error; isRetryableStatus: 429/502/503/504/non-retryable)
+- Total tests: 5054 → 5121 (188 test files, all passing)
