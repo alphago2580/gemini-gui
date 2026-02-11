@@ -85,4 +85,84 @@ describe('usePrevious', () => {
     rerender({ value: null });
     expect(result.current).toBe('hello');
   });
+
+  it('works with array values', () => {
+    const arr1 = [1, 2, 3];
+    const arr2 = [4, 5, 6];
+    const { result, rerender } = renderHook(
+      ({ value }) => usePrevious(value),
+      { initialProps: { value: arr1 } }
+    );
+    rerender({ value: arr2 });
+    expect(result.current).toBe(arr1);
+  });
+
+  it('tracks four sequential updates', () => {
+    const { result, rerender } = renderHook(
+      ({ value }) => usePrevious(value),
+      { initialProps: { value: 'first' } }
+    );
+    expect(result.current).toBeUndefined();
+    rerender({ value: 'second' });
+    expect(result.current).toBe('first');
+    rerender({ value: 'third' });
+    expect(result.current).toBe('second');
+    rerender({ value: 'fourth' });
+    expect(result.current).toBe('third');
+  });
+
+  it('returns undefined for empty string initial', () => {
+    const { result } = renderHook(() => usePrevious(''));
+    expect(result.current).toBeUndefined();
+  });
+
+  it('preserves object reference identity', () => {
+    const obj = { a: 1, b: { c: 2 } };
+    const { result, rerender } = renderHook(
+      ({ value }) => usePrevious(value),
+      { initialProps: { value: obj } }
+    );
+    rerender({ value: { a: 1, b: { c: 2 } } });
+    expect(result.current).toBe(obj);
+  });
+
+  it('works with zero as a falsy value', () => {
+    const { result, rerender } = renderHook(
+      ({ value }) => usePrevious(value),
+      { initialProps: { value: 0 } }
+    );
+    rerender({ value: 1 });
+    expect(result.current).toBe(0);
+  });
+
+  it('undefined to defined transition', () => {
+    const { result, rerender } = renderHook(
+      ({ value }) => usePrevious(value),
+      { initialProps: { value: undefined as string | undefined } }
+    );
+    expect(result.current).toBeUndefined();
+    rerender({ value: 'defined' });
+    expect(result.current).toBeUndefined();
+    rerender({ value: 'next' });
+    expect(result.current).toBe('defined');
+  });
+
+  it('same reference rerender tracks correctly', () => {
+    const obj = { x: 1 };
+    const { result, rerender } = renderHook(
+      ({ value }) => usePrevious(value),
+      { initialProps: { value: obj } }
+    );
+    rerender({ value: obj });
+    expect(result.current).toBe(obj);
+  });
+
+  it('works with NaN', () => {
+    const { result, rerender } = renderHook(
+      ({ value }) => usePrevious(value),
+      { initialProps: { value: NaN } }
+    );
+    rerender({ value: 42 });
+    expect(result.current).toBeNaN();
+  });
 });

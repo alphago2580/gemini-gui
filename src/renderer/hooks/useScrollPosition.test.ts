@@ -198,4 +198,147 @@ describe('useScrollPosition', () => {
 
     expect(removeEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function));
   });
+
+  it('default throttleMs is 100', () => {
+    const div = document.createElement('div');
+    let scrollTopVal = 0;
+    Object.defineProperty(div, 'scrollTop', {
+      get: () => scrollTopVal,
+      set: (v: number) => { scrollTopVal = v; },
+    });
+    Object.defineProperty(div, 'scrollLeft', { value: 0 });
+    Object.defineProperty(div, 'scrollHeight', { value: 1000 });
+    Object.defineProperty(div, 'clientHeight', { value: 300 });
+
+    const ref = { current: div };
+    const { result } = renderHook(() => useScrollPosition(ref));
+
+    act(() => { vi.advanceTimersByTime(100); });
+
+    scrollTopVal = 50;
+    act(() => { div.dispatchEvent(new Event('scroll')); });
+
+    // Before 100ms, should not update
+    act(() => { vi.advanceTimersByTime(50); });
+    expect(result.current.y).toBe(0);
+
+    act(() => { vi.advanceTimersByTime(50); });
+    expect(result.current.y).toBe(50);
+  });
+
+  it('direction is none when scroll position unchanged', () => {
+    const div = document.createElement('div');
+    Object.defineProperty(div, 'scrollTop', { value: 50 });
+    Object.defineProperty(div, 'scrollLeft', { value: 0 });
+    Object.defineProperty(div, 'scrollHeight', { value: 1000 });
+    Object.defineProperty(div, 'clientHeight', { value: 300 });
+
+    const ref = { current: div };
+    const { result } = renderHook(() => useScrollPosition(ref, 0));
+
+    act(() => { vi.advanceTimersByTime(0); });
+    act(() => {
+      div.dispatchEvent(new Event('scroll'));
+      vi.advanceTimersByTime(0);
+    });
+
+    expect(result.current.direction).toBe('none');
+  });
+
+  it('isAtBottom false when not near bottom', () => {
+    const div = document.createElement('div');
+    // scrollTop(0) + clientHeight(300) = 300 < scrollHeight(1000) - 10 = 990
+    Object.defineProperty(div, 'scrollTop', { value: 0 });
+    Object.defineProperty(div, 'scrollLeft', { value: 0 });
+    Object.defineProperty(div, 'scrollHeight', { value: 1000 });
+    Object.defineProperty(div, 'clientHeight', { value: 300 });
+
+    const ref = { current: div };
+    const { result } = renderHook(() => useScrollPosition(ref, 0));
+
+    act(() => { vi.advanceTimersByTime(0); });
+    act(() => {
+      div.dispatchEvent(new Event('scroll'));
+      vi.advanceTimersByTime(0);
+    });
+
+    expect(result.current.isAtBottom).toBe(false);
+  });
+
+  it('isAtBottom true at exact threshold boundary', () => {
+    const div = document.createElement('div');
+    // scrollTop(190) + clientHeight(300) = 490 >= scrollHeight(500) - 10 = 490
+    Object.defineProperty(div, 'scrollTop', { value: 190 });
+    Object.defineProperty(div, 'scrollLeft', { value: 0 });
+    Object.defineProperty(div, 'scrollHeight', { value: 500 });
+    Object.defineProperty(div, 'clientHeight', { value: 300 });
+
+    const ref = { current: div };
+    const { result } = renderHook(() => useScrollPosition(ref, 0));
+
+    act(() => { vi.advanceTimersByTime(0); });
+    act(() => {
+      div.dispatchEvent(new Event('scroll'));
+      vi.advanceTimersByTime(0);
+    });
+
+    expect(result.current.isAtBottom).toBe(true);
+  });
+
+  it('isAtTop false when scrolled down', () => {
+    const div = document.createElement('div');
+    Object.defineProperty(div, 'scrollTop', { value: 1 });
+    Object.defineProperty(div, 'scrollLeft', { value: 0 });
+    Object.defineProperty(div, 'scrollHeight', { value: 500 });
+    Object.defineProperty(div, 'clientHeight', { value: 300 });
+
+    const ref = { current: div };
+    const { result } = renderHook(() => useScrollPosition(ref, 0));
+
+    act(() => { vi.advanceTimersByTime(0); });
+    act(() => {
+      div.dispatchEvent(new Event('scroll'));
+      vi.advanceTimersByTime(0);
+    });
+
+    expect(result.current.isAtTop).toBe(false);
+  });
+
+  it('return shape matches ScrollPosition interface', () => {
+    const { result } = renderHook(() => useScrollPosition());
+    expect(result.current).toHaveProperty('x');
+    expect(result.current).toHaveProperty('y');
+    expect(result.current).toHaveProperty('direction');
+    expect(result.current).toHaveProperty('isAtTop');
+    expect(result.current).toHaveProperty('isAtBottom');
+    expect(result.current).toHaveProperty('scrollHeight');
+    expect(result.current).toHaveProperty('clientHeight');
+  });
+
+  it('uses window scroll when no ref provided', () => {
+    const addSpy = vi.spyOn(window, 'addEventListener');
+    renderHook(() => useScrollPosition(undefined, 0));
+
+    expect(addSpy).toHaveBeenCalledWith('scroll', expect.any(Function), { passive: true });
+    addSpy.mockRestore();
+  });
+
+  it('clears throttle timer on unmount', () => {
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
+    const div = document.createElement('div');
+    Object.defineProperty(div, 'scrollTop', { value: 0 });
+    Object.defineProperty(div, 'scrollLeft', { value: 0 });
+    Object.defineProperty(div, 'scrollHeight', { value: 500 });
+    Object.defineProperty(div, 'clientHeight', { value: 300 });
+
+    const ref = { current: div };
+    const { unmount } = renderHook(() => useScrollPosition(ref, 200));
+
+    // Trigger a scroll to start throttle timer
+    act(() => { div.dispatchEvent(new Event('scroll')); });
+
+    unmount();
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+    clearTimeoutSpy.mockRestore();
+  });
 });

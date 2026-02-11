@@ -54,4 +54,48 @@ describe('SessionIndicator', () => {
     render(<SessionIndicator status="connected" />);
     expect(screen.getByRole('status')).toHaveAttribute('title', '연결됨');
   });
+
+  it('has session-indicator base CSS class', () => {
+    const { container } = render(<SessionIndicator status="idle" />);
+    expect(container.querySelector('.session-indicator')).toBeInTheDocument();
+  });
+
+  it('session-dot is a span element', () => {
+    const { container } = render(<SessionIndicator status="idle" />);
+    const dot = container.querySelector('.session-dot');
+    expect(dot?.tagName).toBe('SPAN');
+  });
+
+  it('session-text is a span element', () => {
+    const { container } = render(<SessionIndicator status="connected" />);
+    const text = container.querySelector('.session-text');
+    expect(text?.tagName).toBe('SPAN');
+  });
+
+  it('session-text contains label text', () => {
+    const { container } = render(<SessionIndicator status="error" />);
+    const text = container.querySelector('.session-text');
+    expect(text?.textContent).toBe('연결 오류');
+  });
+
+  it('title tooltip for idle matches label', () => {
+    render(<SessionIndicator status="idle" />);
+    expect(screen.getByRole('status')).toHaveAttribute('title', '대기 중');
+  });
+
+  it('title tooltip for connecting matches label', () => {
+    render(<SessionIndicator status="connecting" />);
+    expect(screen.getByRole('status')).toHaveAttribute('title', '연결 중...');
+  });
+
+  it('title tooltip for error matches label', () => {
+    render(<SessionIndicator status="error" />);
+    expect(screen.getByRole('status')).toHaveAttribute('title', '연결 오류');
+  });
+
+  it('root element is a div', () => {
+    const { container } = render(<SessionIndicator status="idle" />);
+    const root = container.firstElementChild;
+    expect(root?.tagName).toBe('DIV');
+  });
 });

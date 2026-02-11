@@ -123,4 +123,114 @@ describe('useDebounce', () => {
     expect(clearTimeoutSpy).toHaveBeenCalled();
     clearTimeoutSpy.mockRestore();
   });
+
+  it('works with boolean values', () => {
+    const { result, rerender } = renderHook(
+      ({ value, delay }) => useDebounce(value, delay),
+      { initialProps: { value: false, delay: 200 } }
+    );
+
+    rerender({ value: true, delay: 200 });
+    expect(result.current).toBe(false);
+
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
+    expect(result.current).toBe(true);
+  });
+
+  it('handles delay change without value change', () => {
+    const { result, rerender } = renderHook(
+      ({ value, delay }) => useDebounce(value, delay),
+      { initialProps: { value: 'test', delay: 300 } }
+    );
+
+    rerender({ value: 'test', delay: 500 });
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    expect(result.current).toBe('test');
+  });
+
+  it('works with null value', () => {
+    const { result, rerender } = renderHook(
+      ({ value, delay }) => useDebounce(value, delay),
+      { initialProps: { value: null as string | null, delay: 100 } }
+    );
+
+    rerender({ value: 'hello', delay: 100 });
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+    expect(result.current).toBe('hello');
+  });
+
+  it('works with undefined value', () => {
+    const { result, rerender } = renderHook(
+      ({ value, delay }) => useDebounce(value, delay),
+      { initialProps: { value: undefined as string | undefined, delay: 100 } }
+    );
+
+    rerender({ value: 'defined', delay: 100 });
+    expect(result.current).toBeUndefined();
+
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+    expect(result.current).toBe('defined');
+  });
+
+  it('rapid changes only emit final value', () => {
+    const { result, rerender } = renderHook(
+      ({ value, delay }) => useDebounce(value, delay),
+      { initialProps: { value: 'a', delay: 300 } }
+    );
+
+    rerender({ value: 'b', delay: 300 });
+    act(() => { vi.advanceTimersByTime(50); });
+    rerender({ value: 'c', delay: 300 });
+    act(() => { vi.advanceTimersByTime(50); });
+    rerender({ value: 'd', delay: 300 });
+    act(() => { vi.advanceTimersByTime(50); });
+    rerender({ value: 'e', delay: 300 });
+
+    // Before delay from last change
+    expect(result.current).toBe('a');
+
+    act(() => { vi.advanceTimersByTime(300); });
+    expect(result.current).toBe('e');
+  });
+
+  it('same value rerender keeps debounced value', () => {
+    const { result, rerender } = renderHook(
+      ({ value, delay }) => useDebounce(value, delay),
+      { initialProps: { value: 'hello', delay: 300 } }
+    );
+
+    rerender({ value: 'hello', delay: 300 });
+    act(() => { vi.advanceTimersByTime(300); });
+    expect(result.current).toBe('hello');
+  });
+
+  it('delay decrease triggers earlier update', () => {
+    const { result, rerender } = renderHook(
+      ({ value, delay }) => useDebounce(value, delay),
+      { initialProps: { value: 'a', delay: 1000 } }
+    );
+
+    rerender({ value: 'b', delay: 100 });
+    act(() => { vi.advanceTimersByTime(100); });
+    expect(result.current).toBe('b');
+  });
+
+  it('works with empty string', () => {
+    const { result, rerender } = renderHook(
+      ({ value, delay }) => useDebounce(value, delay),
+      { initialProps: { value: 'text', delay: 200 } }
+    );
+
+    rerender({ value: '', delay: 200 });
+    act(() => { vi.advanceTimersByTime(200); });
+    expect(result.current).toBe('');
+  });
 });

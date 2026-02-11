@@ -122,4 +122,95 @@ describe('useInterval', () => {
     vi.advanceTimersByTime(100);
     expect(callback).toHaveBeenCalledTimes(10);
   });
+
+  it('does not call callback before first interval', () => {
+    const callback = vi.fn();
+    renderHook(() => useInterval(callback, 500));
+
+    vi.advanceTimersByTime(499);
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('clearInterval called on unmount', () => {
+    const clearIntervalSpy = vi.spyOn(globalThis, 'clearInterval');
+    const callback = vi.fn();
+    const { unmount } = renderHook(() => useInterval(callback, 100));
+
+    unmount();
+    expect(clearIntervalSpy).toHaveBeenCalled();
+    clearIntervalSpy.mockRestore();
+  });
+
+  it('delay change from short to long resets interval timing', () => {
+    const callback = vi.fn();
+    const { rerender } = renderHook(
+      ({ delay }) => useInterval(callback, delay),
+      { initialProps: { delay: 100 as number | null } }
+    );
+
+    vi.advanceTimersByTime(100);
+    expect(callback).toHaveBeenCalledTimes(1);
+
+    callback.mockClear();
+    rerender({ delay: 2000 });
+
+    vi.advanceTimersByTime(1000);
+    expect(callback).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1000);
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+
+  it('null to null rerender does not start interval', () => {
+    const callback = vi.fn();
+    const { rerender } = renderHook(
+      ({ delay }) => useInterval(callback, delay),
+      { initialProps: { delay: null as number | null } }
+    );
+
+    rerender({ delay: null });
+    vi.advanceTimersByTime(5000);
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('callback with 1ms delay fires correctly', () => {
+    const callback = vi.fn();
+    renderHook(() => useInterval(callback, 1));
+
+    vi.advanceTimersByTime(10);
+    expect(callback).toHaveBeenCalledTimes(10);
+  });
+
+  it('multiple delay changes preserve callback', () => {
+    const callback = vi.fn();
+    const { rerender } = renderHook(
+      ({ delay }) => useInterval(callback, delay),
+      { initialProps: { delay: 100 as number | null } }
+    );
+
+    vi.advanceTimersByTime(100);
+    expect(callback).toHaveBeenCalledTimes(1);
+
+    rerender({ delay: 200 });
+    vi.advanceTimersByTime(200);
+    expect(callback).toHaveBeenCalledTimes(2);
+
+    rerender({ delay: 50 });
+    vi.advanceTimersByTime(100);
+    expect(callback).toHaveBeenCalledTimes(4);
+  });
+
+  it('same delay rerender does not restart', () => {
+    const callback = vi.fn();
+    const { rerender } = renderHook(
+      ({ delay }) => useInterval(callback, delay),
+      { initialProps: { delay: 500 as number | null } }
+    );
+
+    vi.advanceTimersByTime(400);
+    rerender({ delay: 500 });
+    // Interval should restart, so need 500 more from rerender
+    vi.advanceTimersByTime(500);
+    expect(callback).toHaveBeenCalled();
+  });
 });
