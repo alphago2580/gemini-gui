@@ -33,6 +33,13 @@ import ConfirmDialog from './components/ConfirmDialog';
 import NotificationBanner from './components/NotificationBanner';
 import SessionIndicator from './components/SessionIndicator';
 import ProgressBar from './components/ProgressBar';
+import Drawer from './components/Drawer';
+import ScrollToTop from './components/ScrollToTop';
+import EmptyState from './components/EmptyState';
+import CopyButton from './components/CopyButton';
+import Collapsible from './components/Collapsible';
+import Kbd from './components/Kbd';
+import ImageViewer from './components/ImageViewer';
 import type { SplitButtonOption } from './components/SplitButton';
 import { calculateConversationStats } from './utils/conversationStats';
 import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
@@ -384,7 +391,7 @@ const App: React.FC = () => {
     { id: 'message-search', label: S.CMD_MESSAGE_SEARCH, action: dialogs.openMessageSearch },
     { id: 'perf-monitor', label: S.CMD_PERF_MONITOR, action: dialogs.openPerfPanel },
     { id: 'toggle-preview', label: S.CMD_TOGGLE_PREVIEW, action: dialogs.toggleInputPreview },
-    { id: 'bookmarks', label: S.CMD_BOOKMARKS, action: dialogs.openBookmarks },
+    { id: 'bookmarks', label: S.CMD_BOOKMARKS, action: dialogs.openBookmarkDrawer },
     { id: 'regenerate', label: S.REGENERATE_TITLE, action: handleRegenerate },
   ], [handleNewChat, handleClearConversation, handleToggleSidebar, handleExport, handleExportPdf, inlineSearch, dialogs, handleRegenerate]);
 
@@ -469,6 +476,12 @@ const App: React.FC = () => {
                 variant="secondary"
                 size="small"
                 ariaLabel={S.ARIA_EXPORT}
+              />
+              <CopyButton
+                text={messages.map(m => `${m.role === 'user' ? S.ROLE_USER : S.ROLE_ASSISTANT}: ${m.content}`).join('\n\n')}
+                size="small"
+                variant="outline"
+                ariaLabel={S.COPY_CONVERSATION_ARIA}
               />
               <Tooltip content={S.TITLE_CODE_SNIPPETS} position="bottom">
                 <button
@@ -567,7 +580,12 @@ const App: React.FC = () => {
               <TypingIndicator isStreaming={isStreaming} />
             )}
             {tokenUsage && !isLoading && (
-              <>
+              <Collapsible
+                title={S.COLLAPSIBLE_TOKEN_DETAILS}
+                size="small"
+                variant="bordered"
+                icon={<span>📊</span>}
+              >
                 <TokenUsage usage={tokenUsage} maxTokens={settings.maxTokens} />
                 <ProgressBar
                   value={tokenUsage.totalTokens}
@@ -577,7 +595,7 @@ const App: React.FC = () => {
                   variant={tokenUsage.totalTokens / settings.maxTokens > 0.9 ? 'error' : tokenUsage.totalTokens / settings.maxTokens > 0.7 ? 'warning' : 'default'}
                   size="small"
                 />
-              </>
+              </Collapsible>
             )}
             {!isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
               <button
@@ -592,6 +610,15 @@ const App: React.FC = () => {
             <div ref={messagesEndRef} />
           </div>
 
+          <ScrollToTop
+            scrollTarget={messagesContainerRef}
+            threshold={300}
+            smooth={true}
+            size="small"
+            variant="secondary"
+            position="bottom-right"
+            ariaLabel={S.SCROLL_TOP_ARIA}
+          />
           {showScrollButton && (
             <button
               className="scroll-to-bottom-btn"
@@ -700,13 +727,22 @@ const App: React.FC = () => {
         onClose={dialogs.closeStats}
         stats={conversationStatsData}
       />
-      <BookmarkedMessages
-        isOpen={dialogs.isBookmarksOpen}
-        onClose={dialogs.closeBookmarks}
-        bookmarks={msgActions.bookmarks}
-        onNavigateToMessage={msgActions.handleSearchNavigate}
-        onRemoveBookmark={msgActions.removeBookmark}
-      />
+      <Drawer
+        open={dialogs.isBookmarkDrawerOpen}
+        onClose={dialogs.closeBookmarkDrawer}
+        position="right"
+        size="medium"
+        title={S.DRAWER_BOOKMARKS_TITLE}
+        ariaLabel={S.DRAWER_BOOKMARKS_ARIA}
+      >
+        <BookmarkedMessages
+          isOpen={true}
+          onClose={dialogs.closeBookmarkDrawer}
+          bookmarks={msgActions.bookmarks}
+          onNavigateToMessage={msgActions.handleSearchNavigate}
+          onRemoveBookmark={msgActions.removeBookmark}
+        />
+      </Drawer>
       <PerformancePanel
         isOpen={dialogs.isPerfPanelOpen}
         onClose={dialogs.closePerfPanel}
@@ -748,6 +784,13 @@ const App: React.FC = () => {
         variant={confirmDialog.variant}
         onConfirm={confirmDialog.onConfirm}
         onCancel={closeConfirmDialog}
+      />
+      <ImageViewer
+        src={dialogs.imageViewerState.src}
+        alt={dialogs.imageViewerState.alt}
+        open={dialogs.imageViewerState.open}
+        onClose={dialogs.closeImageViewer}
+        ariaLabel={S.IMAGE_VIEWER_ARIA}
       />
     </div>
   );

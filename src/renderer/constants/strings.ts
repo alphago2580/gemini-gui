@@ -480,3 +480,24 @@ export const CONV_MENU_DELETE = '삭제';
 
 // ProgressBar — token usage
 export const TOKEN_PROGRESS_LABEL = '토큰 사용량';
+
+// Drawer
+export const DRAWER_BOOKMARKS_TITLE = '북마크';
+export const DRAWER_BOOKMARKS_ARIA = '북마크 패널';
+
+// ScrollToTop
+export const SCROLL_TOP_ARIA = '맨 위로 스크롤';
+
+// EmptyState
+export const EMPTY_STATE_NO_MESSAGES = '메시지가 없습니다';
+export const EMPTY_STATE_NO_MESSAGES_DESC = '새 대화를 시작하거나 메시지를 입력하세요';
+export const EMPTY_STATE_NEW_CHAT_ACTION = '새 대화 시작';
+
+// CopyButton
+export const COPY_CONVERSATION_ARIA = '대화 내용 복사';
+
+// Collapsible
+export const COLLAPSIBLE_TOKEN_DETAILS = '토큰 상세 정보';
+
+// ImageViewer
+export const IMAGE_VIEWER_ARIA = '이미지 뷰어';

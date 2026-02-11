@@ -16,6 +16,8 @@ export function useDialogs() {
   const [isPerfPanelOpen, setIsPerfPanelOpen] = useState(false);
   const [isMessageSearchOpen, setIsMessageSearchOpen] = useState(false);
   const [isInputPreviewVisible, setIsInputPreviewVisible] = useState(false);
+  const [isBookmarkDrawerOpen, setIsBookmarkDrawerOpen] = useState(false);
+  const [imageViewerState, setImageViewerState] = useState<{ open: boolean; src: string; alt: string }>({ open: false, src: '', alt: '' });
 
   const openSettings = useCallback(() => setIsSettingsOpen(true), []);
   const closeSettings = useCallback(() => setIsSettingsOpen(false), []);
@@ -49,6 +51,16 @@ export function useDialogs() {
   const closeMessageSearch = useCallback(() => setIsMessageSearchOpen(false), []);
 
   const toggleInputPreview = useCallback(() => setIsInputPreviewVisible(prev => !prev), []);
+
+  const openBookmarkDrawer = useCallback(() => setIsBookmarkDrawerOpen(true), []);
+  const closeBookmarkDrawer = useCallback(() => setIsBookmarkDrawerOpen(false), []);
+
+  const openImageViewer = useCallback((src: string, alt?: string) => {
+    setImageViewerState({ open: true, src, alt: alt || '' });
+  }, []);
+  const closeImageViewer = useCallback(() => {
+    setImageViewerState({ open: false, src: '', alt: '' });
+  }, []);
 
   return {
     // Settings
@@ -105,5 +117,15 @@ export function useDialogs() {
     // Input preview
     isInputPreviewVisible,
     toggleInputPreview,
+
+    // Bookmark drawer
+    isBookmarkDrawerOpen,
+    openBookmarkDrawer,
+    closeBookmarkDrawer,
+
+    // Image viewer
+    imageViewerState,
+    openImageViewer,
+    closeImageViewer,
   };
 }
