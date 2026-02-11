@@ -322,3 +322,82 @@ describe('createAction', () => {
     });
   });
 });
+
+describe('stateManagementUtils — additional coverage', () => {
+  it('subscribe returns unique unsubscribe per listener', () => {
+    const store = createStore(counterReducer, { count: 0 });
+    const l1 = vi.fn();
+    const l2 = vi.fn();
+    const unsub1 = store.subscribe(l1);
+    store.subscribe(l2);
+    unsub1();
+    store.dispatch({ type: 'INCREMENT' });
+    expect(l1).not.toHaveBeenCalled();
+    expect(l2).toHaveBeenCalledTimes(1);
+  });
+
+  it('duplicate subscribe same listener is idempotent (Set semantics)', () => {
+    const store = createStore(counterReducer, { count: 0 });
+    const listener = vi.fn();
+    store.subscribe(listener);
+    store.subscribe(listener);
+    store.dispatch({ type: 'INCREMENT' });
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it('select with identity returns full state', () => {
+    const store = createStore(counterReducer, { count: 99 });
+    const result = store.select((s) => s);
+    expect(result).toEqual({ count: 99 });
+  });
+
+  it('middleware can modify action before reaching reducer', () => {
+    const interceptor = <S, A extends { type: string }>() => {
+      return (_state: S, action: A, next: (a: A) => S): S => {
+        if (action.type === 'INCREMENT') {
+          return next({ ...action, type: 'DECREMENT' } as A);
+        }
+        return next(action);
+      };
+    };
+    const store = createStore(counterReducer, { count: 10 }, [interceptor()]);
+    store.dispatch({ type: 'INCREMENT' });
+    expect(store.getState().count).toBe(9);
+  });
+
+  it('thunk middleware does not notify listeners when only thunk runs', () => {
+    const store = createStore(counterReducer, { count: 0 }, [thunkMiddleware()]);
+    const listener = vi.fn();
+    store.subscribe(listener);
+    const thunk = vi.fn(() => {});
+    store.dispatch(thunk as unknown as CounterAction);
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it('createSelector recomputes when second input changes', () => {
+    interface S { a: number; b: number }
+    const getA = (s: S) => s.a;
+    const getB = (s: S) => s.b;
+    const combiner = vi.fn((a: number, b: number) => a + b);
+    const sel = createSelector(getA, getB, combiner);
+    expect(sel({ a: 1, b: 2 })).toBe(3);
+    expect(sel({ a: 1, b: 3 })).toBe(4);
+    expect(combiner).toHaveBeenCalledTimes(2);
+  });
+
+  it('combineReducers handles single-key state', () => {
+    const singleReducer = combineReducers<{ val: number }>({
+      val: (state: number, action: { type: string }) =>
+        action.type === 'INC' ? state + 1 : state,
+    });
+    const result = singleReducer({ val: 0 }, { type: 'INC' });
+    expect(result).toEqual({ val: 1 });
+  });
+
+  it('createAction with undefined payload returns type only', () => {
+    const noPayload = createAction('RESET');
+    const action = noPayload();
+    expect(action).toEqual({ type: 'RESET' });
+    expect('payload' in action).toBe(false);
+  });
+});

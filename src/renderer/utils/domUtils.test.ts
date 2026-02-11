@@ -369,4 +369,85 @@ describe('domUtils', () => {
       document.body.removeChild(el);
     });
   });
+
+  describe('domUtils — additional coverage', () => {
+    it('isElementVisible returns false when element is left of viewport', () => {
+      const el = document.createElement('div');
+      vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({
+        top: 100, bottom: 200, left: -200, right: -100,
+        width: 100, height: 100, x: -200, y: 100, toJSON: () => {},
+      });
+      Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true });
+      expect(isElementVisible(el)).toBe(false);
+    });
+
+    it('isElementFullyVisible returns false when element right exceeds viewport', () => {
+      const el = document.createElement('div');
+      vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({
+        top: 10, bottom: 100, left: 900, right: 1100,
+        width: 200, height: 90, x: 900, y: 10, toJSON: () => {},
+      });
+      Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true });
+      Object.defineProperty(window, 'innerHeight', { value: 768, configurable: true });
+      expect(isElementFullyVisible(el)).toBe(false);
+    });
+
+    it('isNearBottom returns true at exact threshold boundary', () => {
+      const el = document.createElement('div');
+      Object.defineProperty(el, 'scrollTop', { value: 400 });
+      Object.defineProperty(el, 'scrollHeight', { value: 1000 });
+      Object.defineProperty(el, 'clientHeight', { value: 500 });
+      expect(isNearBottom(el, 100)).toBe(true);
+    });
+
+    it('getScrollPercent returns rounded value', () => {
+      const el = document.createElement('div');
+      Object.defineProperty(el, 'scrollTop', { value: 333 });
+      Object.defineProperty(el, 'scrollHeight', { value: 1000 });
+      Object.defineProperty(el, 'clientHeight', { value: 500 });
+      expect(getScrollPercent(el)).toBe(67);
+    });
+
+    it('getFocusableElements includes select and textarea', () => {
+      const container = document.createElement('div');
+      const select = document.createElement('select');
+      const textarea = document.createElement('textarea');
+      container.appendChild(select);
+      container.appendChild(textarea);
+      const focusable = getFocusableElements(container);
+      expect(focusable).toContain(select);
+      expect(focusable).toContain(textarea);
+    });
+
+    it('trapFocus does not prevent default when active is not first/last', () => {
+      const container = document.createElement('div');
+      const first = document.createElement('button');
+      const middle = document.createElement('button');
+      const last = document.createElement('button');
+      container.appendChild(first);
+      container.appendChild(middle);
+      container.appendChild(last);
+      document.body.appendChild(container);
+      middle.focus();
+      const event = new KeyboardEvent('keydown', { key: 'Tab' });
+      const spy = vi.spyOn(event, 'preventDefault');
+      trapFocus(container, event);
+      expect(spy).not.toHaveBeenCalled();
+      document.body.removeChild(container);
+    });
+
+    it('copyToClipboard passes exact text argument', async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined);
+      Object.assign(navigator, { clipboard: { writeText } });
+      await copyToClipboard('test content');
+      expect(writeText).toHaveBeenCalledWith('test content');
+    });
+
+    it('setDataAttribute overwrites existing attribute', () => {
+      const el = document.createElement('div');
+      setDataAttribute(el, 'value', 'first');
+      setDataAttribute(el, 'value', 'second');
+      expect(getDataAttribute(el, 'value')).toBe('second');
+    });
+  });
 });

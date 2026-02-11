@@ -240,5 +240,66 @@ describe('functionUtils', () => {
       const indices = times(4, (i) => i);
       expect(indices).toEqual([0, 1, 2, 3]);
     });
+
+    it('negative n returns empty array', () => {
+      expect(times(-3, () => 1)).toEqual([]);
+    });
+  });
+
+  describe('functionUtils — additional coverage', () => {
+    it('compose with no functions returns identity', () => {
+      const empty = compose<number>();
+      expect(empty(42)).toBe(42);
+    });
+
+    it('pipe with no functions returns identity', () => {
+      const empty = pipe<string>();
+      expect(empty('hello')).toBe('hello');
+    });
+
+    it('once returns same result for different arguments on subsequent calls', () => {
+      const fn = vi.fn((x: unknown) => x);
+      const onceFn = once(fn);
+      expect(onceFn('first')).toBe('first');
+      expect(onceFn('second')).toBe('first');
+    });
+
+    it('memoize with multiple args uses JSON.stringify as default key', () => {
+      const fn = vi.fn((a: number, b: number) => a + b);
+      const memoized = memoize(fn);
+      memoized(1, 2);
+      memoized(1, 2);
+      memoized(2, 1); // different key
+      expect(fn).toHaveBeenCalledTimes(2);
+    });
+
+    it('debounce uses last call args', () => {
+      vi.useFakeTimers();
+      const fn = vi.fn();
+      const debounced = debounce(fn, 100);
+      debounced('first');
+      debounced('second');
+      debounced('third');
+      vi.advanceTimersByTime(100);
+      expect(fn).toHaveBeenCalledTimes(1);
+      expect(fn).toHaveBeenCalledWith('third');
+      vi.useRealTimers();
+    });
+
+    it('throttle passes arguments to the function', () => {
+      vi.useFakeTimers();
+      const fn = vi.fn();
+      const throttled = throttle(fn, 100);
+      throttled('x', 'y');
+      expect(fn).toHaveBeenCalledWith('x', 'y');
+      vi.useRealTimers();
+    });
+
+    it('negate preserves argument passing', () => {
+      const startsWith = (s: string, prefix: string) => s.startsWith(prefix);
+      const doesNotStartWith = negate(startsWith);
+      expect(doesNotStartWith('hello', 'he')).toBe(false);
+      expect(doesNotStartWith('hello', 'xy')).toBe(true);
+    });
   });
 });

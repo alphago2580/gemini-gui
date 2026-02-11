@@ -259,5 +259,73 @@ describe('promiseUtils', () => {
       );
       expect(results).toEqual(['a', 'b']);
     });
+
+    it('propagates first error and stops', async () => {
+      const tasks = [
+        async () => 1,
+        async () => { throw new Error('pool fail'); },
+        async () => 3,
+      ];
+      await expect(pool(tasks, 1)).rejects.toThrow('pool fail');
+    });
+  });
+
+  describe('promiseUtils — additional coverage', () => {
+    it('withTimeout clears timer on successful resolution', async () => {
+      const clearSpy = vi.spyOn(globalThis, 'clearTimeout');
+      await withTimeout(Promise.resolve('fast'), 5000);
+      expect(clearSpy).toHaveBeenCalled();
+      clearSpy.mockRestore();
+    });
+
+    it('withRetry onRetry receives sequential attempt numbers', async () => {
+      const attempts: number[] = [];
+      const fn = vi.fn()
+        .mockRejectedValueOnce(new Error('e1'))
+        .mockRejectedValueOnce(new Error('e2'))
+        .mockResolvedValue('ok');
+      await withRetry(fn, { delayMs: 1, onRetry: (_e, attempt) => attempts.push(attempt) });
+      expect(attempts).toEqual([1, 2]);
+    });
+
+    it('deferred reject with undefined reason', async () => {
+      const d = deferred<string>();
+      d.reject();
+      await expect(d.promise).rejects.toBeUndefined();
+    });
+
+    it('settleAll preserves order with mixed timing', async () => {
+      const results = await settleAll([
+        new Promise(r => setTimeout(() => r('slow'), 50)),
+        Promise.resolve('fast'),
+        Promise.reject('err'),
+      ]);
+      expect(results[0]).toEqual({ status: 'fulfilled', value: 'slow' });
+      expect(results[1]).toEqual({ status: 'fulfilled', value: 'fast' });
+      expect(results[2]).toEqual({ status: 'rejected', reason: 'err' });
+    });
+
+    it('sequential single task returns single-element array', async () => {
+      const results = await sequential([async () => 'only']);
+      expect(results).toEqual(['only']);
+    });
+
+    it('pool with concurrency=1 runs tasks sequentially', async () => {
+      const order: number[] = [];
+      const tasks = [
+        async () => { order.push(1); return 'a'; },
+        async () => { order.push(2); return 'b'; },
+        async () => { order.push(3); return 'c'; },
+      ];
+      const results = await pool(tasks, 1);
+      expect(results).toEqual(['a', 'b', 'c']);
+      expect(order).toEqual([1, 2, 3]);
+    });
+
+    it('TimeoutError is instanceof Error', () => {
+      const err = new TimeoutError(200);
+      expect(err).toBeInstanceOf(Error);
+      expect(err.message).toContain('200ms');
+    });
   });
 });

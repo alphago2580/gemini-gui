@@ -244,4 +244,51 @@ describe('cryptoUtils', () => {
       expect(color).toMatch(/^hsl\(\d+, 65%, 55%\)$/);
     });
   });
+
+  describe('cryptoUtils — additional coverage', () => {
+    it('randomHex with byteLength=1 returns 2-char hex', () => {
+      const hex = randomHex(1);
+      expect(hex).toHaveLength(2);
+      expect(hex).toMatch(/^[0-9a-f]{2}$/);
+    });
+
+    it('randomInt produces different values over many calls', () => {
+      const values = new Set(Array.from({ length: 100 }, () => randomInt(0, 100)));
+      expect(values.size).toBeGreaterThan(1);
+    });
+
+    it('hashDjb2 produces different results for similar strings', () => {
+      expect(hashDjb2('abc')).not.toBe(hashDjb2('abd'));
+      expect(hashDjb2('abc')).not.toBe(hashDjb2('bac'));
+    });
+
+    it('hashSHA256 handles Unicode input', async () => {
+      const hash = await hashSHA256('안녕하세요');
+      expect(hash).toHaveLength(64);
+      expect(hash).toMatch(/^[0-9a-f]{64}$/);
+    });
+
+    it('base64Encode produces valid base64 characters', () => {
+      const encoded = base64Encode('test string 123!@#');
+      expect(encoded).toMatch(/^[A-Za-z0-9+/=]+$/);
+    });
+
+    it('shortId produces unique values', () => {
+      const ids = new Set([shortId(), shortId(), shortId(), shortId(), shortId()]);
+      expect(ids.size).toBe(5);
+    });
+
+    it('timingSafeEqual returns false for single char difference', () => {
+      expect(timingSafeEqual('password1', 'password2')).toBe(false);
+    });
+
+    it('stringToColor hue is deterministic and in range 0-359', () => {
+      const color = stringToColor('deterministic');
+      const hueMatch = color.match(/^hsl\((\d+),/);
+      expect(hueMatch).not.toBeNull();
+      const hue = parseInt(hueMatch![1]);
+      expect(hue).toBeGreaterThanOrEqual(0);
+      expect(hue).toBeLessThan(360);
+    });
+  });
 });

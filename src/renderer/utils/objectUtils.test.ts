@@ -179,4 +179,51 @@ describe('objectUtils', () => {
       expect(mapValues({}, v => v)).toEqual({});
     });
   });
+
+  describe('objectUtils — additional coverage', () => {
+    it('pick preserves value types including arrays and objects', () => {
+      const obj = { arr: [1, 2], nested: { x: 1 }, str: 'hi' };
+      const picked = pick(obj, ['arr', 'nested']);
+      expect(picked).toEqual({ arr: [1, 2], nested: { x: 1 } });
+      expect(picked.arr).toBe(obj.arr);
+    });
+
+    it('omit multiple keys at once', () => {
+      const obj = { a: 1, b: 2, c: 3, d: 4 };
+      expect(omit(obj, ['a', 'c'])).toEqual({ b: 2, d: 4 });
+    });
+
+    it('deepClone handles undefined values inside objects', () => {
+      const obj = { a: undefined, b: 1 };
+      const cloned = deepClone(obj);
+      expect(cloned.a).toBeUndefined();
+      expect(cloned.b).toBe(1);
+    });
+
+    it('isEqual returns false for array vs non-array object', () => {
+      expect(isEqual([1, 2], { 0: 1, 1: 2 })).toBe(false);
+    });
+
+    it('isEqual returns true for deeply nested equal objects', () => {
+      const a = { x: { y: { z: [1, { w: true }] } } };
+      const b = { x: { y: { z: [1, { w: true }] } } };
+      expect(isEqual(a, b)).toBe(true);
+    });
+
+    it('merge with no arguments returns empty object', () => {
+      expect(merge()).toEqual({});
+    });
+
+    it('getPath handles array indices in dot notation', () => {
+      const obj = { items: [10, 20, 30] } as Record<string, unknown>;
+      expect(getPath(obj, 'items.1')).toBe(20);
+    });
+
+    it('mapValues does not mutate original object', () => {
+      const original = { a: 1, b: 2 };
+      const mapped = mapValues(original, v => v * 10);
+      expect(original).toEqual({ a: 1, b: 2 });
+      expect(mapped).toEqual({ a: 10, b: 20 });
+    });
+  });
 });

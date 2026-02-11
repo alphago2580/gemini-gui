@@ -226,4 +226,43 @@ describe('urlUtils', () => {
       expect(joinPath('a', '', 'b')).toBe('a/b');
     });
   });
+
+  describe('urlUtils — additional coverage', () => {
+    it('isValidUrl accepts data: URIs', () => {
+      expect(isValidUrl('data:text/plain;base64,SGVsbG8=')).toBe(true);
+    });
+
+    it('getDomain extracts subdomain', () => {
+      expect(getDomain('https://sub.domain.example.com/path')).toBe('sub.domain.example.com');
+    });
+
+    it('getFileExtension handles double extensions', () => {
+      expect(getFileExtension('https://example.com/archive.tar.gz')).toBe('gz');
+    });
+
+    it('parseQueryParams handles duplicate keys (last value wins)', () => {
+      const params = parseQueryParams('https://example.com?a=1&a=2');
+      expect(params.a).toBe('2');
+    });
+
+    it('buildUrl overwrites existing param with same key', () => {
+      const result = buildUrl('https://example.com?a=1', { a: 'new' });
+      expect(result).toContain('a=new');
+      expect(result).not.toContain('a=1');
+    });
+
+    it('stripQueryParams also removes fragment', () => {
+      const result = stripQueryParams('https://example.com/page?q=1#section');
+      expect(result).toBe('https://example.com/page');
+    });
+
+    it('isAbsoluteUrl recognizes file: protocol', () => {
+      expect(isAbsoluteUrl('file:///home/user/doc.txt')).toBe(true);
+    });
+
+    it('extractUrls handles multiple URLs on same line', () => {
+      const text = 'https://a.com https://b.com https://c.com';
+      expect(extractUrls(text)).toHaveLength(3);
+    });
+  });
 });

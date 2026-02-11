@@ -208,4 +208,59 @@ describe('storageUtils', () => {
       expect(keys).toContain('two');
     });
   });
+
+  describe('storageUtils — additional coverage', () => {
+    it('getItem handles null stored as JSON', () => {
+      localStorage.setItem('nullVal', 'null');
+      expect(getItem('nullVal', 'default')).toBeNull();
+    });
+
+    it('setItem stores arrays correctly', () => {
+      expect(setItem('arr', [1, 'two', true])).toBe(true);
+      expect(localStorage.getItem('arr')).toBe('[1,"two",true]');
+    });
+
+    it('getStorageSize accounts for multiple items', () => {
+      localStorage.setItem('aa', 'bb');
+      localStorage.setItem('cc', 'dd');
+      expect(getStorageSize()).toBe(16);
+    });
+
+    it('setItemWithExpiry stores wrapped object', () => {
+      vi.useFakeTimers();
+      setItemWithExpiry('key', 'val', 1000);
+      const raw = JSON.parse(localStorage.getItem('key')!);
+      expect(raw).toHaveProperty('value', 'val');
+      expect(raw).toHaveProperty('expiresAt');
+      expect(typeof raw.expiresAt).toBe('number');
+      vi.useRealTimers();
+    });
+
+    it('getItemWithExpiry removes key from storage on expiry', () => {
+      vi.useFakeTimers();
+      setItemWithExpiry('temp', 42, 500);
+      vi.advanceTimersByTime(600);
+      getItemWithExpiry('temp', 0);
+      expect(localStorage.getItem('temp')).toBeNull();
+      vi.useRealTimers();
+    });
+
+    it('getItemWithExpiry returns default for item without expiresAt', () => {
+      localStorage.setItem('noExpiry', JSON.stringify({ value: 'hi' }));
+      expect(getItemWithExpiry('noExpiry', 'fallback')).toBe('fallback');
+    });
+
+    it('createNamespace keys returns empty for no items', () => {
+      const ns = createNamespace('empty');
+      expect(ns.keys()).toEqual([]);
+    });
+
+    it('removeByPrefix returns count of actually removed items', () => {
+      localStorage.setItem('pre:a', '1');
+      localStorage.setItem('pre:b', '2');
+      localStorage.setItem('pre:c', '3');
+      expect(removeByPrefix('pre:')).toBe(3);
+      expect(localStorage.length).toBe(0);
+    });
+  });
 });
