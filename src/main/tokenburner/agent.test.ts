@@ -1,69 +1,137 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-// import { Agent } from './agent';
+import { Agent, AgentConfig, AgentTask } from './agent';
+
+const defaultConfig: AgentConfig = {
+  timeoutMs: 0,
+  cliCommand: 'echo',
+  cliArgs: [],
+};
+
+const sampleTask: AgentTask = {
+  id: 'task-1',
+  title: 'Test task',
+  description: 'A test task description',
+};
 
 describe('Agent', () => {
   describe('constructor', () => {
     it('should initialize with idle status', () => {
-      // const agent = new Agent('agent-1', 'claude', config);
-      // expect(agent.status).toBe('idle');
-      // expect(agent.currentTask).toBeNull();
-      expect(true).toBe(false); // TODO: implement
+      const agent = new Agent('agent-1', 'claude', defaultConfig);
+      expect(agent.status).toBe('idle');
+      expect(agent.currentTask).toBeNull();
     });
   });
 
   describe('start', () => {
-    it('should spawn CLI process and set status to working', () => {
-      // await agent.start(task, '/tmp/worktree', 'Build X');
-      // expect(agent.status).toBe('working');
-      // expect(agent.isRunning()).toBe(true);
-      expect(true).toBe(false); // TODO: implement
+    it('should spawn CLI process and set status to working', async () => {
+      const config: AgentConfig = {
+        timeoutMs: 5000,
+        cliCommand: 'echo',
+        cliArgs: ['hello'],
+      };
+      const agent = new Agent('agent-1', 'claude', config);
+
+      // Start returns immediately; the process will finish quickly since it's `echo`
+      const startPromise = agent.start(sampleTask, '/tmp', 'Build X');
+      expect(agent.status).toBe('working');
+      expect(agent.isRunning()).toBe(true);
+
+      // Wait for the process to complete
+      await new Promise<void>(resolve => {
+        agent.on('complete', () => resolve());
+      });
     });
 
-    it('should emit output events from CLI stdout', () => {
-      // const outputs: string[] = [];
-      // agent.on('output', (data) => outputs.push(data));
-      // await agent.start(task, worktree, prompt);
-      // expect(outputs.length).toBeGreaterThan(0);
-      expect(true).toBe(false); // TODO: implement
+    it('should emit output events from CLI stdout', async () => {
+      const config: AgentConfig = {
+        timeoutMs: 5000,
+        cliCommand: 'echo',
+        cliArgs: [],
+      };
+      const agent = new Agent('agent-1', 'claude', config);
+
+      const outputs: string[] = [];
+      agent.on('output', (data: string) => outputs.push(data));
+
+      await agent.start(sampleTask, '/tmp', 'test prompt');
+
+      await new Promise<void>(resolve => {
+        agent.on('complete', () => resolve());
+      });
+
+      // echo outputs something to stdout (the args include --worktree, --prompt, etc.)
+      expect(outputs.length).toBeGreaterThan(0);
     });
 
-    it('should emit complete when CLI process exits', () => {
-      // const complete = vi.fn();
-      // agent.on('complete', complete);
-      // ... wait for process to finish ...
-      // expect(complete).toHaveBeenCalled();
-      expect(true).toBe(false); // TODO: implement
+    it('should emit complete when CLI process exits', async () => {
+      const config: AgentConfig = {
+        timeoutMs: 5000,
+        cliCommand: 'echo',
+        cliArgs: ['done'],
+      };
+      const agent = new Agent('agent-1', 'claude', config);
+
+      const complete = vi.fn();
+      agent.on('complete', complete);
+
+      await agent.start(sampleTask, '/tmp', 'Build X');
+
+      await new Promise<void>(resolve => {
+        setTimeout(() => resolve(), 500);
+      });
+
+      expect(complete).toHaveBeenCalled();
     });
 
-    it('should emit timeout when exceeding time limit', () => {
-      // const timeout = vi.fn();
-      // agent.on('timeout', timeout);
-      // agent with 1s timeout
-      // expect(timeout).toHaveBeenCalled();
-      expect(true).toBe(false); // TODO: implement
+    it('should emit timeout when exceeding time limit', async () => {
+      const config: AgentConfig = {
+        timeoutMs: 100, // Very short timeout
+        cliCommand: 'bash',
+        cliArgs: ['-c', 'sleep 10'],
+      };
+      const agent = new Agent('agent-1', 'claude', config);
+
+      const timeout = vi.fn();
+      agent.on('timeout', timeout);
+
+      await agent.start(sampleTask, '/tmp', 'Build X');
+
+      await new Promise<void>(resolve => {
+        setTimeout(() => resolve(), 500);
+      });
+
+      expect(timeout).toHaveBeenCalled();
     });
   });
 
   describe('stop', () => {
-    it('should kill the CLI process', () => {
-      // await agent.start(task, worktree, prompt);
-      // await agent.stop();
-      // expect(agent.isRunning()).toBe(false);
-      // expect(agent.status).toBe('idle');
-      expect(true).toBe(false); // TODO: implement
+    it('should kill the CLI process', async () => {
+      const config: AgentConfig = {
+        timeoutMs: 10000,
+        cliCommand: 'bash',
+        cliArgs: ['-c', 'sleep 30'],
+      };
+      const agent = new Agent('agent-1', 'claude', config);
+
+      await agent.start(sampleTask, '/tmp', 'Build X');
+      expect(agent.isRunning()).toBe(true);
+
+      await agent.stop();
+      expect(agent.isRunning()).toBe(false);
+      expect(agent.status).toBe('idle');
     });
   });
 
   describe('elapsed', () => {
     it('should return elapsed time in seconds', () => {
-      // agent.startedAt = Date.now() - 5000;
-      // expect(agent.elapsed()).toBeCloseTo(5, 0);
-      expect(true).toBe(false); // TODO: implement
+      const agent = new Agent('agent-1', 'claude', defaultConfig);
+      agent.startedAt = Date.now() - 5000;
+      expect(agent.elapsed()).toBeCloseTo(5, 0);
     });
 
     it('should return 0 when not started', () => {
-      // expect(agent.elapsed()).toBe(0);
-      expect(true).toBe(false); // TODO: implement
+      const agent = new Agent('agent-1', 'claude', defaultConfig);
+      expect(agent.elapsed()).toBe(0);
     });
   });
 });
