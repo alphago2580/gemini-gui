@@ -6,3 +6,5 @@ test-results/
 .DS_Store
 .env
 .vscode/
+docs/.bkit-memory.json
+docs/.pdca-status.json
