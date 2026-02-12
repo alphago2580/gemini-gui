@@ -1,0 +1,119 @@
+.tb-config {
+  padding: 12px;
+}
+
+.tb-config-title {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tb-config-section {
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 0 0 12px;
+}
+
+.tb-config-section-heading {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted, #6b7280);
+  padding: 0 4px;
+}
+
+.tb-config-field {
+  margin-bottom: 10px;
+}
+
+.tb-config-field:last-child {
+  margin-bottom: 0;
+}
+
+.tb-config-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--text-secondary, #374151);
+}
+
+.tb-config-input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 6px;
+  background: var(--card-bg, #fff);
+  box-sizing: border-box;
+}
+
+.tb-config-input:focus {
+  outline: none;
+  border-color: var(--accent-color, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.tb-config-input--error {
+  border-color: #ef4444;
+}
+
+.tb-config-input--error:focus {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+.tb-config-select {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 6px;
+  background: var(--card-bg, #fff);
+  box-sizing: border-box;
+}
+
+.tb-config-select:focus {
+  outline: none;
+  border-color: var(--accent-color, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.tb-config-range {
+  width: 100%;
+  cursor: pointer;
+}
+
+.tb-config-count-display {
+  font-weight: 700;
+  color: var(--accent-color, #3b82f6);
+  margin-left: 4px;
+}
+
+.tb-config-error {
+  display: block;
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 2px;
+}
+
+.tb-config-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.tb-btn--primary {
+  background: var(--accent-color, #3b82f6);
+  color: white;
+}
+
+.tb-btn--secondary {
+  background: var(--card-bg, #fff);
+  color: var(--text-secondary, #374151);
+  border: 1px solid var(--border-color, #e5e7eb);
+}
+
+.tb-config-section:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
