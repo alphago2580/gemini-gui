@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import TokenBurnerDashboard, { DashboardData } from './TokenBurnerDashboard';
 
@@ -53,5 +53,45 @@ describe('TokenBurnerDashboard', () => {
     const stoppedData = { ...mockData, isRunning: false };
     render(<TokenBurnerDashboard initialData={stoppedData} />);
     expect(screen.getByText('Stopped')).toBeInTheDocument();
+  });
+
+  it('should render Plan Tasks button', () => {
+    render(<TokenBurnerDashboard initialData={mockData} />);
+    expect(screen.getByRole('button', { name: /plan tasks/i })).toBeInTheDocument();
+  });
+
+  it('should render Settings button', () => {
+    render(<TokenBurnerDashboard initialData={mockData} />);
+    expect(screen.getByRole('button', { name: /settings/i })).toBeInTheDocument();
+  });
+
+  it('should open PlannerWizard when Plan Tasks is clicked', () => {
+    render(<TokenBurnerDashboard initialData={mockData} />);
+    fireEvent.click(screen.getByRole('button', { name: /plan tasks/i }));
+    expect(screen.getByText('Plan Tasks', { selector: '.dialog__title' })).toBeInTheDocument();
+  });
+
+  it('should show ConfigPanel when Settings is clicked', () => {
+    render(<TokenBurnerDashboard initialData={mockData} />);
+    fireEvent.click(screen.getByRole('button', { name: /settings/i }));
+    expect(screen.getByText('Configuration')).toBeInTheDocument();
+  });
+
+  it('should hide ConfigPanel when Settings is clicked again', () => {
+    render(<TokenBurnerDashboard initialData={mockData} />);
+    const settingsBtn = screen.getByRole('button', { name: /settings/i });
+    fireEvent.click(settingsBtn);
+    expect(screen.getByText('Configuration')).toBeInTheDocument();
+    fireEvent.click(settingsBtn);
+    expect(screen.queryByText('Configuration')).not.toBeInTheDocument();
+  });
+
+  it('should disable ConfigPanel fields when running', () => {
+    render(<TokenBurnerDashboard initialData={{ ...mockData, isRunning: true }} />);
+    fireEvent.click(screen.getByRole('button', { name: /settings/i }));
+    const fieldsets = document.querySelectorAll('fieldset');
+    fieldsets.forEach((fs) => {
+      expect(fs).toBeDisabled();
+    });
   });
 });

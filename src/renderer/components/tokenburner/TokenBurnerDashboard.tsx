@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import AgentMonitor, { AgentInfo } from './AgentMonitor';
 import TaskQueuePanel, { TaskItem, TaskPriority } from './TaskQueuePanel';
 import MetricsChart, { MetricsSummary } from './MetricsChart';
+import PlannerWizard, { PlannerTaskInput } from './PlannerWizard';
+import ConfigPanel, { TokenBurnerConfig } from './ConfigPanel';
 import './TokenBurnerDashboard.css';
 
 export interface QueueStatus {
@@ -39,9 +41,23 @@ const DEFAULT_DATA: DashboardData = {
   gitLog: [],
 };
 
+function createDefaultConfig(projectPath: string): TokenBurnerConfig {
+  return {
+    project: { repo: projectPath, mainBranch: 'main', testCommand: 'npm test' },
+    agents: { count: 2, model: 'claude', timeout: 300 },
+    task: { maxRetries: 3 },
+  };
+}
+
 const TokenBurnerDashboard: React.FC<TokenBurnerDashboardProps> = ({ initialData }) => {
   const [data, setData] = useState<DashboardData>(initialData || DEFAULT_DATA);
   const [loading, setLoading] = useState(!initialData);
+  const [showPlanner, setShowPlanner] = useState(false);
+  const [showConfig, setShowConfig] = useState(false);
+  const [config, setConfig] = useState<TokenBurnerConfig>(() =>
+    createDefaultConfig((initialData || DEFAULT_DATA).projectPath),
+  );
+  const [localTasks, setLocalTasks] = useState<TaskItem[]>([]);
 
   useEffect(() => {
     if (initialData) return;
@@ -83,12 +99,32 @@ const TokenBurnerDashboard: React.FC<TokenBurnerDashboardProps> = ({ initialData
     // Will be wired to IPC
   }, []);
 
+  const handlePlanSubmit = useCallback((plannerTasks: PlannerTaskInput[]) => {
+    const newItems: TaskItem[] = plannerTasks.map((t) => ({
+      id: t.id,
+      title: t.title,
+      status: 'pending' as const,
+      priority: t.priority,
+    }));
+    setLocalTasks((prev) => [...prev, ...newItems]);
+    setShowPlanner(false);
+  }, []);
+
+  const handleConfigSave = useCallback((newConfig: TokenBurnerConfig) => {
+    setConfig(newConfig);
+    setShowConfig(false);
+  }, []);
+
+  const handleConfigCancel = useCallback(() => {
+    setShowConfig(false);
+  }, []);
+
   if (loading) {
     return <div className="tb-dashboard-loading">Loading...</div>;
   }
 
   const agentCount = data.agents.length;
-  const tasks: TaskItem[] = data.tasks || [];
+  const tasks: TaskItem[] = [...(data.tasks || []), ...localTasks];
 
   return (
     <div className="tb-dashboard" role="main" aria-label="Token Burner Dashboard">
@@ -109,6 +145,12 @@ const TokenBurnerDashboard: React.FC<TokenBurnerDashboardProps> = ({ initialData
           <span>{data.queue.complete} complete</span>
         </div>
         <div className="tb-dashboard-actions">
+          <button className="tb-btn tb-btn--primary" onClick={() => setShowPlanner(true)} aria-label="Plan Tasks">
+            Plan Tasks
+          </button>
+          <button className="tb-btn tb-btn--secondary" onClick={() => setShowConfig((v) => !v)} aria-label="Settings">
+            Settings
+          </button>
           <button className="tb-btn tb-btn--danger" onClick={handleStop} aria-label="Stop">
             Stop
           </button>
@@ -117,6 +159,17 @@ const TokenBurnerDashboard: React.FC<TokenBurnerDashboardProps> = ({ initialData
           </button>
         </div>
       </header>
+
+      {showConfig && (
+        <section className="tb-dashboard-config-section">
+          <ConfigPanel
+            config={config}
+            onSave={handleConfigSave}
+            onCancel={handleConfigCancel}
+            disabled={data.isRunning}
+          />
+        </section>
+      )}
 
       <div className="tb-dashboard-grid">
         <section className="tb-dashboard-section">
@@ -129,6 +182,12 @@ const TokenBurnerDashboard: React.FC<TokenBurnerDashboardProps> = ({ initialData
           <TaskQueuePanel tasks={tasks} onAddTask={handleAddTask} />
         </section>
       </div>
+
+      <PlannerWizard
+        open={showPlanner}
+        onClose={() => setShowPlanner(false)}
+        onSubmit={handlePlanSubmit}
+      />
     </div>
   );
 };

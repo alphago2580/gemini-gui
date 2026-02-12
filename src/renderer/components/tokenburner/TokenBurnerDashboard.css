@@ -81,6 +81,16 @@
   color: white;
 }
 
+.tb-btn--primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.tb-btn--secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
 .tb-dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -95,4 +105,11 @@
 
 .tb-dashboard-section--wide {
   grid-column: 1 / -1;
+}
+
+.tb-dashboard-config-section {
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  overflow: hidden;
 }
