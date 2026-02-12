@@ -1,0 +1,99 @@
+.metrics-chart {
+  padding: 12px;
+}
+
+.metrics-chart-title {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.metrics-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.metrics-card {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.metrics-card-label {
+  font-size: 0.7rem;
+  color: var(--text-muted, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.metrics-card-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.metrics-card-value--success {
+  color: #22c55e;
+}
+
+.metrics-card-value--error {
+  color: #ef4444;
+}
+
+.metrics-bar-container {
+  margin-top: 8px;
+}
+
+.metrics-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--border-color, #e5e7eb);
+}
+
+.metrics-bar-segment {
+  transition: width 0.3s ease;
+}
+
+.metrics-bar-segment--success {
+  background-color: #22c55e;
+}
+
+.metrics-bar-segment--fail {
+  background-color: #ef4444;
+}
+
+.metrics-bar-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted, #6b7280);
+}
+
+.metrics-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metrics-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.metrics-legend-dot--success {
+  background-color: #22c55e;
+}
+
+.metrics-legend-dot--fail {
+  background-color: #ef4444;
+}
