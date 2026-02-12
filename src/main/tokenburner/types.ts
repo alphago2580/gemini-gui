@@ -2,7 +2,7 @@
 
 export type TaskPriority = 'critical' | 'high' | 'normal' | 'low';
 export type TaskStatus = 'pending' | 'active' | 'complete' | 'failed';
-export type AgentStatus = 'idle' | 'working' | 'testing' | 'error' | 'stopped';
+export type AgentStatus = 'idle' | 'working' | 'testing' | 'error';
 
 export interface Task {
   id: string;
@@ -57,83 +57,12 @@ export interface TypeCheckResult {
   errors: Array<{ file: string }>;
 }
 
-// --- Agent types (from agent.ts) ---
-
-export interface AgentConfig {
-  timeoutMs: number;
-  cliCommand: string;
-  cliArgs?: string[];
-  env?: NodeJS.ProcessEnv;
-}
-
-export interface AgentTask {
-  id: string;
-  title: string;
-  description: string;
-}
-
-// --- Harness types (from harness.ts) ---
-
-export type HarnessEventType =
-  | 'claim'
-  | 'agent-start'
-  | 'agent-complete'
-  | 'test-result'
-  | 'merge'
-  | 'complete'
-  | 'fail'
-  | 'idle'
-  | 'retry'
-  | 'error';
-
 export interface HarnessEvent {
-  type: HarnessEventType;
+  type: 'claim' | 'test-result' | 'merge' | 'complete' | 'fail' | 'idle';
   taskId?: string;
-  message?: string;
-  retryCount?: number;
-  success?: boolean;
-  timestamp: number;
+  agentId?: string;
+  data?: Record<string, unknown>;
 }
-
-export interface HarnessConfig {
-  maxRetries: number;
-  idleBackoffMs: number;
-  maxIdleBackoffMs: number;
-  mergeRetries: number;
-}
-
-export interface TaskLike {
-  id: string;
-  title: string;
-  description: string;
-}
-
-export interface AgentLike {
-  start(task: TaskLike, worktreePath: string, prompt: string): Promise<void>;
-  stop(): Promise<void>;
-  isRunning(): boolean;
-  on(event: string, listener: (...args: unknown[]) => void): void;
-  removeAllListeners(event?: string): void;
-}
-
-export interface QueueLike {
-  claim(agentId: string): Promise<TaskLike | null>;
-  complete(taskId: string): Promise<void>;
-  fail(taskId: string, reason: string): Promise<void>;
-}
-
-export interface GitOpsLike {
-  createWorktree(repoDir: string, agentId: string, branchName: string): Promise<string>;
-  removeWorktree(worktreePath: string): Promise<void>;
-  mergeBranch(repoDir: string, branch: string, target: string, retries?: number): Promise<{ success: boolean; retryCount: number; conflictFiles?: string[] }>;
-  hasNewCommits(repoDir: string, branch: string, target: string): Promise<boolean>;
-}
-
-export interface TestGateLike {
-  runTests(cwd: string, cmd: string): Promise<{ success: boolean; rawOutput: string }>;
-}
-
-// --- Metrics & Dashboard types ---
 
 export interface TaskMetric {
   taskId: string;
@@ -141,17 +70,28 @@ export interface TaskMetric {
   model: string;
   duration: number;
   success: boolean;
+  timestamp: number;
+  retries?: number;
+  error?: string;
 }
 
 export interface MetricsSummary {
   totalTasks: number;
+  completed: number;
+  failed: number;
   successRate: number;
   avgDuration: number;
+  totalDuration: number;
+  agentCount: number;
 }
 
 export interface AgentStats {
+  agentId: string;
   completed: number;
   failed: number;
+  totalDuration: number;
+  avgDuration: number;
+  successRate: number;
 }
 
 export interface AgentState {
@@ -189,4 +129,55 @@ export interface TokenBurnerConfig {
   task: {
     maxRetries: number;
   };
+}
+
+// Planner types
+
+export interface PlannerTask {
+  id: string;
+  title: string;
+  description: string;
+  priority: TaskPriority;
+  dependencies: string[];
+  estimatedDuration?: number;
+  assignedAgent?: string;
+}
+
+export interface ExecutionPlan {
+  phases: PlanPhase[];
+  totalTasks: number;
+  estimatedDuration: number;
+  criticalPath: string[];
+}
+
+export interface PlanPhase {
+  phase: number;
+  tasks: PlannerTask[];
+  parallelizable: boolean;
+}
+
+// Scaler types
+
+export interface ScalerConfig {
+  minAgents: number;
+  maxAgents: number;
+  scaleUpThreshold: number;
+  scaleDownThreshold: number;
+  cooldownMs: number;
+}
+
+export interface ScalerState {
+  currentAgents: number;
+  desiredAgents: number;
+  lastScaleTime: number;
+  pendingTasks: number;
+  activeAgents: number;
+  idleAgents: number;
+}
+
+export interface ScaleDecision {
+  action: 'scale-up' | 'scale-down' | 'none';
+  from: number;
+  to: number;
+  reason: string;
 }

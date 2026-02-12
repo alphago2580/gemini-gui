@@ -1,27 +1,6 @@
-export type TaskPriority = 'critical' | 'high' | 'normal' | 'low';
+import type { TaskPriority, PlannerTask, ExecutionPlan, PlanPhase } from './types';
 
-export interface PlannerTask {
-  id: string;
-  title: string;
-  description: string;
-  priority: TaskPriority;
-  dependencies: string[];
-  estimatedDuration?: number;
-  assignedAgent?: string;
-}
-
-export interface ExecutionPlan {
-  phases: PlanPhase[];
-  totalTasks: number;
-  estimatedDuration: number;
-  criticalPath: string[];
-}
-
-export interface PlanPhase {
-  phase: number;
-  tasks: PlannerTask[];
-  parallelizable: boolean;
-}
+export type { TaskPriority, PlannerTask, ExecutionPlan, PlanPhase };
 
 const PRIORITY_ORDER: Record<TaskPriority, number> = {
   critical: 0,

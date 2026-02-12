@@ -1,34 +1,7 @@
 import * as fs from 'fs';
+import type { TaskMetric, AgentStats, MetricsSummary } from './types';
 
-export interface TaskMetric {
-  taskId: string;
-  agentId: string;
-  model: string;
-  duration: number;
-  success: boolean;
-  timestamp: number;
-  retries?: number;
-  error?: string;
-}
-
-export interface AgentStats {
-  agentId: string;
-  completed: number;
-  failed: number;
-  totalDuration: number;
-  avgDuration: number;
-  successRate: number;
-}
-
-export interface MetricsSummary {
-  totalTasks: number;
-  completed: number;
-  failed: number;
-  successRate: number;
-  avgDuration: number;
-  totalDuration: number;
-  agentCount: number;
-}
+export type { TaskMetric, AgentStats, MetricsSummary };
 
 export class MetricsCollector {
   private records: TaskMetric[] = [];

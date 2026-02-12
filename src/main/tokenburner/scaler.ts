@@ -1,26 +1,6 @@
-export interface ScalerConfig {
-  minAgents: number;
-  maxAgents: number;
-  scaleUpThreshold: number;
-  scaleDownThreshold: number;
-  cooldownMs: number;
-}
+import type { ScalerConfig, ScalerState, ScaleDecision } from './types';
 
-export interface ScalerState {
-  currentAgents: number;
-  desiredAgents: number;
-  lastScaleTime: number;
-  pendingTasks: number;
-  activeAgents: number;
-  idleAgents: number;
-}
-
-export interface ScaleDecision {
-  action: 'scale-up' | 'scale-down' | 'none';
-  from: number;
-  to: number;
-  reason: string;
-}
+export type { ScalerConfig, ScalerState, ScaleDecision };
 
 const DEFAULT_CONFIG: ScalerConfig = {
   minAgents: 1,
