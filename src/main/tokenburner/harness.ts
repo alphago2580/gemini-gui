@@ -1,61 +1,24 @@
-export type HarnessEventType =
-  | 'claim'
-  | 'agent-start'
-  | 'agent-complete'
-  | 'test-result'
-  | 'merge'
-  | 'complete'
-  | 'fail'
-  | 'idle'
-  | 'retry'
-  | 'error';
+import type {
+  HarnessEventType,
+  HarnessEvent,
+  HarnessConfig,
+  TaskLike,
+  AgentLike,
+  QueueLike,
+  GitOpsLike,
+  TestGateLike,
+} from './types';
 
-export interface HarnessEvent {
-  type: HarnessEventType;
-  taskId?: string;
-  message?: string;
-  retryCount?: number;
-  success?: boolean;
-  timestamp: number;
-}
-
-export interface HarnessConfig {
-  maxRetries: number;
-  idleBackoffMs: number;
-  maxIdleBackoffMs: number;
-  mergeRetries: number;
-}
-
-export interface TaskLike {
-  id: string;
-  title: string;
-  description: string;
-}
-
-export interface AgentLike {
-  start(task: TaskLike, worktreePath: string, prompt: string): Promise<void>;
-  stop(): Promise<void>;
-  isRunning(): boolean;
-  on(event: string, listener: (...args: unknown[]) => void): void;
-  removeAllListeners(event?: string): void;
-}
-
-export interface QueueLike {
-  claim(agentId: string): Promise<TaskLike | null>;
-  complete(taskId: string): Promise<void>;
-  fail(taskId: string, reason: string): Promise<void>;
-}
-
-export interface GitOpsLike {
-  createWorktree(repoDir: string, agentId: string, branchName: string): Promise<string>;
-  removeWorktree(worktreePath: string): Promise<void>;
-  mergeBranch(repoDir: string, branch: string, target: string, retries?: number): Promise<{ success: boolean; retryCount: number; conflictFiles?: string[] }>;
-  hasNewCommits(repoDir: string, branch: string, target: string): Promise<boolean>;
-}
-
-export interface TestGateLike {
-  runTests(cwd: string, cmd: string): Promise<{ success: boolean; rawOutput: string }>;
-}
+export type {
+  HarnessEventType,
+  HarnessEvent,
+  HarnessConfig,
+  TaskLike,
+  AgentLike,
+  QueueLike,
+  GitOpsLike,
+  TestGateLike,
+};
 
 const DEFAULT_CONFIG: HarnessConfig = {
   maxRetries: 3,

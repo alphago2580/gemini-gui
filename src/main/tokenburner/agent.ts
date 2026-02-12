@@ -1,20 +1,8 @@
 import { EventEmitter } from 'events';
 import { spawn, ChildProcess } from 'child_process';
+import type { AgentStatus, AgentConfig, AgentTask } from './types';
 
-export type AgentStatus = 'idle' | 'working' | 'stopped';
-
-export interface AgentConfig {
-  timeoutMs: number;
-  cliCommand: string;
-  cliArgs?: string[];
-  env?: NodeJS.ProcessEnv;
-}
-
-export interface AgentTask {
-  id: string;
-  title: string;
-  description: string;
-}
+export type { AgentStatus, AgentConfig, AgentTask };
 
 export class Agent extends EventEmitter {
   public status: AgentStatus = 'idle';
