@@ -1,139 +1,170 @@
 import { EventEmitter } from 'events';
 import * as fs from 'fs';
 import * as path from 'path';
-
 import type {
   TaskPriority,
   TaskStatus,
   AgentStatus,
+  Task,
   QueueStatus,
+  AgentState,
   TaskMetric,
+  MetricsSummary,
+  DashboardData,
+  EngineConfig,
+  EngineEvent,
+  ITaskQueue,
+  IAgent,
+  IMetricsCollector,
+  TokenBurnerEngineOptions,
 } from './types';
-import { TaskQueue } from './taskQueue';
-import { MetricsCollector } from './metrics';
 
-// Re-export shared types
-export type { TaskPriority, TaskStatus, AgentStatus, QueueStatus };
+// Re-export types that consumers of engine.ts may need
+export type {
+  TaskPriority,
+  TaskStatus,
+  AgentStatus,
+  Task,
+  QueueStatus,
+  AgentState,
+  TaskMetric,
+  MetricsSummary,
+  DashboardData,
+  EngineConfig,
+  EngineEvent,
+  ITaskQueue,
+  IAgent,
+  IMetricsCollector,
+  TokenBurnerEngineOptions,
+};
 
-// Engine's Task type — compatible with TaskQueue's numeric timestamps
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  priority: TaskPriority;
-  status: TaskStatus;
-  assignee?: string;
-  createdAt: number;
-  completedAt?: number;
-  failReason?: string;
-  retries: number;
-  maxRetries: number;
-}
+// ── Default in-memory TaskQueue implementation ──
 
-// ── Interfaces for dependency injection ──
+class InMemoryTaskQueue implements ITaskQueue {
+  private tasks: Map<string, Task> = new Map();
+  private counter = 0;
 
-export interface ITaskQueue {
-  add(title: string, description: string, priority?: TaskPriority): Promise<string>;
-  claim(agentId: string): Promise<Task | null>;
-  complete(taskId: string): Promise<void>;
-  fail(taskId: string, reason: string): Promise<void>;
-  unclaim(taskId: string): Promise<void>;
-  get(taskId: string): Promise<Task | null>;
-  list(status?: TaskStatus): Promise<Task[]>;
-  status(): Promise<QueueStatus>;
-  import(tasks: Array<{ title: string; description: string; priority?: TaskPriority }>): Promise<string[]>;
-}
-
-export interface EngineMetricsSummary {
-  totalTasks: number;
-  successRate: number;
-  avgDuration: number;
-  totalDuration: number;
-}
-
-export interface IMetricsCollector {
-  recordTask(metric: TaskMetric): void;
-  getSummary(): EngineMetricsSummary;
-  getAgentStats(agentId: string): { completed: number; failed: number; avgDuration: number };
-}
-
-export interface IAgent {
-  id: string;
-  status: AgentStatus;
-  currentTask: Task | null;
-  startedAt: number | null;
-  model: string;
-  start(task: Task, worktreePath: string, prompt: string): Promise<void>;
-  stop(): Promise<void>;
-  isRunning(): boolean;
-  elapsed(): number;
-  on(event: string, listener: (...args: unknown[]) => void): void;
-  removeAllListeners(event?: string): void;
-}
-
-export interface EngineConfig {
-  project: {
-    repo: string;
-    name: string;
-  };
-  agents: {
-    count: number;
-    model: string;
-    timeoutSeconds: number;
-  };
-  maxRetries: number;
-}
-
-export interface EngineAgentState {
-  id: string;
-  status: AgentStatus;
-  currentTask: Task | null;
-  startedAt: number | null;
-  model: string;
-}
-
-export interface EngineDashboardData {
-  projectName: string;
-  agents: EngineAgentState[];
-  queue: QueueStatus;
-  metrics: EngineMetricsSummary;
-  isRunning: boolean;
-}
-
-export interface EngineEvent {
-  type: 'agent-started' | 'agent-stopped' | 'agent-output' | 'agent-complete' | 'agent-error' | 'task-added' | 'task-completed' | 'task-failed' | 'engine-started' | 'engine-stopped';
-  agentId?: string;
-  taskId?: string;
-  data?: unknown;
-  timestamp: number;
-}
-
-// ── MetricsCollector adapter ──
-
-class MetricsAdapter implements IMetricsCollector {
-  private collector = new MetricsCollector();
-
-  recordTask(metric: TaskMetric): void {
-    this.collector.recordTask({ ...metric, timestamp: Date.now() });
+  add(title: string, description: string, priority: TaskPriority = 'normal'): string {
+    const id = `task-${++this.counter}-${Date.now().toString(36)}`;
+    const task: Task = {
+      id,
+      title,
+      description,
+      priority,
+      status: 'pending',
+      createdAt: Date.now(),
+      retries: 0,
+      maxRetries: 3,
+    };
+    this.tasks.set(id, task);
+    return id;
   }
 
-  getSummary(): EngineMetricsSummary {
-    const s = this.collector.getSummary();
+  claim(agentId: string): Task | null {
+    const priorityOrder: TaskPriority[] = ['critical', 'high', 'normal', 'low'];
+    for (const p of priorityOrder) {
+      for (const task of this.tasks.values()) {
+        if (task.status === 'pending' && task.priority === p) {
+          task.status = 'active';
+          task.assignee = agentId;
+          return task;
+        }
+      }
+    }
+    return null;
+  }
+
+  complete(taskId: string): void {
+    const task = this.tasks.get(taskId);
+    if (task) {
+      task.status = 'complete';
+      task.completedAt = Date.now();
+    }
+  }
+
+  fail(taskId: string, reason: string): void {
+    const task = this.tasks.get(taskId);
+    if (task) {
+      if (task.retries < task.maxRetries) {
+        task.retries++;
+        task.status = 'pending';
+        task.assignee = undefined;
+      } else {
+        task.status = 'failed';
+        task.failReason = reason;
+      }
+    }
+  }
+
+  unclaim(taskId: string): void {
+    const task = this.tasks.get(taskId);
+    if (task) {
+      task.status = 'pending';
+      task.assignee = undefined;
+    }
+  }
+
+  get(taskId: string): Task | null {
+    return this.tasks.get(taskId) ?? null;
+  }
+
+  list(status?: TaskStatus): Task[] {
+    const all = Array.from(this.tasks.values());
+    return status ? all.filter((t) => t.status === status) : all;
+  }
+
+  status(): QueueStatus {
+    let pending = 0, active = 0, complete = 0, failed = 0;
+    for (const t of this.tasks.values()) {
+      if (t.status === 'pending') pending++;
+      else if (t.status === 'active') active++;
+      else if (t.status === 'complete') complete++;
+      else if (t.status === 'failed') failed++;
+    }
+    return { pending, active, complete, failed, total: this.tasks.size };
+  }
+
+  import(tasks: Array<{ title: string; description: string; priority?: TaskPriority }>): void {
+    for (const t of tasks) {
+      this.add(t.title, t.description, t.priority);
+    }
+  }
+}
+
+// ── Default in-memory MetricsCollector ──
+
+class InMemoryMetrics implements IMetricsCollector {
+  private records: TaskMetric[] = [];
+
+  recordTask(metric: TaskMetric): void {
+    this.records.push(metric);
+  }
+
+  getSummary(): MetricsSummary {
+    if (this.records.length === 0) {
+      return { totalTasks: 0, successRate: 0, avgDuration: 0, totalDuration: 0 };
+    }
+    const successes = this.records.filter((r) => r.success).length;
+    const totalDuration = this.records.reduce((sum, r) => sum + r.duration, 0);
     return {
-      totalTasks: s.totalTasks,
-      successRate: s.successRate,
-      avgDuration: s.avgDuration,
-      totalDuration: s.totalDuration,
+      totalTasks: this.records.length,
+      successRate: successes / this.records.length,
+      avgDuration: totalDuration / this.records.length,
+      totalDuration,
     };
   }
 
   getAgentStats(agentId: string): { completed: number; failed: number; avgDuration: number } {
-    const s = this.collector.getAgentStats(agentId);
-    return { completed: s.completed, failed: s.failed, avgDuration: s.avgDuration };
+    const agentRecords = this.records.filter((r) => r.agentId === agentId);
+    if (agentRecords.length === 0) return { completed: 0, failed: 0, avgDuration: 0 };
+    const completed = agentRecords.filter((r) => r.success).length;
+    const failed = agentRecords.filter((r) => !r.success).length;
+    const avgDuration = agentRecords.reduce((s, r) => s + r.duration, 0) / agentRecords.length;
+    return { completed, failed, avgDuration };
   }
 }
 
-// ── Stub Agent (used when no real agent factory is provided) ──
+// ── Stub Agent for engine-level orchestration testing ──
 
 class StubAgent implements IAgent {
   id: string;
@@ -148,14 +179,14 @@ class StubAgent implements IAgent {
     this.model = model;
   }
 
-  async start(task: Task, _worktreePath: string, _prompt: string): Promise<void> {
+  start(task: Task, _worktreePath: string, _prompt: string): void {
     this.status = 'working';
     this.currentTask = task;
     this.startedAt = Date.now();
     this.emitter.emit('started', { agentId: this.id, taskId: task.id });
   }
 
-  async stop(): Promise<void> {
+  stop(): void {
     this.status = 'idle';
     this.currentTask = null;
     this.startedAt = null;
@@ -182,20 +213,13 @@ class StubAgent implements IAgent {
 
 // ── TokenBurnerEngine ──
 
-export interface TokenBurnerEngineOptions {
-  queue?: ITaskQueue;
-  metrics?: IMetricsCollector;
-  agentFactory?: (id: string, model: string) => IAgent;
-}
-
 export class TokenBurnerEngine extends EventEmitter {
   private config: EngineConfig;
-  private queue: ITaskQueue | null;
+  private queue: ITaskQueue;
   private metrics: IMetricsCollector;
   private agents: IAgent[] = [];
   private running = false;
   private agentFactory: (id: string, model: string) => IAgent;
-  private customQueue: boolean;
 
   constructor(options?: TokenBurnerEngineOptions) {
     super();
@@ -204,9 +228,8 @@ export class TokenBurnerEngine extends EventEmitter {
       agents: { count: 0, model: 'claude', timeoutSeconds: 300 },
       maxRetries: 3,
     };
-    this.queue = options?.queue ?? null;
-    this.customQueue = !!options?.queue;
-    this.metrics = options?.metrics ?? new MetricsAdapter();
+    this.queue = options?.queue ?? new InMemoryTaskQueue();
+    this.metrics = options?.metrics ?? new InMemoryMetrics();
     this.agentFactory = options?.agentFactory ?? ((id, model) => new StubAgent(id, model));
   }
 
@@ -217,12 +240,6 @@ export class TokenBurnerEngine extends EventEmitter {
     const tbDir = path.join(projectPath, '.tokenburner');
     if (!fs.existsSync(tbDir)) {
       fs.mkdirSync(tbDir, { recursive: true });
-    }
-
-    // Wire up real TaskQueue if no custom queue was provided
-    if (!this.customQueue) {
-      const queueDir = path.join(tbDir, 'queue');
-      this.queue = new TaskQueue(queueDir);
     }
   }
 
@@ -262,7 +279,7 @@ export class TokenBurnerEngine extends EventEmitter {
   async stop(): Promise<void> {
     for (const agent of this.agents) {
       if (agent.isRunning()) {
-        await agent.stop();
+        agent.stop();
       }
       agent.removeAllListeners();
     }
@@ -270,7 +287,7 @@ export class TokenBurnerEngine extends EventEmitter {
     this.emitEvent('engine-stopped');
   }
 
-  getAgentStates(): EngineAgentState[] {
+  getAgentStates(): AgentState[] {
     return this.agents.map((a) => ({
       id: a.id,
       status: a.status,
@@ -280,33 +297,27 @@ export class TokenBurnerEngine extends EventEmitter {
     }));
   }
 
-  async addTask(title: string, description: string, priority: TaskPriority = 'normal'): Promise<string> {
-    const q = this.getQueue();
-    const id = await q.add(title, description, priority);
+  addTask(title: string, description: string, priority: TaskPriority = 'normal'): string {
+    const id = this.queue.add(title, description, priority);
     this.emitEvent('task-added', undefined, id);
     return id;
   }
 
-  async getQueueStatus(): Promise<QueueStatus> {
-    const q = this.getQueue();
-    return q.status();
+  getQueueStatus(): QueueStatus {
+    return this.queue.status();
   }
 
-  async getDashboardData(): Promise<EngineDashboardData> {
-    const q = this.getQueue();
+  getDashboardData(): DashboardData {
     return {
       projectName: this.config.project.name,
       agents: this.getAgentStates(),
-      queue: await q.status(),
+      queue: this.queue.status(),
       metrics: this.metrics.getSummary(),
       isRunning: this.running,
     };
   }
 
   getQueue(): ITaskQueue {
-    if (!this.queue) {
-      throw new Error('Engine not initialized. Call init() first or provide a queue in options.');
-    }
     return this.queue;
   }
 

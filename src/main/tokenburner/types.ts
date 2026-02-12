@@ -14,8 +14,8 @@ export interface Task {
   retries: number;
   maxRetries: number;
   failReason?: string;
-  completedAt?: Date;
-  createdAt: Date;
+  completedAt?: number;
+  createdAt: number;
 }
 
 export interface TaskInput {
@@ -71,48 +71,34 @@ export interface TaskMetric {
   duration: number;
   success: boolean;
   timestamp: number;
-  retries?: number;
-  error?: string;
 }
 
 export interface MetricsSummary {
   totalTasks: number;
-  completed: number;
-  failed: number;
   successRate: number;
   avgDuration: number;
   totalDuration: number;
-  agentCount: number;
 }
 
 export interface AgentStats {
-  agentId: string;
   completed: number;
   failed: number;
-  totalDuration: number;
-  avgDuration: number;
-  successRate: number;
 }
 
 export interface AgentState {
   id: string;
-  model: string;
   status: AgentStatus;
   currentTask: Task | null;
-  elapsed: number;
-  completed: number;
-  failed: number;
+  startedAt: number | null;
+  model: string;
 }
 
 export interface DashboardData {
   projectName: string;
-  projectPath: string;
-  isRunning: boolean;
   agents: AgentState[];
   queue: QueueStatus;
   metrics: MetricsSummary;
-  recentEvents: HarnessEvent[];
-  gitLog: Commit[];
+  isRunning: boolean;
 }
 
 export interface TokenBurnerConfig {
@@ -131,53 +117,63 @@ export interface TokenBurnerConfig {
   };
 }
 
-// Planner types
+// ── Engine-specific interfaces ──
 
-export interface PlannerTask {
+export interface ITaskQueue {
+  add(title: string, description: string, priority?: TaskPriority): string;
+  claim(agentId: string): Task | null;
+  complete(taskId: string): void;
+  fail(taskId: string, reason: string): void;
+  unclaim(taskId: string): void;
+  get(taskId: string): Task | null;
+  list(status?: TaskStatus): Task[];
+  status(): QueueStatus;
+  import(tasks: Array<{ title: string; description: string; priority?: TaskPriority }>): void;
+}
+
+export interface IAgent {
   id: string;
-  title: string;
-  description: string;
-  priority: TaskPriority;
-  dependencies: string[];
-  estimatedDuration?: number;
-  assignedAgent?: string;
+  status: AgentStatus;
+  currentTask: Task | null;
+  startedAt: number | null;
+  model: string;
+  start(task: Task, worktreePath: string, prompt: string): void;
+  stop(): void;
+  isRunning(): boolean;
+  elapsed(): number;
+  on(event: string, listener: (...args: unknown[]) => void): void;
+  removeAllListeners(): void;
 }
 
-export interface ExecutionPlan {
-  phases: PlanPhase[];
-  totalTasks: number;
-  estimatedDuration: number;
-  criticalPath: string[];
+export interface IMetricsCollector {
+  recordTask(metric: TaskMetric): void;
+  getSummary(): MetricsSummary;
+  getAgentStats(agentId: string): { completed: number; failed: number; avgDuration: number };
 }
 
-export interface PlanPhase {
-  phase: number;
-  tasks: PlannerTask[];
-  parallelizable: boolean;
+export interface EngineConfig {
+  project: {
+    repo: string;
+    name: string;
+  };
+  agents: {
+    count: number;
+    model: string;
+    timeoutSeconds: number;
+  };
+  maxRetries: number;
 }
 
-// Scaler types
-
-export interface ScalerConfig {
-  minAgents: number;
-  maxAgents: number;
-  scaleUpThreshold: number;
-  scaleDownThreshold: number;
-  cooldownMs: number;
+export interface EngineEvent {
+  type: 'agent-started' | 'agent-stopped' | 'agent-output' | 'agent-complete' | 'agent-error' | 'task-added' | 'task-completed' | 'task-failed' | 'engine-started' | 'engine-stopped';
+  agentId?: string;
+  taskId?: string;
+  data?: unknown;
+  timestamp: number;
 }
 
-export interface ScalerState {
-  currentAgents: number;
-  desiredAgents: number;
-  lastScaleTime: number;
-  pendingTasks: number;
-  activeAgents: number;
-  idleAgents: number;
-}
-
-export interface ScaleDecision {
-  action: 'scale-up' | 'scale-down' | 'none';
-  from: number;
-  to: number;
-  reason: string;
+export interface TokenBurnerEngineOptions {
+  queue?: ITaskQueue;
+  metrics?: IMetricsCollector;
+  agentFactory?: (id: string, model: string) => IAgent;
 }
