@@ -1,32 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import type { Task, TaskPriority, TaskStatus, QueueStatus } from './types';
 
-export type TaskPriority = 'critical' | 'high' | 'normal' | 'low';
-export type TaskStatus = 'pending' | 'active' | 'complete' | 'failed';
-
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  priority: TaskPriority;
-  status: TaskStatus;
-  assignee?: string;
-  createdAt: number;
-  claimedAt?: number;
-  completedAt?: number;
-  failReason?: string;
-  retries: number;
-  maxRetries: number;
-}
-
-export interface QueueStatus {
-  pending: number;
-  active: number;
-  complete: number;
-  failed: number;
-  total: number;
-}
+export type { Task, TaskPriority, TaskStatus, QueueStatus } from './types';
 
 const PRIORITY_ORDER: Record<TaskPriority, number> = {
   critical: 0,

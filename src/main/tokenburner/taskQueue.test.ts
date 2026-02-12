@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { TaskQueue, Task, QueueStatus } from './taskQueue';
+import { TaskQueue } from './taskQueue';
+import type { Task, QueueStatus } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
