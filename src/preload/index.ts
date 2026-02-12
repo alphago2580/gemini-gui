@@ -65,4 +65,23 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onMenuAction: (callback: (action: string) => void) => {
     ipcRenderer.on('menu-action', (_event, action) => callback(action));
   },
+
+  // TokenBurner API
+  tokenburner: {
+    init: (projectPath: string) => ipcRenderer.invoke('tokenburner:init', projectPath),
+    launch: (agentCount: number) => ipcRenderer.invoke('tokenburner:launch', agentCount),
+    stop: () => ipcRenderer.invoke('tokenburner:stop'),
+    addTask: (title: string, description: string, priority?: string) =>
+      ipcRenderer.invoke('tokenburner:add-task', title, description, priority),
+    getDashboard: () => ipcRenderer.invoke('tokenburner:get-dashboard'),
+    getQueueStatus: () => ipcRenderer.invoke('tokenburner:get-queue-status'),
+    getAgentStates: () => ipcRenderer.invoke('tokenburner:get-agent-states'),
+    selectProject: () => ipcRenderer.invoke('tokenburner:select-project'),
+    onEvent: (callback: (data: unknown) => void) => {
+      ipcRenderer.on('tokenburner:event', (_event, data) => callback(data));
+    },
+    removeAllListeners: () => {
+      ipcRenderer.removeAllListeners('tokenburner:event');
+    },
+  },
 });

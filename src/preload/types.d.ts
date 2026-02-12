@@ -57,6 +57,62 @@ export interface SessionStatusData {
   status: 'idle' | 'connecting' | 'connected' | 'error';
 }
 
+export type TokenBurnerTaskPriority = 'critical' | 'high' | 'normal' | 'low';
+export type TokenBurnerTaskStatus = 'pending' | 'active' | 'complete' | 'failed';
+export type TokenBurnerAgentStatus = 'idle' | 'working' | 'testing' | 'error';
+
+export interface TokenBurnerTask {
+  id: string;
+  title: string;
+  description: string;
+  priority: TokenBurnerTaskPriority;
+  status: TokenBurnerTaskStatus;
+  assignee?: string;
+  failReason?: string;
+}
+
+export interface TokenBurnerAgentState {
+  id: string;
+  model: string;
+  status: TokenBurnerAgentStatus;
+  currentTask: { title: string } | null;
+  elapsed: number;
+  completed: number;
+  failed: number;
+}
+
+export interface TokenBurnerQueueStatus {
+  pending: number;
+  active: number;
+  complete: number;
+  failed: number;
+  total: number;
+}
+
+export interface TokenBurnerDashboardData {
+  projectName: string;
+  projectPath: string;
+  isRunning: boolean;
+  agents: TokenBurnerAgentState[];
+  queue: TokenBurnerQueueStatus;
+  metrics: { totalTasks: number; successRate: number; avgDuration: number };
+  recentEvents: Array<{ type: string; taskId?: string; agentId?: string }>;
+  gitLog: Array<{ hash: string; message: string }>;
+}
+
+export interface TokenBurnerAPI {
+  init: (projectPath: string) => Promise<{ success: boolean; error?: string }>;
+  launch: (agentCount: number) => Promise<{ success: boolean; error?: string }>;
+  stop: () => Promise<{ success: boolean }>;
+  addTask: (title: string, description: string, priority?: string) => Promise<{ success: boolean; taskId?: string; error?: string }>;
+  getDashboard: () => Promise<TokenBurnerDashboardData>;
+  getQueueStatus: () => Promise<TokenBurnerQueueStatus>;
+  getAgentStates: () => Promise<TokenBurnerAgentState[]>;
+  selectProject: () => Promise<{ success: boolean; path?: string; canceled?: boolean }>;
+  onEvent: (callback: (data: unknown) => void) => void;
+  removeAllListeners: () => void;
+}
+
 export interface ElectronAPI {
   sendMessage: (message: string, systemPrompt?: string, model?: string) => Promise<{ success: boolean; output: string; error: string | null }>;
   stopGemini: () => Promise<{ success: boolean; error?: string }>;
@@ -74,6 +130,7 @@ export interface ElectronAPI {
   showNotification: (title: string, body: string) => Promise<{ success: boolean; error?: string }>;
   isWindowFocused: () => Promise<boolean>;
   setWindowTitle: (title: string) => Promise<void>;
+  tokenburner: TokenBurnerAPI;
 }
 
 declare global {

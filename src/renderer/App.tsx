@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, useCallback, useState } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback, useState, lazy, Suspense } from 'react';
 import './App.css';
 import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
@@ -95,7 +95,14 @@ import { useSettings } from './hooks/useSettings';
 import { useDialogs } from './hooks/useDialogs';
 import * as S from './constants/strings';
 
+const TokenBurnerDashboard = lazy(() => import('./components/tokenburner/TokenBurnerDashboard'));
+
+type AppMode = 'chat' | 'tokenburner';
+
 const App: React.FC = () => {
+  // App mode (chat or tokenburner)
+  const [appMode, setAppMode] = useState<AppMode>('chat');
+
   // Conversation state (extracted to custom hook)
   const {
     conversations,
@@ -585,6 +592,19 @@ const App: React.FC = () => {
   });
 
 
+  // TokenBurner mode rendering
+  if (appMode === 'tokenburner') {
+    return (
+      <div className="app" role="application">
+        <Suspense fallback={<div className="main-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading TokenBurner...</div>}>
+          <main className="main-content">
+            <TokenBurnerDashboard onBack={() => setAppMode('chat')} />
+          </main>
+        </Suspense>
+      </div>
+    );
+  }
+
   return (
     <div className="app" role="application">
       <Sidebar
@@ -706,6 +726,15 @@ const App: React.FC = () => {
                 position="bottom-right"
                 label={S.MORE_ACTIONS_LABEL}
               />
+              <Tooltip content="TokenBurner" position="bottom">
+                <button
+                  className="header-action-btn"
+                  onClick={() => setAppMode('tokenburner')}
+                  aria-label="TokenBurner 모드"
+                >
+                  🔥
+                </button>
+              </Tooltip>
             </div>
           )}
         </header>

@@ -404,3 +404,110 @@ ipcMain.handle('set-window-title', async (_event, title: string) => {
     mainWindow.setTitle(title);
   }
 });
+
+// TokenBurner IPC handlers
+import { TokenBurnerEngine } from './tokenburner/engine';
+
+let tokenBurnerEngine: TokenBurnerEngine | null = null;
+
+function getOrCreateEngine(): TokenBurnerEngine {
+  if (!tokenBurnerEngine) {
+    tokenBurnerEngine = new TokenBurnerEngine();
+  }
+  return tokenBurnerEngine;
+}
+
+ipcMain.handle('tokenburner:init', async (_event, projectPath: string) => {
+  try {
+    const engine = getOrCreateEngine();
+    await engine.init(projectPath);
+    engine.on('agent-event', (event) => {
+      mainWindow?.webContents.send('tokenburner:event', event);
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: getErrorMessage(error) };
+  }
+});
+
+ipcMain.handle('tokenburner:launch', async (_event, agentCount: number) => {
+  try {
+    const engine = getOrCreateEngine();
+    await engine.launch(agentCount);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: getErrorMessage(error) };
+  }
+});
+
+ipcMain.handle('tokenburner:stop', async () => {
+  try {
+    if (tokenBurnerEngine) {
+      await tokenBurnerEngine.stop();
+    }
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: getErrorMessage(error) };
+  }
+});
+
+ipcMain.handle('tokenburner:add-task', async (_event, title: string, description: string, priority?: string) => {
+  try {
+    const engine = getOrCreateEngine();
+    const taskId = await engine.addTask(title, description, priority);
+    return { success: true, taskId };
+  } catch (error) {
+    return { success: false, error: getErrorMessage(error) };
+  }
+});
+
+ipcMain.handle('tokenburner:get-dashboard', async () => {
+  try {
+    const engine = getOrCreateEngine();
+    return engine.getDashboardData();
+  } catch {
+    return {
+      projectName: '',
+      projectPath: '',
+      isRunning: false,
+      agents: [],
+      queue: { pending: 0, active: 0, complete: 0, failed: 0, total: 0 },
+      metrics: { totalTasks: 0, successRate: 0, avgDuration: 0 },
+      recentEvents: [],
+      gitLog: [],
+    };
+  }
+});
+
+ipcMain.handle('tokenburner:get-queue-status', async () => {
+  try {
+    const engine = getOrCreateEngine();
+    return engine.getQueueStatus();
+  } catch {
+    return { pending: 0, active: 0, complete: 0, failed: 0, total: 0 };
+  }
+});
+
+ipcMain.handle('tokenburner:get-agent-states', async () => {
+  try {
+    const engine = getOrCreateEngine();
+    return engine.getAgentStates();
+  } catch {
+    return [];
+  }
+});
+
+ipcMain.handle('tokenburner:select-project', async () => {
+  try {
+    const result = await dialog.showOpenDialog({
+      title: 'TokenBurner 프로젝트 선택',
+      properties: ['openDirectory'],
+    });
+    if (result.canceled || result.filePaths.length === 0) {
+      return { success: false, canceled: true };
+    }
+    return { success: true, path: result.filePaths[0] };
+  } catch (error) {
+    return { success: false, error: getErrorMessage(error) };
+  }
+});
