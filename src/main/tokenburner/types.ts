@@ -120,15 +120,15 @@ export interface TokenBurnerConfig {
 // ── Engine-specific interfaces ──
 
 export interface ITaskQueue {
-  add(title: string, description: string, priority?: TaskPriority): string;
-  claim(agentId: string): Task | null;
-  complete(taskId: string): void;
-  fail(taskId: string, reason: string): void;
-  unclaim(taskId: string): void;
-  get(taskId: string): Task | null;
-  list(status?: TaskStatus): Task[];
-  status(): QueueStatus;
-  import(tasks: Array<{ title: string; description: string; priority?: TaskPriority }>): void;
+  add(title: string, description: string, priority?: TaskPriority): string | Promise<string>;
+  claim(agentId: string): Task | null | Promise<Task | null>;
+  complete(taskId: string): void | Promise<void>;
+  fail(taskId: string, reason: string): void | Promise<void>;
+  unclaim(taskId: string): void | Promise<void>;
+  get(taskId: string): Task | null | Promise<Task | null>;
+  list(status?: TaskStatus): Task[] | Promise<Task[]>;
+  status(): QueueStatus | Promise<QueueStatus>;
+  import(tasks: Array<{ title: string; description: string; priority?: TaskPriority }>): void | Promise<string[]>;
 }
 
 export interface IAgent {

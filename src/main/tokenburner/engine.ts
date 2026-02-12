@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events';
 import * as fs from 'fs';
 import * as path from 'path';
+import { TaskQueue as FileTaskQueue } from './taskQueue';
+import { MetricsCollector as FileMetricsCollector } from './metrics';
 import type {
   TaskPriority,
   TaskStatus,
@@ -221,6 +223,9 @@ export class TokenBurnerEngine extends EventEmitter {
   private running = false;
   private agentFactory: (id: string, model: string) => IAgent;
 
+  private initialized = false;
+  private customQueue: boolean;
+
   constructor(options?: TokenBurnerEngineOptions) {
     super();
     this.config = {
@@ -228,6 +233,7 @@ export class TokenBurnerEngine extends EventEmitter {
       agents: { count: 0, model: 'claude', timeoutSeconds: 300 },
       maxRetries: 3,
     };
+    this.customQueue = !!options?.queue;
     this.queue = options?.queue ?? new InMemoryTaskQueue();
     this.metrics = options?.metrics ?? new InMemoryMetrics();
     this.agentFactory = options?.agentFactory ?? ((id, model) => new StubAgent(id, model));
@@ -241,6 +247,14 @@ export class TokenBurnerEngine extends EventEmitter {
     if (!fs.existsSync(tbDir)) {
       fs.mkdirSync(tbDir, { recursive: true });
     }
+
+    // Swap to file-backed TaskQueue and MetricsCollector if no custom ones provided
+    if (!this.customQueue) {
+      const queueDir = path.join(tbDir, 'queue');
+      this.queue = new FileTaskQueue(queueDir);
+    }
+
+    this.initialized = true;
   }
 
   getConfig(): EngineConfig {
@@ -297,17 +311,20 @@ export class TokenBurnerEngine extends EventEmitter {
     }));
   }
 
-  addTask(title: string, description: string, priority: TaskPriority = 'normal'): string {
-    const id = this.queue.add(title, description, priority);
+  async addTask(title: string, description: string, priority: TaskPriority = 'normal'): Promise<string> {
+    if (!this.initialized) {
+      throw new Error('Engine not initialized — call init() first');
+    }
+    const id = await this.queue.add(title, description, priority);
     this.emitEvent('task-added', undefined, id);
     return id;
   }
 
-  getQueueStatus(): QueueStatus {
+  async getQueueStatus(): Promise<QueueStatus> {
     return this.queue.status();
   }
 
-  getDashboardData(): DashboardData {
+  async getDashboardData(): Promise<DashboardData> {
     return {
       projectName: this.config.project.name,
       agents: this.getAgentStates(),
