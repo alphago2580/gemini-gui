@@ -1,0 +1,104 @@
+.lazy-image-container {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  background-color: var(--bg-secondary, #f3f4f6);
+  border-radius: 4px;
+}
+
+/* Skeleton placeholder */
+.lazy-image-skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary, #f3f4f6) 25%,
+    var(--bg-tertiary, #e5e7eb) 50%,
+    var(--bg-secondary, #f3f4f6) 75%
+  );
+  background-size: 200% 100%;
+  animation: lazy-image-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes lazy-image-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Blur-up placeholder */
+.lazy-image-placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: blur(10px);
+  transform: scale(1.1);
+}
+
+/* Main image */
+.lazy-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lazy-image-visible {
+  opacity: 1;
+}
+
+/* Object-fit variants */
+.lazy-image-fit-contain {
+  object-fit: contain;
+}
+
+.lazy-image-fit-cover {
+  object-fit: cover;
+}
+
+.lazy-image-fit-fill {
+  object-fit: fill;
+}
+
+.lazy-image-fit-none {
+  object-fit: none;
+}
+
+/* Error state */
+.lazy-image-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-secondary, #f3f4f6);
+  color: var(--text-muted, #6b7280);
+}
+
+.lazy-image-error-icon {
+  font-size: 1.5rem;
+  font-weight: 700;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--text-muted, #6b7280);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .lazy-image-skeleton {
+    animation: none;
+  }
+
+  .lazy-image {
+    transition: none;
+  }
+}
