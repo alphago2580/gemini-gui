@@ -1,15 +1,20 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import React from 'react';
 import Toast from './Toast';
 import type { ToastMessage } from './Toast';
 
 describe('Toast', () => {
+  let mockDismiss: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
     vi.useFakeTimers();
+    mockDismiss = vi.fn();
   });
 
-  const mockDismiss = vi.fn();
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   const createToast = (overrides: Partial<ToastMessage> = {}): ToastMessage => ({
     id: '1',
@@ -166,7 +171,7 @@ describe('Toast', () => {
     expect(dismissFn).not.toHaveBeenCalled();
   });
 
-  // --- New tests for stack enhancements ---
+  // --- Stack enhancements ---
 
   describe('maxVisible limit', () => {
     it('shows only maxVisible toasts when there are more', () => {
@@ -317,6 +322,205 @@ describe('Toast', () => {
         <Toast toasts={toasts} onDismiss={mockDismiss} onDismissAll={onDismissAll} />
       );
       expect(container.querySelector('.toast-dismiss-all')).toBeInTheDocument();
+    });
+  });
+
+  // --- Action button tests ---
+
+  describe('action button', () => {
+    it('renders action button when toast has action', () => {
+      const actionFn = vi.fn();
+      const toasts = [createToast({
+        action: { label: '실행취소', onClick: actionFn },
+      })];
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      expect(screen.getByRole('button', { name: '실행취소' })).toBeInTheDocument();
+    });
+
+    it('does not render action button when toast has no action', () => {
+      const toasts = [createToast()];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      expect(container.querySelector('.toast-action')).not.toBeInTheDocument();
+    });
+
+    it('calls action onClick when action button is clicked', () => {
+      const actionFn = vi.fn();
+      const toasts = [createToast({
+        id: 'action-test',
+        action: { label: '다시 시도', onClick: actionFn },
+      })];
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      fireEvent.click(screen.getByRole('button', { name: '다시 시도' }));
+      expect(actionFn).toHaveBeenCalledTimes(1);
+    });
+
+    it('dismisses toast after action button click', () => {
+      const actionFn = vi.fn();
+      const toasts = [createToast({
+        id: 'action-dismiss',
+        action: { label: '실행취소', onClick: actionFn },
+      })];
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      fireEvent.click(screen.getByRole('button', { name: '실행취소' }));
+      // After exit animation
+      act(() => { vi.advanceTimersByTime(300); });
+      expect(mockDismiss).toHaveBeenCalledWith('action-dismiss');
+    });
+
+    it('action button has toast-action class', () => {
+      const toasts = [createToast({
+        action: { label: '실행취소', onClick: vi.fn() },
+      })];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      expect(container.querySelector('.toast-action')).toBeInTheDocument();
+    });
+
+    it('action button has aria-label matching action label', () => {
+      const toasts = [createToast({
+        action: { label: '다시 시도', onClick: vi.fn() },
+      })];
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      const btn = screen.getByRole('button', { name: '다시 시도' });
+      expect(btn).toHaveAttribute('aria-label', '다시 시도');
+    });
+
+    it('action button displays label text', () => {
+      const toasts = [createToast({
+        action: { label: '실행취소', onClick: vi.fn() },
+      })];
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      expect(screen.getByText('실행취소')).toBeInTheDocument();
+    });
+
+    it('shows toast-exit class after action button click', () => {
+      const toasts = [createToast({
+        action: { label: '실행취소', onClick: vi.fn() },
+      })];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      fireEvent.click(screen.getByRole('button', { name: '실행취소' }));
+      expect(container.querySelector('.toast-exit')).toBeInTheDocument();
+    });
+
+    it('multiple toasts can have different actions', () => {
+      const action1 = vi.fn();
+      const action2 = vi.fn();
+      const toasts = [
+        createToast({ id: '1', message: 'Error', action: { label: '다시 시도', onClick: action1 } }),
+        createToast({ id: '2', message: 'Deleted', type: 'info', action: { label: '실행취소', onClick: action2 } }),
+      ];
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      expect(screen.getByRole('button', { name: '다시 시도' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '실행취소' })).toBeInTheDocument();
+    });
+
+    it('some toasts can have actions while others do not', () => {
+      const toasts = [
+        createToast({ id: '1', message: 'With action', action: { label: '실행취소', onClick: vi.fn() } }),
+        createToast({ id: '2', message: 'No action' }),
+      ];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      // Only one action button
+      expect(container.querySelectorAll('.toast-action')).toHaveLength(1);
+      // Two close buttons
+      expect(container.querySelectorAll('.toast-close')).toHaveLength(2);
+    });
+  });
+
+  // --- Custom duration tests ---
+
+  describe('custom duration', () => {
+    it('auto-dismisses after custom duration', () => {
+      const toasts = [createToast({ id: 'custom-dur', duration: 2000 })];
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      // Should not dismiss at 1500ms
+      act(() => { vi.advanceTimersByTime(1500); });
+      expect(mockDismiss).not.toHaveBeenCalled();
+      // Should dismiss at 2000 + 300 (exit animation)
+      act(() => { vi.advanceTimersByTime(800); });
+      expect(mockDismiss).toHaveBeenCalledWith('custom-dur');
+    });
+
+    it('uses default duration when duration not specified', () => {
+      const toasts = [createToast({ id: 'default-dur' })];
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      // Should not dismiss at 4000ms
+      act(() => { vi.advanceTimersByTime(4000); });
+      expect(mockDismiss).not.toHaveBeenCalled();
+      // Should dismiss at 5000 + 300
+      act(() => { vi.advanceTimersByTime(1300); });
+      expect(mockDismiss).toHaveBeenCalledWith('default-dur');
+    });
+  });
+
+  // --- Pause on hover tests ---
+
+  describe('pause on hover', () => {
+    it('pauses auto-dismiss timer on mouse enter when pauseOnHover is true', () => {
+      const dismissFn = vi.fn();
+      const toasts = [createToast({ id: 'hover-pause' })];
+      const { container } = render(
+        <Toast toasts={toasts} onDismiss={dismissFn} pauseOnHover={true} />
+      );
+      const toastEl = container.querySelector('.toast')!;
+
+      // Advance 2 seconds then hover
+      act(() => { vi.advanceTimersByTime(2000); });
+      fireEvent.mouseEnter(toastEl);
+
+      // Wait well past the full duration — should NOT dismiss
+      act(() => { vi.advanceTimersByTime(10000); });
+      expect(dismissFn).not.toHaveBeenCalled();
+    });
+
+    it('resumes auto-dismiss timer on mouse leave after hover', () => {
+      const dismissFn = vi.fn();
+      const toasts = [createToast({ id: 'hover-resume' })];
+      const { container } = render(
+        <Toast toasts={toasts} onDismiss={dismissFn} pauseOnHover={true} />
+      );
+      const toastEl = container.querySelector('.toast')!;
+
+      // Advance 2 seconds then hover
+      act(() => { vi.advanceTimersByTime(2000); });
+      fireEvent.mouseEnter(toastEl);
+
+      // Wait 5 seconds while hovering
+      act(() => { vi.advanceTimersByTime(5000); });
+      expect(dismissFn).not.toHaveBeenCalled();
+
+      // Mouse leave — remaining ~3s should start
+      fireEvent.mouseLeave(toastEl);
+      act(() => { vi.advanceTimersByTime(3300); });
+      expect(dismissFn).toHaveBeenCalledWith('hover-resume');
+    });
+
+    it('does not pause timer when pauseOnHover is false (default)', () => {
+      const dismissFn = vi.fn();
+      const toasts = [createToast({ id: 'no-hover-pause' })];
+      const { container } = render(
+        <Toast toasts={toasts} onDismiss={dismissFn} />
+      );
+      const toastEl = container.querySelector('.toast')!;
+
+      // Hover
+      fireEvent.mouseEnter(toastEl);
+
+      // Timer still fires at 5000 + 300
+      act(() => { vi.advanceTimersByTime(5300); });
+      expect(dismissFn).toHaveBeenCalledWith('no-hover-pause');
+    });
+
+    it('does not pause timer when pauseOnHover is explicitly false', () => {
+      const dismissFn = vi.fn();
+      const toasts = [createToast({ id: 'explicit-no-pause' })];
+      const { container } = render(
+        <Toast toasts={toasts} onDismiss={dismissFn} pauseOnHover={false} />
+      );
+      const toastEl = container.querySelector('.toast')!;
+
+      fireEvent.mouseEnter(toastEl);
+      act(() => { vi.advanceTimersByTime(5300); });
+      expect(dismissFn).toHaveBeenCalledWith('explicit-no-pause');
     });
   });
 });
