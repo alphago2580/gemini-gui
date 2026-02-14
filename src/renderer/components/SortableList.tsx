@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import './SortableList.css';
 
 export interface SortableItem {
@@ -26,6 +26,15 @@ const SortableList: React.FC<SortableListProps> = ({
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const dragNodeRef = useRef<HTMLDivElement | null>(null);
+  const rafIdRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current !== undefined) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, []);
 
   const handleDragStart = useCallback((index: number, e: React.DragEvent) => {
     if (disabled) return;
@@ -34,7 +43,8 @@ const SortableList: React.FC<SortableListProps> = ({
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', String(index));
     // Small delay so the dragged element gets the class
-    requestAnimationFrame(() => {
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = undefined;
       if (dragNodeRef.current) {
         dragNodeRef.current.classList.add('sortable-list-item--dragging');
       }

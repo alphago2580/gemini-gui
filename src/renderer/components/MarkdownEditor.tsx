@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
 import './MarkdownEditor.css';
 import * as S from '../constants/strings';
@@ -36,13 +36,18 @@ const TOOLBAR_BLOCK_ACTIONS: ToolbarAction[] = [
   { id: 'code-block', label: S.MARKDOWN_TOOLBAR_CODE_BLOCK, icon: '{ }', wrap: ['```\n', '\n```'], block: true },
 ];
 
+interface ApplyWrapResult {
+  newValue: string;
+  cursorStart: number;
+  cursorEnd: number;
+}
+
 function applyWrap(
   textarea: HTMLTextAreaElement,
   value: string,
   wrap: [string, string],
   block: boolean,
-  onChange: (value: string) => void,
-): void {
+): ApplyWrapResult {
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   const selected = value.slice(start, end);
@@ -64,13 +69,8 @@ function applyWrap(
   }
 
   const newValue = value.slice(0, start) + insertion + value.slice(end);
-  onChange(newValue);
 
-  // Restore selection after React re-renders
-  requestAnimationFrame(() => {
-    textarea.focus();
-    textarea.setSelectionRange(newCursorStart, newCursorEnd);
-  });
+  return { newValue, cursorStart: newCursorStart, cursorEnd: newCursorEnd };
 }
 
 const MarkdownEditorInner: React.FC<MarkdownEditorProps> = ({
@@ -83,11 +83,33 @@ const MarkdownEditorInner: React.FC<MarkdownEditorProps> = ({
 }) => {
   const [mode, setMode] = useState<MarkdownEditorMode>(defaultMode);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const rafIdRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current !== undefined) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, []);
 
   const handleToolbarAction = useCallback((action: ToolbarAction) => {
     const textarea = textareaRef.current;
     if (!textarea) return;
-    applyWrap(textarea, value, action.wrap, !!action.block, onChange);
+    const result = applyWrap(textarea, value, action.wrap, !!action.block);
+    onChange(result.newValue);
+
+    // Cancel any pending RAF before scheduling a new one
+    if (rafIdRef.current !== undefined) {
+      cancelAnimationFrame(rafIdRef.current);
+    }
+
+    // Restore selection after React re-renders
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = undefined;
+      textarea.focus();
+      textarea.setSelectionRange(result.cursorStart, result.cursorEnd);
+    });
   }, [value, onChange]);
 
   const showInput = mode === 'write' || mode === 'split';

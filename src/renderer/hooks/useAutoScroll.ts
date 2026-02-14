@@ -41,17 +41,25 @@ export function useAutoScroll(messages: Message[]) {
       return;
     }
 
+    let rafId: number | undefined;
+
     // New message added
     if (messages.length > prevLength) {
       if (isNearBottom) {
         // Use requestAnimationFrame to ensure DOM has updated
-        requestAnimationFrame(() => {
+        rafId = requestAnimationFrame(() => {
           scrollToBottom('smooth');
         });
       } else {
         setShowScrollButton(true);
       }
     }
+
+    return () => {
+      if (rafId !== undefined) {
+        cancelAnimationFrame(rafId);
+      }
+    };
   }, [messages, isNearBottom, scrollToBottom]);
 
   return {

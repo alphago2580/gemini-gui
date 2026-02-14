@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import './TabBar.css';
 import * as S from '../constants/strings';
 
@@ -27,6 +27,15 @@ const TabBar: React.FC<TabBarProps> = ({
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const dragNodeRef = useRef<HTMLDivElement | null>(null);
+  const rafIdRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current !== undefined) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, []);
 
   const handleDragStart = useCallback((index: number, e: React.DragEvent) => {
     if (!onReorderTabs) return;
@@ -34,7 +43,8 @@ const TabBar: React.FC<TabBarProps> = ({
     dragNodeRef.current = e.currentTarget as HTMLDivElement;
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', String(index));
-    requestAnimationFrame(() => {
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = undefined;
       if (dragNodeRef.current) {
         dragNodeRef.current.classList.add('tab-item--dragging');
       }

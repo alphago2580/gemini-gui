@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import './Sidebar.css';
 import * as S from '../constants/strings';
 import type { Conversation, ConversationFolder } from '../../preload/types';
@@ -57,6 +57,15 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const dragNodeRef = useRef<HTMLDivElement | null>(null);
+  const rafIdRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current !== undefined) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, []);
 
   const getConversationMenuItems = useCallback((convId: string): DropdownMenuEntry[] => {
     const items: DropdownMenuEntry[] = [
@@ -99,7 +108,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     dragNodeRef.current = e.currentTarget as HTMLDivElement;
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', String(index));
-    requestAnimationFrame(() => {
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = undefined;
       if (dragNodeRef.current) {
         dragNodeRef.current.classList.add('conversation-item--dragging');
       }

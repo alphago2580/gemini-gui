@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 
 interface FormattingResult {
   /** New text content after formatting */
@@ -105,6 +105,16 @@ export function useFormattingToolbar({
   text,
   setText,
 }: UseFormattingToolbarOptions): UseFormattingToolbarResult {
+  const rafIdRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current !== undefined) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, []);
+
   const handleFormat = useCallback((actionId: string) => {
     const textarea = textareaRef.current;
     if (!textarea) return;
@@ -114,8 +124,14 @@ export function useFormattingToolbar({
 
     setText(result.text);
 
+    // Cancel any pending RAF before scheduling a new one
+    if (rafIdRef.current !== undefined) {
+      cancelAnimationFrame(rafIdRef.current);
+    }
+
     // Restore cursor position after React re-render
-    requestAnimationFrame(() => {
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = undefined;
       textarea.focus();
       textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
     });
