@@ -640,3 +640,20 @@ export const STATUS_BAR_MODEL_LABEL = '모델';
 export const STATUS_BAR_TOKENS_LABEL = '토큰';
 export const STATUS_BAR_ENCODING_LABEL = 'UTF-8';
 export const STATUS_BAR_LINE_COL = (line: number, col: number) => `Ln ${line}, Col ${col}`;
+
+// MentionAutocomplete — commands
+export const MENTION_PLACEHOLDER = '메시지를 입력하세요... (@로 명령어 검색)';
+export const MENTION_CMD_TRANSLATE = '번역';
+export const MENTION_CMD_TRANSLATE_DESC = '텍스트를 번역합니다';
+export const MENTION_CMD_SUMMARIZE = '요약';
+export const MENTION_CMD_SUMMARIZE_DESC = '내용을 요약합니다';
+export const MENTION_CMD_EXPLAIN = '설명';
+export const MENTION_CMD_EXPLAIN_DESC = '개념을 쉽게 설명합니다';
+export const MENTION_CMD_CODE = '코드';
+export const MENTION_CMD_CODE_DESC = '코드를 작성합니다';
+export const MENTION_CMD_REVIEW = '리뷰';
+export const MENTION_CMD_REVIEW_DESC = '코드를 리뷰합니다';
+export const MENTION_CMD_FIX = '수정';
+export const MENTION_CMD_FIX_DESC = '오류를 수정합니다';
+export const MENTION_CMD_HELP = '도움말';
+export const MENTION_CMD_HELP_DESC = '사용 가능한 명령어를 보여줍니다';

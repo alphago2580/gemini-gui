@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react';
 import './MentionAutocomplete.css';
 
 export interface MentionCommand {
@@ -15,9 +15,12 @@ export interface MentionAutocompleteProps {
   placeholder?: string;
   disabled?: boolean;
   onSubmit?: (value: string) => void;
+  onPaste?: (e: React.ClipboardEvent) => void;
   triggerChar?: string;
   maxSuggestions?: number;
   ariaLabel?: string;
+  inputId?: string;
+  inputClassName?: string;
 }
 
 interface MentionState {
@@ -32,21 +35,26 @@ const INITIAL_MENTION_STATE: MentionState = {
   query: '',
 };
 
-const MentionAutocomplete: React.FC<MentionAutocompleteProps> = ({
+const MentionAutocomplete = forwardRef<HTMLTextAreaElement, MentionAutocompleteProps>(({
   value,
   onChange,
   commands,
   placeholder = '메시지를 입력하세요... (@로 명령어 검색)',
   disabled = false,
   onSubmit,
+  onPaste,
   triggerChar = '@',
   maxSuggestions = 8,
   ariaLabel = '멘션 자동완성 입력',
-}) => {
+  inputId,
+  inputClassName,
+}, ref) => {
   const [mentionState, setMentionState] = useState<MentionState>(INITIAL_MENTION_STATE);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dropdownRef = useRef<HTMLUListElement>(null);
+
+  useImperativeHandle(ref, () => textareaRef.current as HTMLTextAreaElement);
 
   const filteredCommands = useMemo(() => {
     if (!mentionState.isActive) return [];
@@ -198,10 +206,12 @@ const MentionAutocomplete: React.FC<MentionAutocompleteProps> = ({
     <div className={`mention-autocomplete ${disabled ? 'mention-autocomplete--disabled' : ''}`}>
       <textarea
         ref={textareaRef}
-        className="mention-autocomplete-input"
+        id={inputId}
+        className={inputClassName ? `mention-autocomplete-input ${inputClassName}` : 'mention-autocomplete-input'}
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        onPaste={onPaste}
         placeholder={placeholder}
         disabled={disabled}
         aria-label={ariaLabel}
@@ -259,6 +269,8 @@ const MentionAutocomplete: React.FC<MentionAutocompleteProps> = ({
       )}
     </div>
   );
-};
+});
+
+MentionAutocomplete.displayName = 'MentionAutocomplete';
 
 export default React.memo(MentionAutocomplete);
