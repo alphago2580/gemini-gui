@@ -1,1 +1,1 @@
-integrate-date-separator — DateSeparator를 MessageList에 통합하여 날짜별 메시지 그룹핑
+integrate-search-highlight — SearchHighlight를 InlineSearch/MessageBubble에 통합하여 검색 결과 하이라이팅
