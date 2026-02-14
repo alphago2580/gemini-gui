@@ -527,6 +527,78 @@ describe('MarkdownRenderer', () => {
     });
   });
 
+  describe('Auto language detection', () => {
+    it('auto-detects Python code in a code block without language', () => {
+      const content = '```\ndef hello(name):\n    print(f"Hello, {name}")\n\nif __name__ == "__main__":\n    hello("world")\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const langLabel = container.querySelector('.md-code-lang');
+      expect(langLabel).toBeInTheDocument();
+      expect(langLabel?.textContent).toBe('python');
+    });
+
+    it('auto-detects Java code in a code block without language', () => {
+      const content = '```\npublic class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const langLabel = container.querySelector('.md-code-lang');
+      expect(langLabel).toBeInTheDocument();
+      expect(langLabel?.textContent).toBe('java');
+    });
+
+    it('applies syntax highlighting to auto-detected code', () => {
+      const content = '```\ndef hello(name):\n    print(f"Hello, {name}")\n\nif __name__ == "__main__":\n    hello("world")\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const highlightSpan = container.querySelector('[class^="sh-"]');
+      expect(highlightSpan).toBeInTheDocument();
+    });
+
+    it('adds detected class to auto-detected language label', () => {
+      const content = '```\ndef hello(name):\n    print(f"Hello, {name}")\n\nif __name__ == "__main__":\n    hello("world")\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const langLabel = container.querySelector('.md-code-lang-detected');
+      expect(langLabel).toBeInTheDocument();
+    });
+
+    it('does not add detected class when language is explicitly specified', () => {
+      const content = '```python\nprint("hello")\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const langLabel = container.querySelector('.md-code-lang');
+      expect(langLabel).toBeInTheDocument();
+      expect(langLabel).not.toHaveClass('md-code-lang-detected');
+    });
+
+    it('does not show language label for ambiguous short code', () => {
+      const content = '```\nx = 5\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const langLabel = container.querySelector('.md-code-lang');
+      expect(langLabel).not.toBeInTheDocument();
+    });
+
+    it('auto-detects Rust code', () => {
+      const content = '```\nfn main() {\n    let mut x = 5;\n    println!("Value: {}", x);\n    x = 10;\n}\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const langLabel = container.querySelector('.md-code-lang');
+      expect(langLabel).toBeInTheDocument();
+      expect(langLabel?.textContent).toBe('rust');
+    });
+
+    it('auto-detects Go code', () => {
+      const content = '```\npackage main\n\nimport (\n    "fmt"\n)\n\nfunc main() {\n    name := "world"\n    fmt.Println("Hello", name)\n}\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const langLabel = container.querySelector('.md-code-lang');
+      expect(langLabel).toBeInTheDocument();
+      expect(langLabel?.textContent).toBe('go');
+    });
+
+    it('prefers explicit language over auto-detection', () => {
+      // Code looks like Python but language tag says javascript
+      const content = '```javascript\ndef hello():\n    print("hello")\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const langLabel = container.querySelector('.md-code-lang');
+      expect(langLabel?.textContent).toBe('javascript');
+      expect(langLabel).not.toHaveClass('md-code-lang-detected');
+    });
+  });
+
   describe('Edge cases', () => {
     it('renders blockquote with inline formatting', () => {
       const { container } = render(
