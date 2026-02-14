@@ -641,6 +641,15 @@ export const STATUS_BAR_TOKENS_LABEL = '토큰';
 export const STATUS_BAR_ENCODING_LABEL = 'UTF-8';
 export const STATUS_BAR_LINE_COL = (line: number, col: number) => `Ln ${line}, Col ${col}`;
 
+// TextDiff
+export const TEXT_DIFF_LABEL = '텍스트 비교';
+export const TEXT_DIFF_ADDED_PREFIX = '추가됨';
+export const TEXT_DIFF_REMOVED_PREFIX = '삭제됨';
+export const TEXT_DIFF_UNCHANGED_PREFIX = '변경 없음';
+export const TEXT_DIFF_OLD_LABEL = '이전';
+export const TEXT_DIFF_NEW_LABEL = '변경';
+export const TEXT_DIFF_STATS = (added: number, removed: number) => `+${added} -${removed}`;
+
 // MentionAutocomplete — commands
 export const MENTION_PLACEHOLDER = '메시지를 입력하세요... (@로 명령어 검색)';
 export const MENTION_CMD_TRANSLATE = '번역';
