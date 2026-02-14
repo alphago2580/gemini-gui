@@ -844,6 +844,8 @@ const App: React.FC = () => {
                     onDelete={deleteMessage}
                     onEdit={editMessage}
                     onFork={forkConversation}
+                    searchQuery={inlineSearch.isOpen ? inlineSearch.query : undefined}
+                    searchActiveMatchIndex={inlineSearch.currentMatch?.messageIndex === globalIndex ? inlineSearch.currentMatch.matchIndex : undefined}
                   />
                   {message.role === 'assistant' && message.id && !isLoading && (
                     <Rating

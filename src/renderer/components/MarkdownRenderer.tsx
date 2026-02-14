@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
+import SearchHighlight from './SearchHighlight';
 import './MarkdownRenderer.css';
 import { tokenize } from '../utils/syntaxHighlight';
 import { renderMathToHtml } from '../utils/mathRenderer';
@@ -7,6 +8,10 @@ import * as S from '../constants/strings';
 
 export interface MarkdownRendererProps {
   content: string;
+  /** Optional search query to highlight matches in text */
+  searchQuery?: string;
+  /** Index of the active match within this message (0-based) */
+  searchActiveMatchIndex?: number;
 }
 
 interface ParsedBlock {
@@ -84,7 +89,26 @@ function parseBlocks(text: string): ParsedBlock[] {
   return blocks;
 }
 
-function renderInlineMarkdown(text: string): React.ReactNode[] {
+interface SearchContext {
+  query: string;
+  activeMatchIndex?: number;
+}
+
+function renderTextWithHighlight(text: string, searchCtx: SearchContext | null, key: number): React.ReactNode {
+  if (!searchCtx || !searchCtx.query) {
+    return text;
+  }
+  return (
+    <SearchHighlight
+      key={`sh-${key}`}
+      text={text}
+      query={searchCtx.query}
+      activeMatchIndex={searchCtx.activeMatchIndex}
+    />
+  );
+}
+
+function renderInlineMarkdown(text: string, searchCtx: SearchContext | null = null): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
   // Match: inline math, inline code, bold, italic, links
   // Order matters: bold before italic (** before *), inline math before others
@@ -96,7 +120,7 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
   while ((match = regex.exec(text)) !== null) {
     // Add plain text before this match
     if (match.index > lastIndex) {
-      nodes.push(text.slice(lastIndex, match.index));
+      nodes.push(renderTextWithHighlight(text.slice(lastIndex, match.index), searchCtx, key++));
     }
 
     const full = match[0];
@@ -146,13 +170,13 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
 
   // Add remaining text
   if (lastIndex < text.length) {
-    nodes.push(text.slice(lastIndex));
+    nodes.push(renderTextWithHighlight(text.slice(lastIndex), searchCtx, key++));
   }
 
   return nodes;
 }
 
-function renderParagraphContent(text: string): React.ReactNode[] {
+function renderParagraphContent(text: string, searchCtx: SearchContext | null = null): React.ReactNode[] {
   const lines = text.split('\n');
   const elements: React.ReactNode[] = [];
   let listItems: { content: string; ordered: boolean; index: number }[] = [];
@@ -166,7 +190,7 @@ function renderParagraphContent(text: string): React.ReactNode[] {
       <Tag key={key++} className="md-list">
         {listItems.map((item, idx) => (
           <li key={idx} className="md-list-item">
-            {renderInlineMarkdown(item.content)}
+            {renderInlineMarkdown(item.content, searchCtx)}
           </li>
         ))}
       </Tag>
@@ -203,7 +227,7 @@ function renderParagraphContent(text: string): React.ReactNode[] {
           <tr>
             {headers.map((header, hi) => (
               <th key={hi} style={{ textAlign: alignments[hi] || 'left' }}>
-                {renderInlineMarkdown(header)}
+                {renderInlineMarkdown(header, searchCtx)}
               </th>
             ))}
           </tr>
@@ -213,7 +237,7 @@ function renderParagraphContent(text: string): React.ReactNode[] {
             <tr key={ri}>
               {headers.map((_, ci) => (
                 <td key={ci} style={{ textAlign: alignments[ci] || 'left' }}>
-                  {renderInlineMarkdown(row[ci] || '')}
+                  {renderInlineMarkdown(row[ci] || '', searchCtx)}
                 </td>
               ))}
             </tr>
@@ -247,7 +271,7 @@ function renderParagraphContent(text: string): React.ReactNode[] {
       const HeadingTag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
       elements.push(
         <HeadingTag key={key++} className={`md-heading md-h${level}`}>
-          {renderInlineMarkdown(headerMatch[2])}
+          {renderInlineMarkdown(headerMatch[2], searchCtx)}
         </HeadingTag>
       );
       continue;
@@ -286,7 +310,7 @@ function renderParagraphContent(text: string): React.ReactNode[] {
       flushList();
       elements.push(
         <blockquote key={key++} className="md-blockquote">
-          {renderInlineMarkdown(bqMatch[1])}
+          {renderInlineMarkdown(bqMatch[1], searchCtx)}
         </blockquote>
       );
       continue;
@@ -302,7 +326,7 @@ function renderParagraphContent(text: string): React.ReactNode[] {
     flushList();
     elements.push(
       <p key={key++} className="md-paragraph">
-        {renderInlineMarkdown(line)}
+        {renderInlineMarkdown(line, searchCtx)}
       </p>
     );
   }
@@ -336,8 +360,9 @@ const CopyButton: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-const MarkdownRendererInner: React.FC<MarkdownRendererProps> = ({ content }) => {
+const MarkdownRendererInner: React.FC<MarkdownRendererProps> = ({ content, searchQuery, searchActiveMatchIndex }) => {
   const blocks = useMemo(() => parseBlocks(content), [content]);
+  const searchCtx: SearchContext | null = searchQuery ? { query: searchQuery, activeMatchIndex: searchActiveMatchIndex } : null;
 
   return (
     <div className="md-rendered">
@@ -396,7 +421,7 @@ const MarkdownRendererInner: React.FC<MarkdownRendererProps> = ({ content }) => 
         }
         return (
           <div key={index} className="md-block">
-            {renderParagraphContent(block.content)}
+            {renderParagraphContent(block.content, searchCtx)}
           </div>
         );
       })}

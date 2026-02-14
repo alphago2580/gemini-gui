@@ -20,6 +20,10 @@ export interface MessageBubbleProps {
   reactions?: ReactionMap;
   onToggleReaction?: (index: number, emoji: string) => void;
   showTimestamps?: boolean;
+  /** Optional search query to highlight matches in message content */
+  searchQuery?: string;
+  /** Index of the active match within this message (0-based) */
+  searchActiveMatchIndex?: number;
 }
 
 const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
@@ -35,6 +39,8 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
   reactions = {},
   onToggleReaction,
   showTimestamps = true,
+  searchQuery,
+  searchActiveMatchIndex,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
@@ -160,7 +166,7 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
             </div>
           </div>
         ) : (
-          <MarkdownRenderer content={message.content} />
+          <MarkdownRenderer content={message.content} searchQuery={searchQuery} searchActiveMatchIndex={searchActiveMatchIndex} />
         )}
       </div>
       {onToggleReaction && Object.keys(reactions).length > 0 && (
