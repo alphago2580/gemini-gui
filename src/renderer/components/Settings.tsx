@@ -4,6 +4,7 @@ import type { AppSettings, ThemeMode } from '../../preload/types';
 import Switch from './Switch';
 import Select from './Select';
 import type { SelectOption } from './Select';
+import Slider from './Slider';
 import { SHORTCUT_GROUPS } from './KeyboardShortcutHelp';
 import * as S from '../constants/strings';
 
@@ -157,20 +158,24 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
       )}
 
       <div className="setting-group">
-        <label htmlFor="fontSize">
-          {S.FONT_SIZE_PREFIX} {localSettings.fontSize}px
-          <span className="hint">{S.FONT_SIZE_HINT}</span>
-        </label>
-        <input
-          type="range"
-          id="fontSize"
-          min="12"
-          max="20"
-          step="1"
+        <Slider
           value={localSettings.fontSize}
-          onChange={(e) => setLocalSettings({ ...localSettings, fontSize: parseInt(e.target.value) })}
-          aria-label={S.ARIA_FONT_SIZE}
+          onChange={(val) => setLocalSettings({ ...localSettings, fontSize: val })}
+          min={12}
+          max={20}
+          step={1}
+          label={S.FONT_SIZE_LABEL}
+          showValue={true}
+          formatValue={(v) => `${v}px`}
+          size="small"
+          marks={[
+            { value: 12, label: '12' },
+            { value: 16, label: '16' },
+            { value: 20, label: '20' },
+          ]}
+          ariaLabel={S.ARIA_FONT_SIZE}
         />
+        <span className="hint">{S.FONT_SIZE_HINT}</span>
       </div>
 
       <div className="setting-group">
@@ -211,35 +216,45 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
   const renderAdvancedTab = () => (
     <>
       <div className="setting-group">
-        <label htmlFor="temperature">
-          Temperature: {localSettings.temperature}
-          <span className="hint">{S.TEMPERATURE_HINT}</span>
-        </label>
-        <input
-          type="range"
-          id="temperature"
-          min="0"
-          max="2"
-          step="0.1"
+        <Slider
           value={localSettings.temperature}
-          onChange={(e) => setLocalSettings({ ...localSettings, temperature: parseFloat(e.target.value) })}
+          onChange={(val) => setLocalSettings({ ...localSettings, temperature: val })}
+          min={0}
+          max={2}
+          step={0.1}
+          label={S.TEMPERATURE_LABEL}
+          showValue={true}
+          formatValue={(v) => v.toFixed(1)}
+          size="small"
+          marks={[
+            { value: 0, label: '0' },
+            { value: 1, label: '1' },
+            { value: 2, label: '2' },
+          ]}
+          ariaLabel={S.ARIA_TEMPERATURE}
         />
+        <span className="hint">{S.TEMPERATURE_HINT}</span>
       </div>
 
       <div className="setting-group">
-        <label htmlFor="maxTokens">
-          {S.MAX_TOKENS_PREFIX} {localSettings.maxTokens}
-          <span className="hint">{S.MAX_TOKENS_HINT}</span>
-        </label>
-        <input
-          type="range"
-          id="maxTokens"
-          min="256"
-          max="8192"
-          step="256"
+        <Slider
           value={localSettings.maxTokens}
-          onChange={(e) => setLocalSettings({ ...localSettings, maxTokens: parseInt(e.target.value) })}
+          onChange={(val) => setLocalSettings({ ...localSettings, maxTokens: val })}
+          min={256}
+          max={8192}
+          step={256}
+          label={S.MAX_TOKENS_LABEL}
+          showValue={true}
+          formatValue={(v) => `${v}`}
+          size="small"
+          marks={[
+            { value: 256, label: '256' },
+            { value: 4096, label: '4K' },
+            { value: 8192, label: '8K' },
+          ]}
+          ariaLabel={S.ARIA_MAX_TOKENS}
         />
+        <span className="hint">{S.MAX_TOKENS_HINT}</span>
       </div>
 
       <div className="setting-group">

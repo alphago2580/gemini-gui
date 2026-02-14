@@ -257,8 +257,9 @@ describe('Settings', () => {
     it('renders font size slider', () => {
       render(<Settings {...defaultProps} />);
       switchToAppearance();
-      expect(screen.getByText(/글꼴 크기:.*16px/)).toBeInTheDocument();
-      const slider = screen.getByLabelText('글꼴 크기');
+      expect(screen.getByText('글꼴 크기')).toBeInTheDocument();
+      expect(screen.getByText('16px')).toBeInTheDocument();
+      const slider = screen.getByRole('slider', { name: '글꼴 크기' });
       expect(slider).toBeInTheDocument();
     });
 
@@ -324,13 +325,13 @@ describe('Settings', () => {
       expect(screen.getByText('가독성을 높인 고대비 색상')).toBeInTheDocument();
     });
 
-    it('font size slider has correct min/max/step attributes', () => {
+    it('font size slider has correct min/max aria attributes', () => {
       render(<Settings {...defaultProps} />);
       switchToAppearance();
-      const slider = screen.getByLabelText('글꼴 크기') as HTMLInputElement;
-      expect(slider.min).toBe('12');
-      expect(slider.max).toBe('20');
-      expect(slider.step).toBe('1');
+      const slider = screen.getByRole('slider', { name: '글꼴 크기' });
+      expect(slider).toHaveAttribute('aria-valuemin', '12');
+      expect(slider).toHaveAttribute('aria-valuemax', '20');
+      expect(slider).toHaveAttribute('aria-valuenow', '16');
     });
   });
 
@@ -381,17 +382,19 @@ describe('Settings', () => {
     it('renders temperature slider with current value', () => {
       render(<Settings {...defaultProps} />);
       switchToAdvanced();
-      expect(screen.getByText(/Temperature: 1/)).toBeInTheDocument();
-      const temperatureSlider = screen.getByLabelText(/Temperature/);
-      expect(temperatureSlider).toHaveValue('1');
+      expect(screen.getByText('Temperature')).toBeInTheDocument();
+      expect(screen.getByText('1.0')).toBeInTheDocument();
+      const temperatureSlider = screen.getByRole('slider', { name: /Temperature/ });
+      expect(temperatureSlider).toHaveAttribute('aria-valuenow', '1');
     });
 
     it('renders max tokens slider with current value', () => {
       render(<Settings {...defaultProps} />);
       switchToAdvanced();
-      expect(screen.getByText(/최대 토큰: 2048/)).toBeInTheDocument();
-      const maxTokensSlider = screen.getByLabelText(/최대 토큰/);
-      expect(maxTokensSlider).toHaveValue('2048');
+      expect(screen.getByText('최대 토큰')).toBeInTheDocument();
+      expect(screen.getByText('2048')).toBeInTheDocument();
+      const maxTokensSlider = screen.getByRole('slider', { name: /최대 토큰/ });
+      expect(maxTokensSlider).toHaveAttribute('aria-valuenow', '2048');
     });
 
     it('renders hint text for temperature', () => {
@@ -406,44 +409,44 @@ describe('Settings', () => {
       expect(screen.getByText('응답의 최대 길이')).toBeInTheDocument();
     });
 
-    it('updates temperature and saves correctly', () => {
+    it('updates temperature via keyboard and saves correctly', () => {
       render(<Settings {...defaultProps} />);
       switchToAdvanced();
-      const slider = screen.getByLabelText(/Temperature/);
-      fireEvent.change(slider, { target: { value: '0.5' } });
+      const slider = screen.getByRole('slider', { name: /Temperature/ });
+      // ArrowLeft decreases by step (0.1): 1.0 -> 0.9
+      fireEvent.keyDown(slider, { key: 'ArrowLeft' });
       fireEvent.click(screen.getByText('저장'));
       expect(defaultProps.onSave).toHaveBeenCalledWith(
-        expect.objectContaining({ temperature: 0.5 })
+        expect.objectContaining({ temperature: 0.9 })
       );
     });
 
-    it('updates max tokens and saves correctly', () => {
+    it('updates max tokens via keyboard and saves correctly', () => {
       render(<Settings {...defaultProps} />);
       switchToAdvanced();
-      const slider = screen.getByLabelText(/최대 토큰/);
-      fireEvent.change(slider, { target: { value: '4096' } });
+      const slider = screen.getByRole('slider', { name: /최대 토큰/ });
+      // ArrowRight increases by step (256): 2048 -> 2304
+      fireEvent.keyDown(slider, { key: 'ArrowRight' });
       fireEvent.click(screen.getByText('저장'));
       expect(defaultProps.onSave).toHaveBeenCalledWith(
-        expect.objectContaining({ maxTokens: 4096 })
+        expect.objectContaining({ maxTokens: 2304 })
       );
     });
 
-    it('temperature slider has correct min/max/step attributes', () => {
+    it('temperature slider has correct min/max aria attributes', () => {
       render(<Settings {...defaultProps} />);
       switchToAdvanced();
-      const slider = screen.getByLabelText(/Temperature/) as HTMLInputElement;
-      expect(slider.min).toBe('0');
-      expect(slider.max).toBe('2');
-      expect(slider.step).toBe('0.1');
+      const slider = screen.getByRole('slider', { name: /Temperature/ });
+      expect(slider).toHaveAttribute('aria-valuemin', '0');
+      expect(slider).toHaveAttribute('aria-valuemax', '2');
     });
 
-    it('maxTokens slider has correct min/max/step attributes', () => {
+    it('maxTokens slider has correct min/max aria attributes', () => {
       render(<Settings {...defaultProps} />);
       switchToAdvanced();
-      const slider = screen.getByLabelText(/최대 토큰/) as HTMLInputElement;
-      expect(slider.min).toBe('256');
-      expect(slider.max).toBe('8192');
-      expect(slider.step).toBe('256');
+      const slider = screen.getByRole('slider', { name: /최대 토큰/ });
+      expect(slider).toHaveAttribute('aria-valuemin', '256');
+      expect(slider).toHaveAttribute('aria-valuemax', '8192');
     });
 
     it('renders notification sound toggle', () => {
@@ -550,18 +553,18 @@ describe('Settings', () => {
   describe('Settings Reset', () => {
     it('resets local settings when dialog reopens after cancel', () => {
       const { rerender } = render(<Settings {...defaultProps} />);
-      // Navigate to advanced tab and modify temperature
+      // Navigate to advanced tab and modify temperature via keyboard
       fireEvent.click(screen.getByRole('tab', { name: '고급' }));
-      const slider = screen.getByLabelText(/Temperature/);
-      fireEvent.change(slider, { target: { value: '0.3' } });
+      const slider = screen.getByRole('slider', { name: /Temperature/ });
+      fireEvent.keyDown(slider, { key: 'ArrowLeft' }); // 1.0 -> 0.9
       // Cancel (close without saving)
       rerender(<Settings {...defaultProps} isOpen={false} />);
       // Reopen
       rerender(<Settings {...defaultProps} isOpen={true} />);
       // Navigate to advanced tab again
       fireEvent.click(screen.getByRole('tab', { name: '고급' }));
-      const resetSlider = screen.getByLabelText(/Temperature/);
-      expect(resetSlider).toHaveValue('1');
+      const resetSlider = screen.getByRole('slider', { name: /Temperature/ });
+      expect(resetSlider).toHaveAttribute('aria-valuenow', '1');
     });
 
     it('syncs local settings when settings prop changes externally', () => {
