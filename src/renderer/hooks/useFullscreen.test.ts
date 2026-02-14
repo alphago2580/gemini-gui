@@ -21,7 +21,7 @@ beforeEach(() => {
     configurable: true,
   });
 
-  document.documentElement.requestFullscreen = mockRequestFullscreen;
+  document.documentElement.requestFullscreen = mockRequestFullscreen as unknown as typeof document.documentElement.requestFullscreen;
   Object.defineProperty(document, 'exitFullscreen', {
     value: mockExitFullscreen,
     configurable: true,

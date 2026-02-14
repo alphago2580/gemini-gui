@@ -1,1 +1,1 @@
-fix tokenburner TypeScript type errors — types.ts, harness.ts, metrics.ts, agent.ts, planner.ts, engine.ts, index.ts
+Fix TypeScript type errors across test and source files

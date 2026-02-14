@@ -138,7 +138,7 @@ describe('promiseUtils', () => {
     });
 
     it('handles mixed results', async () => {
-      const results = await settleAll([
+      const results = await settleAll<string | number>([
         Promise.resolve('ok'),
         Promise.reject('bad'),
         Promise.resolve(42),
@@ -289,7 +289,7 @@ describe('promiseUtils', () => {
     });
 
     it('deferred reject with undefined reason', async () => {
-      const d = deferred<string>();
+      const d = deferred<number>();
       d.reject();
       await expect(d.promise).rejects.toBeUndefined();
     });

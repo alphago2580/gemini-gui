@@ -194,7 +194,7 @@ describe('diffUtils', () => {
     });
 
     it('adds new properties', () => {
-      const result = applyPatch({ a: 1 }, { b: 2 } as Partial<{ a: number; b: number }>);
+      const result = applyPatch<Record<string, number>>({ a: 1 }, { b: 2 });
       expect(result).toEqual({ a: 1, b: 2 });
     });
 

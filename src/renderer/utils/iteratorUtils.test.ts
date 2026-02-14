@@ -67,23 +67,23 @@ describe('iteratorUtils', () => {
 
   describe('zip', () => {
     it('zips two arrays', () => {
-      expect([...zip([1, 2, 3], ['a', 'b', 'c'])]).toEqual([
+      expect([...zip<number | string>([1, 2, 3], ['a', 'b', 'c'])]).toEqual([
         [1, 'a'], [2, 'b'], [3, 'c'],
       ]);
     });
 
     it('stops at shortest iterable', () => {
-      expect([...zip([1, 2], ['a', 'b', 'c'])]).toEqual([
+      expect([...zip<number | string>([1, 2], ['a', 'b', 'c'])]).toEqual([
         [1, 'a'], [2, 'b'],
       ]);
     });
 
     it('zips three arrays', () => {
-      expect([...zip([1], [2], [3])]).toEqual([[1, 2, 3]]);
+      expect([...zip<number>([1], [2], [3])]).toEqual([[1, 2, 3]]);
     });
 
     it('handles empty iterables', () => {
-      expect([...zip([], [1, 2])]).toEqual([]);
+      expect([...zip<number>([], [1, 2])]).toEqual([]);
     });
   });
 

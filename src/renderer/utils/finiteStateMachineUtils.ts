@@ -72,7 +72,7 @@ export class FiniteStateMachine<
     let action: ((context: TContext) => void) | undefined;
 
     if (typeof transition === 'string') {
-      target = transition;
+      target = transition as TState;
     } else {
       target = transition.target;
       guard = transition.guard;
