@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import './ConfirmDialog.css';
 
 export type ConfirmDialogVariant = 'danger' | 'warning' | 'info';
@@ -26,6 +27,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 }) => {
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  useFocusTrap(dialogRef, { enabled: isOpen, autoFocus: false, restoreFocus: true });
 
   useEffect(() => {
     if (isOpen && confirmButtonRef.current) {
