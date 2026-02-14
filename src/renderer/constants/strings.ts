@@ -707,3 +707,11 @@ export const MARKDOWN_TOOLBAR_HEADING = '제목';
 export const MARKDOWN_TOOLBAR_LIST = '목록';
 export const MARKDOWN_TOOLBAR_QUOTE = '인용';
 export const MARKDOWN_TOOLBAR_CODE_BLOCK = '코드 블록';
+
+// ShortcutRecorder
+export const SHORTCUT_RECORDER_PLACEHOLDER = '클릭하여 단축키 입력';
+export const SHORTCUT_RECORDER_RECORDING = '키 조합을 누르세요...';
+export const SHORTCUT_RECORDER_CLEAR = '지우기';
+export const ARIA_SHORTCUT_RECORDER = '단축키 입력';
+export const ARIA_SHORTCUT_RECORDER_CLEAR = '단축키 지우기';
+export const ARIA_SHORTCUT_RECORDER_RECORDING = '단축키 녹화 중';

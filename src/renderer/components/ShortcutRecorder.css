@@ -1,0 +1,117 @@
+/* ShortcutRecorder — keyboard shortcut capture widget */
+
+.shortcut-recorder {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  min-width: 160px;
+  min-height: 36px;
+  border: 1px solid var(--border-color, #404040);
+  border-radius: 6px;
+  background: var(--bg-tertiary, #2a2a2a);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  user-select: none;
+}
+
+.shortcut-recorder:hover:not(.shortcut-recorder--disabled) {
+  border-color: var(--accent-color, #4a90d9);
+}
+
+.shortcut-recorder:focus-visible {
+  outline: 2px solid var(--accent-color, #4a90d9);
+  outline-offset: 2px;
+}
+
+.shortcut-recorder--recording {
+  border-color: var(--accent-color, #4a90d9);
+  box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.25);
+}
+
+.shortcut-recorder--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.shortcut-recorder-display {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.shortcut-recorder-placeholder {
+  color: var(--text-tertiary, #666);
+  font-size: 13px;
+}
+
+.shortcut-recorder-hint {
+  color: var(--accent-color, #4a90d9);
+  font-size: 13px;
+  animation: shortcut-recorder-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes shortcut-recorder-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.shortcut-recorder-keys {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.shortcut-recorder-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  min-width: 20px;
+  min-height: 20px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  background: var(--bg-secondary, #1e1e1e);
+  color: var(--text-primary, #e0e0e0);
+  border: 1px solid var(--border-color, #404040);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+}
+
+.shortcut-recorder-separator {
+  color: var(--text-tertiary, #666);
+  font-size: 11px;
+  margin: 0 1px;
+}
+
+.shortcut-recorder-clear {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-secondary, #1e1e1e);
+  color: var(--text-secondary, #aaa);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.shortcut-recorder-clear:hover {
+  background: var(--error-color, #f44336);
+  color: white;
+}
+
+.shortcut-recorder-clear:focus-visible {
+  outline: 2px solid var(--accent-color, #4a90d9);
+  outline-offset: 2px;
+}
