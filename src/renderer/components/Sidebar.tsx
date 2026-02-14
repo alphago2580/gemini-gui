@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import './Sidebar.css';
 import * as S from '../constants/strings';
-import type { Conversation } from '../../preload/types';
+import type { Conversation, ConversationFolder } from '../../preload/types';
 import { useDebounce } from '../hooks/useDebounce';
 import Badge from './Badge';
 import DropdownMenu from './DropdownMenu';
 import type { DropdownMenuEntry } from './DropdownMenu';
+import ConversationFolders from './ConversationFolders';
 
 export interface SidebarProps {
   onNewChat: () => void;
@@ -18,6 +19,15 @@ export interface SidebarProps {
   searchInputRef?: React.RefObject<HTMLInputElement | null>;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  folders?: ConversationFolder[];
+  selectedFolderId?: string | null;
+  folderAssignments?: Record<string, string>;
+  onSelectFolder?: (folderId: string | null) => void;
+  onCreateFolder?: (name: string) => void;
+  onRenameFolder?: (folderId: string, newName: string) => void;
+  onDeleteFolder?: (folderId: string) => void;
+  onAssignConversation?: (conversationId: string, folderId: string) => void;
+  onUnassignConversation?: (conversationId: string) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -31,6 +41,15 @@ const Sidebar: React.FC<SidebarProps> = ({
   searchInputRef,
   isCollapsed = false,
   onToggleCollapse,
+  folders = [],
+  selectedFolderId = null,
+  folderAssignments = {},
+  onSelectFolder,
+  onCreateFolder,
+  onRenameFolder,
+  onDeleteFolder,
+  onAssignConversation,
+  onUnassignConversation,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 200);
@@ -44,11 +63,33 @@ const Sidebar: React.FC<SidebarProps> = ({
       { id: 'select', label: S.CONV_MENU_OPEN, icon: '💬', onClick: () => { onSelectConversation(convId); setOpenMenuId(null); } },
       { type: 'separator' as const },
     ];
+    if (onAssignConversation && folders.length > 0) {
+      const currentFolderId = folderAssignments[convId];
+      for (const folder of folders) {
+        if (folder.id !== currentFolderId) {
+          items.push({
+            id: `move-${folder.id}`,
+            label: `${S.FOLDER_MOVE_TO}: ${folder.name}`,
+            icon: '📂',
+            onClick: () => { onAssignConversation(convId, folder.id); setOpenMenuId(null); },
+          });
+        }
+      }
+      if (currentFolderId && onUnassignConversation) {
+        items.push({
+          id: 'unassign-folder',
+          label: S.FOLDER_REMOVE_FROM,
+          icon: '📄',
+          onClick: () => { onUnassignConversation(convId); setOpenMenuId(null); },
+        });
+      }
+      items.push({ type: 'separator' as const });
+    }
     if (onDeleteConversation) {
       items.push({ id: 'delete', label: S.CONV_MENU_DELETE, icon: '🗑', danger: true, onClick: () => { onDeleteConversation(convId); setOpenMenuId(null); } });
     }
     return items;
-  }, [onSelectConversation, onDeleteConversation]);
+  }, [onSelectConversation, onDeleteConversation, folders, folderAssignments, onAssignConversation, onUnassignConversation]);
 
   const canDrag = !!onReorderConversations && !debouncedSearchQuery.trim();
 
@@ -93,17 +134,37 @@ const Sidebar: React.FC<SidebarProps> = ({
     handleDragEnd();
   }, [dragIndex, conversations, onReorderConversations, handleDragEnd]);
 
+  const folderFilteredConversations = useMemo(() => {
+    if (selectedFolderId === null) return conversations;
+    if (selectedFolderId === '__uncategorized__') {
+      return conversations.filter(conv => !folderAssignments[conv.id]);
+    }
+    return conversations.filter(conv => folderAssignments[conv.id] === selectedFolderId);
+  }, [conversations, selectedFolderId, folderAssignments]);
+
   const filteredConversations = useMemo(() => {
-    if (!debouncedSearchQuery.trim()) return conversations;
+    if (!debouncedSearchQuery.trim()) return folderFilteredConversations;
     const query = debouncedSearchQuery.toLowerCase();
-    return conversations.filter(conv => {
+    return folderFilteredConversations.filter(conv => {
       if (conv.title.toLowerCase().includes(query)) return true;
       if (conv.messages) {
         return conv.messages.some(msg => msg.content.toLowerCase().includes(query));
       }
       return false;
     });
-  }, [conversations, debouncedSearchQuery]);
+  }, [folderFilteredConversations, debouncedSearchQuery]);
+
+  const folderConversationCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const folder of folders) {
+      counts[folder.id] = conversations.filter(c => folderAssignments[c.id] === folder.id).length;
+    }
+    return counts;
+  }, [folders, conversations, folderAssignments]);
+
+  const uncategorizedCount = useMemo(() => {
+    return conversations.filter(c => !folderAssignments[c.id]).length;
+  }, [conversations, folderAssignments]);
 
   return (
     <nav className={`sidebar ${isCollapsed ? 'collapsed' : ''}`} aria-label={S.SIDEBAR_LABEL}>
@@ -141,6 +202,20 @@ const Sidebar: React.FC<SidebarProps> = ({
               aria-label={S.SEARCH_LABEL}
             />
           </div>
+
+          {onSelectFolder && onCreateFolder && onRenameFolder && onDeleteFolder && (
+            <ConversationFolders
+              folders={folders}
+              selectedFolderId={selectedFolderId}
+              onSelectFolder={onSelectFolder}
+              onCreateFolder={onCreateFolder}
+              onRenameFolder={onRenameFolder}
+              onDeleteFolder={onDeleteFolder}
+              folderConversationCounts={folderConversationCounts}
+              uncategorizedCount={uncategorizedCount}
+              totalCount={conversations.length}
+            />
+          )}
 
           <div className="conversations-list" role="list" aria-label={S.CONVERSATION_LIST_LABEL}>
             <h3>{S.CONVERSATION_HISTORY}</h3>

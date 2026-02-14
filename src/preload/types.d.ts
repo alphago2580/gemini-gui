@@ -12,6 +12,13 @@ export interface Conversation {
   messages: Message[];
 }
 
+export interface ConversationFolder {
+  id: string;
+  name: string;
+  color: string;
+  createdAt: Date;
+}
+
 export interface PromptTemplate {
   id: string;
   name: string;
