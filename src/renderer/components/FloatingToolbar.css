@@ -1,0 +1,72 @@
+.floating-toolbar {
+  position: fixed;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bg-secondary, #1e1e1e);
+  border: 1px solid var(--border-color, #404040);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transform: translateX(-50%);
+  animation: floating-toolbar-fade-in 0.15s ease-out;
+}
+
+@keyframes floating-toolbar-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.floating-toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-primary, #e0e0e0);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.floating-toolbar-btn:hover {
+  background: var(--bg-hover, #333);
+}
+
+.floating-toolbar-btn:active {
+  background: var(--bg-active, #444);
+}
+
+.floating-toolbar-btn:focus-visible {
+  outline: 2px solid var(--accent-color, #4a90d9);
+  outline-offset: -2px;
+}
+
+.floating-toolbar-btn--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.floating-toolbar-btn--disabled:hover {
+  background: transparent;
+}
+
+.floating-toolbar-icon {
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.floating-toolbar-label {
+  line-height: 1;
+}
