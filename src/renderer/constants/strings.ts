@@ -729,3 +729,9 @@ export const FLOATING_TOOLBAR_HIGHLIGHT = '강조';
 export const QUOTE_REPLY_ARIA_LABEL = '인용 답장';
 export const QUOTE_REPLY_DISMISS_LABEL = '인용 취소';
 export const QUOTE_REPLY_NAVIGATE_LABEL = '원본 메시지로 이동';
+
+// InputHistory
+export const INPUT_HISTORY_PLACEHOLDER = '메시지를 입력하세요... (↑↓: 이전 메시지 탐색)';
+export const INPUT_HISTORY_ARIA_LABEL = '메시지 입력 (히스토리 탐색 가능)';
+export const INPUT_HISTORY_ICON = '↕';
+export const INPUT_HISTORY_POSITION = (current: number, total: number) => `히스토리 ${current}/${total}`;
