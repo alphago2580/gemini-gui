@@ -690,3 +690,20 @@ export const ARIA_TOC_ITEM = (text: string) => `${text}(으)로 이동`;
 
 // SearchHighlight
 export const SEARCH_HIGHLIGHT_ARIA_LABEL = (count: number) => `검색 결과 ${count}건`;
+
+// MarkdownEditor
+export const MARKDOWN_EDITOR_WRITE = '작성';
+export const MARKDOWN_EDITOR_PREVIEW = '미리보기';
+export const MARKDOWN_EDITOR_SPLIT = '분할';
+export const ARIA_MARKDOWN_EDITOR = '마크다운 에디터';
+export const ARIA_MARKDOWN_EDITOR_INPUT = '마크다운 입력';
+export const ARIA_MARKDOWN_EDITOR_PREVIEW = '마크다운 미리보기';
+export const ARIA_MARKDOWN_TOOLBAR = '서식 도구';
+export const MARKDOWN_TOOLBAR_BOLD = '굵게';
+export const MARKDOWN_TOOLBAR_ITALIC = '기울임';
+export const MARKDOWN_TOOLBAR_CODE = '인라인 코드';
+export const MARKDOWN_TOOLBAR_LINK = '링크';
+export const MARKDOWN_TOOLBAR_HEADING = '제목';
+export const MARKDOWN_TOOLBAR_LIST = '목록';
+export const MARKDOWN_TOOLBAR_QUOTE = '인용';
+export const MARKDOWN_TOOLBAR_CODE_BLOCK = '코드 블록';

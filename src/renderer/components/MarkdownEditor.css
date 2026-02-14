@@ -1,0 +1,126 @@
+.markdown-editor {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color, #404040);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-secondary, #1e1e1e);
+}
+
+.markdown-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--border-color, #404040);
+  background: var(--bg-tertiary, #2a2a2a);
+}
+
+.markdown-editor-tabs {
+  display: flex;
+  gap: 0;
+}
+
+.markdown-editor-tab {
+  padding: 0.375rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary, #aaa);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.markdown-editor-tab:hover {
+  color: var(--text-primary, #e0e0e0);
+}
+
+.markdown-editor-tab.active {
+  color: var(--text-primary, #e0e0e0);
+  border-bottom-color: var(--accent-primary, #4a90d9);
+}
+
+.markdown-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.markdown-toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-secondary, #aaa);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.markdown-toolbar-btn:hover {
+  background: var(--bg-hover, #333);
+  color: var(--text-primary, #e0e0e0);
+}
+
+.markdown-toolbar-btn:focus-visible {
+  outline: 2px solid var(--accent-primary, #4a90d9);
+  outline-offset: -2px;
+}
+
+.markdown-toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-color, #404040);
+  margin: 0 0.25rem;
+}
+
+.markdown-editor-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.markdown-editor-input {
+  flex: 1;
+  min-height: 120px;
+  padding: 0.75rem;
+  background: var(--bg-primary, #121212);
+  color: var(--text-primary, #e0e0e0);
+  border: none;
+  resize: vertical;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  outline: none;
+}
+
+.markdown-editor-input::placeholder {
+  color: var(--text-muted, #666);
+}
+
+.markdown-editor-preview {
+  flex: 1;
+  min-height: 120px;
+  padding: 0.75rem;
+  overflow-y: auto;
+  background: var(--bg-primary, #121212);
+  color: var(--text-primary, #e0e0e0);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.markdown-editor-body.split-mode .markdown-editor-input {
+  border-right: 1px solid var(--border-color, #404040);
+}
+
+.markdown-editor-preview-empty {
+  color: var(--text-muted, #666);
+  font-style: italic;
+}
