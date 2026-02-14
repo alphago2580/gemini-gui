@@ -184,6 +184,7 @@ export const TAB_CLOSE_PREFIX = '탭 닫기:';
 export const TAB_CLOSE_TITLE = '탭 닫기';
 export const ARIA_NEW_TAB = '새 탭';
 export const TITLE_NEW_TAB = '새 탭 (Ctrl+N)';
+export const TAB_DRAG_LABEL = '드래그하여 순서 변경';
 
 // MarkdownRenderer
 export const COPY_BUTTON_LABEL = '코드 복사';

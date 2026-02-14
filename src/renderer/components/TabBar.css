@@ -108,3 +108,20 @@
   background: var(--bg-hover);
   color: var(--text-primary);
 }
+
+/* Drag-to-reorder states */
+.tab-item[draggable="true"] {
+  cursor: grab;
+}
+
+.tab-item[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.tab-item--dragging {
+  opacity: 0.4;
+}
+
+.tab-item--over {
+  border-left: 2px solid var(--accent-primary);
+}
