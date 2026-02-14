@@ -67,6 +67,29 @@
   line-height: 1.4;
 }
 
+.toast-action {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.625rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.toast-action:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.toast-action:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 .toast-close {
   background: transparent;
   border: none;

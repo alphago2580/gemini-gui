@@ -1,11 +1,18 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import './Toast.css';
 import * as S from '../constants/strings';
+
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
 
 export interface ToastMessage {
   id: string;
   type: 'error' | 'success' | 'info';
   message: string;
+  action?: ToastAction;
+  duration?: number;
 }
 
 export interface ToastProps {
@@ -13,25 +20,69 @@ export interface ToastProps {
   onDismiss: (id: string) => void;
   maxVisible?: number;
   onDismissAll?: () => void;
+  pauseOnHover?: boolean;
 }
 
 const DEFAULT_MAX_VISIBLE = 5;
 const TOAST_DURATION = 5000;
+const EXIT_ANIMATION_MS = 300;
 
-const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void }> = ({ toast, onDismiss }) => {
+const ToastItem: React.FC<{
+  toast: ToastMessage;
+  onDismiss: (id: string) => void;
+  pauseOnHover?: boolean;
+}> = ({ toast, onDismiss, pauseOnHover = false }) => {
   const [exiting, setExiting] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const remainingRef = useRef(toast.duration ?? TOAST_DURATION);
+  const startTimeRef = useRef(Date.now());
+
+  const startTimer = useCallback(() => {
+    startTimeRef.current = Date.now();
+    timerRef.current = setTimeout(() => {
+      setExiting(true);
+      setTimeout(() => onDismiss(toast.id), EXIT_ANIMATION_MS);
+    }, remainingRef.current);
+  }, [toast.id, onDismiss]);
+
+  const pauseTimer = useCallback(() => {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+      const elapsed = Date.now() - startTimeRef.current;
+      remainingRef.current = Math.max(0, remainingRef.current - elapsed);
+    }
+  }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setExiting(true);
-      setTimeout(() => onDismiss(toast.id), 300);
-    }, TOAST_DURATION);
-    return () => clearTimeout(timer);
-  }, [toast.id, onDismiss]);
+    startTimer();
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [startTimer]);
+
+  const handleMouseEnter = () => {
+    if (pauseOnHover) {
+      pauseTimer();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (pauseOnHover) {
+      startTimer();
+    }
+  };
 
   const handleDismiss = () => {
     setExiting(true);
-    setTimeout(() => onDismiss(toast.id), 300);
+    setTimeout(() => onDismiss(toast.id), EXIT_ANIMATION_MS);
+  };
+
+  const handleAction = () => {
+    toast.action?.onClick();
+    handleDismiss();
   };
 
   return (
@@ -39,8 +90,19 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
       className={`toast toast-${toast.type} ${exiting ? 'toast-exit' : ''}`}
       role="alert"
       aria-live="assertive"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <span className="toast-message">{toast.message}</span>
+      {toast.action && (
+        <button
+          className="toast-action"
+          onClick={handleAction}
+          aria-label={toast.action.label}
+        >
+          {toast.action.label}
+        </button>
+      )}
       <button
         className="toast-close"
         onClick={handleDismiss}
@@ -52,7 +114,7 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
   );
 };
 
-const Toast: React.FC<ToastProps> = ({ toasts, onDismiss, maxVisible = DEFAULT_MAX_VISIBLE, onDismissAll }) => {
+const Toast: React.FC<ToastProps> = ({ toasts, onDismiss, maxVisible = DEFAULT_MAX_VISIBLE, onDismissAll, pauseOnHover = false }) => {
   const visibleToasts = useMemo(
     () => toasts.slice(0, maxVisible),
     [toasts, maxVisible]
@@ -73,7 +135,7 @@ const Toast: React.FC<ToastProps> = ({ toasts, onDismiss, maxVisible = DEFAULT_M
         </button>
       )}
       {visibleToasts.map(toast => (
-        <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
+        <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} pauseOnHover={pauseOnHover} />
       ))}
       {hiddenCount > 0 && (
         <div className="toast-overflow" role="status" aria-live="polite">
