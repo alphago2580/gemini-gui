@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import './MessageContextMenu.css';
 import * as S from '../constants/strings';
 
@@ -19,6 +19,67 @@ export interface MessageContextMenuProps {
 
 const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ x, y, items, onSelect, onClose }) => {
   const menuRef = useRef<HTMLDivElement>(null);
+  const [focusedIndex, setFocusedIndex] = useState<number>(0);
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  useEffect(() => {
+    itemRefs.current = itemRefs.current.slice(0, items.length);
+  }, [items.length]);
+
+  // Focus the first item when the menu opens
+  useEffect(() => {
+    if (items.length > 0 && itemRefs.current[0]) {
+      itemRefs.current[0].focus();
+    }
+  }, [items.length]);
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+      return;
+    }
+
+    if (items.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown': {
+        e.preventDefault();
+        const next = (focusedIndex + 1) % items.length;
+        setFocusedIndex(next);
+        itemRefs.current[next]?.focus();
+        break;
+      }
+      case 'ArrowUp': {
+        e.preventDefault();
+        const prev = (focusedIndex - 1 + items.length) % items.length;
+        setFocusedIndex(prev);
+        itemRefs.current[prev]?.focus();
+        break;
+      }
+      case 'Home': {
+        e.preventDefault();
+        setFocusedIndex(0);
+        itemRefs.current[0]?.focus();
+        break;
+      }
+      case 'End': {
+        e.preventDefault();
+        const last = items.length - 1;
+        setFocusedIndex(last);
+        itemRefs.current[last]?.focus();
+        break;
+      }
+      case 'Enter':
+      case ' ': {
+        e.preventDefault();
+        if (focusedIndex >= 0 && focusedIndex < items.length) {
+          onSelect(items[focusedIndex].id);
+          onClose();
+        }
+        break;
+      }
+    }
+  }, [focusedIndex, items, onClose, onSelect]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -26,16 +87,13 @@ const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ x, y, items, on
         onClose();
       }
     };
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
     document.addEventListener('mousedown', handleClick);
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClick);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, handleKeyDown]);
 
   useEffect(() => {
     if (menuRef.current) {
@@ -49,6 +107,10 @@ const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ x, y, items, on
     }
   }, [x, y]);
 
+  const setItemRef = useCallback((index: number) => (el: HTMLButtonElement | null) => {
+    itemRefs.current[index] = el;
+  }, []);
+
   return (
     <div
       ref={menuRef}
@@ -56,15 +118,22 @@ const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ x, y, items, on
       style={{ left: x, top: y }}
       role="menu"
       aria-label={S.CTX_MENU_LABEL}
+      aria-activedescendant={items.length > 0 ? `context-menu-item-${items[focusedIndex]?.id}` : undefined}
     >
-      {items.map(item => (
+      {items.map((item, index) => (
         <button
           key={item.id}
-          className={`context-menu-item${item.danger ? ' danger' : ''}`}
+          id={`context-menu-item-${item.id}`}
+          ref={setItemRef(index)}
+          className={`context-menu-item${item.danger ? ' danger' : ''}${index === focusedIndex ? ' focused' : ''}`}
           role="menuitem"
+          tabIndex={index === focusedIndex ? 0 : -1}
           onClick={() => {
             onSelect(item.id);
             onClose();
+          }}
+          onMouseEnter={() => {
+            setFocusedIndex(index);
           }}
         >
           <span className="context-menu-icon">{item.icon}</span>
