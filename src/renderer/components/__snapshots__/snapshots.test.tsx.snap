@@ -1,0 +1,1127 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Snapshot Tests — Key Components > Badge > matches snapshot with count 1`] = `
+<div>
+  <span
+    aria-label="42개"
+    class="badge badge--inline badge--default"
+    role="status"
+  >
+    42
+  </span>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > Badge > matches snapshot with dot variant 1`] = `
+<div>
+  <span
+    class="badge-wrapper"
+  >
+    <span>
+      Inbox
+    </span>
+    <span
+      aria-label="알림 있음"
+      class="badge badge--error badge--dot"
+      role="status"
+    />
+  </span>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > Badge > matches snapshot with text and wrapper 1`] = `
+<div>
+  <span
+    class="badge-wrapper"
+  >
+    <button>
+      Messages
+    </button>
+    <span
+      aria-label="NEW개"
+      class="badge badge--primary"
+      role="status"
+    >
+      NEW
+    </span>
+  </span>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > CommandPalette > matches snapshot when closed (returns null) 1`] = `<div />`;
+
+exports[`Snapshot Tests — Key Components > CommandPalette > matches snapshot when open with commands 1`] = `
+<div>
+  <div
+    aria-label="명령 팔레트"
+    aria-modal="true"
+    class="command-palette-overlay"
+    role="dialog"
+  >
+    <div
+      class="command-palette"
+    >
+      <input
+        aria-activedescendant="cmd-cmd-1"
+        aria-autocomplete="list"
+        aria-controls="command-list"
+        aria-expanded="true"
+        aria-label="명령어 검색"
+        class="command-palette-input"
+        placeholder="명령어 검색..."
+        role="combobox"
+        type="text"
+        value=""
+      />
+      <ul
+        class="command-palette-list"
+        id="command-list"
+        role="listbox"
+      >
+        <li
+          aria-selected="true"
+          class="command-palette-item selected"
+          id="cmd-cmd-1"
+          role="option"
+        >
+          <span
+            class="command-label"
+          >
+            새 대화
+          </span>
+          <span
+            class="command-shortcut"
+          >
+            Ctrl+N
+          </span>
+        </li>
+        <li
+          aria-selected="false"
+          class="command-palette-item"
+          id="cmd-cmd-2"
+          role="option"
+        >
+          <span
+            class="command-label"
+          >
+            설정 열기
+          </span>
+          <span
+            class="command-shortcut"
+          >
+            Ctrl+,
+          </span>
+        </li>
+        <li
+          aria-selected="false"
+          class="command-palette-item"
+          id="cmd-cmd-3"
+          role="option"
+        >
+          <span
+            class="command-label"
+          >
+            검색
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > ConfirmDialog > matches snapshot for danger variant 1`] = `
+<div>
+  <div
+    aria-describedby="confirm-dialog-message"
+    aria-labelledby="confirm-dialog-title"
+    aria-modal="true"
+    class="confirm-dialog-overlay"
+    role="dialog"
+  >
+    <div
+      class="confirm-dialog"
+    >
+      <div
+        class="confirm-dialog-icon confirm-dialog-icon-danger"
+      >
+        ⚠
+      </div>
+      <h2
+        class="confirm-dialog-title"
+        id="confirm-dialog-title"
+      >
+        삭제 확인
+      </h2>
+      <p
+        class="confirm-dialog-message"
+        id="confirm-dialog-message"
+      >
+        정말 삭제하시겠습니까?
+      </p>
+      <div
+        class="confirm-dialog-actions"
+      >
+        <button
+          aria-label="취소"
+          class="confirm-dialog-btn confirm-dialog-btn-cancel"
+        >
+          취소
+        </button>
+        <button
+          aria-label="확인"
+          class="confirm-dialog-btn confirm-dialog-btn-confirm confirm-dialog-btn-danger"
+        >
+          확인
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > ConfirmDialog > matches snapshot for warning variant 1`] = `
+<div>
+  <div
+    aria-describedby="confirm-dialog-message"
+    aria-labelledby="confirm-dialog-title"
+    aria-modal="true"
+    class="confirm-dialog-overlay"
+    role="dialog"
+  >
+    <div
+      class="confirm-dialog"
+    >
+      <div
+        class="confirm-dialog-icon confirm-dialog-icon-warning"
+      >
+        ⚡
+      </div>
+      <h2
+        class="confirm-dialog-title"
+        id="confirm-dialog-title"
+      >
+        경고
+      </h2>
+      <p
+        class="confirm-dialog-message"
+        id="confirm-dialog-message"
+      >
+        변경사항이 손실됩니다.
+      </p>
+      <div
+        class="confirm-dialog-actions"
+      >
+        <button
+          aria-label="돌아가기"
+          class="confirm-dialog-btn confirm-dialog-btn-cancel"
+        >
+          돌아가기
+        </button>
+        <button
+          aria-label="계속"
+          class="confirm-dialog-btn confirm-dialog-btn-confirm confirm-dialog-btn-warning"
+        >
+          계속
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > ConfirmDialog > matches snapshot when closed (returns null) 1`] = `<div />`;
+
+exports[`Snapshot Tests — Key Components > MessageBubble > matches snapshot for assistant message 1`] = `
+<div>
+  <div
+    aria-label="Gemini 메시지"
+    class="message assistant"
+    role="article"
+  >
+    <div
+      class="message-header"
+    >
+      <div
+        aria-label="AI 어시스턴트"
+        class="avatar avatar--assistant avatar--small"
+        role="img"
+        title="AI 어시스턴트"
+      >
+        <span
+          class="avatar-icon"
+        >
+          ✦
+        </span>
+      </div>
+      <span
+        class="role"
+      >
+        Gemini
+      </span>
+      <span
+        class="timestamp"
+      >
+        9:00:00 AM
+      </span>
+      <button
+        aria-label="메시지 삭제"
+        class="delete-message-btn"
+        title="메시지 삭제"
+      >
+        ×
+      </button>
+    </div>
+    <div
+      class="message-content"
+    >
+      <div
+        class="md-rendered"
+      >
+        <div
+          class="md-block"
+        >
+          <p
+            class="md-paragraph"
+          >
+            Hello, how can I help you today?
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > MessageBubble > matches snapshot for user message 1`] = `
+<div>
+  <div
+    aria-label="사용자 메시지"
+    class="message user"
+    role="article"
+  >
+    <div
+      class="message-header"
+    >
+      <div
+        aria-label="사용자"
+        class="avatar avatar--user avatar--small"
+        role="img"
+        title="사용자"
+      >
+        <span
+          class="avatar-icon"
+        >
+          👤
+        </span>
+      </div>
+      <span
+        class="role"
+      >
+        사용자
+      </span>
+      <span
+        class="timestamp"
+      >
+        9:01:00 AM
+      </span>
+      <button
+        aria-label="메시지 수정"
+        class="edit-message-btn"
+        title="메시지 수정"
+      >
+        ✎
+      </button>
+      <button
+        aria-label="메시지 삭제"
+        class="delete-message-btn"
+        title="메시지 삭제"
+      >
+        ×
+      </button>
+    </div>
+    <div
+      class="message-content"
+    >
+      <div
+        class="md-rendered"
+      >
+        <div
+          class="md-block"
+        >
+          <p
+            class="md-paragraph"
+          >
+            What is TypeScript?
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > MessageBubble > matches snapshot while streaming 1`] = `
+<div>
+  <div
+    aria-label="Gemini 메시지"
+    class="message assistant"
+    role="article"
+  >
+    <div
+      class="message-header"
+    >
+      <div
+        aria-label="AI 어시스턴트"
+        class="avatar avatar--assistant avatar--small"
+        role="img"
+        title="AI 어시스턴트"
+      >
+        <span
+          class="avatar-icon"
+        >
+          ✦
+        </span>
+      </div>
+      <span
+        class="role"
+      >
+        Gemini
+      </span>
+      <span
+        class="timestamp"
+      >
+        9:00:00 AM
+      </span>
+      <button
+        aria-label="메시지 삭제"
+        class="delete-message-btn"
+        title="메시지 삭제"
+      >
+        ×
+      </button>
+    </div>
+    <div
+      class="message-content streaming-cursor"
+    >
+      <div
+        class="md-rendered"
+      >
+        <div
+          class="md-block"
+        >
+          <p
+            class="md-paragraph"
+          >
+            Partial response...
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > Settings > matches snapshot when closed (returns null) 1`] = `<div />`;
+
+exports[`Snapshot Tests — Key Components > Settings > matches snapshot when open 1`] = `
+<div>
+  <div
+    class="settings-overlay"
+    role="presentation"
+  >
+    <div
+      aria-label="설정"
+      aria-modal="true"
+      class="settings-modal"
+      role="dialog"
+    >
+      <div
+        class="settings-header"
+      >
+        <h2>
+          설정
+        </h2>
+        <button
+          aria-label="설정 닫기"
+          class="close-btn"
+        >
+          ×
+        </button>
+      </div>
+      <div
+        aria-label="설정 카테고리"
+        class="settings-tabs"
+        role="tablist"
+      >
+        <button
+          aria-controls="settings-tabpanel-general"
+          aria-selected="true"
+          class="settings-tab settings-tab-active"
+          id="settings-tab-general"
+          role="tab"
+          tabindex="0"
+          type="button"
+        >
+          일반
+        </button>
+        <button
+          aria-controls="settings-tabpanel-appearance"
+          aria-selected="false"
+          class="settings-tab"
+          id="settings-tab-appearance"
+          role="tab"
+          tabindex="-1"
+          type="button"
+        >
+          외관
+        </button>
+        <button
+          aria-controls="settings-tabpanel-shortcuts"
+          aria-selected="false"
+          class="settings-tab"
+          id="settings-tab-shortcuts"
+          role="tab"
+          tabindex="-1"
+          type="button"
+        >
+          단축키
+        </button>
+        <button
+          aria-controls="settings-tabpanel-advanced"
+          aria-selected="false"
+          class="settings-tab"
+          id="settings-tab-advanced"
+          role="tab"
+          tabindex="-1"
+          type="button"
+        >
+          고급
+        </button>
+      </div>
+      <div
+        aria-labelledby="settings-tab-general"
+        class="settings-content"
+        id="settings-tabpanel-general"
+        role="tabpanel"
+      >
+        <div
+          class="setting-group"
+        >
+          <label>
+            테마
+          </label>
+          <div
+            class="theme-selector"
+          >
+            <button
+              class="theme-option"
+            >
+              라이트
+            </button>
+            <button
+              class="theme-option active"
+            >
+              다크
+            </button>
+            <button
+              class="theme-option"
+            >
+              시스템
+            </button>
+          </div>
+        </div>
+        <div
+          class="setting-group"
+        >
+          <div
+            class="select-container select--md select--outlined"
+          >
+            <label
+              class="select-label"
+            >
+              모델 선택
+            </label>
+            <div
+              aria-expanded="false"
+              aria-haspopup="listbox"
+              aria-label="모델 선택"
+              class="select-trigger"
+              role="combobox"
+              tabindex="0"
+            >
+              <span
+                class="select-value select-placeholder"
+              >
+                선택하세요
+              </span>
+              <span
+                class="select-controls"
+              >
+                <span
+                  aria-hidden="true"
+                  class="select-arrow"
+                >
+                  ▾
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          class="setting-group"
+        >
+          <label
+            for="system-prompt"
+          >
+            시스템 프롬프트
+            <span
+              class="hint"
+            >
+              AI의 동작을 지시하는 시스템 메시지
+            </span>
+          </label>
+          <textarea
+            aria-label="시스템 프롬프트"
+            class="system-prompt-input"
+            id="system-prompt"
+            placeholder="예: 당신은 친절한 한국어 튜터입니다..."
+            rows="4"
+          />
+        </div>
+      </div>
+      <div
+        class="settings-footer"
+      >
+        <button
+          class="cancel-btn"
+        >
+          취소
+        </button>
+        <button
+          class="save-btn"
+        >
+          저장
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > Sidebar > matches snapshot when collapsed 1`] = `
+<div>
+  <nav
+    aria-label="사이드바"
+    class="sidebar collapsed"
+  >
+    <div
+      class="sidebar-header"
+    >
+      <button
+        aria-label="사이드바 펼치기"
+        class="collapse-btn"
+        title="사이드바 펼치기 (Ctrl+B)"
+      >
+        <span
+          aria-hidden="true"
+        >
+          ▶
+        </span>
+      </button>
+    </div>
+    <button
+      aria-label="새 대화 시작"
+      class="new-chat-btn"
+    >
+      <span
+        aria-hidden="true"
+        class="icon"
+      >
+        +
+      </span>
+    </button>
+    <div
+      class="sidebar-footer"
+    >
+      <button
+        aria-label="설정 열기"
+        class="settings-btn"
+      >
+        <span
+          aria-hidden="true"
+          class="icon"
+        >
+          ⚙
+        </span>
+      </button>
+    </div>
+  </nav>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > Sidebar > matches snapshot with conversations 1`] = `
+<div>
+  <nav
+    aria-label="사이드바"
+    class="sidebar "
+  >
+    <div
+      class="sidebar-header"
+    >
+      <h2>
+        Gemini GUI
+      </h2>
+    </div>
+    <button
+      aria-label="새 대화 시작"
+      class="new-chat-btn"
+    >
+      <span
+        aria-hidden="true"
+        class="icon"
+      >
+        +
+      </span>
+      새 대화
+    </button>
+    <div
+      class="search-container"
+    >
+      <label
+        class="sr-only"
+        for="sidebar-search"
+      >
+        대화 검색
+      </label>
+      <input
+        aria-label="대화 검색"
+        class="search-input"
+        id="sidebar-search"
+        placeholder="대화 검색..."
+        type="text"
+        value=""
+      />
+    </div>
+    <div
+      aria-label="대화 기록 목록"
+      class="conversations-list"
+      role="list"
+    >
+      <h3>
+        대화 기록
+      </h3>
+      <div
+        aria-current="true"
+        aria-label="대화: First Conversation"
+        class="conversation-item active"
+        draggable="false"
+        role="listitem"
+        tabindex="0"
+      >
+        <div
+          class="conversation-title"
+        >
+          First Conversation
+        </div>
+        <div
+          class="conversation-meta"
+        >
+          <span
+            class="conversation-time"
+          >
+            1/1/2026
+          </span>
+          <span
+            aria-label="2개"
+            class="badge badge--inline badge--primary"
+            role="status"
+          >
+            2
+          </span>
+        </div>
+        <div
+          class="conversation-actions"
+        >
+          <div
+            class="dropdown-menu-container"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="menu"
+              aria-label="대화 옵션"
+              class="dropdown-menu-trigger"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ⋮
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        aria-label="대화: Second Conversation"
+        class="conversation-item"
+        draggable="false"
+        role="listitem"
+        tabindex="0"
+      >
+        <div
+          class="conversation-title"
+        >
+          Second Conversation
+        </div>
+        <div
+          class="conversation-meta"
+        >
+          <span
+            class="conversation-time"
+          >
+            1/2/2026
+          </span>
+        </div>
+        <div
+          class="conversation-actions"
+        >
+          <div
+            class="dropdown-menu-container"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="menu"
+              aria-label="대화 옵션"
+              class="dropdown-menu-trigger"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ⋮
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="sidebar-footer"
+    >
+      <button
+        aria-label="설정 열기"
+        class="settings-btn"
+      >
+        <span
+          aria-hidden="true"
+          class="icon"
+        >
+          ⚙
+        </span>
+        설정
+      </button>
+    </div>
+  </nav>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > TabBar > matches snapshot with no tabs (returns null) 1`] = `<div />`;
+
+exports[`Snapshot Tests — Key Components > TabBar > matches snapshot with tabs 1`] = `
+<div>
+  <div
+    aria-label="대화 탭"
+    class="tab-bar"
+    role="tablist"
+  >
+    <div
+      class="tab-list"
+    >
+      <div
+        aria-label="탭: Tab One"
+        aria-selected="true"
+        class="tab-item active"
+        draggable="false"
+        role="tab"
+        tabindex="0"
+      >
+        <span
+          class="tab-title"
+        >
+          Tab One
+        </span>
+        <button
+          aria-label="탭 닫기: Tab One"
+          class="tab-close-btn"
+          title="탭 닫기"
+        >
+          ×
+        </button>
+      </div>
+      <div
+        aria-label="탭: Tab Two"
+        aria-selected="false"
+        class="tab-item"
+        draggable="false"
+        role="tab"
+        tabindex="-1"
+      >
+        <span
+          class="tab-title"
+        >
+          Tab Two
+        </span>
+        <button
+          aria-label="탭 닫기: Tab Two"
+          class="tab-close-btn"
+          title="탭 닫기"
+        >
+          ×
+        </button>
+      </div>
+      <div
+        aria-label="탭: Tab Three"
+        aria-selected="false"
+        class="tab-item"
+        draggable="false"
+        role="tab"
+        tabindex="-1"
+      >
+        <span
+          class="tab-title"
+        >
+          Tab Three
+        </span>
+        <button
+          aria-label="탭 닫기: Tab Three"
+          class="tab-close-btn"
+          title="탭 닫기"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+    <button
+      aria-label="새 탭"
+      class="new-tab-btn"
+      title="새 탭 (Ctrl+N)"
+    >
+      +
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > Toast > matches snapshot with multiple toasts 1`] = `
+<div>
+  <div
+    aria-label="알림"
+    class="toast-container"
+  >
+    <div
+      aria-live="assertive"
+      class="toast toast-error "
+      role="alert"
+    >
+      <span
+        class="toast-message"
+      >
+        오류가 발생했습니다
+      </span>
+      <button
+        aria-label="알림 닫기"
+        class="toast-close"
+      >
+        ×
+      </button>
+    </div>
+    <div
+      aria-live="assertive"
+      class="toast toast-success "
+      role="alert"
+    >
+      <span
+        class="toast-message"
+      >
+        저장되었습니다
+      </span>
+      <button
+        aria-label="알림 닫기"
+        class="toast-close"
+      >
+        ×
+      </button>
+    </div>
+    <div
+      aria-live="assertive"
+      class="toast toast-info "
+      role="alert"
+    >
+      <span
+        class="toast-message"
+      >
+        업데이트가 있습니다
+      </span>
+      <button
+        aria-label="알림 닫기"
+        class="toast-close"
+      >
+        ×
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > Toast > matches snapshot with no toasts (returns null) 1`] = `<div />`;
+
+exports[`Snapshot Tests — Key Components > Tooltip > matches snapshot (tooltip hidden by default) 1`] = `
+<div>
+  <div
+    class="tooltip-wrapper"
+  >
+    <button>
+      Hover me
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > Tooltip > matches snapshot with bottom position 1`] = `
+<div>
+  <div
+    class="tooltip-wrapper"
+  >
+    <span>
+      Target
+    </span>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests — Key Components > WelcomeScreen > matches snapshot 1`] = `
+<div>
+  <div
+    aria-label="환영 화면"
+    class="welcome-screen"
+    role="region"
+  >
+    <div
+      class="welcome-logo"
+    >
+      ✦
+    </div>
+    <h2
+      class="welcome-title"
+    >
+      Gemini에 오신 것을 환영합니다!
+    </h2>
+    <p
+      class="welcome-subtitle"
+    >
+      아래 입력창에 메시지를 입력하거나 제안을 클릭하세요.
+    </p>
+    <div
+      aria-label="제안 프롬프트"
+      class="welcome-suggestions"
+      role="list"
+    >
+      <button
+        aria-label="아이디어 브레인스토밍"
+        class="welcome-suggestion-card"
+        role="listitem"
+      >
+        <span
+          class="suggestion-icon"
+        >
+          💡
+        </span>
+        <span
+          class="suggestion-label"
+        >
+          아이디어 브레인스토밍
+        </span>
+      </button>
+      <button
+        aria-label="글쓰기 도움"
+        class="welcome-suggestion-card"
+        role="listitem"
+      >
+        <span
+          class="suggestion-icon"
+        >
+          📝
+        </span>
+        <span
+          class="suggestion-label"
+        >
+          글쓰기 도움
+        </span>
+      </button>
+      <button
+        aria-label="코드 디버깅"
+        class="welcome-suggestion-card"
+        role="listitem"
+      >
+        <span
+          class="suggestion-icon"
+        >
+          🐛
+        </span>
+        <span
+          class="suggestion-label"
+        >
+          코드 디버깅
+        </span>
+      </button>
+      <button
+        aria-label="개념 설명"
+        class="welcome-suggestion-card"
+        role="listitem"
+      >
+        <span
+          class="suggestion-icon"
+        >
+          📚
+        </span>
+        <span
+          class="suggestion-label"
+        >
+          개념 설명
+        </span>
+      </button>
+      <button
+        aria-label="코드 리뷰"
+        class="welcome-suggestion-card"
+        role="listitem"
+      >
+        <span
+          class="suggestion-icon"
+        >
+          🔍
+        </span>
+        <span
+          class="suggestion-label"
+        >
+          코드 리뷰
+        </span>
+      </button>
+      <button
+        aria-label="번역 도움"
+        class="welcome-suggestion-card"
+        role="listitem"
+      >
+        <span
+          class="suggestion-icon"
+        >
+          🌐
+        </span>
+        <span
+          class="suggestion-label"
+        >
+          번역 도움
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+`;
