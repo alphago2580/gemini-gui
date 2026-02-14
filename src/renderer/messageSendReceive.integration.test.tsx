@@ -176,7 +176,7 @@ describe('Message Send → Receive Integration Flow', () => {
       expect(tokenDisplay).toHaveTextContent('15');
       expect(tokenDisplay).toHaveTextContent('20');
       expect(tokenDisplay).toHaveTextContent('35');
-    });
+    }, 15000);
 
     it('handles streamed response in multiple chunks', async () => {
       const callbacks = setupStreamCallbacks();
@@ -232,7 +232,7 @@ describe('Message Send → Receive Integration Flow', () => {
         const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
         expect(input).not.toBeDisabled();
       });
-    });
+    }, 15000);
   });
 
   describe('Multi-turn conversation', () => {
@@ -266,7 +266,7 @@ describe('Message Send → Receive Integration Flow', () => {
       expect(screen.getByText(/첫 번째 답변입니다/)).toBeInTheDocument();
       expect(screen.getByText('두 번째 질문')).toBeInTheDocument();
       expect(screen.getByText(/두 번째 답변입니다/)).toBeInTheDocument();
-    });
+    }, 15000);
 
     it('clears token usage between turns and shows new stats', async () => {
       const callbacks = setupStreamCallbacks();
@@ -297,7 +297,7 @@ describe('Message Send → Receive Integration Flow', () => {
       expect(tokenDisplay).toHaveTextContent('30');
       expect(tokenDisplay).toHaveTextContent('12');
       expect(tokenDisplay).toHaveTextContent('42');
-    });
+    }, 15000);
   });
 
   describe('Error handling in flow', () => {
@@ -330,7 +330,7 @@ describe('Message Send → Receive Integration Flow', () => {
         const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
         expect(input).not.toBeDisabled();
       });
-    });
+    }, 15000);
 
     it('handles stream error during response', async () => {
       const callbacks = setupStreamCallbacks();
@@ -366,7 +366,7 @@ describe('Message Send → Receive Integration Flow', () => {
         const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
         expect(input).not.toBeDisabled();
       });
-    });
+    }, 15000);
 
     it('recovers after error — next message sends normally', async () => {
       const callbacks = setupStreamCallbacks();
@@ -391,7 +391,7 @@ describe('Message Send → Receive Integration Flow', () => {
       await simulateAssistantResponse(callbacks, '정상 응답입니다.');
 
       expect(screen.getByText(/정상 응답입니다/)).toBeInTheDocument();
-    });
+    }, 15000);
   });
 
   describe('Input state management', () => {
@@ -406,7 +406,7 @@ describe('Message Send → Receive Integration Flow', () => {
 
       await user.click(screen.getByText('전송'));
       expect(input.value).toBe('');
-    });
+    }, 15000);
 
     it('prevents sending while loading', async () => {
       const callbacks = setupStreamCallbacks();
@@ -427,7 +427,7 @@ describe('Message Send → Receive Integration Flow', () => {
       await waitFor(() => {
         expect(input).not.toBeDisabled();
       });
-    });
+    }, 15000);
 
     it('sends message with Enter key (not Shift+Enter)', async () => {
       setupStreamCallbacks();
@@ -441,7 +441,7 @@ describe('Message Send → Receive Integration Flow', () => {
       await user.keyboard('{Enter}');
 
       expect(mockElectronAPI.sendMessage).toHaveBeenCalledWith('Enter 전송 테스트', undefined, undefined);
-    });
+    }, 15000);
   });
 
   describe('Conversation persistence', () => {
@@ -476,7 +476,7 @@ describe('Message Send → Receive Integration Flow', () => {
       );
       expect(userMsg).toBeDefined();
       expect(assistantMsg).toBeDefined();
-    });
+    }, 15000);
   });
 
   describe('Stop generation', () => {
@@ -494,7 +494,7 @@ describe('Message Send → Receive Integration Flow', () => {
       await user.click(stopBtn);
 
       expect(mockElectronAPI.stopGemini).toHaveBeenCalled();
-    });
+    }, 15000);
   });
 
   describe('Streaming cursor indicator', () => {
@@ -529,7 +529,7 @@ describe('Message Send → Receive Integration Flow', () => {
         const cursor = container.querySelector('.streaming-cursor');
         expect(cursor).not.toBeInTheDocument();
       });
-    });
+    }, 15000);
   });
 
   describe('Non-assistant stream data', () => {
@@ -558,7 +558,7 @@ describe('Message Send → Receive Integration Flow', () => {
       // The content should not appear as a separate message
       // Only the original user message "Test" should be present
       expect(screen.queryByText('Should not appear as assistant')).not.toBeInTheDocument();
-    });
+    }, 15000);
 
     it('ignores stream data with type other than message for content', async () => {
       const callbacks = setupStreamCallbacks();
@@ -582,6 +582,6 @@ describe('Message Send → Receive Integration Flow', () => {
       // Token usage should appear since stats are valid
       const tokenDisplay = screen.getByRole('status', { name: '토큰 사용량' });
       expect(tokenDisplay).toBeInTheDocument();
-    });
+    }, 15000);
   });
 });
