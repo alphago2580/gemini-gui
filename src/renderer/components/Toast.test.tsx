@@ -452,6 +452,94 @@ describe('Toast', () => {
     });
   });
 
+  // --- Position tests ---
+
+  describe('position prop', () => {
+    it('defaults to top-right (no extra class)', () => {
+      const toasts = [createToast()];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      const containerEl = container.querySelector('.toast-container');
+      expect(containerEl).toBeInTheDocument();
+      expect(containerEl!.className).toBe('toast-container');
+    });
+
+    it('adds bottom-right class when position is bottom-right', () => {
+      const toasts = [createToast()];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} position="bottom-right" />);
+      expect(container.querySelector('.toast-container-bottom-right')).toBeInTheDocument();
+    });
+
+    it('adds top-left class when position is top-left', () => {
+      const toasts = [createToast()];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} position="top-left" />);
+      expect(container.querySelector('.toast-container-top-left')).toBeInTheDocument();
+    });
+
+    it('adds bottom-left class when position is bottom-left', () => {
+      const toasts = [createToast()];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} position="bottom-left" />);
+      expect(container.querySelector('.toast-container-bottom-left')).toBeInTheDocument();
+    });
+
+    it('adds top-center class when position is top-center', () => {
+      const toasts = [createToast()];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} position="top-center" />);
+      expect(container.querySelector('.toast-container-top-center')).toBeInTheDocument();
+    });
+
+    it('adds bottom-center class when position is bottom-center', () => {
+      const toasts = [createToast()];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} position="bottom-center" />);
+      expect(container.querySelector('.toast-container-bottom-center')).toBeInTheDocument();
+    });
+  });
+
+  // --- Stacking tests ---
+
+  describe('stacked prop', () => {
+    it('applies toast-stack-N classes when stacked is true', () => {
+      const toasts = [
+        createToast({ id: '1', message: 'A' }),
+        createToast({ id: '2', message: 'B' }),
+        createToast({ id: '3', message: 'C' }),
+      ];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} stacked={true} />);
+      expect(container.querySelector('.toast-stack-0')).toBeInTheDocument();
+      expect(container.querySelector('.toast-stack-1')).toBeInTheDocument();
+      expect(container.querySelector('.toast-stack-2')).toBeInTheDocument();
+    });
+
+    it('does not apply stack classes when stacked is false (default)', () => {
+      const toasts = [
+        createToast({ id: '1', message: 'A' }),
+        createToast({ id: '2', message: 'B' }),
+      ];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      expect(container.querySelector('.toast-stack-0')).not.toBeInTheDocument();
+      expect(container.querySelector('.toast-stack-1')).not.toBeInTheDocument();
+    });
+
+    it('limits stack classes to index 4', () => {
+      const toasts = Array.from({ length: 6 }, (_, i) =>
+        createToast({ id: `t${i}`, message: `Toast ${i}` })
+      );
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} stacked={true} maxVisible={6} />);
+      expect(container.querySelector('.toast-stack-0')).toBeInTheDocument();
+      expect(container.querySelector('.toast-stack-4')).toBeInTheDocument();
+      // Index 5 should not get a stack class
+      const allToasts = container.querySelectorAll('.toast');
+      expect(allToasts[5]?.className).not.toContain('toast-stack-5');
+    });
+
+    it('stack classes coexist with type and exit classes', () => {
+      const toasts = [createToast({ id: '1', type: 'success', message: 'A' })];
+      const { container } = render(<Toast toasts={toasts} onDismiss={mockDismiss} stacked={true} />);
+      const toastEl = container.querySelector('.toast');
+      expect(toastEl!.className).toContain('toast-success');
+      expect(toastEl!.className).toContain('toast-stack-0');
+    });
+  });
+
   // --- Pause on hover tests ---
 
   describe('pause on hover', () => {
