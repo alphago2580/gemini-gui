@@ -40,8 +40,10 @@ export function useStreamHandler({
   useEffect(() => {
     if (!window.electronAPI) return;
 
+    const cleanups: Array<() => void> = [];
+
     // 스트리밍 데이터 처리
-    window.electronAPI.onStreamData((data: StreamData) => {
+    cleanups.push(window.electronAPI.onStreamData((data: StreamData) => {
       if (data.type === 'message' && data.role === 'assistant') {
         setIsStreaming(true);
         setMessages(prev => {
@@ -77,24 +79,24 @@ export function useStreamHandler({
           setTokenUsage({ inputTokens, outputTokens, totalTokens });
         }
       }
-    });
+    }));
 
     // 스트리밍 완료 처리
-    window.electronAPI.onStreamComplete(() => {
+    cleanups.push(window.electronAPI.onStreamComplete(() => {
       setIsLoading(false);
       setIsStreaming(false);
       onComplete?.();
-    });
+    }));
 
     // 세션 상태 처리
     if (window.electronAPI.onSessionStatus) {
-      window.electronAPI.onSessionStatus((data: SessionStatusData) => {
+      cleanups.push(window.electronAPI.onSessionStatus((data: SessionStatusData) => {
         setSessionStatus(data.status);
-      });
+      }));
     }
 
     // 스트리밍 에러 처리
-    window.electronAPI.onStreamError((data: StreamErrorData) => {
+    cleanups.push(window.electronAPI.onStreamError((data: StreamErrorData) => {
       console.error('Stream error:', data);
       addToast('error', data.error);
       setMessages(prev => {
@@ -109,11 +111,11 @@ export function useStreamHandler({
       });
       setIsLoading(false);
       setIsStreaming(false);
-    });
+    }));
 
     return () => {
-      if (window.electronAPI) {
-        window.electronAPI.removeAllListeners();
+      for (const cleanup of cleanups) {
+        cleanup();
       }
     };
   }, [currentConversationId, setMessages, updateCurrentConversation, addToast, onComplete]);

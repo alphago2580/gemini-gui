@@ -11,24 +11,32 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 새 대화 시작 (세션 초기화)
   newConversation: () => ipcRenderer.invoke('new-conversation'),
 
-  // 스트리밍 데이터 수신 리스너
+  // 스트리밍 데이터 수신 리스너 (returns cleanup function)
   onStreamData: (callback: (data: unknown) => void) => {
-    ipcRenderer.on('stream-data', (_event, data) => callback(data));
+    const handler = (_event: Electron.IpcRendererEvent, data: unknown) => callback(data);
+    ipcRenderer.on('stream-data', handler);
+    return () => { ipcRenderer.removeListener('stream-data', handler); };
   },
 
-  // 스트리밍 완료 리스너
+  // 스트리밍 완료 리스너 (returns cleanup function)
   onStreamComplete: (callback: (data: unknown) => void) => {
-    ipcRenderer.on('stream-complete', (_event, data) => callback(data));
+    const handler = (_event: Electron.IpcRendererEvent, data: unknown) => callback(data);
+    ipcRenderer.on('stream-complete', handler);
+    return () => { ipcRenderer.removeListener('stream-complete', handler); };
   },
 
-  // 스트리밍 에러 리스너
+  // 스트리밍 에러 리스너 (returns cleanup function)
   onStreamError: (callback: (data: unknown) => void) => {
-    ipcRenderer.on('stream-error', (_event, data) => callback(data));
+    const handler = (_event: Electron.IpcRendererEvent, data: unknown) => callback(data);
+    ipcRenderer.on('stream-error', handler);
+    return () => { ipcRenderer.removeListener('stream-error', handler); };
   },
 
-  // 세션 상태 리스너
+  // 세션 상태 리스너 (returns cleanup function)
   onSessionStatus: (callback: (data: unknown) => void) => {
-    ipcRenderer.on('session-status', (_event, data) => callback(data));
+    const handler = (_event: Electron.IpcRendererEvent, data: unknown) => callback(data);
+    ipcRenderer.on('session-status', handler);
+    return () => { ipcRenderer.removeListener('session-status', handler); };
   },
 
   // 리스너 제거

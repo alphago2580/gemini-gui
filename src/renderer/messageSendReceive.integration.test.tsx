@@ -20,11 +20,12 @@ import type { StreamData, StreamErrorData } from '../preload/types';
 
 // ---------- Mock setup ----------
 
+const noop = () => {};
 const mockElectronAPI = {
   sendMessage: vi.fn().mockResolvedValue({ success: true }),
-  onStreamData: vi.fn(),
-  onStreamComplete: vi.fn(),
-  onStreamError: vi.fn(),
+  onStreamData: vi.fn().mockReturnValue(noop),
+  onStreamComplete: vi.fn().mockReturnValue(noop),
+  onStreamError: vi.fn().mockReturnValue(noop),
   newConversation: vi.fn(),
   saveTempFile: vi.fn(),
   cleanupTempFiles: vi.fn(),
@@ -33,7 +34,7 @@ const mockElectronAPI = {
   exportMarkdown: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.md' }),
   exportPdf: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.pdf' }),
   onMenuAction: vi.fn(),
-  onSessionStatus: vi.fn(),
+  onSessionStatus: vi.fn().mockReturnValue(noop),
   showNotification: vi.fn().mockResolvedValue({ success: true }),
   isWindowFocused: vi.fn().mockResolvedValue(true),
   setWindowTitle: vi.fn().mockResolvedValue(undefined),
@@ -55,12 +56,15 @@ function setupStreamCallbacks(): StreamCallbacks {
   };
   mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
     callbacks.streamData = cb;
+    return noop;
   });
   mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
     callbacks.streamComplete = cb;
+    return noop;
   });
   mockElectronAPI.onStreamError.mockImplementation((cb: (data: StreamErrorData) => void) => {
     callbacks.streamError = cb;
+    return noop;
   });
   return callbacks;
 }

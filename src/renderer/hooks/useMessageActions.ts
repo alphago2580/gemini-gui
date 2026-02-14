@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import type { ContextMenuItem } from '../components/MessageContextMenu';
 import type { PinnedMessage } from '../components/PinnedMessages';
 import { useLocalStorage } from './useLocalStorage';
@@ -38,6 +38,17 @@ export function useMessageActions({
   messagesContainerRef,
   handleSelectConversation,
 }: UseMessageActionsParams) {
+  // Timeout ref for search navigate cleanup
+  const searchNavigateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (searchNavigateTimerRef.current !== null) {
+        clearTimeout(searchNavigateTimerRef.current);
+      }
+    };
+  }, []);
+
   // Context menu state
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; messageIndex: number } | null>(null);
 
@@ -144,7 +155,13 @@ export function useMessageActions({
     if (conversationId !== currentConversationId) {
       handleSelectConversation(conversationId);
     }
-    setTimeout(() => handleNavigateToMessage(messageIndex), 100);
+    if (searchNavigateTimerRef.current !== null) {
+      clearTimeout(searchNavigateTimerRef.current);
+    }
+    searchNavigateTimerRef.current = setTimeout(() => {
+      searchNavigateTimerRef.current = null;
+      handleNavigateToMessage(messageIndex);
+    }, 100);
   }, [currentConversationId, handleSelectConversation, handleNavigateToMessage]);
 
   const closeContextMenu = useCallback(() => setContextMenu(null), []);
