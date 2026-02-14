@@ -633,3 +633,10 @@ export const CHAR_COUNTER_CHARS = (n: number) => `${n}자`;
 export const CHAR_COUNTER_WORDS = (n: number) => `${n}단어`;
 export const CHAR_COUNTER_TOKENS = (n: number) => `~${n}토큰`;
 export const CHAR_COUNTER_LIMIT = (current: number, max: number) => `${current}/${max}`;
+
+// StatusBar
+export const STATUS_BAR_ARIA = '상태 표시줄';
+export const STATUS_BAR_MODEL_LABEL = '모델';
+export const STATUS_BAR_TOKENS_LABEL = '토큰';
+export const STATUS_BAR_ENCODING_LABEL = 'UTF-8';
+export const STATUS_BAR_LINE_COL = (line: number, col: number) => `Ln ${line}, Col ${col}`;
