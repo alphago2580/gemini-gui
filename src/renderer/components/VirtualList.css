@@ -1,0 +1,19 @@
+.virtual-list {
+  position: relative;
+  will-change: transform;
+  -webkit-overflow-scrolling: touch;
+}
+
+.virtual-list:focus-visible {
+  outline: 2px solid var(--accent-color, #4a9eff);
+  outline-offset: -2px;
+}
+
+.virtual-list-inner {
+  width: 100%;
+}
+
+.virtual-list-item {
+  box-sizing: border-box;
+  overflow: hidden;
+}
