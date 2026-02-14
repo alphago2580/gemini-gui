@@ -1,1 +1,1 @@
-Fix failing App.test.tsx timeout — token usage display test timing out at 5000ms
+Upgrading CommandPalette to use scored fuzzy search (fuzzySearchBy)
