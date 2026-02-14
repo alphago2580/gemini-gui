@@ -573,6 +573,8 @@ describe('App Component', () => {
             render(<App />);
             // Open settings
             fireEvent.keyDown(document, { key: ',', ctrlKey: true });
+            // Navigate to appearance tab
+            await user.click(screen.getByRole('tab', { name: '외관' }));
             // Click high contrast toggle
             const toggle = screen.getByRole('switch', { name: '고대비 모드' });
             await user.click(toggle);
@@ -583,6 +585,8 @@ describe('App Component', () => {
             const user = userEvent.setup();
             render(<App />);
             fireEvent.keyDown(document, { key: ',', ctrlKey: true });
+            // Navigate to appearance tab
+            await user.click(screen.getByRole('tab', { name: '외관' }));
             const toggle = screen.getByRole('switch', { name: '고대비 모드' });
             await user.click(toggle);
             expect(JSON.parse(localStorage.getItem('gemini-high-contrast') || 'false')).toBe(true);
@@ -2129,24 +2133,23 @@ describe('App Component', () => {
         });
     });
 
-    describe('Accordion in Settings', () => {
-        it('shows advanced settings section as accordion in settings', async () => {
+    describe('Advanced Settings Tab', () => {
+        it('shows advanced tab in settings', async () => {
             const user = userEvent.setup();
             render(<App />);
             await user.click(screen.getByText('설정'));
 
-            // Should see the accordion button for "고급 설정"
-            expect(screen.getByText('고급 설정')).toBeInTheDocument();
+            // Should see the advanced tab button
+            expect(screen.getByRole('tab', { name: '고급' })).toBeInTheDocument();
         });
 
-        it('expands advanced settings accordion to reveal temperature slider', async () => {
+        it('navigates to advanced tab to reveal temperature slider', async () => {
             const user = userEvent.setup();
             render(<App />);
             await user.click(screen.getByText('설정'));
 
-            // Click to expand advanced settings
-            const advancedButton = screen.getByRole('button', { name: '고급 설정' });
-            await user.click(advancedButton);
+            // Click advanced tab
+            await user.click(screen.getByRole('tab', { name: '고급' }));
 
             await waitFor(() => {
                 expect(screen.getByLabelText(/Temperature/)).toBeInTheDocument();
