@@ -1,0 +1,121 @@
+.text-diff {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.text-diff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.text-diff-stats {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.text-diff-body {
+  overflow-x: auto;
+  background: var(--bg-primary);
+}
+
+.text-diff-body--split {
+  display: flex;
+}
+
+.text-diff-split-pane {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.text-diff-split-pane:first-child {
+  border-right: 1px solid var(--border-color);
+}
+
+.text-diff-pane-header {
+  padding: 0.375rem 0.75rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.text-diff-line {
+  display: flex;
+  align-items: stretch;
+  min-height: 1.5em;
+  white-space: pre;
+}
+
+.text-diff-line--added {
+  background: var(--diff-added-bg, rgba(46, 160, 67, 0.15));
+}
+
+.text-diff-line--removed {
+  background: var(--diff-removed-bg, rgba(248, 81, 73, 0.15));
+}
+
+.text-diff-line--unchanged {
+  background: transparent;
+}
+
+.text-diff-line--empty-slot {
+  background: var(--bg-secondary);
+}
+
+.text-diff-line-number {
+  display: inline-block;
+  min-width: 2.5em;
+  padding: 0 0.5rem;
+  text-align: right;
+  color: var(--text-muted, var(--text-secondary));
+  user-select: none;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.text-diff-line-prefix {
+  display: inline-block;
+  width: 1.5em;
+  text-align: center;
+  flex-shrink: 0;
+  user-select: none;
+  font-weight: 600;
+}
+
+.text-diff-line--added .text-diff-line-prefix {
+  color: var(--diff-added-text, #3fb950);
+}
+
+.text-diff-line--removed .text-diff-line-prefix {
+  color: var(--diff-removed-text, #f85149);
+}
+
+.text-diff-line--unchanged .text-diff-line-prefix {
+  color: var(--text-secondary);
+}
+
+.text-diff-line-content {
+  flex: 1;
+  min-width: 0;
+  padding-right: 0.75rem;
+}
+
+.text-diff-line--added .text-diff-line-content {
+  color: var(--diff-added-text, #3fb950);
+}
+
+.text-diff-line--removed .text-diff-line-content {
+  color: var(--diff-removed-text, #f85149);
+}
