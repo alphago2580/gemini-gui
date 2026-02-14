@@ -1,0 +1,31 @@
+.input-char-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.input-char-counter--over {
+  color: var(--remove-hover, #e74c3c);
+}
+
+.input-char-counter__item {
+  white-space: nowrap;
+}
+
+.input-char-counter__separator {
+  color: var(--border-color);
+  font-size: 0.625rem;
+}
+
+.input-char-counter__limit {
+  font-variant-numeric: tabular-nums;
+}
+
+.input-char-counter__limit--over {
+  color: var(--remove-hover, #e74c3c);
+  font-weight: 600;
+}

@@ -24,6 +24,7 @@ import BookmarkedMessages from './components/BookmarkedMessages';
 import PerformancePanel from './components/PerformancePanel';
 import MessageSearch from './components/MessageSearch';
 import InputPreview from './components/InputPreview';
+import InputCharacterCounter from './components/InputCharacterCounter';
 import PinnedMessages from './components/PinnedMessages';
 import SplitButton from './components/SplitButton';
 import Chip from './components/Chip';
@@ -975,6 +976,7 @@ const App: React.FC = () => {
               aria-label={S.SWITCH_PREVIEW_ARIA}
             />
             <InputPreview content={input} isVisible={dialogs.isInputPreviewVisible} />
+            <InputCharacterCounter text={input} isVisible={true} />
           </div>
         </div>
       </main>

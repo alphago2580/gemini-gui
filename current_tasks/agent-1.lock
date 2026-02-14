@@ -1,1 +1,1 @@
-fix: install missing vitest-axe dependency and fix flaky integration tests
+InputCharacterCounter — 채팅 입력창 글자/단어/토큰 카운터 컴포넌트
