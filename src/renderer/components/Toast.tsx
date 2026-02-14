@@ -39,6 +39,7 @@ const ToastItem: React.FC<{
 }> = ({ toast, onDismiss, pauseOnHover = false, stackIndex }) => {
   const [exiting, setExiting] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const remainingRef = useRef(toast.duration ?? TOAST_DURATION);
   const startTimeRef = useRef(Date.now());
 
@@ -46,7 +47,7 @@ const ToastItem: React.FC<{
     startTimeRef.current = Date.now();
     timerRef.current = setTimeout(() => {
       setExiting(true);
-      setTimeout(() => onDismiss(toast.id), EXIT_ANIMATION_MS);
+      exitTimerRef.current = setTimeout(() => onDismiss(toast.id), EXIT_ANIMATION_MS);
     }, remainingRef.current);
   }, [toast.id, onDismiss]);
 
@@ -65,6 +66,9 @@ const ToastItem: React.FC<{
       if (timerRef.current !== null) {
         clearTimeout(timerRef.current);
       }
+      if (exitTimerRef.current !== null) {
+        clearTimeout(exitTimerRef.current);
+      }
     };
   }, [startTimer]);
 
@@ -82,7 +86,7 @@ const ToastItem: React.FC<{
 
   const handleDismiss = () => {
     setExiting(true);
-    setTimeout(() => onDismiss(toast.id), EXIT_ANIMATION_MS);
+    exitTimerRef.current = setTimeout(() => onDismiss(toast.id), EXIT_ANIMATION_MS);
   };
 
   const handleAction = () => {

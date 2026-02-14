@@ -171,6 +171,34 @@ describe('Toast', () => {
     expect(dismissFn).not.toHaveBeenCalled();
   });
 
+  it('exit animation timer is cleaned up on unmount during auto-dismiss', () => {
+    const dismissFn = vi.fn<(id: string) => void>();
+    const toasts = [createToast({ id: 'exit-cleanup' })];
+    const { unmount } = render(<Toast toasts={toasts} onDismiss={dismissFn} />);
+    // Advance past TOAST_DURATION to trigger exit animation
+    act(() => { vi.advanceTimersByTime(5000); });
+    expect(dismissFn).not.toHaveBeenCalled();
+    // Unmount while exit animation timeout is pending
+    unmount();
+    // Advance past exit animation — onDismiss should NOT fire
+    act(() => { vi.advanceTimersByTime(500); });
+    expect(dismissFn).not.toHaveBeenCalled();
+  });
+
+  it('exit animation timer is cleaned up on unmount during manual dismiss', () => {
+    const dismissFn = vi.fn<(id: string) => void>();
+    const toasts = [createToast({ id: 'manual-exit-cleanup' })];
+    const { unmount } = render(<Toast toasts={toasts} onDismiss={dismissFn} />);
+    // Click close button to start exit animation
+    fireEvent.click(screen.getByRole('button', { name: '알림 닫기' }));
+    expect(dismissFn).not.toHaveBeenCalled();
+    // Unmount while exit animation timeout is pending
+    unmount();
+    // Advance past exit animation — onDismiss should NOT fire
+    act(() => { vi.advanceTimersByTime(500); });
+    expect(dismissFn).not.toHaveBeenCalled();
+  });
+
   // --- Stack enhancements ---
 
   describe('maxVisible limit', () => {
