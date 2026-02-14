@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import type { Message } from '../../preload/types';
+import DateSeparator from './DateSeparator';
 import './MessageList.css';
 
 export interface MessageListProps {
@@ -31,11 +32,22 @@ export interface MessageListProps {
   ariaLabel?: string;
   /** className override */
   className?: string;
+  /** Whether to show date separators between messages from different days. Defaults to true. */
+  showDateSeparators?: boolean;
 }
 
 const INITIAL_BATCH_DEFAULT = 30;
 const BATCH_SIZE_DEFAULT = 20;
 const THRESHOLD_DEFAULT = 80;
+
+/** Returns true if two dates fall on different calendar days. */
+function isDifferentDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() !== b.getFullYear() ||
+    a.getMonth() !== b.getMonth() ||
+    a.getDate() !== b.getDate()
+  );
+}
 
 const MessageList: React.FC<MessageListProps> = ({
   messages,
@@ -52,6 +64,7 @@ const MessageList: React.FC<MessageListProps> = ({
   viewMode = 'chat',
   ariaLabel = '대화 메시지',
   className,
+  showDateSeparators = true,
 }) => {
   // How many messages are currently visible (counted from the end)
   const [visibleCount, setVisibleCount] = useState(() => Math.min(initialBatch, messages.length));
@@ -160,8 +173,18 @@ const MessageList: React.FC<MessageListProps> = ({
       {messages.length === 0 && renderEmpty?.()}
       {visibleMessages.map((message, index) => {
         const globalIndex = globalOffset + index;
+        const showSeparator =
+          showDateSeparators &&
+          (index === 0 ||
+            isDifferentDay(
+              visibleMessages[index - 1].timestamp,
+              message.timestamp,
+            ));
         return (
           <React.Fragment key={message.id || globalIndex}>
+            {showSeparator && (
+              <DateSeparator date={message.timestamp} />
+            )}
             {renderMessage(message, globalIndex)}
           </React.Fragment>
         );
