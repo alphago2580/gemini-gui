@@ -489,6 +489,7 @@ export const SETTINGS_SHORTCUTS_READONLY_HINT = '단축키는 시스템에서 �
 export const CONV_MENU_LABEL = '대화 옵션';
 export const CONV_MENU_OPEN = '대화 열기';
 export const CONV_MENU_DELETE = '삭제';
+export const CONV_DRAG_LABEL = '드래그하여 순서 변경';
 
 // ProgressBar — token usage
 export const TOKEN_PROGRESS_LABEL = '토큰 사용량';
