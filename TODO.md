@@ -108,5 +108,53 @@ Priority: 🔴 High | 🟡 Medium | 🟢 Low
 - [ ] Storybook for component development
 - [ ] E2E tests with Playwright
 
+## 🔵 TokenBurner v5 Backlog (NEW)
+
+### Component Improvements
+- [ ] ConfirmDialog — 키보드 단축키 (Enter=확인, Escape=취소) 추가
+- [ ] MessageBubble — 코드블록 언어 감지 자동화
+- [ ] Sidebar — 드래그로 대화 순서 변경
+- [ ] CommandPalette — 퍼지 검색 개선 (한글 초성 검색)
+- [ ] TabBar — 탭 드래그로 순서 변경
+- [ ] Toast — 스택 형태로 여러 개 동시 표시
+- [ ] Settings — 카테고리별 섹션 분리 (일반/외관/단축키/고급)
+- [ ] ChatInput — 멘션 기능 (@명령어 자동완성)
+- [ ] MessageList — 무한 스크롤 (오래된 메시지 lazy load)
+- [ ] Sidebar — 대화 폴더/태그 분류 기능
+
+### New Hooks
+- [ ] useLocalStorage — 제네릭 로컬스토리지 훅 (JSON 직렬화, 기본값)
+- [ ] useDebounce — 디바운스 훅 (검색 입력 등에 활용)
+- [ ] useIntersectionObserver — 무한 스크롤/lazy load용
+- [ ] useMediaQuery — CSS 미디어 쿼리 반응형 훅
+- [ ] useClipboard — 클립보드 복사/붙여넣기 훅
+- [ ] usePrevious — 이전 값 추적 훅
+- [ ] useEventListener — 타입 안전한 이벤트 리스너 훅
+- [ ] useKeyCombo — 키보드 단축키 조합 훅 (Ctrl+Shift+P 등)
+- [ ] useUndoRedo — 실행취소/다시실행 상태 관리 훅
+- [ ] useIdle — 유저 비활성 감지 훅
+
+### Test Coverage
+- [ ] 통합 테스트: App.tsx 렌더링 + 라우팅
+- [ ] 통합 테스트: 메시지 전송 → 응답 수신 플로우
+- [ ] 통합 테스트: 테마 전환 → CSS 변수 변경 확인
+- [ ] 접근성 테스트: axe-core 기반 자동화
+- [ ] 스냅샷 테스트: 주요 컴포넌트 10개
+- [ ] 에러 바운더리 테스트: 컴포넌트 크래시 복구
+
+### Utils
+- [ ] formatRelativeTime — "방금 전", "5분 전" 등 상대 시간 포맷터
+- [ ] debounce/throttle — 유틸리티 함수 (lodash 의존 제거)
+- [ ] deepEqual — 깊은 비교 유틸리티
+- [ ] classNames — 조건부 CSS 클래스 결합 유틸리티
+- [ ] sanitizeHtml — XSS 방지 HTML 산테이터
+- [ ] parseMarkdownMeta — 마크다운 프론트매터 파서
+
+### Performance
+- [ ] 가상 스크롤 — 긴 메시지 목록에 react-window 적용
+- [ ] 이미지 lazy loading — IntersectionObserver 기반
+- [ ] Web Worker — 마크다운 파싱 오프로드
+- [ ] 번들 크기 분석 — webpack-bundle-analyzer 또는 vite-plugin-inspect
+
 ---
 *Updated by agent team. Check PROGRESS.md for completion status.*
