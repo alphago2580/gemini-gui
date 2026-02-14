@@ -600,6 +600,26 @@ export const STORAGE_KEY_ACCENT_COLOR = 'gemini-accent-color';
 // NumberInput (page jump)
 export const PAGE_JUMP_ARIA = '페이지 이동';
 
+// Conversation Folders
+export const FOLDER_SECTION_LABEL = '폴더';
+export const FOLDER_ALL_CONVERSATIONS = '전체 대화';
+export const FOLDER_UNCATEGORIZED = '미분류';
+export const FOLDER_CREATE = '새 폴더';
+export const FOLDER_CREATE_PLACEHOLDER = '폴더 이름...';
+export const FOLDER_CREATE_ARIA = '새 폴더 만들기';
+export const FOLDER_RENAME = '이름 변경';
+export const FOLDER_RENAME_ARIA = '폴더 이름 변경';
+export const FOLDER_DELETE = '폴더 삭제';
+export const FOLDER_DELETE_ARIA = '폴더 삭제';
+export const FOLDER_MOVE_TO = '폴더로 이동';
+export const FOLDER_MOVE_TO_ARIA = '대화를 폴더로 이동';
+export const FOLDER_REMOVE_FROM = '폴더에서 제거';
+export const FOLDER_EMPTY = '폴더에 대화가 없습니다';
+export const FOLDER_TOGGLE_ARIA = '폴더 열기/닫기';
+export const STORAGE_KEY_FOLDERS = 'gemini-conversation-folders';
+export const STORAGE_KEY_FOLDER_ASSIGNMENTS = 'gemini-folder-assignments';
+export const FOLDER_COLORS = ['#4A90D9', '#E67E22', '#2ECC71', '#9B59B6', '#E74C3C', '#1ABC9C', '#F39C12', '#3498DB'];
+
 // DropdownMenu (more actions)
 export const MORE_ACTIONS_LABEL = '추가 작업';
 export const MORE_ACTIONS_BUTTON = '⋮';
