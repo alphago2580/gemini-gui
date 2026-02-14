@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 export interface UseToggleReturn {
   value: boolean;
@@ -15,5 +15,11 @@ export function useToggle(initialValue: boolean = false): UseToggleReturn {
   const setTrue = useCallback(() => setValue(true), []);
   const setFalse = useCallback(() => setValue(false), []);
 
-  return { value, toggle, setTrue, setFalse, setValue };
+  return useMemo(() => ({
+    value,
+    toggle,
+    setTrue,
+    setFalse,
+    setValue,
+  }), [value, toggle, setTrue, setFalse, setValue]);
 }

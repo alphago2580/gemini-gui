@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 
 const STORAGE_KEY_BOOKMARKS = 'gemini-bookmarks';
@@ -59,7 +59,7 @@ export function useBookmarks() {
     return bookmarks.filter(b => b.conversationId === conversationId);
   }, [bookmarks]);
 
-  return {
+  return useMemo(() => ({
     bookmarks,
     addBookmark,
     removeBookmark,
@@ -67,5 +67,5 @@ export function useBookmarks() {
     isBookmarked,
     clearBookmarks,
     getBookmarksForConversation,
-  };
+  }), [bookmarks, addBookmark, removeBookmark, toggleBookmark, isBookmarked, clearBookmarks, getBookmarksForConversation]);
 }

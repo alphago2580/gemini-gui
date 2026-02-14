@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 
 export interface UsePageVisibilityOptions {
   onVisible?: () => void;
@@ -52,5 +52,10 @@ export function usePageVisibility(options: UsePageVisibilityOptions = {}): UsePa
     };
   }, [handleVisibilityChange]);
 
-  return { isVisible, lastVisibleTime, lastHiddenTime, hiddenDuration };
+  return useMemo(() => ({
+    isVisible,
+    lastVisibleTime,
+    lastHiddenTime,
+    hiddenDuration,
+  }), [isVisible, lastVisibleTime, lastHiddenTime, hiddenDuration]);
 }

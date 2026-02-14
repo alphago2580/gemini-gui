@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 export function useSet<T>(initialValues?: Iterable<T>) {
   const [set, setSet] = useState<Set<T>>(() => new Set(initialValues));
@@ -43,7 +43,9 @@ export function useSet<T>(initialValues?: Iterable<T>) {
     setSet(new Set(initialValues));
   }, [initialValues]);
 
-  return {
+  const values = useMemo(() => Array.from(set), [set]);
+
+  return useMemo(() => ({
     set,
     size: set.size,
     add,
@@ -52,6 +54,6 @@ export function useSet<T>(initialValues?: Iterable<T>) {
     has,
     clear,
     reset,
-    values: Array.from(set),
-  };
+    values,
+  }), [set, add, remove, toggle, has, clear, reset, values]);
 }

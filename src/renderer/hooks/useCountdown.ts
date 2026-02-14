@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 
 export interface UseCountdownReturn {
   secondsLeft: number;
@@ -76,5 +76,12 @@ export function useCountdown(onComplete?: () => void): UseCountdownReturn {
     return clearTimer;
   }, [clearTimer]);
 
-  return { secondsLeft, isRunning, start, pause, resume, reset };
+  return useMemo(() => ({
+    secondsLeft,
+    isRunning,
+    start,
+    pause,
+    resume,
+    reset,
+  }), [secondsLeft, isRunning, start, pause, resume, reset]);
 }

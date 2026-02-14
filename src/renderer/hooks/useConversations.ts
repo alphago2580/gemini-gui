@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { generateConversationTitle, generateMessageId, generateUniqueId } from '../utils/format';
 import type { Message, Conversation } from '../../preload/types';
 import * as S from '../constants/strings';
@@ -161,7 +161,7 @@ export function useConversations() {
     return newConversation.id;
   }, [currentConversationId, conversations, messages]);
 
-  return {
+  return useMemo(() => ({
     conversations,
     currentConversationId,
     messages,
@@ -173,5 +173,5 @@ export function useConversations() {
     editMessage,
     deleteConversation,
     forkConversation,
-  };
+  }), [conversations, currentConversationId, messages, setMessages, handleNewChat, handleSelectConversation, updateCurrentConversation, deleteMessage, editMessage, deleteConversation, forkConversation]);
 }

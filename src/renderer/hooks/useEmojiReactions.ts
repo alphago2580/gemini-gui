@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 
 const STORAGE_KEY_REACTIONS = 'gemini-emoji-reactions';
@@ -92,7 +92,7 @@ export function useEmojiReactions() {
     setReactions({});
   }, [setReactions]);
 
-  return {
+  return useMemo(() => ({
     reactions,
     addReaction,
     removeReaction,
@@ -100,5 +100,5 @@ export function useEmojiReactions() {
     getReactions,
     clearReactions,
     clearAllReactions,
-  };
+  }), [reactions, addReaction, removeReaction, toggleReaction, getReactions, clearReactions, clearAllReactions]);
 }

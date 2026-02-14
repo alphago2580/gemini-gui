@@ -147,13 +147,16 @@ export function useMessageActions({
     setTimeout(() => handleNavigateToMessage(messageIndex), 100);
   }, [currentConversationId, handleSelectConversation, handleNavigateToMessage]);
 
-  return {
+  const closeContextMenu = useCallback(() => setContextMenu(null), []);
+  const closeEmojiPicker = useCallback(() => setEmojiPickerTarget(null), []);
+
+  return useMemo(() => ({
     // Context menu
     contextMenu,
     contextMenuItems,
     handleMessageContextMenu,
     handleContextMenuAction,
-    closeContextMenu: useCallback(() => setContextMenu(null), []),
+    closeContextMenu,
 
     // Pinned messages
     pinnedMessages,
@@ -168,10 +171,10 @@ export function useMessageActions({
     getReactions,
     emojiPickerTarget,
     handleEmojiSelect,
-    closeEmojiPicker: useCallback(() => setEmojiPickerTarget(null), []),
+    closeEmojiPicker,
 
     // Navigation
     handleNavigateToMessage,
     handleSearchNavigate,
-  };
+  }), [contextMenu, contextMenuItems, handleMessageContextMenu, handleContextMenuAction, closeContextMenu, pinnedMessages, handlePinMessage, handleUnpinMessage, bookmarks, removeBookmark, getReactions, emojiPickerTarget, handleEmojiSelect, closeEmojiPicker, handleNavigateToMessage, handleSearchNavigate]);
 }

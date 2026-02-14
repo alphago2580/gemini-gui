@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 
 export interface AsyncState<T> {
   data: T | null;
@@ -42,5 +42,9 @@ export function useAsync<T>() {
     setState({ data: null, error: null, isLoading: false });
   }, []);
 
-  return { ...state, execute, reset };
+  return useMemo(() => ({
+    ...state,
+    execute,
+    reset,
+  }), [state, execute, reset]);
 }

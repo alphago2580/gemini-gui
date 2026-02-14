@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 /**
  * Manages all dialog/panel open states for App.tsx.
@@ -62,7 +62,7 @@ export function useDialogs() {
     setImageViewerState({ open: false, src: '', alt: '' });
   }, []);
 
-  return {
+  return useMemo(() => ({
     // Settings
     isSettingsOpen,
     openSettings,
@@ -127,5 +127,19 @@ export function useDialogs() {
     imageViewerState,
     openImageViewer,
     closeImageViewer,
-  };
+  }), [
+    isSettingsOpen, openSettings, closeSettings, toggleSettings,
+    isCommandPaletteOpen, toggleCommandPalette, closeCommandPalette,
+    isQuickSwitcherOpen, toggleQuickSwitcher, closeQuickSwitcher,
+    isCodeSnippetsOpen, openCodeSnippets, closeCodeSnippets,
+    isShortcutHelpOpen, toggleShortcutHelp, closeShortcutHelp,
+    isLinkCollectionOpen, openLinkCollection, closeLinkCollection,
+    isStatsOpen, openStats, closeStats,
+    isBookmarksOpen, openBookmarks, closeBookmarks,
+    isPerfPanelOpen, openPerfPanel, closePerfPanel,
+    isMessageSearchOpen, openMessageSearch, closeMessageSearch,
+    isInputPreviewVisible, toggleInputPreview,
+    isBookmarkDrawerOpen, openBookmarkDrawer, closeBookmarkDrawer,
+    imageViewerState, openImageViewer, closeImageViewer,
+  ]);
 }

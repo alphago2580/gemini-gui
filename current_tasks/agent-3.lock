@@ -1,1 +1,1 @@
-fix: TypeScript errors in Toast.test.tsx and accessibility.test.tsx
+memoize-hook-return-values — useMemo for hook return objects to prevent unnecessary re-renders
