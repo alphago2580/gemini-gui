@@ -724,3 +724,8 @@ export const FLOATING_TOOLBAR_COPY = '복사';
 export const FLOATING_TOOLBAR_SEARCH = '검색';
 export const FLOATING_TOOLBAR_QUOTE = '인용';
 export const FLOATING_TOOLBAR_HIGHLIGHT = '강조';
+
+// QuoteReply
+export const QUOTE_REPLY_ARIA_LABEL = '인용 답장';
+export const QUOTE_REPLY_DISMISS_LABEL = '인용 취소';
+export const QUOTE_REPLY_NAVIGATE_LABEL = '원본 메시지로 이동';

@@ -1,0 +1,109 @@
+/* QuoteReply — message quote bar displayed above input */
+.quote-reply {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  animation: quoteReplySlideIn 0.2s ease-out;
+}
+
+.quote-reply:focus {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
+}
+
+.quote-reply-accent {
+  width: 3px;
+  min-height: 1.5rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.quote-reply--user .quote-reply-accent {
+  background: var(--accent-primary);
+}
+
+.quote-reply--assistant .quote-reply-accent {
+  background: #10b981;
+}
+
+.quote-reply-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.quote-reply-sender {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+
+.quote-reply-text {
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quote-reply-text--clickable {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.quote-reply-text--clickable:hover {
+  color: var(--accent-primary);
+  text-decoration: underline;
+}
+
+.quote-reply-text--clickable:focus {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.quote-reply-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.quote-reply-dismiss:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.quote-reply-dismiss:focus {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
+}
+
+@keyframes quoteReplySlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
