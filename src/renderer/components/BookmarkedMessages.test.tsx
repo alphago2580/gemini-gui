@@ -203,6 +203,24 @@ describe('BookmarkedMessages', () => {
     expect(onNavigateToMessage).toHaveBeenCalledWith('conv-1', 2);
   });
 
+  it('navigates with Space key on selected bookmark', () => {
+    render(
+      <BookmarkedMessages
+        isOpen={true}
+        onClose={onClose}
+        bookmarks={mockBookmarks}
+        onNavigateToMessage={onNavigateToMessage}
+        onRemoveBookmark={onRemoveBookmark}
+      />
+    );
+    const dialog = screen.getByRole('dialog');
+
+    fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+    fireEvent.keyDown(dialog, { key: ' ' });
+    expect(onNavigateToMessage).toHaveBeenCalledWith('conv-1', 2);
+    expect(onClose).toHaveBeenCalled();
+  });
+
   it('closes on close button click', () => {
     render(
       <BookmarkedMessages

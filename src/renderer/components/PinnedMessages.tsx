@@ -39,7 +39,10 @@ const PinnedMessagesInner: React.FC<PinnedMessagesProps> = ({ messages, onNaviga
               tabIndex={0}
               aria-label={`${S.PINNED_NAV_PREFIX} ${preview}`}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') onNavigate(msg.index);
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onNavigate(msg.index);
+                }
               }}
             >
               <span className={`pinned-message-role ${msg.role}`}>
