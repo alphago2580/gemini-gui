@@ -626,3 +626,10 @@ export const MORE_ACTIONS_BUTTON = '⋮';
 export const ACTION_PERF_MONITOR = '성능 모니터';
 export const ACTION_SHORTCUTS = '단축키 도움말';
 export const ACTION_HIGH_CONTRAST = '고대비 모드';
+
+// InputCharacterCounter
+export const CHAR_COUNTER_LABEL = '입력 통계';
+export const CHAR_COUNTER_CHARS = (n: number) => `${n}자`;
+export const CHAR_COUNTER_WORDS = (n: number) => `${n}단어`;
+export const CHAR_COUNTER_TOKENS = (n: number) => `~${n}토큰`;
+export const CHAR_COUNTER_LIMIT = (current: number, max: number) => `${current}/${max}`;
