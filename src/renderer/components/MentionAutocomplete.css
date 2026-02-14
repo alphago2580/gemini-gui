@@ -1,0 +1,117 @@
+.mention-autocomplete {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.mention-autocomplete--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Input */
+.mention-autocomplete-input {
+  background: var(--bg-secondary, #1e1e1e);
+  border: 1px solid var(--border-color, #404040);
+  border-radius: 6px;
+  color: var(--text-color, #e0e0e0);
+  font-size: 13px;
+  padding: 8px 10px;
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.5;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.mention-autocomplete-input::placeholder {
+  color: var(--text-secondary, #aaa);
+}
+
+.mention-autocomplete-input:focus {
+  border-color: var(--accent-color, #4a90d9);
+  box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
+}
+
+.mention-autocomplete-input:disabled {
+  cursor: not-allowed;
+}
+
+/* Dropdown */
+.mention-autocomplete-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  z-index: 600;
+  margin-bottom: 4px;
+  background: var(--bg-secondary, #1e1e1e);
+  border: 1px solid var(--border-color, #404040);
+  border-radius: 8px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
+  list-style: none;
+  margin-top: 0;
+  padding: 4px 0;
+  max-height: 240px;
+  overflow-y: auto;
+  animation: mention-slide-in 0.12s ease-out;
+}
+
+@keyframes mention-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Option */
+.mention-autocomplete-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  color: var(--text-color, #e0e0e0);
+  font-size: 13px;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.mention-autocomplete-option--active {
+  background: var(--hover-bg, #333);
+}
+
+/* Option icon */
+.mention-autocomplete-option-icon {
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+/* Option content */
+.mention-autocomplete-option-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mention-autocomplete-option-label {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--accent-color, #4a90d9);
+}
+
+.mention-autocomplete-option-description {
+  font-size: 11px;
+  color: var(--text-secondary, #aaa);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
