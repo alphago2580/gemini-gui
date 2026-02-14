@@ -5,11 +5,11 @@ import Toast from './Toast';
 import type { ToastMessage } from './Toast';
 
 describe('Toast', () => {
-  let mockDismiss: ReturnType<typeof vi.fn>;
+  let mockDismiss: ReturnType<typeof vi.fn<(id: string) => void>>;
 
   beforeEach(() => {
     vi.useFakeTimers();
-    mockDismiss = vi.fn();
+    mockDismiss = vi.fn<(id: string) => void>();
   });
 
   afterEach(() => {
@@ -159,7 +159,7 @@ describe('Toast', () => {
   });
 
   it('auto-dismiss timer is cleaned up on unmount', () => {
-    const dismissFn = vi.fn();
+    const dismissFn = vi.fn<(id: string) => void>();
     const toasts = [createToast({ id: 'cleanup-test' })];
     const { unmount } = render(<Toast toasts={toasts} onDismiss={dismissFn} />);
     // Advance only 1 second (not enough for auto-dismiss at 5000ms)
@@ -456,7 +456,7 @@ describe('Toast', () => {
 
   describe('pause on hover', () => {
     it('pauses auto-dismiss timer on mouse enter when pauseOnHover is true', () => {
-      const dismissFn = vi.fn();
+      const dismissFn = vi.fn<(id: string) => void>();
       const toasts = [createToast({ id: 'hover-pause' })];
       const { container } = render(
         <Toast toasts={toasts} onDismiss={dismissFn} pauseOnHover={true} />
@@ -473,7 +473,7 @@ describe('Toast', () => {
     });
 
     it('resumes auto-dismiss timer on mouse leave after hover', () => {
-      const dismissFn = vi.fn();
+      const dismissFn = vi.fn<(id: string) => void>();
       const toasts = [createToast({ id: 'hover-resume' })];
       const { container } = render(
         <Toast toasts={toasts} onDismiss={dismissFn} pauseOnHover={true} />
@@ -495,7 +495,7 @@ describe('Toast', () => {
     });
 
     it('does not pause timer when pauseOnHover is false (default)', () => {
-      const dismissFn = vi.fn();
+      const dismissFn = vi.fn<(id: string) => void>();
       const toasts = [createToast({ id: 'no-hover-pause' })];
       const { container } = render(
         <Toast toasts={toasts} onDismiss={dismissFn} />
@@ -511,7 +511,7 @@ describe('Toast', () => {
     });
 
     it('does not pause timer when pauseOnHover is explicitly false', () => {
-      const dismissFn = vi.fn();
+      const dismissFn = vi.fn<(id: string) => void>();
       const toasts = [createToast({ id: 'explicit-no-pause' })];
       const { container } = render(
         <Toast toasts={toasts} onDismiss={dismissFn} pauseOnHover={false} />
