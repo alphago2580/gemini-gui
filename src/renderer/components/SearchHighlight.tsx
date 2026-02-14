@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import './SearchHighlight.css';
 import * as S from '../constants/strings';
 
@@ -95,7 +95,7 @@ const SearchHighlight: React.FC<SearchHighlightProps> = ({
   );
 
   // Notify parent of match count
-  useMemo(() => {
+  useEffect(() => {
     onMatchCount?.(matchCount);
   }, [matchCount, onMatchCount]);
 
