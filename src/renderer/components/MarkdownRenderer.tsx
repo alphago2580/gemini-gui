@@ -348,6 +348,8 @@ const MarkdownRendererInner: React.FC<MarkdownRendererProps> = ({ content }) => 
           const tokens = language
             ? tokenize(block.content, language)
             : null;
+          const lineCount = block.content.split('\n').length;
+          const showLineNumbers = lineCount >= 2;
           return (
             <pre key={index} className="md-code-block">
               <div className="md-code-header">
@@ -358,16 +360,25 @@ const MarkdownRendererInner: React.FC<MarkdownRendererProps> = ({ content }) => 
                 )}
                 <CopyButton text={block.content} />
               </div>
-              <code>
-                {tokens
-                  ? tokens.map((token, ti) =>
-                      token.type === 'text'
-                        ? token.value
-                        : <span key={ti} className={`sh-${token.type}`}>{token.value}</span>
-                    )
-                  : block.content
-                }
-              </code>
+              <div className="md-code-body">
+                {showLineNumbers && (
+                  <div className="md-line-numbers" aria-hidden="true">
+                    {Array.from({ length: lineCount }, (_, i) => (
+                      <span key={i} className="md-line-number">{i + 1}</span>
+                    ))}
+                  </div>
+                )}
+                <code>
+                  {tokens
+                    ? tokens.map((token, ti) =>
+                        token.type === 'text'
+                          ? token.value
+                          : <span key={ti} className={`sh-${token.type}`}>{token.value}</span>
+                      )
+                    : block.content
+                  }
+                </code>
+              </div>
             </pre>
           );
         }
