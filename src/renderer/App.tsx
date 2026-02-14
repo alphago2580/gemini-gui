@@ -60,6 +60,7 @@ import type { AvatarGroupItem } from './components/AvatarGroup';
 import Divider from './components/Divider';
 import CountdownTimer from './components/CountdownTimer';
 import Pagination from './components/Pagination';
+import MessageList from './components/MessageList';
 import Switch from './components/Switch';
 import Stepper from './components/Stepper';
 import type { StepItem } from './components/Stepper';
@@ -239,22 +240,7 @@ const App: React.FC = () => {
     setMessageTags(prev => ({ ...prev, [messageId]: tags }));
   }, [setMessageTags]);
 
-  // Message pagination
-  const MESSAGES_PER_PAGE = 50;
-  const [messagePage, setMessagePage] = useState(1);
-  const totalMessagePages = useMemo(() => Math.max(1, Math.ceil(messages.length / MESSAGES_PER_PAGE)), [messages.length]);
-  const paginatedMessages = useMemo(() => {
-    if (messages.length <= MESSAGES_PER_PAGE) return messages;
-    const start = (messagePage - 1) * MESSAGES_PER_PAGE;
-    return messages.slice(start, start + MESSAGES_PER_PAGE);
-  }, [messages, messagePage]);
-
-  // Reset to last page on new messages
-  useEffect(() => {
-    if (messages.length > 0) {
-      setMessagePage(Math.max(1, Math.ceil(messages.length / MESSAGES_PER_PAGE)));
-    }
-  }, [messages.length]);
+  // Message rendering handled by MessageList with infinite scroll
 
   // Inline search (Ctrl+F within conversation)
   const inlineSearch = useInlineSearch(messages);
@@ -777,35 +763,21 @@ const App: React.FC = () => {
             onNavigate={msgActions.handleNavigateToMessage}
             onUnpin={msgActions.handleUnpinMessage}
           />
-          {totalMessagePages > 1 && (
-            <div className="pagination-container">
-              <Pagination
-                currentPage={messagePage}
-                totalPages={totalMessagePages}
-                onPageChange={setMessagePage}
-                siblingCount={1}
-                showFirstLast={true}
-              />
-              <NumberInput
-                value={messagePage}
-                onChange={(v) => setMessagePage(Math.max(1, Math.min(v, totalMessagePages)))}
-                min={1}
-                max={totalMessagePages}
-                size="small"
-                ariaLabel={S.PAGE_JUMP_ARIA}
-              />
-            </div>
-          )}
-          <div className={`messages${viewMode === 'compact' ? ' messages--compact' : ''}`} role="log" aria-label={S.ARIA_MESSAGE_LOG} aria-live="polite" ref={messagesContainerRef} onScroll={handleScrollWithProgress}>
-            <ReadingProgressBar progress={readingProgress} isVisible={messages.length > 0} />
-            {messages.length === 0 && (
+          <MessageList
+            messages={messages}
+            containerRef={messagesContainerRef}
+            onScroll={handleScrollWithProgress}
+            viewMode={viewMode as 'chat' | 'compact'}
+            ariaLabel={S.ARIA_MESSAGE_LOG}
+            isLoading={isLoading}
+            renderEmpty={() => (
               <>
+                <ReadingProgressBar progress={readingProgress} isVisible={false} />
                 <Stepper steps={onboardingSteps} activeStep={onboardingStep} orientation="horizontal" />
                 <WelcomeScreen onPromptClick={(prompt) => setInput(prompt)} />
               </>
             )}
-            {paginatedMessages.map((message, index) => {
-              const globalIndex = (messagePage - 1) * MESSAGES_PER_PAGE + index;
+            renderMessage={(message, globalIndex) => {
               const msgReactions = currentConversationId ? msgActions.getReactions(currentConversationId, globalIndex) : [];
               return (
                 <div key={message.id || globalIndex} data-message-index={globalIndex} onContextMenu={(e) => msgActions.handleMessageContextMenu(e, globalIndex)}>
@@ -858,14 +830,14 @@ const App: React.FC = () => {
                   )}
                 </div>
               );
-            })}
-            {isLoading && !isStreaming && (
-              <div className="skeleton-loading-placeholder">
-                <Skeleton variant="text" lines={3} />
-              </div>
-            )}
-            {isLoading && (
+            }}
+            renderLoading={() => (
               <>
+                {!isStreaming && (
+                  <div className="skeleton-loading-placeholder">
+                    <Skeleton variant="text" lines={3} />
+                  </div>
+                )}
                 <TypingIndicator isStreaming={isStreaming} />
                 <CountdownTimer
                   duration={60}
@@ -877,50 +849,55 @@ const App: React.FC = () => {
                 />
               </>
             )}
-            {tokenUsage && !isLoading && (
-              <Collapsible
-                title={S.COLLAPSIBLE_TOKEN_DETAILS}
-                size="small"
-                variant="bordered"
-                icon={<span>📊</span>}
-              >
-                <TokenUsage usage={tokenUsage} maxTokens={settings.maxTokens} />
-                <ProgressBar
-                  value={tokenUsage.totalTokens}
-                  max={settings.maxTokens}
-                  label={S.TOKEN_PROGRESS_LABEL}
-                  showPercentage={true}
-                  variant={tokenUsage.totalTokens / settings.maxTokens > 0.9 ? 'error' : tokenUsage.totalTokens / settings.maxTokens > 0.7 ? 'warning' : 'default'}
-                  size="small"
-                />
-                <MeterBar
-                  value={tokenUsage.totalTokens}
-                  max={settings.maxTokens}
-                  low={settings.maxTokens * 0.3}
-                  high={settings.maxTokens * 0.7}
-                  optimum={settings.maxTokens * 0.5}
-                  size="small"
-                  showValue={true}
-                  label={S.METER_MEMORY_LABEL}
-                  formatValue={(v) => `${Math.round(v / 1000)}K`}
-                />
-              </Collapsible>
-            )}
-            {!isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
+            renderFooter={() => (
               <>
-                <Divider spacing="small" variant="dashed" label={S.DIVIDER_TOKEN_LABEL} />
-                <button
-                  className="regenerate-btn"
-                  onClick={handleRegenerate}
-                  aria-label={S.ARIA_REGENERATE}
-                  title={S.REGENERATE_TITLE}
-                >
-                  {S.REGENERATE_BUTTON}
-                </button>
+                <ReadingProgressBar progress={readingProgress} isVisible={messages.length > 0} />
+                {tokenUsage && !isLoading && (
+                  <Collapsible
+                    title={S.COLLAPSIBLE_TOKEN_DETAILS}
+                    size="small"
+                    variant="bordered"
+                    icon={<span>📊</span>}
+                  >
+                    <TokenUsage usage={tokenUsage} maxTokens={settings.maxTokens} />
+                    <ProgressBar
+                      value={tokenUsage.totalTokens}
+                      max={settings.maxTokens}
+                      label={S.TOKEN_PROGRESS_LABEL}
+                      showPercentage={true}
+                      variant={tokenUsage.totalTokens / settings.maxTokens > 0.9 ? 'error' : tokenUsage.totalTokens / settings.maxTokens > 0.7 ? 'warning' : 'default'}
+                      size="small"
+                    />
+                    <MeterBar
+                      value={tokenUsage.totalTokens}
+                      max={settings.maxTokens}
+                      low={settings.maxTokens * 0.3}
+                      high={settings.maxTokens * 0.7}
+                      optimum={settings.maxTokens * 0.5}
+                      size="small"
+                      showValue={true}
+                      label={S.METER_MEMORY_LABEL}
+                      formatValue={(v) => `${Math.round(v / 1000)}K`}
+                    />
+                  </Collapsible>
+                )}
+                {!isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
+                  <>
+                    <Divider spacing="small" variant="dashed" label={S.DIVIDER_TOKEN_LABEL} />
+                    <button
+                      className="regenerate-btn"
+                      onClick={handleRegenerate}
+                      aria-label={S.ARIA_REGENERATE}
+                      title={S.REGENERATE_TITLE}
+                    >
+                      {S.REGENERATE_BUTTON}
+                    </button>
+                  </>
+                )}
+                <div ref={messagesEndRef} />
               </>
             )}
-            <div ref={messagesEndRef} />
-          </div>
+          />
 
           <ScrollToTop
             scrollTarget={messagesContainerRef}
