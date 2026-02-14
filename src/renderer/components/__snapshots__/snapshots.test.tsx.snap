@@ -571,9 +571,7 @@ exports[`Snapshot Tests — Key Components > Settings > matches snapshot when op
         <div
           class="setting-group"
         >
-          <label
-            for="system-prompt"
-          >
+          <label>
             시스템 프롬프트
             <span
               class="hint"
@@ -581,13 +579,129 @@ exports[`Snapshot Tests — Key Components > Settings > matches snapshot when op
               AI의 동작을 지시하는 시스템 메시지
             </span>
           </label>
-          <textarea
-            aria-label="시스템 프롬프트"
-            class="system-prompt-input"
-            id="system-prompt"
-            placeholder="예: 당신은 친절한 한국어 튜터입니다..."
-            rows="4"
-          />
+          <div
+            aria-label="마크다운 에디터"
+            class="markdown-editor"
+          >
+            <div
+              class="markdown-editor-header"
+            >
+              <div
+                aria-label="마크다운 에디터"
+                class="markdown-editor-tabs"
+                role="tablist"
+              >
+                <button
+                  aria-selected="true"
+                  class="markdown-editor-tab active"
+                  role="tab"
+                  type="button"
+                >
+                  작성
+                </button>
+                <button
+                  aria-selected="false"
+                  class="markdown-editor-tab"
+                  role="tab"
+                  type="button"
+                >
+                  미리보기
+                </button>
+                <button
+                  aria-selected="false"
+                  class="markdown-editor-tab"
+                  role="tab"
+                  type="button"
+                >
+                  분할
+                </button>
+              </div>
+              <div
+                aria-label="서식 도구"
+                class="markdown-editor-toolbar"
+                role="toolbar"
+              >
+                <button
+                  aria-label="굵게"
+                  class="markdown-toolbar-btn"
+                  title="굵게"
+                  type="button"
+                >
+                  B
+                </button>
+                <button
+                  aria-label="기울임"
+                  class="markdown-toolbar-btn"
+                  title="기울임"
+                  type="button"
+                >
+                  I
+                </button>
+                <button
+                  aria-label="인라인 코드"
+                  class="markdown-toolbar-btn"
+                  title="인라인 코드"
+                  type="button"
+                >
+                  \`
+                </button>
+                <button
+                  aria-label="링크"
+                  class="markdown-toolbar-btn"
+                  title="링크"
+                  type="button"
+                >
+                  🔗
+                </button>
+                <div
+                  aria-hidden="true"
+                  class="markdown-toolbar-divider"
+                />
+                <button
+                  aria-label="제목"
+                  class="markdown-toolbar-btn"
+                  title="제목"
+                  type="button"
+                >
+                  H
+                </button>
+                <button
+                  aria-label="목록"
+                  class="markdown-toolbar-btn"
+                  title="목록"
+                  type="button"
+                >
+                  •
+                </button>
+                <button
+                  aria-label="인용"
+                  class="markdown-toolbar-btn"
+                  title="인용"
+                  type="button"
+                >
+                  &gt;
+                </button>
+                <button
+                  aria-label="코드 블록"
+                  class="markdown-toolbar-btn"
+                  title="코드 블록"
+                  type="button"
+                >
+                  { }
+                </button>
+              </div>
+            </div>
+            <div
+              class="markdown-editor-body"
+            >
+              <textarea
+                aria-label="마크다운 입력"
+                class="markdown-editor-input"
+                placeholder="예: 당신은 친절한 한국어 튜터입니다..."
+                style="min-height: 100px;"
+              />
+            </div>
+          </div>
         </div>
       </div>
       <div

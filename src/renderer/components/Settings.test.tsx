@@ -1,7 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import React from 'react';
 import Settings from './Settings';
+
+// Mock MarkdownRenderer used by MarkdownEditor
+vi.mock('./MarkdownRenderer', () => ({
+  default: ({ content }: { content: string }) => (
+    <div data-testid="markdown-rendered">{content}</div>
+  ),
+}));
 
 describe('Settings', () => {
   const defaultSettings = {
@@ -39,9 +46,10 @@ describe('Settings', () => {
   });
 
   describe('Tab Navigation', () => {
-    it('renders four tab buttons', () => {
+    it('renders four settings tab buttons', () => {
       render(<Settings {...defaultProps} />);
-      const tabs = screen.getAllByRole('tab');
+      const tablist = screen.getByRole('tablist', { name: '설정 카테고리' });
+      const tabs = within(tablist).getAllByRole('tab');
       expect(tabs).toHaveLength(4);
     });
 
@@ -91,14 +99,14 @@ describe('Settings', () => {
 
     it('supports keyboard navigation with ArrowRight', () => {
       render(<Settings {...defaultProps} />);
-      const tablist = screen.getByRole('tablist');
+      const tablist = screen.getByRole('tablist', { name: '설정 카테고리' });
       fireEvent.keyDown(tablist, { key: 'ArrowRight' });
       expect(screen.getByRole('tab', { name: '외관' })).toHaveAttribute('aria-selected', 'true');
     });
 
     it('supports keyboard navigation with ArrowLeft wrapping', () => {
       render(<Settings {...defaultProps} />);
-      const tablist = screen.getByRole('tablist');
+      const tablist = screen.getByRole('tablist', { name: '설정 카테고리' });
       fireEvent.keyDown(tablist, { key: 'ArrowLeft' });
       expect(screen.getByRole('tab', { name: '고급' })).toHaveAttribute('aria-selected', 'true');
     });
@@ -106,14 +114,14 @@ describe('Settings', () => {
     it('supports Home key to go to first tab', () => {
       render(<Settings {...defaultProps} />);
       fireEvent.click(screen.getByRole('tab', { name: '고급' }));
-      const tablist = screen.getByRole('tablist');
+      const tablist = screen.getByRole('tablist', { name: '설정 카테고리' });
       fireEvent.keyDown(tablist, { key: 'Home' });
       expect(screen.getByRole('tab', { name: '일반' })).toHaveAttribute('aria-selected', 'true');
     });
 
     it('supports End key to go to last tab', () => {
       render(<Settings {...defaultProps} />);
-      const tablist = screen.getByRole('tablist');
+      const tablist = screen.getByRole('tablist', { name: '설정 카테고리' });
       fireEvent.keyDown(tablist, { key: 'End' });
       expect(screen.getByRole('tab', { name: '고급' })).toHaveAttribute('aria-selected', 'true');
     });
@@ -180,14 +188,14 @@ describe('Settings', () => {
       );
     });
 
-    it('renders system prompt textarea', () => {
-      render(<Settings {...defaultProps} />);
-      expect(screen.getByLabelText('시스템 프롬프트')).toBeInTheDocument();
+    it('renders system prompt markdown editor', () => {
+      const { container } = render(<Settings {...defaultProps} />);
+      expect(container.querySelector('.markdown-editor')).toBeInTheDocument();
     });
 
-    it('displays placeholder text in system prompt textarea', () => {
+    it('displays placeholder text in system prompt editor', () => {
       render(<Settings {...defaultProps} />);
-      const textarea = screen.getByLabelText('시스템 프롬프트');
+      const textarea = screen.getByLabelText('마크다운 입력');
       expect(textarea).toHaveAttribute('placeholder', '예: 당신은 친절한 한국어 튜터입니다...');
     });
 
@@ -199,13 +207,13 @@ describe('Settings', () => {
     it('shows current system prompt value', () => {
       const settingsWithPrompt = { ...defaultSettings, systemPrompt: 'You are a helpful assistant' };
       render(<Settings {...defaultProps} settings={settingsWithPrompt} />);
-      const textarea = screen.getByLabelText('시스템 프롬프트');
+      const textarea = screen.getByLabelText('마크다운 입력');
       expect(textarea).toHaveValue('You are a helpful assistant');
     });
 
     it('updates system prompt and saves correctly', () => {
       render(<Settings {...defaultProps} />);
-      const textarea = screen.getByLabelText('시스템 프롬프트');
+      const textarea = screen.getByLabelText('마크다운 입력');
       fireEvent.change(textarea, { target: { value: 'New system prompt' } });
       fireEvent.click(screen.getByText('저장'));
       expect(defaultProps.onSave).toHaveBeenCalledWith(
@@ -228,7 +236,7 @@ describe('Settings', () => {
       const settingsWithPrompt = { ...defaultSettings, systemPrompt: 'Some prompt' };
       render(<Settings {...defaultProps} settings={settingsWithPrompt} />);
       fireEvent.click(screen.getByRole('button', { name: '시스템 프롬프트 초기화' }));
-      const textarea = screen.getByLabelText('시스템 프롬프트');
+      const textarea = screen.getByLabelText('마크다운 입력');
       expect(textarea).toHaveValue('');
     });
 
@@ -242,10 +250,25 @@ describe('Settings', () => {
       );
     });
 
-    it('system prompt textarea has rows=4', () => {
+    it('system prompt editor has write/preview/split mode tabs', () => {
+      const { container } = render(<Settings {...defaultProps} />);
+      const editor = container.querySelector('.markdown-editor');
+      const editorTabs = editor!.querySelectorAll('[role="tab"]');
+      expect(editorTabs).toHaveLength(3);
+    });
+
+    it('system prompt editor shows formatting toolbar', () => {
+      const { container } = render(<Settings {...defaultProps} />);
+      const editor = container.querySelector('.markdown-editor');
+      const toolbar = editor!.querySelector('[role="toolbar"]');
+      expect(toolbar).toBeInTheDocument();
+    });
+
+    it('system prompt editor starts in write mode with textarea visible', () => {
       render(<Settings {...defaultProps} />);
-      const textarea = screen.getByLabelText('시스템 프롬프트') as HTMLTextAreaElement;
-      expect(textarea.rows).toBe(4);
+      const textarea = screen.getByLabelText('마크다운 입력');
+      expect(textarea).toBeInTheDocument();
+      expect(textarea.tagName).toBe('TEXTAREA');
     });
   });
 
