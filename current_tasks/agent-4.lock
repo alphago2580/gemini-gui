@@ -1,1 +1,1 @@
-integrate-search-highlight — SearchHighlight를 InlineSearch/MessageBubble에 통합하여 검색 결과 하이라이팅
+integrate-collapsible-codeblock — CollapsibleCodeBlock을 MarkdownRenderer에 통합하여 긴 코드블록 자동 접기

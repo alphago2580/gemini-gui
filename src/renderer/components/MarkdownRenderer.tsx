@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import SearchHighlight from './SearchHighlight';
+import CollapsibleCodeBlock from './CollapsibleCodeBlock';
 import './MarkdownRenderer.css';
 import { tokenize } from '../utils/syntaxHighlight';
 import { renderMathToHtml } from '../utils/mathRenderer';
@@ -375,6 +376,28 @@ const MarkdownRendererInner: React.FC<MarkdownRendererProps> = ({ content, searc
             : null;
           const lineCount = block.content.split('\n').length;
           const showLineNumbers = lineCount >= 2;
+          const codeBody = (
+            <div className="md-code-body">
+              {showLineNumbers && (
+                <div className="md-line-numbers" aria-hidden="true">
+                  {Array.from({ length: lineCount }, (_, i) => (
+                    <span key={i} className="md-line-number">{i + 1}</span>
+                  ))}
+                </div>
+              )}
+              <code>
+                {tokens
+                  ? tokens.map((token, ti) =>
+                      token.type === 'text'
+                        ? token.value
+                        : <span key={ti} className={`sh-${token.type}`}>{token.value}</span>
+                    )
+                  : block.content
+                }
+              </code>
+            </div>
+          );
+
           return (
             <pre key={index} className="md-code-block">
               <div className="md-code-header">
@@ -385,25 +408,12 @@ const MarkdownRendererInner: React.FC<MarkdownRendererProps> = ({ content, searc
                 )}
                 <CopyButton text={block.content} />
               </div>
-              <div className="md-code-body">
-                {showLineNumbers && (
-                  <div className="md-line-numbers" aria-hidden="true">
-                    {Array.from({ length: lineCount }, (_, i) => (
-                      <span key={i} className="md-line-number">{i + 1}</span>
-                    ))}
-                  </div>
-                )}
-                <code>
-                  {tokens
-                    ? tokens.map((token, ti) =>
-                        token.type === 'text'
-                          ? token.value
-                          : <span key={ti} className={`sh-${token.type}`}>{token.value}</span>
-                      )
-                    : block.content
-                  }
-                </code>
-              </div>
+              <CollapsibleCodeBlock
+                code={block.content}
+                language={language}
+              >
+                {codeBody}
+              </CollapsibleCodeBlock>
             </pre>
           );
         }

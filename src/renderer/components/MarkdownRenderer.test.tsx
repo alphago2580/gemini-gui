@@ -736,4 +736,91 @@ describe('MarkdownRenderer', () => {
       expect(lineNumberContainers[1].querySelectorAll('.md-line-number').length).toBe(2);
     });
   });
+
+  describe('Collapsible code blocks', () => {
+    it('does not show collapse toggle for short code blocks', () => {
+      const lines = Array.from({ length: 5 }, (_, i) => `line ${i + 1}`).join('\n');
+      const content = '```js\n' + lines + '\n```';
+      render(<MarkdownRenderer content={content} />);
+      const toggle = screen.queryByRole('button', { name: /코드 블록 펼치기|코드 블록 접기/ });
+      expect(toggle).not.toBeInTheDocument();
+    });
+
+    it('does not show collapse toggle for exactly 15 lines', () => {
+      const lines = Array.from({ length: 15 }, (_, i) => `line ${i + 1}`).join('\n');
+      const content = '```js\n' + lines + '\n```';
+      render(<MarkdownRenderer content={content} />);
+      const toggle = screen.queryByRole('button', { name: /코드 블록 펼치기|코드 블록 접기/ });
+      expect(toggle).not.toBeInTheDocument();
+    });
+
+    it('shows collapse toggle for code blocks over 15 lines', () => {
+      const lines = Array.from({ length: 20 }, (_, i) => `line ${i + 1}`).join('\n');
+      const content = '```js\n' + lines + '\n```';
+      render(<MarkdownRenderer content={content} />);
+      const toggle = screen.getByRole('button', { name: '코드 블록 펼치기' });
+      expect(toggle).toBeInTheDocument();
+    });
+
+    it('shows hidden line count in toggle button', () => {
+      const lines = Array.from({ length: 20 }, (_, i) => `line ${i + 1}`).join('\n');
+      const content = '```js\n' + lines + '\n```';
+      render(<MarkdownRenderer content={content} />);
+      // 20 lines - 15 visible = 5 hidden
+      expect(screen.getByText('5줄 숨김')).toBeInTheDocument();
+    });
+
+    it('expands code block when toggle is clicked', () => {
+      const lines = Array.from({ length: 20 }, (_, i) => `line ${i + 1}`).join('\n');
+      const content = '```js\n' + lines + '\n```';
+      render(<MarkdownRenderer content={content} />);
+      const toggle = screen.getByRole('button', { name: '코드 블록 펼치기' });
+      fireEvent.click(toggle);
+      // After expanding, button label should change to collapse
+      expect(screen.getByRole('button', { name: '코드 블록 접기' })).toBeInTheDocument();
+    });
+
+    it('collapses code block when toggle is clicked twice', () => {
+      const lines = Array.from({ length: 20 }, (_, i) => `line ${i + 1}`).join('\n');
+      const content = '```js\n' + lines + '\n```';
+      render(<MarkdownRenderer content={content} />);
+      const toggle = screen.getByRole('button', { name: '코드 블록 펼치기' });
+      fireEvent.click(toggle);
+      fireEvent.click(screen.getByRole('button', { name: '코드 블록 접기' }));
+      expect(screen.getByRole('button', { name: '코드 블록 펼치기' })).toBeInTheDocument();
+    });
+
+    it('preserves code content in collapsible blocks', () => {
+      const lines = Array.from({ length: 20 }, (_, i) => `const x${i} = ${i};`).join('\n');
+      const content = '```js\n' + lines + '\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const code = container.querySelector('code');
+      expect(code?.textContent).toBe(lines);
+    });
+
+    it('shows fade overlay when collapsed', () => {
+      const lines = Array.from({ length: 20 }, (_, i) => `line ${i + 1}`).join('\n');
+      const content = '```js\n' + lines + '\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const fade = container.querySelector('.collapsible-code-block__fade');
+      expect(fade).toBeInTheDocument();
+    });
+
+    it('hides fade overlay when expanded', () => {
+      const lines = Array.from({ length: 20 }, (_, i) => `line ${i + 1}`).join('\n');
+      const content = '```js\n' + lines + '\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      fireEvent.click(screen.getByRole('button', { name: '코드 블록 펼치기' }));
+      const fade = container.querySelector('.collapsible-code-block__fade');
+      expect(fade).not.toBeInTheDocument();
+    });
+
+    it('wraps code blocks without language in CollapsibleCodeBlock', () => {
+      const lines = Array.from({ length: 20 }, (_, i) => `line ${i + 1}`).join('\n');
+      const content = '```\n' + lines + '\n```';
+      render(<MarkdownRenderer content={content} />);
+      const toggle = screen.getByRole('button', { name: '코드 블록 펼치기' });
+      expect(toggle).toBeInTheDocument();
+    });
+  });
 });
