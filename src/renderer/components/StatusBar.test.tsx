@@ -190,8 +190,8 @@ describe('StatusBar', () => {
     expect(screen.getByText('UTF-8')).toBeInTheDocument();
     // Should not have model or tokens
     const items = container.querySelectorAll('.status-bar-item');
-    // Session (left) + encoding (right) = at minimum 2
-    expect(items.length).toBeGreaterThanOrEqual(2);
+    // Session (left) + idle indicator (left) + encoding (right) = at minimum 3
+    expect(items.length).toBeGreaterThanOrEqual(3);
   });
 
   it('session title attribute shows status label', () => {
@@ -237,5 +237,56 @@ describe('StatusBar', () => {
     const tokensItem = container.querySelector('.status-bar-tokens');
     expect(tokensItem).toBeInTheDocument();
     expect(tokensItem?.querySelector('.sparkline')).toBeInTheDocument();
+  });
+
+  // --- User idle indicator ---
+
+  it('shows active status by default when isUserIdle is not provided', () => {
+    render(<StatusBar sessionStatus="idle" />);
+    expect(screen.getByText('활성')).toBeInTheDocument();
+  });
+
+  it('shows active status when isUserIdle is false', () => {
+    render(<StatusBar sessionStatus="idle" isUserIdle={false} />);
+    expect(screen.getByText('활성')).toBeInTheDocument();
+  });
+
+  it('shows idle status when isUserIdle is true', () => {
+    render(<StatusBar sessionStatus="idle" isUserIdle={true} />);
+    expect(screen.getByText('자리 비움')).toBeInTheDocument();
+  });
+
+  it('renders active-user dot class when not idle', () => {
+    const { container } = render(<StatusBar sessionStatus="idle" isUserIdle={false} />);
+    const dot = container.querySelector('.status-bar-dot--active-user');
+    expect(dot).toBeInTheDocument();
+  });
+
+  it('renders idle-user dot class when idle', () => {
+    const { container } = render(<StatusBar sessionStatus="idle" isUserIdle={true} />);
+    const dot = container.querySelector('.status-bar-dot--idle-user');
+    expect(dot).toBeInTheDocument();
+  });
+
+  it('idle indicator dot has aria-hidden', () => {
+    const { container } = render(<StatusBar sessionStatus="idle" isUserIdle={true} />);
+    const dot = container.querySelector('.status-bar-dot--idle-user');
+    expect(dot).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('idle indicator has title attribute matching label', () => {
+    const { container } = render(<StatusBar sessionStatus="idle" isUserIdle={true} />);
+    const dots = container.querySelectorAll('.status-bar-dot');
+    // Second dot is the idle indicator
+    const idleDot = dots[1];
+    const idleItem = idleDot?.closest('.status-bar-item');
+    expect(idleItem).toHaveAttribute('title', '자리 비움');
+  });
+
+  it('active indicator has title attribute matching label', () => {
+    const { container } = render(<StatusBar sessionStatus="idle" isUserIdle={false} />);
+    const dot = container.querySelector('.status-bar-dot--active-user');
+    const item = dot?.closest('.status-bar-item');
+    expect(item).toHaveAttribute('title', '활성');
   });
 });
