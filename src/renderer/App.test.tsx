@@ -1196,12 +1196,12 @@ describe('App Component', () => {
             // Create conversation and add message
             await user.click(screen.getByText('새 대화'));
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            await user.type(input, 'Test message for deletion');
+            await user.type(input, 'Hi');
             await user.click(screen.getByText('전송'));
 
             // Verify message appears in message area (article)
             const articles = screen.getAllByRole('article');
-            expect(articles.some(a => a.textContent?.includes('Test message for deletion'))).toBe(true);
+            expect(articles.some(a => a.textContent?.includes('Hi'))).toBe(true);
 
             // Open dropdown menu and click delete
             const menuTrigger = screen.getByRole('button', { name: '대화 옵션' });
