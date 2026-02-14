@@ -35,6 +35,7 @@ import Skeleton from './components/Skeleton';
 import ConfirmDialog from './components/ConfirmDialog';
 import NotificationBanner from './components/NotificationBanner';
 import SessionIndicator from './components/SessionIndicator';
+import StatusBar from './components/StatusBar';
 import ProgressBar from './components/ProgressBar';
 import Drawer from './components/Drawer';
 import ScrollToTop from './components/ScrollToTop';
@@ -990,6 +991,11 @@ const App: React.FC = () => {
             <InputCharacterCounter text={input} isVisible={true} />
           </div>
         </div>
+        <StatusBar
+          sessionStatus={sessionStatus}
+          model={settings.model !== 'auto' ? (S.MODEL_DISPLAY_NAMES[settings.model] || settings.model) : undefined}
+          totalTokens={tokenUsage?.totalTokens}
+        />
       </main>
 
       <Settings
