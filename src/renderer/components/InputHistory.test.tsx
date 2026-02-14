@@ -4,19 +4,19 @@ import React from 'react';
 import InputHistory from './InputHistory';
 
 describe('InputHistory', () => {
-  let mockOnChange: ReturnType<typeof vi.fn>;
-  let mockOnSubmit: ReturnType<typeof vi.fn>;
+  let mockOnChange: ReturnType<typeof vi.fn<(value: string) => void>>;
+  let mockOnSubmit: ReturnType<typeof vi.fn<(value: string) => void>>;
 
   beforeEach(() => {
-    mockOnChange = vi.fn();
-    mockOnSubmit = vi.fn();
+    mockOnChange = vi.fn<(value: string) => void>();
+    mockOnSubmit = vi.fn<(value: string) => void>();
   });
 
   const defaultProps = {
     history: [] as string[],
     value: '',
-    onChange: vi.fn(),
-    onSubmit: vi.fn(),
+    onChange: vi.fn<(value: string) => void>(),
+    onSubmit: vi.fn<(value: string) => void>(),
   };
 
   it('renders textarea with placeholder', () => {

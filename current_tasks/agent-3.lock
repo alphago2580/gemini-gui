@@ -1,1 +1,1 @@
-fix-react-hooks-quality — Fix useMemo side effect, setTimeout leak, missing deps
+fix-inputhistory-test-types — InputHistory.test.tsx vi.fn() mock 타입 수정
