@@ -196,6 +196,9 @@ export const MATH_FORMULA_PREFIX = '수식:';
 // Toast
 export const ARIA_TOAST_CLOSE = '알림 닫기';
 export const ARIA_TOAST_CONTAINER = '알림';
+export const TOAST_MORE_COUNT = (count: number) => `+${count}개 더`;
+export const TOAST_DISMISS_ALL = '모두 닫기';
+export const ARIA_TOAST_DISMISS_ALL = '모든 알림 닫기';
 
 // ErrorBoundary
 export const ERROR_TITLE = '문제가 발생했습니다';

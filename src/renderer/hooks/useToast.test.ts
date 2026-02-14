@@ -151,4 +151,50 @@ describe('useToast', () => {
     expect(result.current.toasts[1].type).toBe('success');
     expect(result.current.toasts[2].type).toBe('info');
   });
+
+  describe('dismissAll', () => {
+    it('clears all toasts at once', () => {
+      const { result } = renderHook(() => useToast());
+      act(() => {
+        result.current.addToast('error', 'A');
+        result.current.addToast('success', 'B');
+        result.current.addToast('info', 'C');
+      });
+      expect(result.current.toasts).toHaveLength(3);
+      act(() => {
+        result.current.dismissAll();
+      });
+      expect(result.current.toasts).toHaveLength(0);
+    });
+
+    it('is a no-op when toasts are already empty', () => {
+      const { result } = renderHook(() => useToast());
+      act(() => {
+        result.current.dismissAll();
+      });
+      expect(result.current.toasts).toHaveLength(0);
+    });
+
+    it('dismissAll callback is stable across renders', () => {
+      const { result, rerender } = renderHook(() => useToast());
+      const firstDismissAllFn = result.current.dismissAll;
+      rerender();
+      expect(result.current.dismissAll).toBe(firstDismissAllFn);
+    });
+
+    it('can add toasts after dismissAll', () => {
+      const { result } = renderHook(() => useToast());
+      act(() => {
+        result.current.addToast('error', 'Before');
+      });
+      act(() => {
+        result.current.dismissAll();
+      });
+      act(() => {
+        result.current.addToast('success', 'After');
+      });
+      expect(result.current.toasts).toHaveLength(1);
+      expect(result.current.toasts[0].message).toBe('After');
+    });
+  });
 });

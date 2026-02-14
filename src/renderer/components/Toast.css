@@ -81,3 +81,27 @@
 .toast-close:hover {
   color: white;
 }
+
+.toast-dismiss-all {
+  align-self: flex-end;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toast-dismiss-all:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.toast-overflow {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding: 0.25rem 0;
+}
