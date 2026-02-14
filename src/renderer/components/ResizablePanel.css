@@ -1,0 +1,98 @@
+/* ResizablePanel — draggable split panel */
+
+.resizable-panel {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.resizable-panel--horizontal {
+  flex-direction: row;
+}
+
+.resizable-panel--vertical {
+  flex-direction: column;
+}
+
+/* Primary panel (resizable side) */
+.resizable-panel__primary {
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* Secondary panel (fills remaining space) */
+.resizable-panel__secondary {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Drag handle */
+.resizable-panel__handle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: background 0.15s;
+  position: relative;
+  z-index: 1;
+}
+
+.resizable-panel__handle--horizontal {
+  cursor: col-resize;
+  width: 6px;
+}
+
+.resizable-panel__handle--vertical {
+  cursor: row-resize;
+  height: 6px;
+}
+
+.resizable-panel__handle:hover {
+  background: var(--accent-primary);
+  opacity: 0.4;
+}
+
+.resizable-panel__handle:active {
+  background: var(--accent-primary);
+  opacity: 0.7;
+}
+
+.resizable-panel__handle:focus-visible {
+  outline: 2px solid var(--accent-highlight);
+  outline-offset: -1px;
+}
+
+/* Handle indicator (thin line) */
+.resizable-panel__handle-indicator {
+  background: var(--border-color);
+  border-radius: 1px;
+  transition: background 0.15s;
+}
+
+.resizable-panel__handle--horizontal .resizable-panel__handle-indicator {
+  width: 2px;
+  height: 24px;
+}
+
+.resizable-panel__handle--vertical .resizable-panel__handle-indicator {
+  height: 2px;
+  width: 24px;
+}
+
+.resizable-panel__handle:hover .resizable-panel__handle-indicator {
+  background: var(--accent-primary);
+}
+
+/* Disabled state */
+.resizable-panel--disabled .resizable-panel__handle {
+  cursor: default;
+  pointer-events: none;
+}
+
+.resizable-panel--disabled .resizable-panel__handle-indicator {
+  opacity: 0.3;
+}
