@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import CommandPalette from './CommandPalette';
@@ -12,6 +12,19 @@ const createCommands = (): Command[] => [
   { id: 'settings', label: '설정 열기', shortcut: 'Ctrl+,', action: vi.fn<() => void>() },
   { id: 'export', label: 'Markdown으로 내보내기', action: vi.fn<() => void>() },
 ];
+
+/**
+ * Helper to find a command option by its accessible name.
+ * Uses getByRole('option') which aggregates text across child elements
+ * (including <mark> highlight tags from fuzzy search).
+ */
+function getOption(name: string | RegExp): HTMLElement {
+  return screen.getByRole('option', { name });
+}
+
+function queryOption(name: string | RegExp): HTMLElement | null {
+  return screen.queryByRole('option', { name });
+}
 
 describe('CommandPalette', () => {
   let commands: Command[];
@@ -70,11 +83,13 @@ describe('CommandPalette', () => {
     const input = screen.getByPlaceholderText('명령어 검색...');
 
     await user.type(input, '대화');
-    expect(screen.getByText('새 대화')).toBeInTheDocument();
-    expect(screen.getByText('대화 지우기')).toBeInTheDocument();
-    expect(screen.getByText('대화 검색')).toBeInTheDocument();
-    expect(screen.queryByText('설정 열기')).not.toBeInTheDocument();
-    expect(screen.queryByText('Markdown으로 내보내기')).not.toBeInTheDocument();
+    // Commands containing "대화" should be visible (text may span <mark> elements)
+    expect(getOption(/새 대화/)).toBeInTheDocument();
+    expect(getOption(/대화 지우기/)).toBeInTheDocument();
+    expect(getOption(/대화 검색/)).toBeInTheDocument();
+    // Commands without "대화" should be filtered out
+    expect(queryOption(/설정 열기/)).not.toBeInTheDocument();
+    expect(queryOption(/Markdown으로 내보내기/)).not.toBeInTheDocument();
   });
 
   it('filters case-insensitively', async () => {
@@ -83,7 +98,7 @@ describe('CommandPalette', () => {
     const input = screen.getByPlaceholderText('명령어 검색...');
 
     await user.type(input, 'markdown');
-    expect(screen.getByText('Markdown으로 내보내기')).toBeInTheDocument();
+    expect(getOption(/Markdown으로 내보내기/)).toBeInTheDocument();
   });
 
   it('shows empty message when no commands match', async () => {
@@ -203,7 +218,7 @@ describe('CommandPalette', () => {
 
     // Type to filter — selection should reset to 0
     await user.type(input, '설정');
-    const settingsItem = screen.getByText('설정 열기').closest('li');
+    const settingsItem = getOption(/설정 열기/);
     expect(settingsItem).toHaveAttribute('aria-selected', 'true');
   });
 
@@ -308,7 +323,7 @@ describe('CommandPalette', () => {
       fireEvent.keyDown(input, { key: 'ArrowDown' });
     }
     await user.type(input, '설정');
-    const settingsItem = screen.getByText('설정 열기').closest('li');
+    const settingsItem = getOption(/설정 열기/);
     expect(settingsItem).toHaveAttribute('aria-selected', 'true');
   });
 
@@ -324,10 +339,10 @@ describe('CommandPalette', () => {
       const input = screen.getByPlaceholderText('명령어 검색...');
 
       await user.type(input, 'ㅅㅈ');
-      // "설정 열기" starts with ㅅㅈ
-      expect(screen.getByText('설정 열기')).toBeInTheDocument();
+      // "설정 열기" starts with ㅅㅈ (text may have <mark> highlights)
+      expect(getOption(/설정 열기/)).toBeInTheDocument();
       // Commands without ㅅㅈ chosung sequence should be filtered out
-      expect(screen.queryByText('새 대화')).not.toBeInTheDocument();
+      expect(queryOption(/새 대화/)).not.toBeInTheDocument();
     });
 
     it('matches chosung anywhere in label', async () => {
@@ -337,7 +352,7 @@ describe('CommandPalette', () => {
 
       await user.type(input, 'ㄱㅅ');
       // "대화 검색" contains ㄱㅅ in chosung
-      expect(screen.getByText('대화 검색')).toBeInTheDocument();
+      expect(getOption(/대화 검색/)).toBeInTheDocument();
     });
 
     it('executes chosung-filtered command on Enter', async () => {
@@ -357,6 +372,50 @@ describe('CommandPalette', () => {
 
       await user.type(input, 'ㅎㅎㅎ');
       expect(screen.getByText('일치하는 명령어가 없습니다')).toBeInTheDocument();
+    });
+  });
+
+  describe('Fuzzy search and match highlighting', () => {
+    it('ranks results by relevance score', async () => {
+      const user = userEvent.setup();
+      render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+      const input = screen.getByPlaceholderText('명령어 검색...');
+
+      await user.type(input, '대화');
+      const options = screen.getAllByRole('option');
+      // All three "대화" commands should be present
+      expect(options.length).toBe(3);
+    });
+
+    it('highlights matched characters with <mark> elements', async () => {
+      const user = userEvent.setup();
+      const { container } = render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+      const input = screen.getByPlaceholderText('명령어 검색...');
+
+      await user.type(input, 'ㅅㅈ');
+      const marks = container.querySelectorAll('mark.command-match');
+      expect(marks.length).toBeGreaterThan(0);
+    });
+
+    it('does not highlight when no query', () => {
+      const { container } = render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+      const marks = container.querySelectorAll('mark.command-match');
+      expect(marks.length).toBe(0);
+    });
+
+    it('matches subsequences (fuzzy), not just substrings', async () => {
+      const user = userEvent.setup();
+      const cmds: Command[] = [
+        { id: 'abc', label: 'abcdef', action: vi.fn<() => void>() },
+        { id: 'xyz', label: 'xyz', action: vi.fn<() => void>() },
+      ];
+      render(<CommandPalette isOpen={true} onClose={vi.fn()} commands={cmds} />);
+      const input = screen.getByPlaceholderText('명령어 검색...');
+
+      // "adf" is a subsequence of "abcdef" but not a substring
+      await user.type(input, 'adf');
+      expect(getOption(/abcdef/)).toBeInTheDocument();
+      expect(queryOption(/xyz/)).not.toBeInTheDocument();
     });
   });
 });

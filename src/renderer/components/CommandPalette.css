@@ -94,6 +94,12 @@
   font-family: monospace;
 }
 
+.command-match {
+  background: transparent;
+  color: var(--accent-highlight);
+  font-weight: 600;
+}
+
 .command-palette-empty {
   padding: 1.5rem;
   text-align: center;

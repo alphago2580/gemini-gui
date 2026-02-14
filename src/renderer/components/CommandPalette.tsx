@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import './CommandPalette.css';
 import * as S from '../constants/strings';
-import { chosungMatch } from '../utils/chosungSearch';
+import { fuzzySearchBy } from '../utils/fuzzySearch';
+import type { FuzzyMatch } from '../utils/fuzzySearch';
 
 export interface Command {
   id: string;
@@ -16,16 +17,74 @@ export interface CommandPaletteProps {
   commands: Command[];
 }
 
+interface MatchedCommand {
+  command: Command;
+  matchedIndices: number[];
+}
+
+/**
+ * Render a label with matched characters highlighted.
+ * Characters at matchedIndices are wrapped in <mark> tags.
+ */
+function HighlightedLabel({ label, matchedIndices }: { label: string; matchedIndices: number[] }): React.ReactElement {
+  if (matchedIndices.length === 0) {
+    return <>{label}</>;
+  }
+
+  const indexSet = new Set(matchedIndices);
+  const chars = Array.from(label);
+  const parts: React.ReactNode[] = [];
+  let currentRun = '';
+  let currentIsHighlight = false;
+
+  for (let i = 0; i < chars.length; i++) {
+    const isHighlight = indexSet.has(i);
+    if (i === 0) {
+      currentIsHighlight = isHighlight;
+      currentRun = chars[i];
+    } else if (isHighlight === currentIsHighlight) {
+      currentRun += chars[i];
+    } else {
+      if (currentIsHighlight) {
+        parts.push(<mark key={parts.length} className="command-match">{currentRun}</mark>);
+      } else {
+        parts.push(currentRun);
+      }
+      currentRun = chars[i];
+      currentIsHighlight = isHighlight;
+    }
+  }
+
+  // Flush remaining run
+  if (currentRun) {
+    if (currentIsHighlight) {
+      parts.push(<mark key={parts.length} className="command-match">{currentRun}</mark>);
+    } else {
+      parts.push(currentRun);
+    }
+  }
+
+  return <>{parts}</>;
+}
+
 const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, commands }) => {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const filteredCommands = useMemo(() => {
-    if (!query.trim()) return commands;
-    return commands.filter(cmd => chosungMatch(cmd.label, query));
+  const matchedCommands = useMemo((): MatchedCommand[] => {
+    if (!query.trim()) {
+      return commands.map(cmd => ({ command: cmd, matchedIndices: [] }));
+    }
+    const results: FuzzyMatch<Command>[] = fuzzySearchBy(commands, query.trim(), cmd => cmd.label);
+    return results.map(r => ({ command: r.item, matchedIndices: r.matchedIndices }));
   }, [query, commands]);
+
+  const filteredCommands = useMemo(
+    () => matchedCommands.map(m => m.command),
+    [matchedCommands]
+  );
 
   // Reset state when opened
   useEffect(() => {
@@ -111,7 +170,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
           <div className="command-palette-empty">{S.COMMAND_EMPTY}</div>
         ) : (
           <ul ref={listRef} className="command-palette-list" id="command-list" role="listbox">
-            {filteredCommands.map((cmd, index) => (
+            {matchedCommands.map(({ command: cmd, matchedIndices }, index) => (
               <li
                 key={cmd.id}
                 id={`cmd-${cmd.id}`}
@@ -120,7 +179,9 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
                 role="option"
                 aria-selected={index === selectedIndex}
               >
-                <span className="command-label">{cmd.label}</span>
+                <span className="command-label">
+                  <HighlightedLabel label={cmd.label} matchedIndices={matchedIndices} />
+                </span>
                 {cmd.shortcut && <span className="command-shortcut">{cmd.shortcut}</span>}
               </li>
             ))}
