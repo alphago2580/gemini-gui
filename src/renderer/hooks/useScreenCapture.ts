@@ -14,20 +14,29 @@ export function useScreenCapture(): UseScreenCaptureReturn {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const trackListenersRef = useRef<Map<MediaStreamTrack, () => void>>(new Map());
 
   const isSupported =
     typeof navigator !== 'undefined' &&
     typeof navigator.mediaDevices !== 'undefined' &&
     'getDisplayMedia' in navigator.mediaDevices;
 
+  const removeTrackListeners = useCallback(() => {
+    trackListenersRef.current.forEach((listener, track) => {
+      track.removeEventListener('ended', listener);
+    });
+    trackListenersRef.current.clear();
+  }, []);
+
   const stop = useCallback(() => {
+    removeTrackListeners();
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
       setStream(null);
       setIsCapturing(false);
     }
-  }, []);
+  }, [removeTrackListeners]);
 
   const start = useCallback(
     async (options?: DisplayMediaStreamOptions): Promise<MediaStream | null> => {
@@ -51,9 +60,11 @@ export function useScreenCapture(): UseScreenCaptureReturn {
 
         // Listen for tracks ending (user clicks "Stop sharing")
         mediaStream.getTracks().forEach(track => {
-          track.addEventListener('ended', () => {
+          const listener = () => {
             stop();
-          });
+          };
+          track.addEventListener('ended', listener);
+          trackListenersRef.current.set(track, listener);
         });
 
         return mediaStream;
@@ -69,6 +80,10 @@ export function useScreenCapture(): UseScreenCaptureReturn {
 
   useEffect(() => {
     return () => {
+      trackListenersRef.current.forEach((listener, track) => {
+        track.removeEventListener('ended', listener);
+      });
+      trackListenersRef.current.clear();
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;

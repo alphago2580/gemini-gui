@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useScreenCapture } from './useScreenCapture';
 
-let mockTracks: Array<{ stop: ReturnType<typeof vi.fn>; addEventListener: ReturnType<typeof vi.fn>; kind: string }>;
+let mockTracks: Array<{ stop: ReturnType<typeof vi.fn>; addEventListener: ReturnType<typeof vi.fn>; removeEventListener: ReturnType<typeof vi.fn>; kind: string }>;
 let mockStream: { getTracks: () => typeof mockTracks };
 let endedListeners: Map<object, () => void>;
 
@@ -14,6 +14,7 @@ beforeEach(() => {
       addEventListener: vi.fn((event: string, cb: () => void) => {
         if (event === 'ended') endedListeners.set(mockTracks[0], cb);
       }),
+      removeEventListener: vi.fn(),
       kind: 'video',
     },
   ];
@@ -100,6 +101,28 @@ describe('useScreenCapture', () => {
     expect(mockTracks[0].stop).toHaveBeenCalled();
   });
 
+  it('removes track ended listeners on stop', async () => {
+    setupMediaDevices();
+    const { result } = renderHook(() => useScreenCapture());
+
+    await act(async () => {
+      await result.current.start();
+    });
+
+    // A listener was added
+    expect(mockTracks[0].addEventListener).toHaveBeenCalledWith('ended', expect.any(Function));
+    const addedListener = mockTracks[0].addEventListener.mock.calls.find(
+      (call: unknown[]) => call[0] === 'ended'
+    )?.[1];
+
+    act(() => {
+      result.current.stop();
+    });
+
+    // The same listener should have been removed
+    expect(mockTracks[0].removeEventListener).toHaveBeenCalledWith('ended', addedListener);
+  });
+
   it('handles start error', async () => {
     Object.defineProperty(navigator, 'mediaDevices', {
       value: {
@@ -167,6 +190,7 @@ describe('useScreenCapture', () => {
       {
         stop: vi.fn(),
         addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
         kind: 'video',
       },
     ];
@@ -178,6 +202,8 @@ describe('useScreenCapture', () => {
     });
 
     expect(firstTrackStop).toHaveBeenCalled();
+    // Old track listeners should have been removed
+    expect(mockTracks[0].removeEventListener).toHaveBeenCalledWith('ended', expect.any(Function));
     expect(result.current.stream).toBe(newStream);
   });
 
@@ -231,7 +257,7 @@ describe('useScreenCapture', () => {
     expect(result.current.isCapturing).toBe(true);
   });
 
-  it('stops tracks on unmount', async () => {
+  it('stops tracks and removes listeners on unmount', async () => {
     setupMediaDevices();
     const { result, unmount } = renderHook(() => useScreenCapture());
 
@@ -239,9 +265,14 @@ describe('useScreenCapture', () => {
       await result.current.start();
     });
 
+    const addedListener = mockTracks[0].addEventListener.mock.calls.find(
+      (call: unknown[]) => call[0] === 'ended'
+    )?.[1];
+
     unmount();
 
     expect(mockTracks[0].stop).toHaveBeenCalled();
+    expect(mockTracks[0].removeEventListener).toHaveBeenCalledWith('ended', addedListener);
   });
 
   it('stop is safe to call when not capturing', () => {
