@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 
 export interface UndoRedoState<T> {
   value: T;
@@ -54,14 +54,18 @@ export function useUndoRedo<T>(initialValue: T, maxHistory: number = DEFAULT_MAX
     futureRef.current = [];
   }, []);
 
-  return {
+  const canUndo = pastRef.current.length > 0;
+  const canRedo = futureRef.current.length > 0;
+  const historySize = pastRef.current.length;
+
+  return useMemo(() => ({
     value,
     set,
     undo,
     redo,
-    canUndo: pastRef.current.length > 0,
-    canRedo: futureRef.current.length > 0,
+    canUndo,
+    canRedo,
     reset,
-    historySize: pastRef.current.length,
-  };
+    historySize,
+  }), [value, set, undo, redo, canUndo, canRedo, reset, historySize]);
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 export function useMap<K, V>(initialEntries?: Iterable<[K, V]>) {
   const [map, setMap] = useState<Map<K, V>>(() => new Map(initialEntries));
@@ -35,7 +35,11 @@ export function useMap<K, V>(initialEntries?: Iterable<[K, V]>) {
     setMap(new Map(initialEntries));
   }, [initialEntries]);
 
-  return {
+  const entries = useMemo(() => Array.from(map.entries()), [map]);
+  const keys = useMemo(() => Array.from(map.keys()), [map]);
+  const values = useMemo(() => Array.from(map.values()), [map]);
+
+  return useMemo(() => ({
     map,
     size: map.size,
     set,
@@ -44,8 +48,8 @@ export function useMap<K, V>(initialEntries?: Iterable<[K, V]>) {
     remove,
     clear,
     reset,
-    entries: Array.from(map.entries()),
-    keys: Array.from(map.keys()),
-    values: Array.from(map.values()),
-  };
+    entries,
+    keys,
+    values,
+  }), [map, set, get, has, remove, clear, reset, entries, keys, values]);
 }

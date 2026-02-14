@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { generateUniqueId } from '../utils/format';
 import type { ToastMessage, ToastAction } from '../components/Toast';
 
@@ -30,5 +30,10 @@ export function useToast() {
     setToasts([]);
   }, []);
 
-  return { toasts, addToast, dismissToast, dismissAll };
+  return useMemo(() => ({
+    toasts,
+    addToast,
+    dismissToast,
+    dismissAll,
+  }), [toasts, addToast, dismissToast, dismissAll]);
 }

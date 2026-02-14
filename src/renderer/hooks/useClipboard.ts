@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 
 export interface UseClipboardResult {
   copy: (text: string) => Promise<boolean>;
@@ -39,5 +39,5 @@ export function useClipboard(resetDelay: number = DEFAULT_RESET_DELAY): UseClipb
     }
   }, [resetDelay]);
 
-  return { copy, copied, error };
+  return useMemo(() => ({ copy, copied, error }), [copy, copied, error]);
 }

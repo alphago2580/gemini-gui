@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { AppSettings } from '../../preload/types';
 import * as S from '../constants/strings';
 
@@ -31,8 +31,8 @@ export function useSettings() {
     setSettings(newSettings);
   }, []);
 
-  return {
+  return useMemo(() => ({
     settings,
     handleSettingsSave,
-  };
+  }), [settings, handleSettingsSave]);
 }

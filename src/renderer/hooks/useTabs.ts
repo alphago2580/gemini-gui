@@ -87,7 +87,7 @@ export function useTabs(
     setOpenTabIds(prev => prev.filter(id => conversationIds.includes(id)));
   }, [setOpenTabIds]);
 
-  return {
+  return useMemo(() => ({
     tabs,
     openTabIds,
     selectTab,
@@ -98,5 +98,5 @@ export function useTabs(
     ensureTabOpen,
     cleanupTabs,
     reorderTabs,
-  };
+  }), [tabs, openTabIds, selectTab, closeTab, newTab, nextTab, prevTab, ensureTabOpen, cleanupTabs, reorderTabs]);
 }
