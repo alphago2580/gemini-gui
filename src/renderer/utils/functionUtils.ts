@@ -39,22 +39,20 @@ export function once<T extends (...args: unknown[]) => unknown>(fn: T): T {
  * Uses JSON.stringify of args as cache key by default.
  * Optionally pass a custom key resolver.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function memoize<T extends (...args: any[]) => any>(
+export function memoize<T extends (...args: never[]) => unknown>(
   fn: T,
   keyResolver?: (...args: Parameters<T>) => string,
 ): T {
   const cache = new Map<string, unknown>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return ((...args: any[]) => {
+  return ((...args: Parameters<T>) => {
     const key = keyResolver
-      ? keyResolver(...(args as Parameters<T>))
+      ? keyResolver(...args)
       : JSON.stringify(args);
     if (cache.has(key)) return cache.get(key);
     const result = fn(...args);
     cache.set(key, result);
     return result;
-  }) as T;
+  }) as unknown as T;
 }
 
 /**
@@ -113,8 +111,7 @@ export function throttle<T extends (...args: unknown[]) => void>(
 }
 
 /** Creates a function that negates the result of a predicate. */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function negate<T extends (...args: any[]) => boolean>(predicate: T): (...args: Parameters<T>) => boolean {
+export function negate<T extends (...args: never[]) => boolean>(predicate: T): (...args: Parameters<T>) => boolean {
   return (...args: Parameters<T>) => !predicate(...args);
 }
 
