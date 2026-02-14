@@ -1,1 +1,1 @@
-integrate-use-timeout — Agent 2의 useTimeout 훅을 master에 통합
+integrate-idle-status — useIdle 훅을 StatusBar에 통합하여 유저 비활성 상태 표시

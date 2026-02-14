@@ -100,6 +100,7 @@ import { useExport } from './hooks/useExport';
 import { useSettings } from './hooks/useSettings';
 import { useDialogs } from './hooks/useDialogs';
 import { useConversationFolders } from './hooks/useConversationFolders';
+import { useIdle } from './hooks/useIdle';
 import * as S from './constants/strings';
 
 const TokenBurnerDashboard = lazy(() => import('./components/tokenburner/TokenBurnerDashboard'));
@@ -259,6 +260,9 @@ const App: React.FC = () => {
 
   // Performance monitor
   const perfMonitor = usePerformanceMonitor();
+
+  // User idle detection (2 minutes timeout)
+  const { isIdle: isUserIdle } = useIdle({ timeout: 120000 });
 
   // Accent color (persistent)
   const ACCENT_COLORS = ['#1976d2', '#388e3c', '#f57c00', '#d32f2f', '#7b1fa2', '#00838f', '#c62828', '#4527a0'];
@@ -1033,6 +1037,7 @@ const App: React.FC = () => {
           model={settings.model !== 'auto' ? (S.MODEL_DISPLAY_NAMES[settings.model] || settings.model) : undefined}
           totalTokens={tokenUsage?.totalTokens}
           tokenHistory={tokenHistory}
+          isUserIdle={isUserIdle}
         />
       </main>}
       >

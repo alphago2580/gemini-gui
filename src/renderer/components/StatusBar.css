@@ -71,6 +71,15 @@
   background: var(--error-color, #ef4444);
 }
 
+.status-bar-dot--active-user {
+  background: var(--success-color, #10b981);
+}
+
+.status-bar-dot--idle-user {
+  background: var(--warning-color, #f59e0b);
+  opacity: 0.7;
+}
+
 @keyframes status-bar-pulse {
   0%, 100% {
     opacity: 1;

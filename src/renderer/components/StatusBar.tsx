@@ -12,6 +12,7 @@ export interface StatusBarProps {
   cursorLine?: number;
   cursorCol?: number;
   encoding?: string;
+  isUserIdle?: boolean;
   children?: React.ReactNode;
 }
 
@@ -37,8 +38,12 @@ const StatusBar: React.FC<StatusBarProps> = ({
   cursorLine,
   cursorCol,
   encoding = S.STATUS_BAR_ENCODING_LABEL,
+  isUserIdle = false,
   children,
 }) => {
+  const idleLabel = isUserIdle ? S.STATUS_BAR_USER_IDLE : S.STATUS_BAR_USER_ACTIVE;
+  const idleDotClass = isUserIdle ? 'status-bar-dot--idle-user' : 'status-bar-dot--active-user';
+
   return (
     <div className="status-bar" role="status" aria-label={S.STATUS_BAR_ARIA}>
       <div className="status-bar-left">
@@ -51,6 +56,14 @@ const StatusBar: React.FC<StatusBarProps> = ({
             aria-hidden="true"
           />
           <span className="status-bar-text">{SESSION_LABELS[sessionStatus]}</span>
+        </div>
+
+        <div className="status-bar-item" title={idleLabel}>
+          <span
+            className={`status-bar-dot ${idleDotClass}`}
+            aria-hidden="true"
+          />
+          <span className="status-bar-text">{idleLabel}</span>
         </div>
 
         {model && (
