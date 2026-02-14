@@ -985,7 +985,7 @@ describe('App Component', () => {
             const user = userEvent.setup();
             render(<App />);
             fireEvent.keyDown(document, { key: ',', ctrlKey: true });
-            expect(screen.getByLabelText('시스템 프롬프트')).toBeInTheDocument();
+            expect(screen.getByLabelText('마크다운 입력')).toBeInTheDocument();
         });
     });
 

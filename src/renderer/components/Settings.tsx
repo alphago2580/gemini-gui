@@ -5,6 +5,7 @@ import Switch from './Switch';
 import Select from './Select';
 import type { SelectOption } from './Select';
 import Slider from './Slider';
+import MarkdownEditor from './MarkdownEditor';
 import { SHORTCUT_GROUPS } from './KeyboardShortcutHelp';
 import * as S from '../constants/strings';
 
@@ -112,18 +113,17 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose, settings, onSave, 
       </div>
 
       <div className="setting-group">
-        <label htmlFor="system-prompt">
+        <label>
           {S.SYSTEM_PROMPT_LABEL}
           <span className="hint">{S.SYSTEM_PROMPT_HINT}</span>
         </label>
-        <textarea
-          id="system-prompt"
-          className="system-prompt-input"
+        <MarkdownEditor
           value={localSettings.systemPrompt}
-          onChange={(e) => setLocalSettings({ ...localSettings, systemPrompt: e.target.value })}
+          onChange={(val) => setLocalSettings({ ...localSettings, systemPrompt: val })}
           placeholder={S.SYSTEM_PROMPT_PLACEHOLDER}
-          rows={4}
-          aria-label={S.ARIA_SYSTEM_PROMPT}
+          minHeight={100}
+          defaultMode="write"
+          showToolbar={true}
         />
         {localSettings.systemPrompt && (
           <button
