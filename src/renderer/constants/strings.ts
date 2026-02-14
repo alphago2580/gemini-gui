@@ -199,6 +199,13 @@ export const COPY_BUTTON_CHECK = '✓';
 export const COPY_FEEDBACK_TITLE = '복사됨!';
 export const MATH_FORMULA_PREFIX = '수식:';
 
+// CollapsibleCodeBlock
+export const CODE_SHOW_MORE = '더 보기';
+export const CODE_SHOW_LESS = '접기';
+export const CODE_LINES_HIDDEN = (count: number) => `${count}줄 숨김`;
+export const ARIA_CODE_EXPAND = '코드 블록 펼치기';
+export const ARIA_CODE_COLLAPSE = '코드 블록 접기';
+
 // Toast
 export const ARIA_TOAST_CLOSE = '알림 닫기';
 export const ARIA_TOAST_CONTAINER = '알림';
