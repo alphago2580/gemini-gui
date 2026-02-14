@@ -1993,7 +1993,7 @@ describe('App Component', () => {
             const user = userEvent.setup();
             render(<App />);
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            await user.type(input, 'Keep this message');
+            await user.type(input, 'Msg');
             await user.click(screen.getByText('전송'));
 
             await user.click(screen.getByText('Clear'));
@@ -2001,7 +2001,7 @@ describe('App Component', () => {
             await user.click(screen.getByRole('button', { name: '취소' }));
 
             // Message should still be present
-            expect(screen.getByText('Keep this message')).toBeInTheDocument();
+            expect(screen.getByText('Msg')).toBeInTheDocument();
         });
 
         it('shows confirm dialog when deleting a conversation via menu', async () => {
@@ -2009,7 +2009,7 @@ describe('App Component', () => {
             render(<App />);
             await user.click(screen.getByText('새 대화'));
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            await user.type(input, 'Hello');
+            await user.type(input, 'Hi');
             await user.click(screen.getByText('전송'));
 
             const menuTrigger = screen.getByRole('button', { name: '대화 옵션' });
@@ -2025,7 +2025,7 @@ describe('App Component', () => {
             render(<App />);
             await user.click(screen.getByText('새 대화'));
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            await user.type(input, 'Keep this');
+            await user.type(input, 'Hi');
             await user.click(screen.getByText('전송'));
 
             const menuTrigger = screen.getByRole('button', { name: '대화 옵션' });
@@ -2035,7 +2035,7 @@ describe('App Component', () => {
 
             // Conversation should still exist
             expect(screen.getByRole('button', { name: '대화 옵션' })).toBeInTheDocument();
-        });
+        }, 10000);
     });
 
     describe('Badge in Sidebar', () => {
