@@ -11,6 +11,8 @@ describe('Settings', () => {
     theme: 'dark' as const,
     systemPrompt: '',
     fontSize: 16,
+    notificationSound: true,
+    showTimestamps: true,
   };
 
   const defaultProps = {

@@ -20,8 +20,8 @@ function setupShareAPI() {
 }
 
 function removeShareAPI() {
-  delete (navigator as Record<string, unknown>).share;
-  delete (navigator as Record<string, unknown>).canShare;
+  delete (navigator as unknown as Record<string, unknown>).share;
+  delete (navigator as unknown as Record<string, unknown>).canShare;
 }
 
 beforeEach(() => {

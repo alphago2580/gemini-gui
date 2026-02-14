@@ -37,7 +37,7 @@ function setupMock() {
 }
 
 function removeMock() {
-  const win = window as Record<string, unknown>;
+  const win = window as unknown as Record<string, unknown>;
   delete win.SpeechRecognition;
   delete win.webkitSpeechRecognition;
 }
@@ -191,7 +191,7 @@ describe('useSpeechRecognition', () => {
 
   it('works with webkitSpeechRecognition', () => {
     removeMock();
-    const win = window as Record<string, unknown>;
+    const win = window as unknown as Record<string, unknown>;
     win.webkitSpeechRecognition = vi.fn(function (this: MockRecognition) {
       Object.assign(this, mockRecognition);
       mockRecognition = this;

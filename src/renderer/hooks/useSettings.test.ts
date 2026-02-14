@@ -108,6 +108,9 @@ describe('useSettings', () => {
       maxTokens: 512,
       theme: 'system' as const,
       systemPrompt: 'Be helpful',
+      notificationSound: false,
+      showTimestamps: false,
+      fontSize: 14,
     };
 
     act(() => {
@@ -127,6 +130,9 @@ describe('useSettings', () => {
         maxTokens: 1024,
         theme: 'light',
         systemPrompt: 'first',
+        notificationSound: true,
+        showTimestamps: true,
+        fontSize: 16,
       });
     });
 
@@ -137,6 +143,9 @@ describe('useSettings', () => {
         maxTokens: 4096,
         theme: 'dark',
         systemPrompt: 'second',
+        notificationSound: true,
+        showTimestamps: true,
+        fontSize: 16,
       });
     });
 
@@ -175,6 +184,9 @@ describe('useSettings', () => {
         maxTokens: 2048,
         theme: 'dark',
         systemPrompt: '',
+        notificationSound: true,
+        showTimestamps: true,
+        fontSize: 16,
       });
     });
 
@@ -198,6 +210,9 @@ describe('useSettings', () => {
         maxTokens: 2048,
         theme: 'dark',
         systemPrompt: '',
+        notificationSound: true,
+        showTimestamps: true,
+        fontSize: 16,
       });
     });
 

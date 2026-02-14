@@ -7,14 +7,14 @@ let mockOpen: ReturnType<typeof vi.fn>;
 describe('useEyeDropper', () => {
   beforeEach(() => {
     mockOpen = vi.fn().mockResolvedValue({ sRGBHex: '#ff0000' });
-    const win = window as Record<string, unknown>;
+    const win = window as unknown as Record<string, unknown>;
     win.EyeDropper = vi.fn(function () {
       return { open: mockOpen };
     });
   });
 
   afterEach(() => {
-    const win = window as Record<string, unknown>;
+    const win = window as unknown as Record<string, unknown>;
     delete win.EyeDropper;
   });
 
@@ -27,7 +27,7 @@ describe('useEyeDropper', () => {
   });
 
   it('detects unsupported browser', () => {
-    const win = window as Record<string, unknown>;
+    const win = window as unknown as Record<string, unknown>;
     delete win.EyeDropper;
     const { result } = renderHook(() => useEyeDropper());
     expect(result.current.isSupported).toBe(false);
@@ -72,7 +72,7 @@ describe('useEyeDropper', () => {
   });
 
   it('returns null when unsupported', async () => {
-    const win = window as Record<string, unknown>;
+    const win = window as unknown as Record<string, unknown>;
     delete win.EyeDropper;
     const { result } = renderHook(() => useEyeDropper());
 

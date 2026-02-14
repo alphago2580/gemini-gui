@@ -28,6 +28,7 @@ export interface DashboardData {
 
 export interface TokenBurnerDashboardProps {
   initialData?: DashboardData;
+  onBack?: () => void;
 }
 
 const DEFAULT_DATA: DashboardData = {
@@ -62,7 +63,7 @@ const TokenBurnerDashboard: React.FC<TokenBurnerDashboardProps> = ({ initialData
   useEffect(() => {
     if (initialData) return;
 
-    const api = (window as Record<string, unknown>).electronAPI as
+    const api = (window as unknown as Record<string, unknown>).electronAPI as
       | { tokenburner?: { getDashboard?: () => Promise<DashboardData>; onEvent?: (cb: (data: DashboardData) => void) => void; removeAllListeners?: () => void } }
       | undefined;
 

@@ -42,7 +42,7 @@ interface SpeechRecognitionInstance {
 }
 
 function getSpeechRecognitionConstructor(): (new () => SpeechRecognitionInstance) | null {
-  const win = window as Record<string, unknown>;
+  const win = window as unknown as Record<string, unknown>;
   return (win.SpeechRecognition ?? win.webkitSpeechRecognition ?? null) as
     (new () => SpeechRecognitionInstance) | null;
 }

@@ -16,7 +16,7 @@ export interface FieldState<T = unknown> {
   dirty: boolean;
 }
 
-export interface FormValidationResult<F extends Record<string, FieldConfig>> {
+export interface FormValidationResult<F extends Record<string, FieldConfig<any>>> {
   fields: { [K in keyof F]: FieldState<F[K] extends FieldConfig<infer T> ? T : unknown> };
   values: { [K in keyof F]: F[K] extends FieldConfig<infer T> ? T : unknown };
   errors: { [K in keyof F]: string | null };
@@ -32,7 +32,7 @@ export interface FormValidationResult<F extends Record<string, FieldConfig>> {
   resetField: (name: keyof F) => void;
 }
 
-function buildInitialFields<F extends Record<string, FieldConfig>>(
+function buildInitialFields<F extends Record<string, FieldConfig<any>>>(
   config: F
 ): Record<string, FieldState> {
   const fields: Record<string, FieldState> = {};
@@ -60,7 +60,8 @@ function runValidators<T>(
   return null;
 }
 
-export function useFormValidation<F extends Record<string, FieldConfig>>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useFormValidation<F extends Record<string, FieldConfig<any>>>(
   config: F
 ): FormValidationResult<F> {
   const configRef = useRef(config);

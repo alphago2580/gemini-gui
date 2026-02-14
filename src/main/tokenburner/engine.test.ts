@@ -108,6 +108,7 @@ describe('TokenBurnerEngine', () => {
         model: 'claude',
         duration: 5000,
         success: true,
+        timestamp: Date.now(),
       });
       const summary = metrics.getSummary();
       expect(summary.totalTasks).toBe(1);

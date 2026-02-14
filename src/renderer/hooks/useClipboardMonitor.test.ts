@@ -14,7 +14,7 @@ function setupClipboardAPI(initialText = '') {
 
 function removeClipboardAPI() {
   if ('clipboard' in navigator) {
-    delete (navigator as Record<string, unknown>).clipboard;
+    delete (navigator as unknown as Record<string, unknown>).clipboard;
   }
 }
 

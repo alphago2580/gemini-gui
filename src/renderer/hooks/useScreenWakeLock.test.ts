@@ -39,7 +39,7 @@ function setupWakeLockAPI() {
 
 function removeWakeLockAPI() {
   if ('wakeLock' in navigator) {
-    delete (navigator as Record<string, unknown>).wakeLock;
+    delete (navigator as unknown as Record<string, unknown>).wakeLock;
   }
 }
 

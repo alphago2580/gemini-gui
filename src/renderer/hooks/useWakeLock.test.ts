@@ -44,7 +44,7 @@ function setupWakeLockSupported() {
 function setupWakeLockUnsupported() {
   // Must delete the property so 'wakeLock' in navigator returns false
   if ('wakeLock' in navigator) {
-    delete (navigator as Record<string, unknown>)['wakeLock'];
+    delete (navigator as unknown as Record<string, unknown>)['wakeLock'];
   }
 }
 
