@@ -1,0 +1,110 @@
+.activity-heatmap {
+  display: inline-block;
+}
+
+.activity-heatmap-svg {
+  display: block;
+}
+
+/* Day cells */
+.activity-heatmap-cell {
+  rx: 2;
+  ry: 2;
+}
+
+.activity-heatmap-cell--empty {
+  fill: var(--bg-tertiary, #161b22);
+}
+
+.activity-heatmap-cell--level-0 {
+  fill: var(--bg-tertiary, #161b22);
+}
+
+.activity-heatmap-cell--level-1 {
+  fill: var(--heatmap-level-1, #0e4429);
+}
+
+.activity-heatmap-cell--level-2 {
+  fill: var(--heatmap-level-2, #006d32);
+}
+
+.activity-heatmap-cell--level-3 {
+  fill: var(--heatmap-level-3, #26a641);
+}
+
+.activity-heatmap-cell--level-4 {
+  fill: var(--heatmap-level-4, #39d353);
+}
+
+/* Month labels */
+.activity-heatmap-month-label {
+  fill: var(--text-secondary, #8b949e);
+  font-size: 10px;
+  font-family: inherit;
+}
+
+/* Day-of-week labels */
+.activity-heatmap-day-label {
+  fill: var(--text-secondary, #8b949e);
+  font-size: 10px;
+  font-family: inherit;
+}
+
+/* Legend */
+.activity-heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+
+.activity-heatmap-legend-label {
+  font-size: 11px;
+  color: var(--text-secondary, #8b949e);
+}
+
+.activity-heatmap-legend-cell {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.activity-heatmap-legend-cell--level-0 {
+  background: var(--bg-tertiary, #161b22);
+}
+
+.activity-heatmap-legend-cell--level-1 {
+  background: var(--heatmap-level-1, #0e4429);
+}
+
+.activity-heatmap-legend-cell--level-2 {
+  background: var(--heatmap-level-2, #006d32);
+}
+
+.activity-heatmap-legend-cell--level-3 {
+  background: var(--heatmap-level-3, #26a641);
+}
+
+.activity-heatmap-legend-cell--level-4 {
+  background: var(--heatmap-level-4, #39d353);
+}
+
+/* Tooltip */
+.activity-heatmap-tooltip {
+  position: fixed;
+  background: var(--bg-primary, #0d1117);
+  color: var(--text-primary, #c9d1d9);
+  border: 1px solid var(--border-color, #30363d);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.activity-heatmap-tooltip-count {
+  font-weight: 600;
+}
