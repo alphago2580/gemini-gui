@@ -160,4 +160,66 @@ describe('ConfirmDialog', () => {
     const confirmBtn = screen.getByText('확인');
     expect(confirmBtn).toHaveClass('confirm-dialog-btn-info');
   });
+
+  it('traps focus: Tab from confirm button wraps to cancel button', () => {
+    render(<ConfirmDialog {...defaultProps} />);
+    const confirmBtn = screen.getByText('확인');
+    const cancelBtn = screen.getByText('취소');
+
+    // Confirm button should be focused initially
+    expect(document.activeElement).toBe(confirmBtn);
+
+    // Dispatch native keydown on the dialog container where useFocusTrap listens
+    const dialogEl = document.querySelector('.confirm-dialog')!;
+    const tabEvent = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      cancelable: true,
+    });
+    dialogEl.dispatchEvent(tabEvent);
+
+    expect(document.activeElement).toBe(cancelBtn);
+  });
+
+  it('traps focus: Shift+Tab from cancel button wraps to confirm button', () => {
+    render(<ConfirmDialog {...defaultProps} />);
+    const confirmBtn = screen.getByText('확인');
+    const cancelBtn = screen.getByText('취소');
+
+    // Move focus to cancel button first
+    cancelBtn.focus();
+    expect(document.activeElement).toBe(cancelBtn);
+
+    // Dispatch native Shift+Tab on the dialog container
+    const dialogEl = document.querySelector('.confirm-dialog')!;
+    const shiftTabEvent = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      shiftKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    dialogEl.dispatchEvent(shiftTabEvent);
+
+    expect(document.activeElement).toBe(confirmBtn);
+  });
+
+  it('restores focus to previously active element when dialog closes', () => {
+    const externalBtn = document.createElement('button');
+    externalBtn.textContent = 'External';
+    document.body.appendChild(externalBtn);
+    externalBtn.focus();
+    expect(document.activeElement).toBe(externalBtn);
+
+    const { unmount } = render(<ConfirmDialog {...defaultProps} />);
+
+    // Dialog should have taken focus to confirm button
+    const confirmBtn = screen.getByText('확인');
+    expect(document.activeElement).toBe(confirmBtn);
+
+    // Unmounting should restore focus to the external button
+    unmount();
+    expect(document.activeElement).toBe(externalBtn);
+
+    document.body.removeChild(externalBtn);
+  });
 });
