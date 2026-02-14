@@ -26,12 +26,13 @@ let streamDataCallback: ((data: StreamData) => void) | null = null;
 let streamCompleteCallback: (() => void) | null = null;
 let streamErrorCallback: ((data: StreamErrorData) => void) | null = null;
 
+const noop = () => {};
 const mockElectronAPI = {
   sendMessage: vi.fn().mockResolvedValue({ success: true, output: '', error: null }),
   newConversation: vi.fn().mockResolvedValue({ success: true }),
-  onStreamData: vi.fn((cb: (data: StreamData) => void) => { streamDataCallback = cb; }),
-  onStreamComplete: vi.fn((cb: () => void) => { streamCompleteCallback = cb; }),
-  onStreamError: vi.fn((cb: (data: StreamErrorData) => void) => { streamErrorCallback = cb; }),
+  onStreamData: vi.fn((cb: (data: StreamData) => void) => { streamDataCallback = cb; return noop; }),
+  onStreamComplete: vi.fn((cb: () => void) => { streamCompleteCallback = cb; return noop; }),
+  onStreamError: vi.fn((cb: (data: StreamErrorData) => void) => { streamErrorCallback = cb; return noop; }),
   removeAllListeners: vi.fn(),
   saveTempFile: vi.fn().mockResolvedValue('/tmp/test.txt'),
   cleanupTempFiles: vi.fn().mockResolvedValue({ success: true }),

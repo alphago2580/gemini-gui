@@ -1,1 +1,1 @@
-memoize-hook-return-values — useMemo for hook return objects to prevent unnecessary re-renders
+fix-listener-cleanup — preload API cleanup functions + useStreamHandler individual listener teardown + setTimeout cleanup

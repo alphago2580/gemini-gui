@@ -124,10 +124,10 @@ export interface ElectronAPI {
   sendMessage: (message: string, systemPrompt?: string, model?: string) => Promise<{ success: boolean; output: string; error: string | null }>;
   stopGemini: () => Promise<{ success: boolean; error?: string }>;
   newConversation: () => Promise<{ success: boolean }>;
-  onStreamData: (callback: (data: StreamData) => void) => void;
-  onStreamComplete: (callback: (data: StreamCompleteData) => void) => void;
-  onStreamError: (callback: (data: StreamErrorData) => void) => void;
-  onSessionStatus: (callback: (data: SessionStatusData) => void) => void;
+  onStreamData: (callback: (data: StreamData) => void) => () => void;
+  onStreamComplete: (callback: (data: StreamCompleteData) => void) => () => void;
+  onStreamError: (callback: (data: StreamErrorData) => void) => () => void;
+  onSessionStatus: (callback: (data: SessionStatusData) => void) => () => void;
   removeAllListeners: () => void;
   onMenuAction: (callback: (action: string) => void) => void;
   saveTempFile: (fileName: string, fileData: ArrayBuffer) => Promise<string>;

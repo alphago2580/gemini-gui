@@ -6,11 +6,12 @@ import React from 'react';
 import type { StreamData } from '../preload/types';
 
 // Mock the Electron API
+const noop = () => {};
 const mockElectronAPI = {
     sendMessage: vi.fn().mockResolvedValue({ success: true }),
-    onStreamData: vi.fn(),
-    onStreamComplete: vi.fn(),
-    onStreamError: vi.fn(),
+    onStreamData: vi.fn().mockReturnValue(noop),
+    onStreamComplete: vi.fn().mockReturnValue(noop),
+    onStreamError: vi.fn().mockReturnValue(noop),
     newConversation: vi.fn(),
     saveTempFile: vi.fn(),
     cleanupTempFiles: vi.fn(),
@@ -37,9 +38,11 @@ function setupStreamCallbacks() {
     };
     mockElectronAPI.onStreamData.mockImplementation((cb: (data: StreamData) => void) => {
         callbacks.streamData = cb;
+        return noop;
     });
     mockElectronAPI.onStreamComplete.mockImplementation((cb: () => void) => {
         callbacks.streamComplete = cb;
+        return noop;
     });
     return callbacks;
 }
@@ -260,10 +263,9 @@ describe('App Component', () => {
         expect(mockElectronAPI.onStreamError).toHaveBeenCalled();
     });
 
-    it('cleans up listeners on unmount', () => {
+    it('cleans up resources on unmount', () => {
         const { unmount } = render(<App />);
         unmount();
-        expect(mockElectronAPI.removeAllListeners).toHaveBeenCalled();
         expect(mockElectronAPI.cleanupTempFiles).toHaveBeenCalled();
     });
 
@@ -2111,10 +2113,11 @@ describe('App Component', () => {
 
         it('shows error banner when session status changes to error', async () => {
             let sessionStatusCb: ((data: { status: string }) => void) | null = null;
-            mockElectronAPI.onStreamData.mockImplementation(() => {});
-            mockElectronAPI.onStreamComplete.mockImplementation(() => {});
+            mockElectronAPI.onStreamData.mockImplementation(() => noop);
+            mockElectronAPI.onStreamComplete.mockImplementation(() => noop);
             (mockElectronAPI as Record<string, unknown>).onSessionStatus = vi.fn((cb: (data: { status: string }) => void) => {
                 sessionStatusCb = cb;
+                return noop;
             });
 
             render(<App />);
@@ -2164,10 +2167,11 @@ describe('App Component', () => {
         });
 
         it('shows error status when session has error', () => {
-            mockElectronAPI.onStreamData.mockImplementation(() => {});
-            mockElectronAPI.onStreamComplete.mockImplementation(() => {});
+            mockElectronAPI.onStreamData.mockImplementation(() => noop);
+            mockElectronAPI.onStreamComplete.mockImplementation(() => noop);
             (mockElectronAPI as Record<string, unknown>).onSessionStatus = vi.fn((cb: (data: { status: string }) => void) => {
                 cb({ status: 'error' });
+                return noop;
             });
             render(<App />);
             expect(screen.getByText('연결 오류')).toBeInTheDocument();

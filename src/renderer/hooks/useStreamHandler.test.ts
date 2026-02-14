@@ -7,10 +7,14 @@ let streamDataCallback: ((data: Record<string, unknown>) => void) | null = null;
 let streamCompleteCallback: (() => void) | null = null;
 let streamErrorCallback: ((data: { error: string }) => void) | null = null;
 
+const mockCleanupStreamData = vi.fn();
+const mockCleanupStreamComplete = vi.fn();
+const mockCleanupStreamError = vi.fn();
+
 const mockElectronAPI = {
-  onStreamData: vi.fn((cb) => { streamDataCallback = cb; }),
-  onStreamComplete: vi.fn((cb) => { streamCompleteCallback = cb; }),
-  onStreamError: vi.fn((cb) => { streamErrorCallback = cb; }),
+  onStreamData: vi.fn((cb) => { streamDataCallback = cb; return mockCleanupStreamData; }),
+  onStreamComplete: vi.fn((cb) => { streamCompleteCallback = cb; return mockCleanupStreamComplete; }),
+  onStreamError: vi.fn((cb) => { streamErrorCallback = cb; return mockCleanupStreamError; }),
   removeAllListeners: vi.fn(),
 };
 
@@ -60,10 +64,12 @@ describe('useStreamHandler', () => {
     expect(mockElectronAPI.onStreamError).toHaveBeenCalled();
   });
 
-  it('removes listeners on unmount', () => {
+  it('removes individual listeners on unmount', () => {
     const { unmount } = renderHook(() => useStreamHandler(defaultOptions));
     unmount();
-    expect(mockElectronAPI.removeAllListeners).toHaveBeenCalled();
+    expect(mockCleanupStreamData).toHaveBeenCalled();
+    expect(mockCleanupStreamComplete).toHaveBeenCalled();
+    expect(mockCleanupStreamError).toHaveBeenCalled();
   });
 
   it('startLoading sets isLoading to true', () => {
@@ -339,6 +345,9 @@ describe('useStreamHandler', () => {
 
     // Should have re-registered listeners
     expect(mockElectronAPI.onStreamData.mock.calls.length).toBeGreaterThan(initialCallCount);
-    expect(mockElectronAPI.removeAllListeners).toHaveBeenCalled();
+    // Old listeners should have been cleaned up individually
+    expect(mockCleanupStreamData).toHaveBeenCalled();
+    expect(mockCleanupStreamComplete).toHaveBeenCalled();
+    expect(mockCleanupStreamError).toHaveBeenCalled();
   });
 });
