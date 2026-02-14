@@ -919,7 +919,7 @@ exports[`Snapshot Tests — Key Components > Toast > matches snapshot with multi
   >
     <div
       aria-live="assertive"
-      class="toast toast-error "
+      class="toast toast-error"
       role="alert"
     >
       <span
@@ -936,7 +936,7 @@ exports[`Snapshot Tests — Key Components > Toast > matches snapshot with multi
     </div>
     <div
       aria-live="assertive"
-      class="toast toast-success "
+      class="toast toast-success"
       role="alert"
     >
       <span
@@ -953,7 +953,7 @@ exports[`Snapshot Tests — Key Components > Toast > matches snapshot with multi
     </div>
     <div
       aria-live="assertive"
-      class="toast toast-info "
+      class="toast toast-info"
       role="alert"
     >
       <span

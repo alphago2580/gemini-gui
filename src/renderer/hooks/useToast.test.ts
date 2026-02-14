@@ -152,6 +152,69 @@ describe('useToast', () => {
     expect(result.current.toasts[2].type).toBe('info');
   });
 
+  describe('addToast with options', () => {
+    it('adds a toast with action', () => {
+      const { result } = renderHook(() => useToast());
+      const onClick = vi.fn();
+      act(() => {
+        result.current.addToast('info', 'Deleted item', {
+          action: { label: '실행취소', onClick },
+        });
+      });
+      expect(result.current.toasts).toHaveLength(1);
+      expect(result.current.toasts[0].action).toBeDefined();
+      expect(result.current.toasts[0].action!.label).toBe('실행취소');
+    });
+
+    it('adds a toast with custom duration', () => {
+      const { result } = renderHook(() => useToast());
+      act(() => {
+        result.current.addToast('success', 'Saved', { duration: 3000 });
+      });
+      expect(result.current.toasts[0].duration).toBe(3000);
+    });
+
+    it('adds a toast with both action and duration', () => {
+      const { result } = renderHook(() => useToast());
+      const onClick = vi.fn();
+      act(() => {
+        result.current.addToast('error', 'Failed', {
+          action: { label: '다시 시도', onClick },
+          duration: 10000,
+        });
+      });
+      const toast = result.current.toasts[0];
+      expect(toast.action!.label).toBe('다시 시도');
+      expect(toast.duration).toBe(10000);
+    });
+
+    it('adds a toast without options (backwards compatible)', () => {
+      const { result } = renderHook(() => useToast());
+      act(() => {
+        result.current.addToast('info', 'Simple toast');
+      });
+      const toast = result.current.toasts[0];
+      expect(toast.action).toBeUndefined();
+      expect(toast.duration).toBeUndefined();
+    });
+
+    it('does not set duration when options has no duration', () => {
+      const { result } = renderHook(() => useToast());
+      act(() => {
+        result.current.addToast('info', 'No duration', {});
+      });
+      expect(result.current.toasts[0].duration).toBeUndefined();
+    });
+
+    it('does not set action when options has no action', () => {
+      const { result } = renderHook(() => useToast());
+      act(() => {
+        result.current.addToast('info', 'No action', {});
+      });
+      expect(result.current.toasts[0].action).toBeUndefined();
+    });
+  });
+
   describe('dismissAll', () => {
     it('clears all toasts at once', () => {
       const { result } = renderHook(() => useToast());

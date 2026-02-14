@@ -1,13 +1,25 @@
 import { useState, useCallback } from 'react';
 import { generateUniqueId } from '../utils/format';
-import type { ToastMessage } from '../components/Toast';
+import type { ToastMessage, ToastAction } from '../components/Toast';
+
+export interface AddToastOptions {
+  action?: ToastAction;
+  duration?: number;
+}
 
 export function useToast() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  const addToast = useCallback((type: ToastMessage['type'], message: string) => {
+  const addToast = useCallback((type: ToastMessage['type'], message: string, options?: AddToastOptions) => {
     const id = generateUniqueId('toast');
-    setToasts(prev => [...prev, { id, type, message }]);
+    const toast: ToastMessage = { id, type, message };
+    if (options?.action) {
+      toast.action = options.action;
+    }
+    if (options?.duration !== undefined) {
+      toast.duration = options.duration;
+    }
+    setToasts(prev => [...prev, toast]);
   }, []);
 
   const dismissToast = useCallback((id: string) => {

@@ -15,12 +15,16 @@ export interface ToastMessage {
   duration?: number;
 }
 
+export type ToastPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
+
 export interface ToastProps {
   toasts: ToastMessage[];
   onDismiss: (id: string) => void;
   maxVisible?: number;
   onDismissAll?: () => void;
   pauseOnHover?: boolean;
+  position?: ToastPosition;
+  stacked?: boolean;
 }
 
 const DEFAULT_MAX_VISIBLE = 5;
@@ -31,7 +35,8 @@ const ToastItem: React.FC<{
   toast: ToastMessage;
   onDismiss: (id: string) => void;
   pauseOnHover?: boolean;
-}> = ({ toast, onDismiss, pauseOnHover = false }) => {
+  stackIndex?: number;
+}> = ({ toast, onDismiss, pauseOnHover = false, stackIndex }) => {
   const [exiting, setExiting] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const remainingRef = useRef(toast.duration ?? TOAST_DURATION);
@@ -85,9 +90,11 @@ const ToastItem: React.FC<{
     handleDismiss();
   };
 
+  const stackClass = stackIndex !== undefined && stackIndex <= 4 ? ` toast-stack-${stackIndex}` : '';
+
   return (
     <div
-      className={`toast toast-${toast.type} ${exiting ? 'toast-exit' : ''}`}
+      className={`toast toast-${toast.type}${exiting ? ' toast-exit' : ''}${stackClass}`}
       role="alert"
       aria-live="assertive"
       onMouseEnter={handleMouseEnter}
@@ -114,7 +121,7 @@ const ToastItem: React.FC<{
   );
 };
 
-const Toast: React.FC<ToastProps> = ({ toasts, onDismiss, maxVisible = DEFAULT_MAX_VISIBLE, onDismissAll, pauseOnHover = false }) => {
+const Toast: React.FC<ToastProps> = ({ toasts, onDismiss, maxVisible = DEFAULT_MAX_VISIBLE, onDismissAll, pauseOnHover = false, position = 'top-right', stacked = false }) => {
   const visibleToasts = useMemo(
     () => toasts.slice(0, maxVisible),
     [toasts, maxVisible]
@@ -123,8 +130,13 @@ const Toast: React.FC<ToastProps> = ({ toasts, onDismiss, maxVisible = DEFAULT_M
 
   if (toasts.length === 0) return null;
 
+  const containerClass = [
+    'toast-container',
+    position !== 'top-right' ? `toast-container-${position}` : '',
+  ].filter(Boolean).join(' ');
+
   return (
-    <div className="toast-container" aria-label={S.ARIA_TOAST_CONTAINER}>
+    <div className={containerClass} aria-label={S.ARIA_TOAST_CONTAINER}>
       {toasts.length > 1 && onDismissAll && (
         <button
           className="toast-dismiss-all"
@@ -134,8 +146,8 @@ const Toast: React.FC<ToastProps> = ({ toasts, onDismiss, maxVisible = DEFAULT_M
           {S.TOAST_DISMISS_ALL}
         </button>
       )}
-      {visibleToasts.map(toast => (
-        <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} pauseOnHover={pauseOnHover} />
+      {visibleToasts.map((toast, index) => (
+        <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} pauseOnHover={pauseOnHover} stackIndex={stacked ? index : undefined} />
       ))}
       {hiddenCount > 0 && (
         <div className="toast-overflow" role="status" aria-live="polite">

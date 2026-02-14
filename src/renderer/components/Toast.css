@@ -10,6 +10,39 @@
   max-width: 400px;
 }
 
+/* Stacking position variants */
+.toast-container-bottom-right {
+  top: auto;
+  bottom: 1rem;
+  right: 1rem;
+}
+
+.toast-container-top-left {
+  right: auto;
+  left: 1rem;
+}
+
+.toast-container-bottom-left {
+  top: auto;
+  bottom: 1rem;
+  right: auto;
+  left: 1rem;
+}
+
+.toast-container-top-center {
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.toast-container-bottom-center {
+  top: auto;
+  bottom: 1rem;
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .toast {
   display: flex;
   align-items: center;
@@ -19,6 +52,36 @@
   box-shadow: 0 4px 12px var(--shadow-heavy);
   animation: toastSlideIn 0.3s ease-out;
   font-size: 0.875rem;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Stacking depth effect — each successive toast appears slightly behind */
+.toast-stack-0 {
+  z-index: 10;
+}
+
+.toast-stack-1 {
+  z-index: 9;
+  transform: scale(0.97) translateY(-2px);
+  opacity: 0.92;
+}
+
+.toast-stack-2 {
+  z-index: 8;
+  transform: scale(0.94) translateY(-4px);
+  opacity: 0.84;
+}
+
+.toast-stack-3 {
+  z-index: 7;
+  transform: scale(0.91) translateY(-6px);
+  opacity: 0.76;
+}
+
+.toast-stack-4 {
+  z-index: 6;
+  transform: scale(0.88) translateY(-8px);
+  opacity: 0.68;
 }
 
 .toast-exit {
