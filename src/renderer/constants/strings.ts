@@ -476,6 +476,14 @@ export const BANNER_RETRY = '다시 시도';
 export const SETTINGS_SECTION_GENERAL = '일반';
 export const SETTINGS_SECTION_ADVANCED = '고급 설정';
 
+// Settings tab navigation
+export const SETTINGS_TAB_GENERAL = '일반';
+export const SETTINGS_TAB_APPEARANCE = '외관';
+export const SETTINGS_TAB_SHORTCUTS = '단축키';
+export const SETTINGS_TAB_ADVANCED = '고급';
+export const SETTINGS_TABS_ARIA = '설정 카테고리';
+export const SETTINGS_SHORTCUTS_READONLY_HINT = '단축키는 시스템에서 자동으로 설정됩니다';
+
 // Conversation DropdownMenu
 export const CONV_MENU_LABEL = '대화 옵션';
 export const CONV_MENU_OPEN = '대화 열기';
