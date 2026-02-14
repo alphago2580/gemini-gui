@@ -673,3 +673,10 @@ export const MENTION_CMD_FIX = '수정';
 export const MENTION_CMD_FIX_DESC = '오류를 수정합니다';
 export const MENTION_CMD_HELP = '도움말';
 export const MENTION_CMD_HELP_DESC = '사용 가능한 명령어를 보여줍니다';
+
+// MarkdownTOC
+export const TOC_TITLE = '목차';
+export const ARIA_TOC = '목차';
+export const ARIA_TOC_TOGGLE = '목차 접기/펼치기';
+export const TOC_EMPTY = '제목이 없습니다';
+export const ARIA_TOC_ITEM = (text: string) => `${text}(으)로 이동`;
