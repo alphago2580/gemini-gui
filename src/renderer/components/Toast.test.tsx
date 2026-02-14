@@ -165,4 +165,158 @@ describe('Toast', () => {
     act(() => { vi.advanceTimersByTime(6000); });
     expect(dismissFn).not.toHaveBeenCalled();
   });
+
+  // --- New tests for stack enhancements ---
+
+  describe('maxVisible limit', () => {
+    it('shows only maxVisible toasts when there are more', () => {
+      const toasts = Array.from({ length: 8 }, (_, i) =>
+        createToast({ id: `t${i}`, message: `Toast ${i}` })
+      );
+      const { container } = render(
+        <Toast toasts={toasts} onDismiss={mockDismiss} maxVisible={3} />
+      );
+      expect(container.querySelectorAll('.toast')).toHaveLength(3);
+    });
+
+    it('shows all toasts when count is within maxVisible', () => {
+      const toasts = [
+        createToast({ id: '1', message: 'A' }),
+        createToast({ id: '2', message: 'B' }),
+      ];
+      const { container } = render(
+        <Toast toasts={toasts} onDismiss={mockDismiss} maxVisible={5} />
+      );
+      expect(container.querySelectorAll('.toast')).toHaveLength(2);
+    });
+
+    it('defaults maxVisible to 5', () => {
+      const toasts = Array.from({ length: 7 }, (_, i) =>
+        createToast({ id: `t${i}`, message: `Toast ${i}` })
+      );
+      const { container } = render(
+        <Toast toasts={toasts} onDismiss={mockDismiss} />
+      );
+      expect(container.querySelectorAll('.toast')).toHaveLength(5);
+    });
+
+    it('shows first N toasts (not last)', () => {
+      const toasts = [
+        createToast({ id: 'first', message: 'First toast' }),
+        createToast({ id: 'second', message: 'Second toast' }),
+        createToast({ id: 'third', message: 'Third toast' }),
+      ];
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} maxVisible={2} />);
+      expect(screen.getByText('First toast')).toBeInTheDocument();
+      expect(screen.getByText('Second toast')).toBeInTheDocument();
+      expect(screen.queryByText('Third toast')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('overflow indicator', () => {
+    it('shows +N more indicator when toasts exceed maxVisible', () => {
+      const toasts = Array.from({ length: 5 }, (_, i) =>
+        createToast({ id: `t${i}`, message: `Toast ${i}` })
+      );
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} maxVisible={3} />);
+      expect(screen.getByText('+2개 더')).toBeInTheDocument();
+    });
+
+    it('does not show overflow indicator when all toasts are visible', () => {
+      const toasts = [
+        createToast({ id: '1', message: 'A' }),
+        createToast({ id: '2', message: 'B' }),
+      ];
+      const { container } = render(
+        <Toast toasts={toasts} onDismiss={mockDismiss} maxVisible={5} />
+      );
+      expect(container.querySelector('.toast-overflow')).not.toBeInTheDocument();
+    });
+
+    it('overflow indicator has role="status" and aria-live="polite"', () => {
+      const toasts = Array.from({ length: 4 }, (_, i) =>
+        createToast({ id: `t${i}`, message: `Toast ${i}` })
+      );
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} maxVisible={2} />);
+      const overflow = screen.getByRole('status');
+      expect(overflow).toHaveAttribute('aria-live', 'polite');
+    });
+
+    it('updates overflow count correctly', () => {
+      const toasts = Array.from({ length: 10 }, (_, i) =>
+        createToast({ id: `t${i}`, message: `Toast ${i}` })
+      );
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} maxVisible={3} />);
+      expect(screen.getByText('+7개 더')).toBeInTheDocument();
+    });
+  });
+
+  describe('dismiss all button', () => {
+    it('shows dismiss all button when multiple toasts and onDismissAll provided', () => {
+      const toasts = [
+        createToast({ id: '1', message: 'A' }),
+        createToast({ id: '2', message: 'B' }),
+      ];
+      const onDismissAll = vi.fn();
+      render(
+        <Toast toasts={toasts} onDismiss={mockDismiss} onDismissAll={onDismissAll} />
+      );
+      expect(screen.getByRole('button', { name: '모든 알림 닫기' })).toBeInTheDocument();
+    });
+
+    it('does not show dismiss all button when only one toast', () => {
+      const toasts = [createToast()];
+      const onDismissAll = vi.fn();
+      render(
+        <Toast toasts={toasts} onDismiss={mockDismiss} onDismissAll={onDismissAll} />
+      );
+      expect(screen.queryByRole('button', { name: '모든 알림 닫기' })).not.toBeInTheDocument();
+    });
+
+    it('does not show dismiss all button when onDismissAll is not provided', () => {
+      const toasts = [
+        createToast({ id: '1', message: 'A' }),
+        createToast({ id: '2', message: 'B' }),
+      ];
+      render(<Toast toasts={toasts} onDismiss={mockDismiss} />);
+      expect(screen.queryByRole('button', { name: '모든 알림 닫기' })).not.toBeInTheDocument();
+    });
+
+    it('calls onDismissAll when dismiss all button is clicked', () => {
+      const toasts = [
+        createToast({ id: '1', message: 'A' }),
+        createToast({ id: '2', message: 'B' }),
+      ];
+      const onDismissAll = vi.fn();
+      render(
+        <Toast toasts={toasts} onDismiss={mockDismiss} onDismissAll={onDismissAll} />
+      );
+      fireEvent.click(screen.getByRole('button', { name: '모든 알림 닫기' }));
+      expect(onDismissAll).toHaveBeenCalledTimes(1);
+    });
+
+    it('dismiss all button has correct text content', () => {
+      const toasts = [
+        createToast({ id: '1', message: 'A' }),
+        createToast({ id: '2', message: 'B' }),
+      ];
+      const onDismissAll = vi.fn();
+      render(
+        <Toast toasts={toasts} onDismiss={mockDismiss} onDismissAll={onDismissAll} />
+      );
+      expect(screen.getByText('모두 닫기')).toBeInTheDocument();
+    });
+
+    it('dismiss all button has toast-dismiss-all class', () => {
+      const toasts = [
+        createToast({ id: '1', message: 'A' }),
+        createToast({ id: '2', message: 'B' }),
+      ];
+      const onDismissAll = vi.fn();
+      const { container } = render(
+        <Toast toasts={toasts} onDismiss={mockDismiss} onDismissAll={onDismissAll} />
+      );
+      expect(container.querySelector('.toast-dismiss-all')).toBeInTheDocument();
+    });
+  });
 });
