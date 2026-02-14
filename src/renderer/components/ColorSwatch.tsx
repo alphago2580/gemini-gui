@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import './ColorSwatch.css';
 
 export type ColorSwatchSize = 'small' | 'medium' | 'large';
@@ -29,6 +29,16 @@ const ColorSwatch: React.FC<ColorSwatchProps> = ({
   const [customInput, setCustomInput] = useState('');
   const [showCustom, setShowCustom] = useState(false);
   const customInputRef = useRef<HTMLInputElement>(null);
+  const focusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up focus timer on unmount
+  useEffect(() => {
+    return () => {
+      if (focusTimerRef.current !== null) {
+        clearTimeout(focusTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleSelect = useCallback((color: string) => {
     if (disabled) return;
@@ -107,7 +117,7 @@ const ColorSwatch: React.FC<ColorSwatchProps> = ({
               className="color-swatch-custom-trigger"
               onClick={() => {
                 setShowCustom(true);
-                setTimeout(() => customInputRef.current?.focus(), 0);
+                focusTimerRef.current = setTimeout(() => customInputRef.current?.focus(), 0);
               }}
               disabled={disabled}
               type="button"

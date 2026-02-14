@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 interface UseRetryOptions {
   maxRetries?: number;
@@ -128,6 +128,17 @@ export function useRetry<T>(options: UseRetryOptions = {}) {
     }
     return null;
   }, [maxRetries, getDelay, onRetry]);
+
+  // Clean up any pending timeout on unmount
+  useEffect(() => {
+    return () => {
+      cancelledRef.current = true;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
 
   return {
     ...state,

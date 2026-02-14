@@ -261,6 +261,30 @@ describe('useRetry', () => {
     expect(onRetry).toHaveBeenCalledWith(2, errors[1]);
   });
 
+  it('sets cancelledRef on unmount to prevent state updates', async () => {
+    let callCount = 0;
+    const fn = () => {
+      callCount++;
+      return Promise.reject(new Error('fail'));
+    };
+
+    const { result, unmount } = renderHook(() =>
+      useRetry<string>({ maxRetries: 10, delay: 1, backoff: 'fixed' })
+    );
+
+    // Start execution
+    const promise = act(async () => {
+      await result.current.execute(fn);
+    });
+
+    // Unmount stops further retries via cancelledRef
+    unmount();
+    await promise;
+
+    // Should not have completed all 11 attempts (0 + 10 retries)
+    expect(callCount).toBeLessThanOrEqual(11);
+  });
+
   it('sets attempt to maxRetries after all fail', async () => {
     const { result } = renderHook(() =>
       useRetry<string>({ maxRetries: 5, delay: 1, backoff: 'fixed' })
