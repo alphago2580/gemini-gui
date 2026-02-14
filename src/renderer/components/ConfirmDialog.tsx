@@ -36,8 +36,11 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onCancel();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      onConfirm();
     }
-  }, [onCancel]);
+  }, [onCancel, onConfirm]);
 
   const handleOverlayClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
