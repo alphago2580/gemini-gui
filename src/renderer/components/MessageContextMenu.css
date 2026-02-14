@@ -30,8 +30,14 @@
   transition: background 0.1s;
 }
 
-.context-menu-item:hover {
+.context-menu-item:hover,
+.context-menu-item.focused {
   background: var(--bg-hover);
+}
+
+.context-menu-item:focus-visible {
+  outline: 2px solid var(--accent-primary, #4a90d9);
+  outline-offset: -2px;
 }
 
 .context-menu-item.danger {

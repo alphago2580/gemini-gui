@@ -169,16 +169,6 @@ describe('MessageContextMenu', () => {
     expect(onSelect).toHaveBeenCalledWith('quote');
   });
 
-  it('should not close on non-Escape keyDown', () => {
-    const onClose = vi.fn();
-    render(
-      <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={onClose} />
-    );
-    fireEvent.keyDown(document, { key: 'Enter' });
-    fireEvent.keyDown(document, { key: 'ArrowDown' });
-    expect(onClose).not.toHaveBeenCalled();
-  });
-
   it('should call onClose only once per item click', () => {
     const onClose = vi.fn();
     render(
@@ -204,5 +194,234 @@ describe('MessageContextMenu', () => {
     );
     expect(screen.getByText('유일한 항목')).toBeInTheDocument();
     expect(screen.getAllByRole('menuitem').length).toBe(1);
+  });
+
+  // --- Keyboard navigation tests ---
+
+  describe('keyboard navigation', () => {
+    it('focuses the first item on mount', () => {
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menuItems = screen.getAllByRole('menuitem');
+      expect(document.activeElement).toBe(menuItems[0]);
+    });
+
+    it('moves focus down with ArrowDown key', () => {
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menuItems = screen.getAllByRole('menuitem');
+      expect(document.activeElement).toBe(menuItems[0]);
+
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      expect(document.activeElement).toBe(menuItems[1]);
+
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      expect(document.activeElement).toBe(menuItems[2]);
+    });
+
+    it('wraps focus from last to first with ArrowDown', () => {
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menuItems = screen.getAllByRole('menuitem');
+
+      // Move to last item
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      expect(document.activeElement).toBe(menuItems[2]);
+
+      // Wrap to first
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      expect(document.activeElement).toBe(menuItems[0]);
+    });
+
+    it('moves focus up with ArrowUp key', () => {
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menuItems = screen.getAllByRole('menuitem');
+
+      // Move down first to have somewhere to go up
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      expect(document.activeElement).toBe(menuItems[2]);
+
+      fireEvent.keyDown(document, { key: 'ArrowUp' });
+      expect(document.activeElement).toBe(menuItems[1]);
+    });
+
+    it('wraps focus from first to last with ArrowUp', () => {
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menuItems = screen.getAllByRole('menuitem');
+      expect(document.activeElement).toBe(menuItems[0]);
+
+      // ArrowUp from first wraps to last
+      fireEvent.keyDown(document, { key: 'ArrowUp' });
+      expect(document.activeElement).toBe(menuItems[2]);
+    });
+
+    it('moves focus to first item with Home key', () => {
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menuItems = screen.getAllByRole('menuitem');
+
+      // Move to last
+      fireEvent.keyDown(document, { key: 'End' });
+      expect(document.activeElement).toBe(menuItems[2]);
+
+      // Home goes to first
+      fireEvent.keyDown(document, { key: 'Home' });
+      expect(document.activeElement).toBe(menuItems[0]);
+    });
+
+    it('moves focus to last item with End key', () => {
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menuItems = screen.getAllByRole('menuitem');
+
+      fireEvent.keyDown(document, { key: 'End' });
+      expect(document.activeElement).toBe(menuItems[2]);
+    });
+
+    it('selects focused item with Enter key', () => {
+      const onSelect = vi.fn();
+      const onClose = vi.fn();
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={onSelect} onClose={onClose} />
+      );
+
+      // Move focus to second item
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+
+      // Press Enter
+      fireEvent.keyDown(document, { key: 'Enter' });
+      expect(onSelect).toHaveBeenCalledWith('quote');
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    it('selects focused item with Space key', () => {
+      const onSelect = vi.fn();
+      const onClose = vi.fn();
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={onSelect} onClose={onClose} />
+      );
+
+      // Move focus to third item
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+
+      // Press Space
+      fireEvent.keyDown(document, { key: ' ' });
+      expect(onSelect).toHaveBeenCalledWith('delete');
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    it('applies focused class to the focused item', () => {
+      const { container } = render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menuItemEls = container.querySelectorAll('.context-menu-item');
+      expect(menuItemEls[0]).toHaveClass('focused');
+      expect(menuItemEls[1]).not.toHaveClass('focused');
+
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      const updatedItems = container.querySelectorAll('.context-menu-item');
+      expect(updatedItems[0]).not.toHaveClass('focused');
+      expect(updatedItems[1]).toHaveClass('focused');
+    });
+
+    it('sets tabIndex 0 on focused item and -1 on others', () => {
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menuItems = screen.getAllByRole('menuitem');
+      expect(menuItems[0]).toHaveAttribute('tabindex', '0');
+      expect(menuItems[1]).toHaveAttribute('tabindex', '-1');
+      expect(menuItems[2]).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('updates focused index on mouse enter', () => {
+      const { container } = render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menuItemEls = container.querySelectorAll('.context-menu-item');
+
+      // Initially first is focused
+      expect(menuItemEls[0]).toHaveClass('focused');
+
+      // Mouse enter on third item
+      fireEvent.mouseEnter(menuItemEls[2]);
+      const updatedItems = container.querySelectorAll('.context-menu-item');
+      expect(updatedItems[2]).toHaveClass('focused');
+      expect(updatedItems[0]).not.toHaveClass('focused');
+    });
+
+    it('sets aria-activedescendant on the menu', () => {
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menu = screen.getByRole('menu');
+      expect(menu).toHaveAttribute('aria-activedescendant', 'context-menu-item-copy');
+
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      expect(menu).toHaveAttribute('aria-activedescendant', 'context-menu-item-quote');
+    });
+
+    it('assigns unique ids to menu items', () => {
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      const menuItems = screen.getAllByRole('menuitem');
+      expect(menuItems[0]).toHaveAttribute('id', 'context-menu-item-copy');
+      expect(menuItems[1]).toHaveAttribute('id', 'context-menu-item-quote');
+      expect(menuItems[2]).toHaveAttribute('id', 'context-menu-item-delete');
+    });
+
+    it('does not crash when ArrowDown is pressed with no items', () => {
+      render(
+        <MessageContextMenu x={100} y={200} items={[]} onSelect={vi.fn()} onClose={vi.fn()} />
+      );
+      // Should not throw
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      fireEvent.keyDown(document, { key: 'ArrowUp' });
+      fireEvent.keyDown(document, { key: 'Home' });
+      fireEvent.keyDown(document, { key: 'End' });
+      fireEvent.keyDown(document, { key: 'Enter' });
+    });
+
+    it('does not close on ArrowDown or ArrowUp keys', () => {
+      const onClose = vi.fn();
+      render(
+        <MessageContextMenu x={100} y={200} items={items} onSelect={vi.fn()} onClose={onClose} />
+      );
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      fireEvent.keyDown(document, { key: 'ArrowUp' });
+      expect(onClose).not.toHaveBeenCalled();
+    });
+
+    it('keyboard navigation works with single item', () => {
+      const singleItem: ContextMenuItem[] = [{ id: 'only', label: '유일한 항목', icon: '★' }];
+      const onSelect = vi.fn();
+      const onClose = vi.fn();
+      render(
+        <MessageContextMenu x={50} y={50} items={singleItem} onSelect={onSelect} onClose={onClose} />
+      );
+      const menuItems = screen.getAllByRole('menuitem');
+      expect(document.activeElement).toBe(menuItems[0]);
+
+      // ArrowDown wraps to itself
+      fireEvent.keyDown(document, { key: 'ArrowDown' });
+      expect(document.activeElement).toBe(menuItems[0]);
+
+      // Enter selects
+      fireEvent.keyDown(document, { key: 'Enter' });
+      expect(onSelect).toHaveBeenCalledWith('only');
+    });
   });
 });
