@@ -1,12 +1,14 @@
 import React from 'react';
 import './StatusBar.css';
 import type { SessionStatus } from './SessionIndicator';
+import Sparkline from './Sparkline';
 import * as S from '../constants/strings';
 
 export interface StatusBarProps {
   sessionStatus: SessionStatus;
   model?: string;
   totalTokens?: number;
+  tokenHistory?: number[];
   cursorLine?: number;
   cursorCol?: number;
   encoding?: string;
@@ -31,6 +33,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
   sessionStatus,
   model,
   totalTokens,
+  tokenHistory,
   cursorLine,
   cursorCol,
   encoding = S.STATUS_BAR_ENCODING_LABEL,
@@ -69,7 +72,18 @@ const StatusBar: React.FC<StatusBarProps> = ({
         )}
 
         {totalTokens != null && (
-          <div className="status-bar-item" title={S.STATUS_BAR_TOKENS_LABEL}>
+          <div className="status-bar-item status-bar-tokens" title={S.STATUS_BAR_TOKENS_LABEL}>
+            {tokenHistory && tokenHistory.length >= 2 && (
+              <Sparkline
+                data={tokenHistory}
+                variant="area"
+                size="small"
+                width={48}
+                height={16}
+                showEndDot
+                label={S.STATUS_BAR_TOKEN_TREND_LABEL}
+              />
+            )}
             <span className="status-bar-text">
               {S.STATUS_BAR_TOKENS_LABEL}: {totalTokens.toLocaleString()}
             </span>

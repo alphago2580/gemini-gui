@@ -199,4 +199,43 @@ describe('StatusBar', () => {
     const sessionItem = container.querySelector('.status-bar-session');
     expect(sessionItem).toHaveAttribute('title', '연결됨');
   });
+
+  // --- Token history sparkline ---
+
+  it('renders sparkline when tokenHistory has 2+ data points', () => {
+    const { container } = render(
+      <StatusBar sessionStatus="idle" totalTokens={300} tokenHistory={[100, 200, 300]} />
+    );
+    expect(container.querySelector('.sparkline')).toBeInTheDocument();
+  });
+
+  it('does not render sparkline when tokenHistory has fewer than 2 points', () => {
+    const { container } = render(
+      <StatusBar sessionStatus="idle" totalTokens={100} tokenHistory={[100]} />
+    );
+    expect(container.querySelector('.sparkline')).not.toBeInTheDocument();
+  });
+
+  it('does not render sparkline when tokenHistory is not provided', () => {
+    const { container } = render(
+      <StatusBar sessionStatus="idle" totalTokens={100} />
+    );
+    expect(container.querySelector('.sparkline')).not.toBeInTheDocument();
+  });
+
+  it('sparkline has correct aria-label', () => {
+    render(
+      <StatusBar sessionStatus="idle" totalTokens={300} tokenHistory={[100, 200, 300]} />
+    );
+    expect(screen.getByLabelText('토큰 사용 추이')).toBeInTheDocument();
+  });
+
+  it('sparkline is inside the tokens section', () => {
+    const { container } = render(
+      <StatusBar sessionStatus="idle" totalTokens={300} tokenHistory={[100, 200, 300]} />
+    );
+    const tokensItem = container.querySelector('.status-bar-tokens');
+    expect(tokensItem).toBeInTheDocument();
+    expect(tokensItem?.querySelector('.sparkline')).toBeInTheDocument();
+  });
 });

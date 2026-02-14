@@ -646,6 +646,7 @@ export const STATUS_BAR_MODEL_LABEL = '모델';
 export const STATUS_BAR_TOKENS_LABEL = '토큰';
 export const STATUS_BAR_ENCODING_LABEL = 'UTF-8';
 export const STATUS_BAR_LINE_COL = (line: number, col: number) => `Ln ${line}, Col ${col}`;
+export const STATUS_BAR_TOKEN_TREND_LABEL = '토큰 사용 추이';
 
 // TextDiff
 export const TEXT_DIFF_LABEL = '텍스트 비교';
