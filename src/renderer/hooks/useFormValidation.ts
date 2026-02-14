@@ -2,11 +2,17 @@ import { useState, useCallback, useRef } from 'react';
 
 export type ValidatorFn<T> = (value: T, allValues: Record<string, unknown>) => string | null;
 
-export interface FieldConfig<T = unknown> {
-  initialValue: T;
-  validators?: ValidatorFn<T>[];
+/** Non-generic base for FieldConfig, used as a generic constraint. */
+interface FieldConfigBase {
+  initialValue: unknown;
+  validators?: ValidatorFn<never>[];
   validateOnChange?: boolean;
   validateOnBlur?: boolean;
+}
+
+export interface FieldConfig<T = unknown> extends FieldConfigBase {
+  initialValue: T;
+  validators?: ValidatorFn<T>[];
 }
 
 export interface FieldState<T = unknown> {
@@ -16,7 +22,7 @@ export interface FieldState<T = unknown> {
   dirty: boolean;
 }
 
-export interface FormValidationResult<F extends Record<string, FieldConfig<any>>> {
+export interface FormValidationResult<F extends Record<string, FieldConfigBase>> {
   fields: { [K in keyof F]: FieldState<F[K] extends FieldConfig<infer T> ? T : unknown> };
   values: { [K in keyof F]: F[K] extends FieldConfig<infer T> ? T : unknown };
   errors: { [K in keyof F]: string | null };
@@ -32,7 +38,7 @@ export interface FormValidationResult<F extends Record<string, FieldConfig<any>>
   resetField: (name: keyof F) => void;
 }
 
-function buildInitialFields<F extends Record<string, FieldConfig<any>>>(
+function buildInitialFields<F extends Record<string, FieldConfigBase>>(
   config: F
 ): Record<string, FieldState> {
   const fields: Record<string, FieldState> = {};
@@ -60,8 +66,7 @@ function runValidators<T>(
   return null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function useFormValidation<F extends Record<string, FieldConfig<any>>>(
+export function useFormValidation<F extends Record<string, FieldConfigBase>>(
   config: F
 ): FormValidationResult<F> {
   const configRef = useRef(config);
