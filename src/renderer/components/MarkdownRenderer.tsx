@@ -1,11 +1,15 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import SearchHighlight from './SearchHighlight';
 import CollapsibleCodeBlock from './CollapsibleCodeBlock';
+import MarkdownTOC, { extractHeadings, TocHeading } from './MarkdownTOC';
 import './MarkdownRenderer.css';
 import { tokenize } from '../utils/syntaxHighlight';
 import { renderMathToHtml } from '../utils/mathRenderer';
 import { detectCodeLanguage } from '../utils/detectCodeLanguage';
 import * as S from '../constants/strings';
+
+/** Minimum number of headings required to show the TOC */
+const TOC_MIN_HEADINGS = 3;
 
 export interface MarkdownRendererProps {
   content: string;
@@ -177,6 +181,17 @@ function renderInlineMarkdown(text: string, searchCtx: SearchContext | null = nu
   return nodes;
 }
 
+/**
+ * Generate a heading ID matching the same algorithm as MarkdownTOC's extractHeadings.
+ */
+function generateHeadingId(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s가-힣ㄱ-ㅎㅏ-ㅣ-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/^-+|-+$/g, '') || `heading-${text.length}`;
+}
+
 function renderParagraphContent(text: string, searchCtx: SearchContext | null = null): React.ReactNode[] {
   const lines = text.split('\n');
   const elements: React.ReactNode[] = [];
@@ -270,8 +285,9 @@ function renderParagraphContent(text: string, searchCtx: SearchContext | null = 
       flushList();
       const level = headerMatch[1].length as 1 | 2 | 3 | 4 | 5 | 6;
       const HeadingTag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+      const headingId = generateHeadingId(headerMatch[2].trim());
       elements.push(
-        <HeadingTag key={key++} className={`md-heading md-h${level}`}>
+        <HeadingTag key={key++} id={headingId} className={`md-heading md-h${level}`}>
           {renderInlineMarkdown(headerMatch[2], searchCtx)}
         </HeadingTag>
       );
@@ -365,8 +381,25 @@ const MarkdownRendererInner: React.FC<MarkdownRendererProps> = ({ content, searc
   const blocks = useMemo(() => parseBlocks(content), [content]);
   const searchCtx: SearchContext | null = searchQuery ? { query: searchQuery, activeMatchIndex: searchActiveMatchIndex } : null;
 
+  const headings = useMemo(() => extractHeadings(content, 1, 4), [content]);
+  const showToc = headings.length >= TOC_MIN_HEADINGS;
+
+  const handleTocHeadingClick = useCallback((heading: TocHeading) => {
+    const el = document.getElementById(heading.id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []);
+
   return (
     <div className="md-rendered">
+      {showToc && (
+        <MarkdownTOC
+          markdown={content}
+          defaultCollapsed
+          onHeadingClick={handleTocHeadingClick}
+        />
+      )}
       {blocks.map((block, index) => {
         if (block.type === 'code-block') {
           const language = block.language || detectCodeLanguage(block.content);
