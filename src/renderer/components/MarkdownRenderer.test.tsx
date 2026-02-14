@@ -670,4 +670,70 @@ describe('MarkdownRenderer', () => {
       expect(link?.getAttribute('href')).toBe('https://docs.example.com');
     });
   });
+
+  describe('Line numbers', () => {
+    it('shows line numbers for multi-line code blocks', () => {
+      const content = '```js\nconst a = 1;\nconst b = 2;\nconst c = 3;\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const lineNumbers = container.querySelectorAll('.md-line-number');
+      expect(lineNumbers.length).toBe(3);
+      expect(lineNumbers[0].textContent).toBe('1');
+      expect(lineNumbers[1].textContent).toBe('2');
+      expect(lineNumbers[2].textContent).toBe('3');
+    });
+
+    it('does not show line numbers for single-line code blocks', () => {
+      const content = '```js\nconst x = 1;\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const lineNumbers = container.querySelector('.md-line-numbers');
+      expect(lineNumbers).not.toBeInTheDocument();
+    });
+
+    it('shows line numbers for exactly 2 lines', () => {
+      const content = '```\nline one\nline two\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const lineNumbers = container.querySelectorAll('.md-line-number');
+      expect(lineNumbers.length).toBe(2);
+    });
+
+    it('line numbers container has aria-hidden', () => {
+      const content = '```\nfirst\nsecond\nthird\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const lineNumbersContainer = container.querySelector('.md-line-numbers');
+      expect(lineNumbersContainer).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('wraps code in md-code-body container', () => {
+      const content = '```\na\nb\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const codeBody = container.querySelector('.md-code-body');
+      expect(codeBody).toBeInTheDocument();
+    });
+
+    it('shows correct line count for code with many lines', () => {
+      const lines = Array.from({ length: 10 }, (_, i) => `line ${i + 1}`).join('\n');
+      const content = '```\n' + lines + '\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const lineNumbers = container.querySelectorAll('.md-line-number');
+      expect(lineNumbers.length).toBe(10);
+      expect(lineNumbers[9].textContent).toBe('10');
+    });
+
+    it('preserves code content when line numbers are shown', () => {
+      const code = 'const a = 1;\nconst b = 2;';
+      const content = '```\n' + code + '\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const codeEl = container.querySelector('code');
+      expect(codeEl?.textContent).toBe(code);
+    });
+
+    it('shows line numbers independently per code block', () => {
+      const content = '```\na\nb\nc\n```\n\ntext\n\n```\nx\ny\n```';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const lineNumberContainers = container.querySelectorAll('.md-line-numbers');
+      expect(lineNumberContainers.length).toBe(2);
+      expect(lineNumberContainers[0].querySelectorAll('.md-line-number').length).toBe(3);
+      expect(lineNumberContainers[1].querySelectorAll('.md-line-number').length).toBe(2);
+    });
+  });
 });

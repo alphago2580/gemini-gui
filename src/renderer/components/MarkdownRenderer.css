@@ -40,8 +40,33 @@
   margin: 0.5rem 0;
 }
 
+.md-code-body {
+  display: flex;
+}
+
+.md-line-numbers {
+  display: flex;
+  flex-direction: column;
+  padding-right: 1rem;
+  border-right: 1px solid var(--border-color);
+  margin-right: 1rem;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.md-line-number {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: right;
+  min-width: 1.5em;
+  opacity: 0.6;
+}
+
 .md-code-block code {
   white-space: pre;
+  flex: 1;
+  min-width: 0;
 }
 
 .md-code-header {
