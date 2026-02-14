@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import SearchHighlight from './SearchHighlight';
 import CollapsibleCodeBlock from './CollapsibleCodeBlock';
 import MarkdownTOC, { extractHeadings, TocHeading } from './MarkdownTOC';
@@ -354,12 +354,24 @@ function renderParagraphContent(text: string, searchCtx: SearchContext | null = 
 
 const CopyButton: React.FC<{ text: string }> = ({ text }) => {
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+      timerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback: do nothing if clipboard API is unavailable
     }
