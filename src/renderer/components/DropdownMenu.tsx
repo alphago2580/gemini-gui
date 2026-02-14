@@ -26,6 +26,7 @@ export interface DropdownMenuProps {
   onClose: () => void;
   items: DropdownMenuEntry[];
   trigger?: React.ReactNode;
+  triggerClassName?: string;
   onToggle?: () => void;
   position?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
   label?: string;
@@ -36,6 +37,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   onClose,
   items,
   trigger,
+  triggerClassName,
   onToggle,
   position = 'bottom-left',
   label = '메뉴',
@@ -162,7 +164,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     <div className="dropdown-menu-container" ref={containerRef}>
       {trigger && (
         <button
-          className="dropdown-menu-trigger"
+          className={['dropdown-menu-trigger', triggerClassName].filter(Boolean).join(' ')}
           onClick={onToggle}
           aria-haspopup="menu"
           aria-expanded={isOpen}

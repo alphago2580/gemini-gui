@@ -709,7 +709,8 @@ const App: React.FC = () => {
                 onClose={() => setIsMoreMenuOpen(false)}
                 onToggle={() => setIsMoreMenuOpen(prev => !prev)}
                 items={moreMenuItems}
-                trigger={<button className="header-action-btn" aria-label={S.MORE_ACTIONS_LABEL}>{S.MORE_ACTIONS_BUTTON}</button>}
+                trigger={S.MORE_ACTIONS_BUTTON}
+                triggerClassName="header-action-btn"
                 position="bottom-right"
                 label={S.MORE_ACTIONS_LABEL}
               />

@@ -212,6 +212,20 @@ describe('DropdownMenu', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
   });
 
+  it('applies triggerClassName to trigger button', () => {
+    const { container } = render(
+      <DropdownMenu
+        {...defaultProps}
+        trigger={<span>메뉴</span>}
+        triggerClassName="header-action-btn"
+        onToggle={vi.fn()}
+      />
+    );
+    const trigger = container.querySelector('.dropdown-menu-trigger')!;
+    expect(trigger).toHaveClass('dropdown-menu-trigger');
+    expect(trigger).toHaveClass('header-action-btn');
+  });
+
   it('trigger shows aria-expanded false when closed', () => {
     render(
       <DropdownMenu
