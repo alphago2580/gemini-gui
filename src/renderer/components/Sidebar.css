@@ -222,6 +222,22 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+.conversation-item[draggable="true"] {
+  cursor: grab;
+}
+
+.conversation-item[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.conversation-item--dragging {
+  opacity: 0.4;
+}
+
+.conversation-item--over {
+  border-top: 2px solid var(--accent-primary);
+}
+
 .sidebar-footer {
   border-top: 1px solid var(--border-color);
   padding: 1rem;

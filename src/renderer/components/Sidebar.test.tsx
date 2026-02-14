@@ -473,4 +473,235 @@ describe('Sidebar', () => {
       expect(arrowSpan!.textContent).toBe('▶');
     });
   });
+
+  describe('Drag-to-reorder', () => {
+    const mockOnReorderConversations = vi.fn();
+
+    const createDataTransfer = () => ({
+      effectAllowed: '' as string,
+      dropEffect: '' as string,
+      setData: vi.fn(),
+      getData: vi.fn(),
+    });
+
+    it('conversations are not draggable when onReorderConversations is not provided', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const items = screen.getAllByRole('listitem');
+      expect(items[0]).not.toHaveAttribute('draggable', 'true');
+    });
+
+    it('conversations are draggable when onReorderConversations is provided', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onReorderConversations={mockOnReorderConversations}
+        />
+      );
+      const items = screen.getAllByRole('listitem');
+      expect(items[0]).toHaveAttribute('draggable', 'true');
+      expect(items[1]).toHaveAttribute('draggable', 'true');
+      expect(items[2]).toHaveAttribute('draggable', 'true');
+    });
+
+    it('shows drag label title when onReorderConversations is provided', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onReorderConversations={mockOnReorderConversations}
+        />
+      );
+      const items = screen.getAllByRole('listitem');
+      expect(items[0]).toHaveAttribute('title', '드래그하여 순서 변경');
+    });
+
+    it('does not show drag label title when onReorderConversations is not provided', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const items = screen.getAllByRole('listitem');
+      expect(items[0]).not.toHaveAttribute('title', '드래그하여 순서 변경');
+    });
+
+    it('calls onReorderConversations with reordered list when dropping item 0 on item 2', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onReorderConversations={mockOnReorderConversations}
+        />
+      );
+      const items = screen.getAllByRole('listitem');
+      const dataTransfer = createDataTransfer();
+
+      fireEvent.dragStart(items[0], { dataTransfer });
+      fireEvent.dragOver(items[2], { dataTransfer });
+      fireEvent.drop(items[2], { dataTransfer });
+
+      expect(mockOnReorderConversations).toHaveBeenCalledWith([
+        mockConversations[1],
+        mockConversations[2],
+        mockConversations[0],
+      ]);
+    });
+
+    it('calls onReorderConversations with reordered list when dropping item 2 on item 0', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onReorderConversations={mockOnReorderConversations}
+        />
+      );
+      const items = screen.getAllByRole('listitem');
+      const dataTransfer = createDataTransfer();
+
+      fireEvent.dragStart(items[2], { dataTransfer });
+      fireEvent.dragOver(items[0], { dataTransfer });
+      fireEvent.drop(items[0], { dataTransfer });
+
+      expect(mockOnReorderConversations).toHaveBeenCalledWith([
+        mockConversations[2],
+        mockConversations[0],
+        mockConversations[1],
+      ]);
+    });
+
+    it('does not call onReorderConversations when dropping item on itself', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onReorderConversations={mockOnReorderConversations}
+        />
+      );
+      const items = screen.getAllByRole('listitem');
+      const dataTransfer = createDataTransfer();
+
+      fireEvent.dragStart(items[1], { dataTransfer });
+      fireEvent.dragOver(items[1], { dataTransfer });
+      fireEvent.drop(items[1], { dataTransfer });
+
+      expect(mockOnReorderConversations).not.toHaveBeenCalled();
+    });
+
+    it('adds conversation-item--over class on drag over target', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onReorderConversations={mockOnReorderConversations}
+        />
+      );
+      const items = screen.getAllByRole('listitem');
+      const dataTransfer = createDataTransfer();
+
+      fireEvent.dragStart(items[0], { dataTransfer });
+      fireEvent.dragOver(items[2], { dataTransfer });
+
+      const updatedItems = screen.getAllByRole('listitem');
+      expect(updatedItems[2]).toHaveClass('conversation-item--over');
+      expect(updatedItems[0]).not.toHaveClass('conversation-item--over');
+    });
+
+    it('clears drag state on dragEnd', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onReorderConversations={mockOnReorderConversations}
+        />
+      );
+      const items = screen.getAllByRole('listitem');
+      const dataTransfer = createDataTransfer();
+
+      fireEvent.dragStart(items[0], { dataTransfer });
+      fireEvent.dragOver(items[2], { dataTransfer });
+      fireEvent.dragEnd(items[0]);
+
+      const updatedItems = screen.getAllByRole('listitem');
+      updatedItems.forEach(item => {
+        expect(item).not.toHaveClass('conversation-item--over');
+      });
+    });
+
+    it('sets dataTransfer effectAllowed to move on dragStart', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onReorderConversations={mockOnReorderConversations}
+        />
+      );
+      const items = screen.getAllByRole('listitem');
+      const dataTransfer = createDataTransfer();
+
+      fireEvent.dragStart(items[0], { dataTransfer });
+      expect(dataTransfer.effectAllowed).toBe('move');
+    });
+
+    it('sets dataTransfer dropEffect to move on dragOver', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onReorderConversations={mockOnReorderConversations}
+        />
+      );
+      const items = screen.getAllByRole('listitem');
+      const dataTransfer = createDataTransfer();
+
+      fireEvent.dragOver(items[1], { dataTransfer });
+      expect(dataTransfer.dropEffect).toBe('move');
+    });
+
+    it('does not start drag when onReorderConversations is not provided', () => {
+      render(<Sidebar {...defaultProps} conversations={mockConversations} />);
+      const items = screen.getAllByRole('listitem');
+      const dataTransfer = createDataTransfer();
+
+      fireEvent.dragStart(items[0], { dataTransfer });
+      expect(dataTransfer.effectAllowed).toBe('');
+    });
+
+    it('calls onReorderConversations correctly when dropping adjacent items', () => {
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onReorderConversations={mockOnReorderConversations}
+        />
+      );
+      const items = screen.getAllByRole('listitem');
+      const dataTransfer = createDataTransfer();
+
+      fireEvent.dragStart(items[1], { dataTransfer });
+      fireEvent.dragOver(items[2], { dataTransfer });
+      fireEvent.drop(items[2], { dataTransfer });
+
+      expect(mockOnReorderConversations).toHaveBeenCalledWith([
+        mockConversations[0],
+        mockConversations[2],
+        mockConversations[1],
+      ]);
+    });
+
+    it('disables dragging when search query is active', async () => {
+      const user = userEvent.setup();
+      render(
+        <Sidebar
+          {...defaultProps}
+          conversations={mockConversations}
+          onReorderConversations={mockOnReorderConversations}
+        />
+      );
+
+      const searchInput = screen.getByPlaceholderText('대화 검색...');
+      await user.type(searchInput, '대화');
+
+      await waitFor(() => {
+        const items = screen.getAllByRole('listitem');
+        expect(items[0]).not.toHaveAttribute('draggable', 'true');
+      });
+    });
+  });
 });

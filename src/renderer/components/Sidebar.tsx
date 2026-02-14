@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import './Sidebar.css';
 import * as S from '../constants/strings';
 import type { Conversation } from '../../preload/types';
@@ -14,6 +14,7 @@ export interface SidebarProps {
   currentConversationId: string | null;
   onSelectConversation: (id: string) => void;
   onDeleteConversation?: (id: string) => void;
+  onReorderConversations?: (conversations: Conversation[]) => void;
   searchInputRef?: React.RefObject<HTMLInputElement | null>;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
@@ -26,6 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   currentConversationId,
   onSelectConversation,
   onDeleteConversation,
+  onReorderConversations,
   searchInputRef,
   isCollapsed = false,
   onToggleCollapse,
@@ -33,6 +35,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 200);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
+  const dragNodeRef = useRef<HTMLDivElement | null>(null);
 
   const getConversationMenuItems = useCallback((convId: string): DropdownMenuEntry[] => {
     const items: DropdownMenuEntry[] = [
@@ -44,6 +49,49 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
     return items;
   }, [onSelectConversation, onDeleteConversation]);
+
+  const canDrag = !!onReorderConversations && !debouncedSearchQuery.trim();
+
+  const handleDragStart = useCallback((index: number, e: React.DragEvent) => {
+    if (!onReorderConversations) return;
+    setDragIndex(index);
+    dragNodeRef.current = e.currentTarget as HTMLDivElement;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+    requestAnimationFrame(() => {
+      if (dragNodeRef.current) {
+        dragNodeRef.current.classList.add('conversation-item--dragging');
+      }
+    });
+  }, [onReorderConversations]);
+
+  const handleDragOver = useCallback((index: number, e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setOverIndex(index);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    if (dragNodeRef.current) {
+      dragNodeRef.current.classList.remove('conversation-item--dragging');
+    }
+    setDragIndex(null);
+    setOverIndex(null);
+    dragNodeRef.current = null;
+  }, []);
+
+  const handleDrop = useCallback((dropIndex: number, e: React.DragEvent) => {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === dropIndex || !onReorderConversations) {
+      handleDragEnd();
+      return;
+    }
+    const newConversations = [...conversations];
+    const [moved] = newConversations.splice(dragIndex, 1);
+    newConversations.splice(dropIndex, 0, moved);
+    onReorderConversations(newConversations);
+    handleDragEnd();
+  }, [dragIndex, conversations, onReorderConversations, handleDragEnd]);
 
   const filteredConversations = useMemo(() => {
     if (!debouncedSearchQuery.trim()) return conversations;
@@ -101,15 +149,29 @@ const Sidebar: React.FC<SidebarProps> = ({
                 {debouncedSearchQuery.trim() ? S.NO_SEARCH_RESULTS : S.NO_CONVERSATIONS}
               </div>
             ) : (
-              filteredConversations.map(conv => (
+              filteredConversations.map((conv, index) => {
+                const isOver = overIndex === index && dragIndex !== null && dragIndex !== index;
+                const classNames = [
+                  'conversation-item',
+                  currentConversationId === conv.id ? 'active' : '',
+                  isOver ? 'conversation-item--over' : '',
+                ].filter(Boolean).join(' ');
+
+                return (
                 <div
                   key={conv.id}
-                  className={`conversation-item ${currentConversationId === conv.id ? 'active' : ''}`}
+                  className={classNames}
                   onClick={() => onSelectConversation(conv.id)}
                   role="listitem"
                   aria-current={currentConversationId === conv.id ? 'true' : undefined}
                   aria-label={`${S.CONVERSATION_PREFIX} ${conv.title}`}
                   tabIndex={0}
+                  draggable={canDrag}
+                  onDragStart={(e) => handleDragStart(index, e)}
+                  onDragOver={(e) => handleDragOver(index, e)}
+                  onDragEnd={handleDragEnd}
+                  onDrop={(e) => handleDrop(index, e)}
+                  title={canDrag ? S.CONV_DRAG_LABEL : undefined}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -142,7 +204,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                     />
                   </div>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         </>
