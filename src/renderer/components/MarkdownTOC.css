@@ -1,0 +1,142 @@
+.markdown-toc {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  font-size: 0.8125rem;
+  max-width: 320px;
+  overflow: hidden;
+}
+
+.markdown-toc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  transition: background 0.15s;
+}
+
+.markdown-toc-header:hover {
+  background: var(--bg-hover);
+}
+
+.markdown-toc--collapsed .markdown-toc-header {
+  border-bottom: none;
+}
+
+.markdown-toc-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.markdown-toc-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 3px;
+  transition: transform 0.2s, color 0.15s, background 0.15s;
+  padding: 0;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.markdown-toc-toggle:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.markdown-toc--collapsed .markdown-toc-toggle {
+  transform: rotate(-90deg);
+}
+
+.markdown-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.375rem 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.markdown-toc-item {
+  display: block;
+}
+
+.markdown-toc-link {
+  display: block;
+  padding: 0.25rem 0.75rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s, background 0.15s;
+  border-left: 2px solid transparent;
+}
+
+.markdown-toc-link:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.markdown-toc-link:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
+}
+
+.markdown-toc-link--active {
+  color: var(--accent-primary);
+  border-left-color: var(--accent-primary);
+  background: var(--bg-hover);
+  font-weight: 500;
+}
+
+/* Indentation based on heading level */
+.markdown-toc-link--level-1 {
+  padding-left: 0.75rem;
+}
+
+.markdown-toc-link--level-2 {
+  padding-left: 1.5rem;
+}
+
+.markdown-toc-link--level-3 {
+  padding-left: 2.25rem;
+}
+
+.markdown-toc-link--level-4 {
+  padding-left: 3rem;
+}
+
+.markdown-toc-link--level-5 {
+  padding-left: 3.75rem;
+}
+
+.markdown-toc-link--level-6 {
+  padding-left: 4.5rem;
+}
+
+.markdown-toc-empty {
+  padding: 0.5rem 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.75rem;
+}
