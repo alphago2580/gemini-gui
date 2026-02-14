@@ -516,6 +516,7 @@ export const COLLAPSIBLE_TOKEN_DETAILS = '토큰 상세 정보';
 export const IMAGE_VIEWER_ARIA = '이미지 뷰어';
 
 // SpeedDial
+export const RESIZABLE_SIDEBAR_ARIA = '사이드바 크기 조절';
 export const SPEED_DIAL_ARIA = '빠른 액션';
 export const SPEED_DIAL_NEW_CHAT = '새 대화';
 export const SPEED_DIAL_SEARCH = '검색';

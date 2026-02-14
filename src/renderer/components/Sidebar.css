@@ -1,15 +1,11 @@
 .sidebar {
-  width: 260px;
+  width: 100%;
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   height: 100%;
-  transition: width 0.2s ease;
-}
-
-.sidebar.collapsed {
-  width: 60px;
+  overflow: hidden;
 }
 
 .sidebar-header {
