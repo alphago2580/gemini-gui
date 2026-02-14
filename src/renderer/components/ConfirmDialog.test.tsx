@@ -133,11 +133,20 @@ describe('ConfirmDialog', () => {
     expect(screen.getByLabelText('돌아가기')).toBeInTheDocument();
   });
 
-  it('does not call onCancel for non-Escape keys', () => {
+  it('calls onConfirm when Enter key is pressed', () => {
     render(<ConfirmDialog {...defaultProps} />);
     const overlay = screen.getByRole('dialog');
     fireEvent.keyDown(overlay, { key: 'Enter' });
+    expect(defaultProps.onConfirm).toHaveBeenCalledTimes(1);
     expect(defaultProps.onCancel).not.toHaveBeenCalled();
+  });
+
+  it('does not call onCancel or onConfirm for other keys', () => {
+    render(<ConfirmDialog {...defaultProps} />);
+    const overlay = screen.getByRole('dialog');
+    fireEvent.keyDown(overlay, { key: 'Tab' });
+    expect(defaultProps.onCancel).not.toHaveBeenCalled();
+    expect(defaultProps.onConfirm).not.toHaveBeenCalled();
   });
 
   it('renders with danger variant confirm button by default', () => {
