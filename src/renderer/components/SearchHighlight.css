@@ -1,0 +1,17 @@
+/* SearchHighlight — search term highlighting styles */
+.search-highlight-text {
+  display: inline;
+}
+
+.search-highlight-match {
+  background-color: var(--search-highlight-bg, rgba(255, 213, 0, 0.4));
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.search-highlight-active {
+  background-color: var(--search-highlight-active-bg, rgba(255, 152, 0, 0.6));
+  outline: 2px solid var(--search-highlight-active-outline, rgba(255, 152, 0, 0.8));
+  outline-offset: 0;
+}

@@ -680,3 +680,6 @@ export const ARIA_TOC = '목차';
 export const ARIA_TOC_TOGGLE = '목차 접기/펼치기';
 export const TOC_EMPTY = '제목이 없습니다';
 export const ARIA_TOC_ITEM = (text: string) => `${text}(으)로 이동`;
+
+// SearchHighlight
+export const SEARCH_HIGHLIGHT_ARIA_LABEL = (count: number) => `검색 결과 ${count}건`;
