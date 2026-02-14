@@ -98,6 +98,7 @@ import { useMessageSend } from './hooks/useMessageSend';
 import { useExport } from './hooks/useExport';
 import { useSettings } from './hooks/useSettings';
 import { useDialogs } from './hooks/useDialogs';
+import { useConversationFolders } from './hooks/useConversationFolders';
 import * as S from './constants/strings';
 
 const TokenBurnerDashboard = lazy(() => import('./components/tokenburner/TokenBurnerDashboard'));
@@ -168,6 +169,19 @@ const App: React.FC = () => {
 
   // Prompt templates
   const { templates, addTemplate, deleteTemplate } = usePromptTemplates();
+
+  // Conversation folders
+  const {
+    folders,
+    assignments: folderAssignments,
+    selectedFolderId,
+    createFolder,
+    renameFolder,
+    deleteFolder: deleteFolderAction,
+    assignConversation,
+    unassignConversation,
+    selectFolder,
+  } = useConversationFolders();
 
   // Settings state (extracted to custom hook)
   const { settings, handleSettingsSave } = useSettings();
@@ -617,6 +631,15 @@ const App: React.FC = () => {
         searchInputRef={searchInputRef}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={handleToggleSidebar}
+        folders={folders}
+        selectedFolderId={selectedFolderId}
+        folderAssignments={folderAssignments}
+        onSelectFolder={selectFolder}
+        onCreateFolder={createFolder}
+        onRenameFolder={renameFolder}
+        onDeleteFolder={deleteFolderAction}
+        onAssignConversation={assignConversation}
+        onUnassignConversation={unassignConversation}
       />
 
       <main className="main-content">

@@ -1,1 +1,1 @@
-integrate-status-bar — StatusBar 컴포넌트를 App.tsx에 통합
+integrate-conversation-folders — ConversationFolders + useConversationFolders를 App.tsx에 통합
