@@ -4,10 +4,10 @@ import React from 'react';
 import ShortcutRecorder from './ShortcutRecorder';
 
 describe('ShortcutRecorder', () => {
-  let onChange: ReturnType<typeof vi.fn>;
+  let onChange: ReturnType<typeof vi.fn<(keys: string[]) => void>>;
 
   beforeEach(() => {
-    onChange = vi.fn();
+    onChange = vi.fn<(keys: string[]) => void>();
   });
 
   it('renders with placeholder when value is empty', () => {
