@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 export type VibrationPattern = number | number[];
 
@@ -16,6 +16,13 @@ function checkSupport(): boolean {
 export function useVibration(): UseVibrationReturn {
   const isSupported = checkSupport();
   const [isVibrating, setIsVibrating] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const vibrate = useCallback((pattern: VibrationPattern = 200): boolean => {
     if (!checkSupport()) return false;
@@ -29,13 +36,15 @@ export function useVibration(): UseVibrationReturn {
         : pattern;
 
       if (duration > 0) {
-        setTimeout(() => setIsVibrating(false), duration);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => setIsVibrating(false), duration);
       }
     }
     return success;
   }, [isSupported]);
 
   const stop = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
     if (checkSupport()) {
       navigator.vibrate(0);
     }

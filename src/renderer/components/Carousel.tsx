@@ -27,7 +27,14 @@ const Carousel: React.FC<CarouselProps> = ({
   const [currentIndex, setCurrentIndex] = useState(startIndex);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const total = React.Children.count(children);
+
+  useEffect(() => {
+    return () => {
+      if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+    };
+  }, []);
 
   const goTo = useCallback((index: number) => {
     if (isTransitioning || total === 0) return;
@@ -41,7 +48,8 @@ const Carousel: React.FC<CarouselProps> = ({
     setIsTransitioning(true);
     setCurrentIndex(newIndex);
     onChange?.(newIndex);
-    setTimeout(() => setIsTransitioning(false), 300);
+    if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+    transitionTimerRef.current = setTimeout(() => setIsTransitioning(false), 300);
   }, [currentIndex, isTransitioning, loop, total, onChange]);
 
   const goNext = useCallback(() => {

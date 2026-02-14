@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import './CodeSnippets.css';
 import { extractCodeBlocks, groupByLanguage } from '../utils/codeExtractor';
 import * as S from '../constants/strings';
@@ -18,6 +18,7 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
 }) => {
   const [filterLang, setFilterLang] = useState<string>('all');
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const allCodes = useMemo(() => extractCodeBlocks(messages), [messages]);
 
@@ -31,11 +32,18 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
     return allCodes.filter(c => (c.language || 'plain') === filterLang);
   }, [allCodes, filterLang]);
 
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
+
   const handleCopy = useCallback(async (code: string, index: number) => {
     try {
       await navigator.clipboard.writeText(code);
       setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopiedIndex(null), 2000);
     } catch { /* ignore */ }
   }, []);
 

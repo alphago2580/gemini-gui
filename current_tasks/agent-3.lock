@@ -1,1 +1,1 @@
-fix-drag-timer-hook-bugs — ResizablePanel/Slider drag event listener leaks, CopyButton/Tooltip timer cleanup, useDevicePixelRatio/usePageLeave hook fixes
+fix-timer-cleanup-leaks — Fix setTimeout/timer memory leaks in components and hooks
