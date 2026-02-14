@@ -218,6 +218,17 @@ describe('ColorSwatch', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  it('cleans up focus timer on unmount after custom trigger click', () => {
+    const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
+    const { unmount } = render(<ColorSwatch colors={palette} allowCustom />);
+    fireEvent.click(screen.getByLabelText('커스텀 색상 입력'));
+    // A setTimeout was scheduled for focus
+    unmount();
+    // clearTimeout should have been called during unmount cleanup
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+    clearTimeoutSpy.mockRestore();
+  });
+
   it('supports 3-digit hex', () => {
     const onChange = vi.fn();
     render(<ColorSwatch colors={palette} allowCustom onChange={onChange} />);

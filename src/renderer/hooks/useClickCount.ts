@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, type RefObject } from 'react';
+import { useState, useCallback, useRef, useEffect, type RefObject } from 'react';
 
 export type ClickType = 'single' | 'double' | 'triple';
 
@@ -25,7 +25,8 @@ export function useClickCount(
     lastClickTime.current = 0;
   }, []);
 
-  const handleClick = useCallback(() => {
+  const handleClickRef = useRef<() => void>(() => {});
+  handleClickRef.current = () => {
     const now = Date.now();
     const elapsed = now - lastClickTime.current;
 
@@ -36,28 +37,19 @@ export function useClickCount(
     }
 
     lastClickTime.current = now;
-  }, [thresholdMs]);
+  };
 
-  // Attach listener if elementRef provided, otherwise caller must wire handleClick
-  const clickRef = useRef(handleClick);
-  clickRef.current = handleClick;
+  // Attach/detach event listener via useEffect for proper cleanup
+  useEffect(() => {
+    const el = elementRef?.current;
+    if (!el) return;
 
-  // We use the ref callback pattern for the element
-  const attachedRef = useRef<HTMLElement | null>(null);
-
-  // Sync with elementRef
-  if (elementRef) {
-    const el = elementRef.current;
-    if (el !== attachedRef.current) {
-      if (attachedRef.current) {
-        attachedRef.current.removeEventListener('click', clickRef.current);
-      }
-      if (el) {
-        el.addEventListener('click', clickRef.current);
-      }
-      attachedRef.current = el;
-    }
-  }
+    const handler = () => handleClickRef.current();
+    el.addEventListener('click', handler);
+    return () => {
+      el.removeEventListener('click', handler);
+    };
+  }, [elementRef?.current]);
 
   const clickType: ClickType =
     count >= 3 ? 'triple' : count === 2 ? 'double' : 'single';

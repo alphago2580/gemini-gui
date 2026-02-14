@@ -238,6 +238,21 @@ describe('useLongPress', () => {
     expect(onLongPress).not.toHaveBeenCalled();
   });
 
+  it('clears pending timer on unmount', () => {
+    const onLongPress = vi.fn();
+    const { result, unmount } = renderHook(() =>
+      useLongPress({ onLongPress, threshold: 500 })
+    );
+
+    const mockEvent = {} as React.MouseEvent;
+    act(() => result.current.onMouseDown(mockEvent));
+    // Timer is pending, unmount before it fires
+    unmount();
+    act(() => vi.advanceTimersByTime(500));
+
+    expect(onLongPress).not.toHaveBeenCalled();
+  });
+
   it('onMouseLeave handler is stable when options do not change', () => {
     const onLongPress = vi.fn();
     const { result, rerender } = renderHook(

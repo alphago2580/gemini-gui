@@ -211,6 +211,35 @@ describe('useClickCount', () => {
     expect(result.current.count).toBe(2);
   });
 
+  it('removes event listener on unmount', () => {
+    const div = document.createElement('div');
+    const removeListenerSpy = vi.spyOn(div, 'removeEventListener');
+    const ref = { current: div };
+    const { unmount } = renderHook(() => useClickCount(ref));
+
+    unmount();
+
+    expect(removeListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+    removeListenerSpy.mockRestore();
+  });
+
+  it('does not leak listeners when element changes', () => {
+    const div1 = document.createElement('div');
+    const div2 = document.createElement('div');
+    const removeSpy1 = vi.spyOn(div1, 'removeEventListener');
+    const ref = { current: div1 as HTMLElement | null };
+
+    const { rerender } = renderHook(() => useClickCount(ref));
+
+    // Change the element
+    ref.current = div2;
+    rerender();
+
+    // Old listener should have been removed
+    expect(removeSpy1).toHaveBeenCalledWith('click', expect.any(Function));
+    removeSpy1.mockRestore();
+  });
+
   it('click just past threshold resets', () => {
     const div = document.createElement('div');
     const ref = { current: div };

@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 
 export interface LongPressOptions {
   /** Duration in ms before long press triggers. Default: 500 */
@@ -57,6 +57,16 @@ export function useLongPress(options: LongPressOptions): LongPressHandlers {
       timerRef.current = null;
     }
     longPressedRef.current = false;
+  }, []);
+
+  // Clean up any pending timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
   }, []);
 
   return {
