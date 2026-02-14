@@ -310,7 +310,9 @@ describe('Message Send → Receive Integration Flow', () => {
       await sendMessage(user, '이것은 실패합니다');
 
       // User message still appears
-      expect(screen.getByText('이것은 실패합니다')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('이것은 실패합니다')).toBeInTheDocument();
+      });
 
       // Error message appears
       await waitFor(() => {
