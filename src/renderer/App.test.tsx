@@ -2162,8 +2162,9 @@ describe('App Component', () => {
     describe('SessionIndicator in App header', () => {
         it('renders session indicator with idle status by default', () => {
             render(<App />);
-            expect(screen.getByRole('status')).toBeInTheDocument();
-            expect(screen.getByText('대기 중')).toBeInTheDocument();
+            const indicator = screen.getByRole('status', { name: /세션 상태/ });
+            expect(indicator).toBeInTheDocument();
+            expect(screen.getAllByText('대기 중').length).toBeGreaterThanOrEqual(1);
         });
 
         it('shows error status when session has error', () => {
@@ -2174,7 +2175,7 @@ describe('App Component', () => {
                 return noop;
             });
             render(<App />);
-            expect(screen.getByText('연결 오류')).toBeInTheDocument();
+            expect(screen.getAllByText('연결 오류').length).toBeGreaterThanOrEqual(1);
             delete (mockElectronAPI as Record<string, unknown>).onSessionStatus;
         });
     });
@@ -2266,6 +2267,71 @@ describe('App Component', () => {
                 expect(screen.getByRole('menu')).toBeInTheDocument();
                 expect(screen.getByText('대화 열기')).toBeInTheDocument();
                 expect(screen.getByText('삭제')).toBeInTheDocument();
+            });
+        });
+    });
+
+    describe('StatusBar integration', () => {
+        it('renders StatusBar at the bottom of main content', () => {
+            render(<App />);
+            const statusBar = screen.getByRole('status', { name: '상태 표시줄' });
+            expect(statusBar).toBeInTheDocument();
+        });
+
+        it('shows idle session status by default', () => {
+            render(<App />);
+            const statusBar = screen.getByRole('status', { name: '상태 표시줄' });
+            expect(within(statusBar).getByText('대기 중')).toBeInTheDocument();
+        });
+
+        it('shows UTF-8 encoding label', () => {
+            render(<App />);
+            const statusBar = screen.getByRole('status', { name: '상태 표시줄' });
+            expect(within(statusBar).getByText('UTF-8')).toBeInTheDocument();
+        });
+
+        it('does not show model when default auto is selected', () => {
+            render(<App />);
+            const statusBar = screen.getByRole('status', { name: '상태 표시줄' });
+            // 'auto' model should not be displayed in status bar
+            expect(within(statusBar).queryByText('자동 (Auto)')).not.toBeInTheDocument();
+        });
+
+        it('shows token count after receiving response', async () => {
+            const callbacks = setupStreamCallbacks();
+            const user = userEvent.setup();
+
+            render(<App />);
+
+            const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
+            await user.type(input, 'Hello');
+            await user.click(screen.getByText('전송'));
+
+            // Simulate stream message
+            await act(async () => {
+                callbacks.streamData?.({
+                    type: 'message',
+                    role: 'assistant',
+                    content: 'Hello back!',
+                    delta: true,
+                });
+            });
+
+            // Simulate token usage result
+            await act(async () => {
+                callbacks.streamData?.({
+                    type: 'result',
+                    stats: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+                });
+            });
+
+            await act(async () => {
+                callbacks.streamComplete?.();
+            });
+
+            await waitFor(() => {
+                const statusBar = screen.getByRole('status', { name: '상태 표시줄' });
+                expect(within(statusBar).getByText('토큰: 15')).toBeInTheDocument();
             });
         });
     });
