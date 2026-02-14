@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import './MarkdownRenderer.css';
 import { tokenize } from '../utils/syntaxHighlight';
 import { renderMathToHtml } from '../utils/mathRenderer';
+import { detectCodeLanguage } from '../utils/detectCodeLanguage';
 import * as S from '../constants/strings';
 
 export interface MarkdownRendererProps {
@@ -342,14 +343,18 @@ const MarkdownRendererInner: React.FC<MarkdownRendererProps> = ({ content }) => 
     <div className="md-rendered">
       {blocks.map((block, index) => {
         if (block.type === 'code-block') {
-          const tokens = block.language
-            ? tokenize(block.content, block.language)
+          const language = block.language || detectCodeLanguage(block.content);
+          const isDetected = !block.language && language !== '';
+          const tokens = language
+            ? tokenize(block.content, language)
             : null;
           return (
             <pre key={index} className="md-code-block">
               <div className="md-code-header">
-                {block.language && (
-                  <span className="md-code-lang">{block.language}</span>
+                {language && (
+                  <span className={`md-code-lang${isDetected ? ' md-code-lang-detected' : ''}`}>
+                    {language}
+                  </span>
                 )}
                 <CopyButton text={block.content} />
               </div>

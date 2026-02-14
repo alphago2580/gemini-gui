@@ -62,6 +62,11 @@
   text-transform: lowercase;
 }
 
+.md-code-lang-detected {
+  font-style: italic;
+  opacity: 0.75;
+}
+
 .md-copy-btn {
   margin-left: auto;
   padding: 0.125rem 0.5rem;
