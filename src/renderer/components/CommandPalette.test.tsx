@@ -316,4 +316,47 @@ describe('CommandPalette', () => {
     render(<CommandPalette isOpen={true} onClose={onClose} commands={[]} />);
     expect(screen.getByText('일치하는 명령어가 없습니다')).toBeInTheDocument();
   });
+
+  describe('Korean chosung search', () => {
+    it('filters commands by initial consonants (chosung)', async () => {
+      const user = userEvent.setup();
+      render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+      const input = screen.getByPlaceholderText('명령어 검색...');
+
+      await user.type(input, 'ㅅㅈ');
+      // "설정 열기" starts with ㅅㅈ
+      expect(screen.getByText('설정 열기')).toBeInTheDocument();
+      // Commands without ㅅㅈ chosung sequence should be filtered out
+      expect(screen.queryByText('새 대화')).not.toBeInTheDocument();
+    });
+
+    it('matches chosung anywhere in label', async () => {
+      const user = userEvent.setup();
+      render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+      const input = screen.getByPlaceholderText('명령어 검색...');
+
+      await user.type(input, 'ㄱㅅ');
+      // "대화 검색" contains ㄱㅅ in chosung
+      expect(screen.getByText('대화 검색')).toBeInTheDocument();
+    });
+
+    it('executes chosung-filtered command on Enter', async () => {
+      const user = userEvent.setup();
+      render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+      const input = screen.getByPlaceholderText('명령어 검색...');
+
+      await user.type(input, 'ㅅㅈ');
+      fireEvent.keyDown(input, { key: 'Enter' });
+      expect(commands[3].action).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows empty message when no chosung match found', async () => {
+      const user = userEvent.setup();
+      render(<CommandPalette isOpen={true} onClose={onClose} commands={commands} />);
+      const input = screen.getByPlaceholderText('명령어 검색...');
+
+      await user.type(input, 'ㅎㅎㅎ');
+      expect(screen.getByText('일치하는 명령어가 없습니다')).toBeInTheDocument();
+    });
+  });
 });
