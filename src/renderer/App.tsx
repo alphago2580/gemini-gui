@@ -25,6 +25,8 @@ import PerformancePanel from './components/PerformancePanel';
 import MessageSearch from './components/MessageSearch';
 import InputPreview from './components/InputPreview';
 import InputCharacterCounter from './components/InputCharacterCounter';
+import MentionAutocomplete from './components/MentionAutocomplete';
+import type { MentionCommand } from './components/MentionAutocomplete';
 import PinnedMessages from './components/PinnedMessages';
 import SplitButton from './components/SplitButton';
 import Chip from './components/Chip';
@@ -98,6 +100,16 @@ import { useDialogs } from './hooks/useDialogs';
 import * as S from './constants/strings';
 
 const TokenBurnerDashboard = lazy(() => import('./components/tokenburner/TokenBurnerDashboard'));
+
+const MENTION_COMMANDS: MentionCommand[] = [
+  { id: 'translate', label: S.MENTION_CMD_TRANSLATE, description: S.MENTION_CMD_TRANSLATE_DESC, icon: '🌐' },
+  { id: 'summarize', label: S.MENTION_CMD_SUMMARIZE, description: S.MENTION_CMD_SUMMARIZE_DESC, icon: '📝' },
+  { id: 'explain', label: S.MENTION_CMD_EXPLAIN, description: S.MENTION_CMD_EXPLAIN_DESC, icon: '💡' },
+  { id: 'code', label: S.MENTION_CMD_CODE, description: S.MENTION_CMD_CODE_DESC, icon: '💻' },
+  { id: 'review', label: S.MENTION_CMD_REVIEW, description: S.MENTION_CMD_REVIEW_DESC, icon: '🔍' },
+  { id: 'fix', label: S.MENTION_CMD_FIX, description: S.MENTION_CMD_FIX_DESC, icon: '🔧' },
+  { id: 'help', label: S.MENTION_CMD_HELP, description: S.MENTION_CMD_HELP_DESC, icon: '❓' },
+];
 
 type AppMode = 'chat' | 'tokenburner';
 
@@ -393,7 +405,6 @@ const App: React.FC = () => {
     handleFilesSelected,
     handleRemoveFile,
     handleSend,
-    handleKeyDown,
     handlePaste,
   } = useMessageSend({
     currentConversationId,
@@ -936,18 +947,18 @@ const App: React.FC = () => {
               onDelete={deleteTemplate}
             />
             <label htmlFor="message-input" className="sr-only">{S.ARIA_MESSAGE_INPUT}</label>
-            <textarea
+            <MentionAutocomplete
               ref={textareaRef}
-              id="message-input"
-              className="input-field"
+              inputId="message-input"
+              inputClassName="input-field"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
+              onChange={setInput}
+              onSubmit={() => handleSend()}
               onPaste={handlePaste}
-              placeholder={S.MESSAGE_PLACEHOLDER}
+              commands={MENTION_COMMANDS}
+              placeholder={S.MENTION_PLACEHOLDER}
               disabled={isLoading}
-              rows={1}
-              aria-label={S.ARIA_MESSAGE_INPUT}
+              ariaLabel={S.ARIA_MESSAGE_INPUT}
             />
             {isLoading ? (
               <button
