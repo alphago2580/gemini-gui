@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import './CommandPalette.css';
 import * as S from '../constants/strings';
+import { chosungMatch } from '../utils/chosungSearch';
 
 export interface Command {
   id: string;
@@ -23,8 +24,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
 
   const filteredCommands = useMemo(() => {
     if (!query.trim()) return commands;
-    const lowerQuery = query.toLowerCase();
-    return commands.filter(cmd => cmd.label.toLowerCase().includes(lowerQuery));
+    return commands.filter(cmd => chosungMatch(cmd.label, query));
   }, [query, commands]);
 
   // Reset state when opened
