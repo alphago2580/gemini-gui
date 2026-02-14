@@ -326,4 +326,274 @@ describe('TabBar', () => {
         const tabItems = container.querySelectorAll('.tab-item');
         expect(tabItems).toHaveLength(3);
     });
+
+    // --- Drag-to-reorder tests ---
+
+    describe('drag-to-reorder', () => {
+        const mockOnReorderTabs = vi.fn();
+
+        const createDataTransfer = () => ({
+            effectAllowed: '' as string,
+            dropEffect: '' as string,
+            setData: vi.fn(),
+            getData: vi.fn(),
+        });
+
+        it('tabs are not draggable when onReorderTabs is not provided', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            expect(tabs[0]).not.toHaveAttribute('draggable', 'true');
+        });
+
+        it('tabs are draggable when onReorderTabs is provided', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                    onReorderTabs={mockOnReorderTabs}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            expect(tabs[0]).toHaveAttribute('draggable', 'true');
+            expect(tabs[1]).toHaveAttribute('draggable', 'true');
+            expect(tabs[2]).toHaveAttribute('draggable', 'true');
+        });
+
+        it('shows drag label title when onReorderTabs is provided', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                    onReorderTabs={mockOnReorderTabs}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            expect(tabs[0]).toHaveAttribute('title', '드래그하여 순서 변경');
+        });
+
+        it('does not show drag label title when onReorderTabs is not provided', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            expect(tabs[0]).not.toHaveAttribute('title', '드래그하여 순서 변경');
+        });
+
+        it('calls onReorderTabs with reordered tabs when dropping tab 0 on tab 2', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                    onReorderTabs={mockOnReorderTabs}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            const dataTransfer = createDataTransfer();
+
+            fireEvent.dragStart(tabs[0], { dataTransfer });
+            fireEvent.dragOver(tabs[2], { dataTransfer });
+            fireEvent.drop(tabs[2], { dataTransfer });
+
+            expect(mockOnReorderTabs).toHaveBeenCalledWith([
+                { id: '2', title: '두 번째 대화' },
+                { id: '3', title: '세 번째 대화' },
+                { id: '1', title: '대화 1' },
+            ]);
+        });
+
+        it('calls onReorderTabs with reordered tabs when dropping tab 2 on tab 0', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                    onReorderTabs={mockOnReorderTabs}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            const dataTransfer = createDataTransfer();
+
+            fireEvent.dragStart(tabs[2], { dataTransfer });
+            fireEvent.dragOver(tabs[0], { dataTransfer });
+            fireEvent.drop(tabs[0], { dataTransfer });
+
+            expect(mockOnReorderTabs).toHaveBeenCalledWith([
+                { id: '3', title: '세 번째 대화' },
+                { id: '1', title: '대화 1' },
+                { id: '2', title: '두 번째 대화' },
+            ]);
+        });
+
+        it('does not call onReorderTabs when dropping tab on itself', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                    onReorderTabs={mockOnReorderTabs}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            const dataTransfer = createDataTransfer();
+
+            fireEvent.dragStart(tabs[1], { dataTransfer });
+            fireEvent.dragOver(tabs[1], { dataTransfer });
+            fireEvent.drop(tabs[1], { dataTransfer });
+
+            expect(mockOnReorderTabs).not.toHaveBeenCalled();
+        });
+
+        it('adds tab-item--over class on drag over target', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                    onReorderTabs={mockOnReorderTabs}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            const dataTransfer = createDataTransfer();
+
+            fireEvent.dragStart(tabs[0], { dataTransfer });
+            fireEvent.dragOver(tabs[2], { dataTransfer });
+
+            // Re-query after state update
+            const updatedTabs = screen.getAllByRole('tab');
+            expect(updatedTabs[2]).toHaveClass('tab-item--over');
+            expect(updatedTabs[0]).not.toHaveClass('tab-item--over');
+        });
+
+        it('clears drag state on dragEnd', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                    onReorderTabs={mockOnReorderTabs}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            const dataTransfer = createDataTransfer();
+
+            fireEvent.dragStart(tabs[0], { dataTransfer });
+            fireEvent.dragOver(tabs[2], { dataTransfer });
+            fireEvent.dragEnd(tabs[0]);
+
+            const updatedTabs = screen.getAllByRole('tab');
+            updatedTabs.forEach(tab => {
+                expect(tab).not.toHaveClass('tab-item--over');
+            });
+        });
+
+        it('sets dataTransfer effectAllowed to move on dragStart', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                    onReorderTabs={mockOnReorderTabs}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            const dataTransfer = createDataTransfer();
+
+            fireEvent.dragStart(tabs[0], { dataTransfer });
+            expect(dataTransfer.effectAllowed).toBe('move');
+        });
+
+        it('sets dataTransfer dropEffect to move on dragOver', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                    onReorderTabs={mockOnReorderTabs}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            const dataTransfer = createDataTransfer();
+
+            fireEvent.dragOver(tabs[1], { dataTransfer });
+            expect(dataTransfer.dropEffect).toBe('move');
+        });
+
+        it('does not start drag when onReorderTabs is not provided', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="1"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            const dataTransfer = createDataTransfer();
+
+            fireEvent.dragStart(tabs[0], { dataTransfer });
+            // effectAllowed should remain empty since drag is not enabled
+            expect(dataTransfer.effectAllowed).toBe('');
+        });
+
+        it('moves middle tab to end position correctly', () => {
+            render(
+                <TabBar
+                    tabs={defaultTabs}
+                    activeTabId="2"
+                    onSelectTab={mockOnSelectTab}
+                    onCloseTab={mockOnCloseTab}
+                    onNewTab={mockOnNewTab}
+                    onReorderTabs={mockOnReorderTabs}
+                />
+            );
+            const tabs = screen.getAllByRole('tab');
+            const dataTransfer = createDataTransfer();
+
+            fireEvent.dragStart(tabs[1], { dataTransfer });
+            fireEvent.dragOver(tabs[2], { dataTransfer });
+            fireEvent.drop(tabs[2], { dataTransfer });
+
+            expect(mockOnReorderTabs).toHaveBeenCalledWith([
+                { id: '1', title: '대화 1' },
+                { id: '3', title: '세 번째 대화' },
+                { id: '2', title: '두 번째 대화' },
+            ]);
+        });
+    });
 });
