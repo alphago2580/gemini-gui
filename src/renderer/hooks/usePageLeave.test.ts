@@ -154,4 +154,33 @@ describe('usePageLeave', () => {
 
     expect(result.current.hasLeft).toBe(true);
   });
+
+  it('uses latest onLeave callback without re-registering listener', () => {
+    const addSpy = vi.spyOn(document, 'addEventListener');
+    const onLeave1 = vi.fn();
+    const onLeave2 = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ cb }) => usePageLeave(cb),
+      { initialProps: { cb: onLeave1 } }
+    );
+
+    const addCallCount = addSpy.mock.calls.filter(c => c[0] === 'mouseleave').length;
+
+    // Re-render with a new callback
+    rerender({ cb: onLeave2 });
+
+    // Listener should NOT be re-registered
+    const newAddCallCount = addSpy.mock.calls.filter(c => c[0] === 'mouseleave').length;
+    expect(newAddCallCount).toBe(addCallCount);
+
+    // But the new callback should be called
+    act(() => {
+      document.dispatchEvent(createMouseLeaveEvent(100, 0));
+    });
+
+    expect(onLeave1).not.toHaveBeenCalled();
+    expect(onLeave2).toHaveBeenCalledTimes(1);
+    addSpy.mockRestore();
+  });
 });

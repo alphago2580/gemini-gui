@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import './CopyButton.css';
 
 export interface CopyButtonProps {
@@ -32,6 +32,14 @@ const CopyButton: React.FC<CopyButtonProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   const handleCopy = useCallback(async () => {
     if (disabled || copied) return;

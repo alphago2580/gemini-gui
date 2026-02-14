@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface UsePageLeaveResult {
   hasLeft: boolean;
@@ -15,6 +15,8 @@ export function usePageLeave(
 ): UsePageLeaveResult {
   const [hasLeft, setHasLeft] = useState(false);
   const [leaveCount, setLeaveCount] = useState(0);
+  const onLeaveRef = useRef(onLeave);
+  onLeaveRef.current = onLeave;
 
   const reset = useCallback(() => {
     setHasLeft(false);
@@ -31,7 +33,7 @@ export function usePageLeave(
       ) {
         setHasLeft(true);
         setLeaveCount((prev) => prev + 1);
-        onLeave?.();
+        onLeaveRef.current?.();
       }
     };
 
@@ -40,7 +42,7 @@ export function usePageLeave(
     return () => {
       document.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [onLeave]);
+  }, []);
 
   return { hasLeft, leaveCount, reset };
 }

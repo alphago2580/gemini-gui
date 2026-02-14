@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import './Tooltip.css';
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
@@ -18,6 +18,14 @@ const Tooltip: React.FC<TooltipProps> = ({
 }) => {
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   const show = useCallback(() => {
     timerRef.current = setTimeout(() => setVisible(true), delay);

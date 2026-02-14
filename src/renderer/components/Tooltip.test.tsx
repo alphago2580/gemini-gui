@@ -306,4 +306,23 @@ describe('Tooltip', () => {
     expect(screen.getByTestId('custom-child')).toBeInTheDocument();
     expect(screen.getByText('nested')).toBeInTheDocument();
   });
+
+  it('clears pending timer on unmount', () => {
+    const clearSpy = vi.spyOn(global, 'clearTimeout');
+    const { container, unmount } = render(
+      <Tooltip content="test">
+        <span>child</span>
+      </Tooltip>
+    );
+    const wrapper = container.querySelector('.tooltip-wrapper')!;
+
+    // Trigger show (starts timer)
+    fireEvent.mouseEnter(wrapper);
+
+    // Unmount before timer fires
+    unmount();
+
+    expect(clearSpy).toHaveBeenCalled();
+    clearSpy.mockRestore();
+  });
 });

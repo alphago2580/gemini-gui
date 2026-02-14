@@ -361,6 +361,40 @@ describe('ResizablePanel', () => {
     });
   });
 
+  describe('drag cleanup on unmount', () => {
+    it('removes document event listeners when unmounted during drag', () => {
+      const removeSpy = vi.spyOn(document, 'removeEventListener');
+      const { unmount } = render(<ResizablePanel {...defaultProps} defaultSize={260} />);
+      const handle = screen.getByRole('separator');
+
+      // Start drag
+      fireEvent.mouseDown(handle, { clientX: 260, clientY: 0 });
+
+      // Unmount while dragging
+      unmount();
+
+      expect(removeSpy).toHaveBeenCalledWith('mousemove', expect.any(Function));
+      expect(removeSpy).toHaveBeenCalledWith('mouseup', expect.any(Function));
+      removeSpy.mockRestore();
+    });
+
+    it('resets body styles when unmounted during drag', () => {
+      const { unmount } = render(<ResizablePanel {...defaultProps} defaultSize={260} />);
+      const handle = screen.getByRole('separator');
+
+      // Start drag
+      fireEvent.mouseDown(handle, { clientX: 260, clientY: 0 });
+      expect(document.body.style.cursor).toBe('col-resize');
+      expect(document.body.style.userSelect).toBe('none');
+
+      // Unmount while dragging
+      unmount();
+
+      expect(document.body.style.cursor).toBe('');
+      expect(document.body.style.userSelect).toBe('');
+    });
+  });
+
   describe('handle customization', () => {
     it('applies custom handle size for horizontal', () => {
       render(<ResizablePanel {...defaultProps} handleSize={10} />);

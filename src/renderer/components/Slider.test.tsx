@@ -309,6 +309,24 @@ describe('Slider', () => {
     });
   });
 
+  describe('drag cleanup on unmount', () => {
+    it('removes document event listeners when unmounted during drag', () => {
+      const removeSpy = vi.spyOn(document, 'removeEventListener');
+      const { unmount } = render(<Slider defaultValue={50} />);
+      const slider = screen.getByRole('slider');
+
+      // Start drag
+      fireEvent.mouseDown(slider, { clientX: 50 });
+
+      // Unmount while dragging
+      unmount();
+
+      expect(removeSpy).toHaveBeenCalledWith('mousemove', expect.any(Function));
+      expect(removeSpy).toHaveBeenCalledWith('mouseup', expect.any(Function));
+      removeSpy.mockRestore();
+    });
+  });
+
   describe('step and range', () => {
     it('snaps to step values', () => {
       const onChange = vi.fn();
