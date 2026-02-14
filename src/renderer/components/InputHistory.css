@@ -1,0 +1,63 @@
+.input-history {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.input-history--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.input-history__textarea {
+  width: 100%;
+  resize: none;
+  border: 1px solid var(--border-color, #404040);
+  border-radius: 8px;
+  background: var(--bg-primary, #1e1e1e);
+  color: var(--text-primary, #e0e0e0);
+  font-size: 0.875rem;
+  font-family: inherit;
+  padding: 0.5rem 0.75rem;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input-history__textarea:focus {
+  border-color: var(--accent-primary, #4a90d9);
+}
+
+.input-history__textarea::placeholder {
+  color: var(--text-muted, #666);
+}
+
+.input-history__textarea:disabled {
+  cursor: not-allowed;
+}
+
+.input-history__indicator {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--bg-secondary, #2a2a2a);
+  border: 1px solid var(--border-color, #404040);
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  color: var(--text-secondary, #aaa);
+  pointer-events: none;
+  user-select: none;
+}
+
+.input-history__indicator-icon {
+  font-size: 0.75rem;
+}
+
+.input-history__indicator-text {
+  font-variant-numeric: tabular-nums;
+}
