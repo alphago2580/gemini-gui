@@ -1,1 +1,1 @@
-integrate-collapsible-codeblock — CollapsibleCodeBlock을 MarkdownRenderer에 통합하여 긴 코드블록 자동 접기
+integrate-markdown-toc — MarkdownTOC를 MarkdownRenderer에 통합하여 긴 마크다운 응답에 자동 목차 표시

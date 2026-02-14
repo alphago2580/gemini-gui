@@ -823,4 +823,82 @@ describe('MarkdownRenderer', () => {
       expect(toggle).toBeInTheDocument();
     });
   });
+
+  describe('MarkdownTOC integration', () => {
+    it('does not show TOC when fewer than 3 headings', () => {
+      const content = '# Heading 1\n\nSome text\n\n## Heading 2';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      expect(container.querySelector('.markdown-toc')).not.toBeInTheDocument();
+    });
+
+    it('shows TOC when 3 or more headings are present', () => {
+      const content = '# Heading 1\n\nText\n\n## Heading 2\n\nText\n\n### Heading 3';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      expect(container.querySelector('.markdown-toc')).toBeInTheDocument();
+    });
+
+    it('shows TOC in collapsed state by default', () => {
+      const content = '# One\n\n## Two\n\n### Three';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const toc = container.querySelector('.markdown-toc');
+      expect(toc).toBeInTheDocument();
+      expect(toc?.classList.contains('markdown-toc--collapsed')).toBe(true);
+    });
+
+    it('expands TOC when toggle is clicked', () => {
+      const content = '# One\n\n## Two\n\n### Three';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      const toggleButton = container.querySelector('.markdown-toc-header');
+      expect(toggleButton).toBeInTheDocument();
+      fireEvent.click(toggleButton!);
+      const toc = container.querySelector('.markdown-toc');
+      expect(toc?.classList.contains('markdown-toc--collapsed')).toBe(false);
+      expect(container.querySelector('.markdown-toc-list')).toBeInTheDocument();
+    });
+
+    it('adds id attributes to rendered headings', () => {
+      const content = '# First Heading\n\nText\n\n## Second Heading\n\nText\n\n### Third Heading';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      expect(container.querySelector('#first-heading')).toBeInTheDocument();
+      expect(container.querySelector('#second-heading')).toBeInTheDocument();
+      expect(container.querySelector('#third-heading')).toBeInTheDocument();
+    });
+
+    it('scrolls to heading when TOC item is clicked', () => {
+      const content = '# One\n\n## Two\n\n### Three';
+      const { container } = render(<MarkdownRenderer content={content} />);
+
+      const mockScrollIntoView = vi.fn();
+      const headingEl = container.querySelector('#one');
+      if (headingEl) {
+        headingEl.scrollIntoView = mockScrollIntoView;
+      }
+
+      // Expand TOC first
+      const toggleButton = container.querySelector('.markdown-toc-header');
+      fireEvent.click(toggleButton!);
+
+      // Click the first TOC item
+      const tocItems = container.querySelectorAll('.markdown-toc-link');
+      expect(tocItems.length).toBeGreaterThan(0);
+      fireEvent.click(tocItems[0]);
+
+      expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+    });
+
+    it('does not count headings inside code blocks for TOC', () => {
+      const content = '# Real Heading\n\n```\n# Not a heading\n## Also not\n### Still not\n```\n\nSome text';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      // Only 1 real heading, so TOC should not appear
+      expect(container.querySelector('.markdown-toc')).not.toBeInTheDocument();
+    });
+
+    it('renders heading IDs with Korean text', () => {
+      const content = '# 소개\n\n## 사용법\n\n### 예제';
+      const { container } = render(<MarkdownRenderer content={content} />);
+      expect(container.querySelector('#소개')).toBeInTheDocument();
+      expect(container.querySelector('#사용법')).toBeInTheDocument();
+      expect(container.querySelector('#예제')).toBeInTheDocument();
+    });
+  });
 });
