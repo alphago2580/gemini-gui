@@ -99,9 +99,9 @@ describe('Switch', () => {
     expect(screen.getByRole('switch')).toHaveAttribute('aria-label', '토글');
   });
 
-  it('does not have aria-label when label text is provided', () => {
+  it('uses label text as aria-label when label is provided', () => {
     render(<Switch checked={false} onChange={() => {}} label="알림" />);
-    expect(screen.getByRole('switch')).not.toHaveAttribute('aria-label');
+    expect(screen.getByRole('switch')).toHaveAttribute('aria-label', '알림');
   });
 
   it('applies small size class', () => {

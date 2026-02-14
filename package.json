@@ -67,7 +67,8 @@
     "esbuild": "^0.27.0",
     "jsdom": "^27.3.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.15",
+    "vitest-axe": "^0.1.0"
   },
   "dependencies": {
     "react": "^19.2.0",
