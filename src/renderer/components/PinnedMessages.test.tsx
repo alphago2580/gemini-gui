@@ -132,6 +132,19 @@ describe('PinnedMessages', () => {
     expect(roles[1]).toHaveClass('assistant');
   });
 
+  it('should navigate on Space key press', () => {
+    const onNavigate = vi.fn();
+    render(
+      <PinnedMessages messages={samplePinned} onNavigate={onNavigate} onUnpin={vi.fn()} />
+    );
+    const items = screen.getAllByRole('button');
+    const firstItem = items.find(el => el.classList.contains('pinned-message-item'));
+    if (firstItem) {
+      fireEvent.keyDown(firstItem, { key: ' ' });
+      expect(onNavigate).toHaveBeenCalledWith(0);
+    }
+  });
+
   it('non-Enter keyDown does not call onNavigate', () => {
     const onNavigate = vi.fn();
     render(

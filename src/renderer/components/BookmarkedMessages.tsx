@@ -63,7 +63,7 @@ const BookmarkedMessagesInner: React.FC<BookmarkedMessagesProps> = ({
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setSelectedIndex(prev => Math.max(prev - 1, 0));
-    } else if (e.key === 'Enter' && filteredBookmarks.length > 0) {
+    } else if ((e.key === 'Enter' || e.key === ' ') && filteredBookmarks.length > 0) {
       e.preventDefault();
       const bm = filteredBookmarks[selectedIndex];
       onNavigateToMessage(bm.conversationId, bm.messageIndex);

@@ -371,6 +371,27 @@ describe('useTabs', () => {
         expect(result.current.openTabIds).toEqual(['1', '2', '3']);
     });
 
+    it('cleans up closeTab timer on unmount', () => {
+        localStorage.setItem('gemini-open-tabs', JSON.stringify(['1']));
+        const { result, unmount } = renderHook(() =>
+            useTabs('1', mockOnSelectConversation, mockOnNewChat, conversations)
+        );
+
+        act(() => {
+            result.current.closeTab('1');
+        });
+
+        // Unmount before timer fires
+        unmount();
+
+        act(() => {
+            vi.runAllTimers();
+        });
+
+        // onNewChat should NOT have been called since the hook was unmounted
+        expect(mockOnNewChat).not.toHaveBeenCalled();
+    });
+
     describe('reorderTabs', () => {
         it('reorders tabs to match new order', () => {
             localStorage.setItem('gemini-open-tabs', JSON.stringify(['1', '2', '3']));
