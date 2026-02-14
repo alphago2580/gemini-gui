@@ -36,6 +36,7 @@ import ConfirmDialog from './components/ConfirmDialog';
 import NotificationBanner from './components/NotificationBanner';
 import SessionIndicator from './components/SessionIndicator';
 import StatusBar from './components/StatusBar';
+import ResizablePanel from './components/ResizablePanel';
 import ProgressBar from './components/ProgressBar';
 import Drawer from './components/Drawer';
 import ScrollToTop from './components/ScrollToTop';
@@ -621,28 +622,16 @@ const App: React.FC = () => {
 
   return (
     <div className="app" role="application">
-      <Sidebar
-        onNewChat={handleNewChat}
-        onOpenSettings={dialogs.openSettings}
-        conversations={conversations}
-        currentConversationId={currentConversationId}
-        onSelectConversation={handleSelectConversation}
-        onDeleteConversation={handleDeleteConversation}
-        searchInputRef={searchInputRef}
-        isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={handleToggleSidebar}
-        folders={folders}
-        selectedFolderId={selectedFolderId}
-        folderAssignments={folderAssignments}
-        onSelectFolder={selectFolder}
-        onCreateFolder={createFolder}
-        onRenameFolder={renameFolder}
-        onDeleteFolder={deleteFolderAction}
-        onAssignConversation={assignConversation}
-        onUnassignConversation={unassignConversation}
-      />
-
-      <main className="main-content">
+      <ResizablePanel
+        direction="horizontal"
+        defaultSize={260}
+        minSize={180}
+        maxSize={500}
+        size={isSidebarCollapsed ? 60 : undefined}
+        disabled={isSidebarCollapsed}
+        storageKey="sidebar-width"
+        ariaLabel={S.RESIZABLE_SIDEBAR_ARIA}
+        secondaryChildren={<main className="main-content">
         {sessionStatus === 'error' && (
           <NotificationBanner
             message={S.BANNER_CONNECTION_ERROR}
@@ -1019,7 +1008,29 @@ const App: React.FC = () => {
           model={settings.model !== 'auto' ? (S.MODEL_DISPLAY_NAMES[settings.model] || settings.model) : undefined}
           totalTokens={tokenUsage?.totalTokens}
         />
-      </main>
+      </main>}
+      >
+        <Sidebar
+          onNewChat={handleNewChat}
+          onOpenSettings={dialogs.openSettings}
+          conversations={conversations}
+          currentConversationId={currentConversationId}
+          onSelectConversation={handleSelectConversation}
+          onDeleteConversation={handleDeleteConversation}
+          searchInputRef={searchInputRef}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={handleToggleSidebar}
+          folders={folders}
+          selectedFolderId={selectedFolderId}
+          folderAssignments={folderAssignments}
+          onSelectFolder={selectFolder}
+          onCreateFolder={createFolder}
+          onRenameFolder={renameFolder}
+          onDeleteFolder={deleteFolderAction}
+          onAssignConversation={assignConversation}
+          onUnassignConversation={unassignConversation}
+        />
+      </ResizablePanel>
 
       <Settings
         isOpen={dialogs.isSettingsOpen}
