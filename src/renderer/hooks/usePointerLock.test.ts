@@ -13,7 +13,7 @@ describe('usePointerLock', () => {
       configurable: true,
     });
     document.exitPointerLock = vi.fn();
-    document.body.requestPointerLock = mockRequestPointerLock;
+    document.body.requestPointerLock = mockRequestPointerLock as unknown as typeof document.body.requestPointerLock;
   });
 
   afterEach(() => {

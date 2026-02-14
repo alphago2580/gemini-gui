@@ -83,10 +83,8 @@ export function getAncestors<T>(root: TreeNode<T>, targetId: string): TreeNode<T
   for (const id of path.slice(0, -1)) {
     if (current && current.id === id) {
       ancestors.push(current);
-      current = current.children.find(c => {
-        const nextIdx = path.indexOf(id) + 1;
-        return c.id === path[nextIdx];
-      }) ?? null;
+      const nextPathIdx: number = path.indexOf(id) + 1;
+      current = current.children.find(c => c.id === path[nextPathIdx]) ?? null;
     }
   }
   return ancestors;

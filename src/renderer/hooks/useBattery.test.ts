@@ -100,8 +100,8 @@ describe('useBattery', () => {
 
     // Simulate level change
     mockBattery.level = 0.5;
-    const levelHandler = mockBattery.addEventListener.mock.calls.find(
-      (call: [string, () => void]) => call[0] === 'levelchange'
+    const levelHandler = (mockBattery.addEventListener.mock.calls as [string, () => void][]).find(
+      (call) => call[0] === 'levelchange'
     )?.[1];
     if (levelHandler) {
       levelHandler();
@@ -120,8 +120,8 @@ describe('useBattery', () => {
     });
 
     mockBattery.charging = false;
-    const handler = mockBattery.addEventListener.mock.calls.find(
-      (call: [string, () => void]) => call[0] === 'chargingchange'
+    const handler = (mockBattery.addEventListener.mock.calls as [string, () => void][]).find(
+      (call) => call[0] === 'chargingchange'
     )?.[1];
     if (handler) {
       handler();

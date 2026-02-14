@@ -64,7 +64,7 @@ export function createStore<S, A = { type: string }>(
 }
 
 // Combine multiple reducers into one
-export function combineReducers<S extends Record<string, unknown>>(
+export function combineReducers<S extends object>(
   reducers: { [K in keyof S]: Reducer<S[K], { type: string }> }
 ): Reducer<S, { type: string }> {
   return (state: S, action: { type: string }): S => {
@@ -141,9 +141,11 @@ export function createSelector<S>(
 }
 
 // Action creator helper
-export function createAction<P = void>(
-  type: string
-): P extends void ? () => { type: string } : (payload: P) => { type: string; payload: P } {
+type ActionCreator<P> = P extends void
+  ? (() => { type: string }) & { type: string }
+  : ((payload: P) => { type: string; payload: P }) & { type: string };
+
+export function createAction<P = void>(type: string): ActionCreator<P> {
   const actionCreator = (payload?: P) => {
     if (payload !== undefined) {
       return { type, payload };
@@ -151,7 +153,5 @@ export function createAction<P = void>(
     return { type };
   };
   actionCreator.type = type;
-  return actionCreator as P extends void
-    ? () => { type: string }
-    : (payload: P) => { type: string; payload: P };
+  return actionCreator as unknown as ActionCreator<P>;
 }
