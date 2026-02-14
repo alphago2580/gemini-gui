@@ -18,7 +18,7 @@ interface EyeDropperInstance {
 }
 
 function getEyeDropperConstructor(): (new () => EyeDropperInstance) | null {
-  const win = window as Record<string, unknown>;
+  const win = window as unknown as Record<string, unknown>;
   return (win.EyeDropper ?? null) as (new () => EyeDropperInstance) | null;
 }
 

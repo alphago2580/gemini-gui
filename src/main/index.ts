@@ -407,6 +407,7 @@ ipcMain.handle('set-window-title', async (_event, title: string) => {
 
 // TokenBurner IPC handlers
 import { TokenBurnerEngine } from './tokenburner/engine';
+import type { TaskPriority } from './tokenburner/types';
 
 let tokenBurnerEngine: TokenBurnerEngine | null = null;
 
@@ -454,7 +455,7 @@ ipcMain.handle('tokenburner:stop', async () => {
 ipcMain.handle('tokenburner:add-task', async (_event, title: string, description: string, priority?: string) => {
   try {
     const engine = getOrCreateEngine();
-    const taskId = await engine.addTask(title, description, priority);
+    const taskId = await engine.addTask(title, description, priority as TaskPriority | undefined);
     return { success: true, taskId };
   } catch (error) {
     return { success: false, error: getErrorMessage(error) };

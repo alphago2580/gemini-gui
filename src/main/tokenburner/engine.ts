@@ -10,6 +10,7 @@ import type {
   Task,
   QueueStatus,
   AgentState,
+  AgentStats,
   TaskMetric,
   MetricsSummary,
   DashboardData,
@@ -29,6 +30,7 @@ export type {
   Task,
   QueueStatus,
   AgentState,
+  AgentStats,
   TaskMetric,
   MetricsSummary,
   DashboardData,
@@ -144,25 +146,36 @@ class InMemoryMetrics implements IMetricsCollector {
 
   getSummary(): MetricsSummary {
     if (this.records.length === 0) {
-      return { totalTasks: 0, successRate: 0, avgDuration: 0, totalDuration: 0 };
+      return { totalTasks: 0, completed: 0, failed: 0, successRate: 0, avgDuration: 0, totalDuration: 0, agentCount: 0 };
     }
-    const successes = this.records.filter((r) => r.success).length;
+    const completed = this.records.filter((r) => r.success).length;
+    const failed = this.records.length - completed;
     const totalDuration = this.records.reduce((sum, r) => sum + r.duration, 0);
+    const uniqueAgents = new Set(this.records.map((r) => r.agentId));
     return {
       totalTasks: this.records.length,
-      successRate: successes / this.records.length,
+      completed,
+      failed,
+      successRate: completed / this.records.length,
       avgDuration: totalDuration / this.records.length,
       totalDuration,
+      agentCount: uniqueAgents.size,
     };
   }
 
-  getAgentStats(agentId: string): { completed: number; failed: number; avgDuration: number } {
+  getAgentStats(agentId: string): AgentStats {
     const agentRecords = this.records.filter((r) => r.agentId === agentId);
-    if (agentRecords.length === 0) return { completed: 0, failed: 0, avgDuration: 0 };
     const completed = agentRecords.filter((r) => r.success).length;
-    const failed = agentRecords.filter((r) => !r.success).length;
-    const avgDuration = agentRecords.reduce((s, r) => s + r.duration, 0) / agentRecords.length;
-    return { completed, failed, avgDuration };
+    const failed = agentRecords.length - completed;
+    const totalDuration = agentRecords.reduce((s, r) => s + r.duration, 0);
+    return {
+      agentId,
+      completed,
+      failed,
+      totalDuration,
+      avgDuration: agentRecords.length > 0 ? totalDuration / agentRecords.length : 0,
+      successRate: agentRecords.length > 0 ? completed / agentRecords.length : 0,
+    };
   }
 }
 
@@ -328,7 +341,7 @@ export class TokenBurnerEngine extends EventEmitter {
     return {
       projectName: this.config.project.name,
       agents: this.getAgentStates(),
-      queue: this.queue.status(),
+      queue: await this.queue.status(),
       metrics: this.metrics.getSummary(),
       isRunning: this.running,
     };

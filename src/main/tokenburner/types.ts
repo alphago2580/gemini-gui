@@ -15,6 +15,7 @@ export interface Task {
   maxRetries: number;
   failReason?: string;
   completedAt?: number;
+  claimedAt?: number;
   createdAt: number;
 }
 
@@ -57,11 +58,65 @@ export interface TypeCheckResult {
   errors: Array<{ file: string }>;
 }
 
+export type HarnessEventType =
+  | 'claim'
+  | 'test-result'
+  | 'merge'
+  | 'complete'
+  | 'fail'
+  | 'idle'
+  | 'error'
+  | 'agent-start'
+  | 'agent-complete'
+  | 'retry';
+
 export interface HarnessEvent {
-  type: 'claim' | 'test-result' | 'merge' | 'complete' | 'fail' | 'idle';
+  type: HarnessEventType;
   taskId?: string;
   agentId?: string;
+  timestamp?: number;
+  message?: string;
+  success?: boolean;
+  retryCount?: number;
   data?: Record<string, unknown>;
+}
+
+export interface HarnessConfig {
+  maxRetries: number;
+  idleBackoffMs: number;
+  maxIdleBackoffMs: number;
+  mergeRetries: number;
+}
+
+export interface TaskLike {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface AgentLike {
+  start(task: TaskLike, worktreePath: string, prompt: string): Promise<void>;
+  stop(): Promise<void>;
+  isRunning(): boolean;
+  on(event: string, listener: (...args: unknown[]) => void): void;
+  removeAllListeners(event?: string): void;
+}
+
+export interface QueueLike {
+  claim(agentId: string): Promise<TaskLike | null>;
+  complete(taskId: string): Promise<void>;
+  fail(taskId: string, reason: string): Promise<void>;
+}
+
+export interface GitOpsLike {
+  createWorktree(repoPath: string, agentId: string, branchName: string): Promise<string>;
+  removeWorktree(worktreePath: string): Promise<void>;
+  mergeBranch(repoPath: string, branchName: string, targetBranch: string, retries: number): Promise<MergeResult>;
+  hasNewCommits(repoPath: string, branchName: string, targetBranch: string): Promise<boolean>;
+}
+
+export interface TestGateLike {
+  runTests(worktreePath: string, command: string): Promise<{ success: boolean; rawOutput: string }>;
 }
 
 export interface TaskMetric {
@@ -75,14 +130,21 @@ export interface TaskMetric {
 
 export interface MetricsSummary {
   totalTasks: number;
+  completed: number;
+  failed: number;
   successRate: number;
   avgDuration: number;
   totalDuration: number;
+  agentCount: number;
 }
 
 export interface AgentStats {
+  agentId: string;
   completed: number;
   failed: number;
+  totalDuration: number;
+  avgDuration: number;
+  successRate: number;
 }
 
 export interface AgentState {
@@ -99,6 +161,27 @@ export interface DashboardData {
   queue: QueueStatus;
   metrics: MetricsSummary;
   isRunning: boolean;
+}
+
+export interface AgentConfig {
+  cliCommand: string;
+  cliArgs?: string[];
+  timeoutMs: number;
+  env?: NodeJS.ProcessEnv;
+}
+
+export interface AgentTask {
+  id: string;
+  title: string;
+  description: string;
+  priority?: TaskPriority;
+  status?: TaskStatus;
+  retries?: number;
+  maxRetries?: number;
+  failReason?: string;
+  completedAt?: number;
+  claimedAt?: number;
+  createdAt?: number;
 }
 
 export interface TokenBurnerConfig {
@@ -148,7 +231,7 @@ export interface IAgent {
 export interface IMetricsCollector {
   recordTask(metric: TaskMetric): void;
   getSummary(): MetricsSummary;
-  getAgentStats(agentId: string): { completed: number; failed: number; avgDuration: number };
+  getAgentStats(agentId: string): AgentStats;
 }
 
 export interface EngineConfig {
@@ -176,4 +259,54 @@ export interface TokenBurnerEngineOptions {
   queue?: ITaskQueue;
   metrics?: IMetricsCollector;
   agentFactory?: (id: string, model: string) => IAgent;
+}
+
+// ── Planner types ──
+
+export interface PlannerTask {
+  id: string;
+  title: string;
+  description: string;
+  priority: TaskPriority;
+  dependencies: string[];
+  estimatedDuration?: number;
+}
+
+export interface PlanPhase {
+  phase: number;
+  tasks: PlannerTask[];
+  parallelizable: boolean;
+}
+
+export interface ExecutionPlan {
+  phases: PlanPhase[];
+  totalTasks: number;
+  estimatedDuration: number;
+  criticalPath: string[];
+}
+
+// ── Scaler types ──
+
+export interface ScalerConfig {
+  minAgents: number;
+  maxAgents: number;
+  scaleUpThreshold: number;
+  scaleDownThreshold: number;
+  cooldownMs: number;
+}
+
+export interface ScalerState {
+  currentAgents: number;
+  desiredAgents: number;
+  lastScaleTime: number;
+  pendingTasks: number;
+  activeAgents: number;
+  idleAgents: number;
+}
+
+export interface ScaleDecision {
+  action: 'scale-up' | 'scale-down' | 'none';
+  from: number;
+  to: number;
+  reason: string;
 }
