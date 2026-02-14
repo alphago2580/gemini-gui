@@ -77,6 +77,11 @@ export function useTabs(
     onSelectConversation(openTabIds[prevIndex]);
   }, [tabs.length, currentConversationId, openTabIds, onSelectConversation]);
 
+  // Reorder tabs to a new order
+  const reorderTabs = useCallback((newTabs: Tab[]) => {
+    setOpenTabIds(newTabs.map(t => t.id));
+  }, [setOpenTabIds]);
+
   // Remove tab IDs that no longer have corresponding conversations
   const cleanupTabs = useCallback((conversationIds: string[]) => {
     setOpenTabIds(prev => prev.filter(id => conversationIds.includes(id)));
@@ -92,5 +97,6 @@ export function useTabs(
     prevTab,
     ensureTabOpen,
     cleanupTabs,
+    reorderTabs,
   };
 }

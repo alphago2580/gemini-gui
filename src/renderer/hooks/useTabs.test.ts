@@ -370,4 +370,88 @@ describe('useTabs', () => {
 
         expect(result.current.openTabIds).toEqual(['1', '2', '3']);
     });
+
+    describe('reorderTabs', () => {
+        it('reorders tabs to match new order', () => {
+            localStorage.setItem('gemini-open-tabs', JSON.stringify(['1', '2', '3']));
+            const { result } = renderHook(() =>
+                useTabs('1', mockOnSelectConversation, mockOnNewChat, conversations)
+            );
+
+            act(() => {
+                result.current.reorderTabs([
+                    { id: '3', title: '대화 3' },
+                    { id: '1', title: '대화 1' },
+                    { id: '2', title: '대화 2' },
+                ]);
+            });
+
+            expect(result.current.openTabIds).toEqual(['3', '1', '2']);
+        });
+
+        it('persists reordered tabs to localStorage', () => {
+            localStorage.setItem('gemini-open-tabs', JSON.stringify(['1', '2', '3']));
+            const { result } = renderHook(() =>
+                useTabs('1', mockOnSelectConversation, mockOnNewChat, conversations)
+            );
+
+            act(() => {
+                result.current.reorderTabs([
+                    { id: '2', title: '대화 2' },
+                    { id: '3', title: '대화 3' },
+                    { id: '1', title: '대화 1' },
+                ]);
+            });
+
+            const stored = JSON.parse(localStorage.getItem('gemini-open-tabs') || '[]');
+            expect(stored).toEqual(['2', '3', '1']);
+        });
+
+        it('updates tab objects after reorder', () => {
+            localStorage.setItem('gemini-open-tabs', JSON.stringify(['1', '2', '3']));
+            const { result } = renderHook(() =>
+                useTabs('1', mockOnSelectConversation, mockOnNewChat, conversations)
+            );
+
+            act(() => {
+                result.current.reorderTabs([
+                    { id: '3', title: '대화 3' },
+                    { id: '2', title: '대화 2' },
+                    { id: '1', title: '대화 1' },
+                ]);
+            });
+
+            expect(result.current.tabs).toEqual([
+                { id: '3', title: '대화 3' },
+                { id: '2', title: '대화 2' },
+                { id: '1', title: '대화 1' },
+            ]);
+        });
+
+        it('handles reorder with single tab', () => {
+            localStorage.setItem('gemini-open-tabs', JSON.stringify(['1']));
+            const { result } = renderHook(() =>
+                useTabs('1', mockOnSelectConversation, mockOnNewChat, conversations)
+            );
+
+            act(() => {
+                result.current.reorderTabs([{ id: '1', title: '대화 1' }]);
+            });
+
+            expect(result.current.openTabIds).toEqual(['1']);
+        });
+
+        it('handles reorder to empty array', () => {
+            localStorage.setItem('gemini-open-tabs', JSON.stringify(['1', '2']));
+            const { result } = renderHook(() =>
+                useTabs('1', mockOnSelectConversation, mockOnNewChat, conversations)
+            );
+
+            act(() => {
+                result.current.reorderTabs([]);
+            });
+
+            expect(result.current.openTabIds).toEqual([]);
+        });
+    });
 });
