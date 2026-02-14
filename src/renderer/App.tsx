@@ -214,6 +214,29 @@ const App: React.FC = () => {
     onComplete: handleStreamComplete,
   });
 
+  // Track token usage history for sparkline trend display
+  const [tokenHistory, setTokenHistory] = useState<number[]>([]);
+  const prevTokenTotal = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (tokenUsage && tokenUsage.totalTokens > 0) {
+      if (prevTokenTotal.current !== tokenUsage.totalTokens) {
+        prevTokenTotal.current = tokenUsage.totalTokens;
+        setTokenHistory(prev => {
+          const next = [...prev, tokenUsage.totalTokens];
+          // Keep last 20 data points
+          return next.length > 20 ? next.slice(-20) : next;
+        });
+      }
+    }
+  }, [tokenUsage]);
+
+  // Reset token history when conversation changes
+  useEffect(() => {
+    setTokenHistory([]);
+    prevTokenTotal.current = null;
+  }, [currentConversationId]);
+
   // Dialog/panel state (extracted to custom hook)
   const dialogs = useDialogs();
 
@@ -1007,6 +1030,7 @@ const App: React.FC = () => {
           sessionStatus={sessionStatus}
           model={settings.model !== 'auto' ? (S.MODEL_DISPLAY_NAMES[settings.model] || settings.model) : undefined}
           totalTokens={tokenUsage?.totalTokens}
+          tokenHistory={tokenHistory}
         />
       </main>}
       >

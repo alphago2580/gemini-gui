@@ -80,6 +80,13 @@
   }
 }
 
+/* Token trend sparkline */
+.status-bar-tokens .sparkline {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .status-bar-dot--connecting {
