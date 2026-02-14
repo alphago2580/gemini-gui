@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './NotificationBanner.css';
 
 export type BannerVariant = 'info' | 'warning' | 'error' | 'success';
@@ -41,10 +41,18 @@ const NotificationBannerInner: React.FC<NotificationBannerProps> = ({
 }) => {
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
+  const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+    };
+  }, []);
 
   const handleDismiss = useCallback(() => {
     setExiting(true);
-    setTimeout(() => {
+    if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+    dismissTimerRef.current = setTimeout(() => {
       setVisible(false);
       onDismiss?.();
     }, 300);

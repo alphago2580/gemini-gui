@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import './LinkCollection.css';
 import { extractLinks } from '../utils/linkExtractor';
 import * as S from '../constants/strings';
@@ -17,13 +17,21 @@ const LinkCollectionInner: React.FC<LinkCollectionProps> = ({
   onNavigateToMessage,
 }) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const links = useMemo(() => extractLinks(messages), [messages]);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
 
   const handleCopy = useCallback(async (url: string, index: number) => {
     try {
       await navigator.clipboard.writeText(url);
       setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopiedIndex(null), 2000);
     } catch { /* ignore */ }
   }, []);
 
