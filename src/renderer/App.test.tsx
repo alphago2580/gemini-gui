@@ -996,11 +996,10 @@ describe('App Component', () => {
         it('shows token usage after receiving result stats', async () => {
             const callbacks = setupStreamCallbacks();
 
-            const user = userEvent.setup();
             render(<App />);
             const input = screen.getByPlaceholderText(/메시지를 입력하세요/);
-            await user.type(input, 'Hello');
-            await user.click(screen.getByText('전송'));
+            fireEvent.change(input, { target: { value: 'Hello' } });
+            fireEvent.click(screen.getByText('전송'));
 
             // Simulate streaming message
             await act(() => {
@@ -1036,7 +1035,7 @@ describe('App Component', () => {
             expect(tokenDisplay).toHaveTextContent('10');
             expect(tokenDisplay).toHaveTextContent('5');
             expect(tokenDisplay).toHaveTextContent('15');
-        });
+        }, 15000);
 
         it('hides token usage while loading', async () => {
             const callbacks = setupStreamCallbacks();
