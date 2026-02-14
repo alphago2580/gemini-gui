@@ -715,3 +715,10 @@ export const SHORTCUT_RECORDER_CLEAR = '지우기';
 export const ARIA_SHORTCUT_RECORDER = '단축키 입력';
 export const ARIA_SHORTCUT_RECORDER_CLEAR = '단축키 지우기';
 export const ARIA_SHORTCUT_RECORDER_RECORDING = '단축키 녹화 중';
+
+// FloatingToolbar
+export const ARIA_FLOATING_TOOLBAR = '선택 텍스트 도구';
+export const FLOATING_TOOLBAR_COPY = '복사';
+export const FLOATING_TOOLBAR_SEARCH = '검색';
+export const FLOATING_TOOLBAR_QUOTE = '인용';
+export const FLOATING_TOOLBAR_HIGHLIGHT = '강조';
