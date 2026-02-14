@@ -128,6 +128,7 @@ const App: React.FC = () => {
     prevTab,
     ensureTabOpen,
     cleanupTabs,
+    reorderTabs,
   } = useTabs(currentConversationId, handleSelectConversation, handleNewChat, conversations);
 
   // Ensure current conversation is in tabs
@@ -757,6 +758,7 @@ const App: React.FC = () => {
           onSelectTab={selectTab}
           onCloseTab={closeTab}
           onNewTab={newTab}
+          onReorderTabs={reorderTabs}
         />
 
         <div className="chat-container">
