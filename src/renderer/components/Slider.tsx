@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import './Slider.css';
 
 export interface SliderProps {
@@ -50,6 +50,7 @@ const Slider: React.FC<SliderProps> = ({
 
   const trackRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
+  const dragCleanupRef = useRef<(() => void) | null>(null);
 
   const percentage = ((currentValue - min) / (max - min)) * 100;
 
@@ -108,9 +109,22 @@ const Slider: React.FC<SliderProps> = ({
 
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+
+      dragCleanupRef.current = () => {
+        isDragging.current = false;
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
     },
     [disabled, getValueFromPosition, updateValue],
   );
+
+  // Clean up drag listeners on unmount
+  useEffect(() => {
+    return () => {
+      dragCleanupRef.current?.();
+    };
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

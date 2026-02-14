@@ -185,4 +185,23 @@ describe('CopyButton', () => {
     const icon = container.querySelector('.copy-button-icon');
     expect(icon).toHaveAttribute('aria-hidden', 'true');
   });
+
+  // --- Timer cleanup ---
+
+  it('clears pending timer on unmount', async () => {
+    vi.useFakeTimers();
+    const clearSpy = vi.spyOn(global, 'clearTimeout');
+    const { unmount } = render(<CopyButton text="hello" resetDelay={2000} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: '복사' }));
+    });
+
+    // Unmount while timer is pending
+    unmount();
+
+    expect(clearSpy).toHaveBeenCalled();
+    clearSpy.mockRestore();
+    vi.useRealTimers();
+  });
 });

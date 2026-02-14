@@ -71,6 +71,7 @@ const ResizablePanel: React.FC<ResizablePanelProps> = ({
   const [internalSize, setInternalSize] = useState(initialSize);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
+  const dragCleanupRef = useRef<(() => void) | null>(null);
 
   const currentSize = Math.max(minSize, Math.min(maxSize, isControlled ? (controlledSize ?? DEFAULT_SIZE) : internalSize));
 
@@ -124,15 +125,22 @@ const ResizablePanel: React.FC<ResizablePanelProps> = ({
       document.body.style.userSelect = 'none';
       document.addEventListener('mousemove', trackingMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+
+      dragCleanupRef.current = () => {
+        isDragging.current = false;
+        document.removeEventListener('mousemove', trackingMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      };
     },
     [disabled, direction, currentSize, minSize, maxSize, updateSize, onResizeStart, onResizeEnd],
   );
 
-  // Clean up on unmount
+  // Clean up drag listeners on unmount
   useEffect(() => {
     return () => {
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      dragCleanupRef.current?.();
     };
   }, []);
 
