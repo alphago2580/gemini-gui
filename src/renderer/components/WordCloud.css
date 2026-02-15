@@ -1,0 +1,45 @@
+/* WordCloud Styles */
+.word-cloud {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.word-cloud-svg {
+  display: block;
+}
+
+.word-cloud-word {
+  font-family: inherit;
+  user-select: none;
+  transition: opacity 0.15s;
+}
+
+.word-cloud-word:hover {
+  opacity: 0.75;
+}
+
+.word-cloud-word--clickable {
+  cursor: pointer;
+}
+
+.word-cloud-word--clickable:focus {
+  outline: 2px solid var(--accent-primary, #4a90d9);
+  outline-offset: 2px;
+}
+
+/* Animation */
+.word-cloud--animated .word-cloud-word {
+  animation: word-cloud-fade-in 0.4s ease-out both;
+}
+
+@keyframes word-cloud-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
