@@ -47,12 +47,29 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
     } catch { /* ignore */ }
   }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       e.preventDefault();
       onClose();
     }
-  };
+  }, [onClose]);
+
+  const handleShowAll = useCallback(() => {
+    setFilterLang('all');
+  }, []);
+
+  const handleSelectLang = useCallback((lang: string) => {
+    setFilterLang(lang);
+  }, []);
+
+  const handlePanelClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  const handleNavigate = useCallback((messageIndex: number) => {
+    onNavigateToMessage(messageIndex);
+    onClose();
+  }, [onNavigateToMessage, onClose]);
 
   if (!isOpen) return null;
 
@@ -60,7 +77,7 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
     <div className="code-snippets-overlay" onClick={onClose}>
       <div
         className="code-snippets-panel"
-        onClick={e => e.stopPropagation()}
+        onClick={handlePanelClick}
         onKeyDown={handleKeyDown}
         role="dialog"
         aria-label={S.SNIPPETS_LABEL}
@@ -71,7 +88,7 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
           <div className="code-snippets-filters">
             <button
               className={`code-snippets-filter-btn ${filterLang === 'all' ? 'active' : ''}`}
-              onClick={() => setFilterLang('all')}
+              onClick={handleShowAll}
               aria-label={S.SNIPPETS_ALL_FILTER_LABEL}
             >
               {S.SNIPPETS_ALL_FILTER}
@@ -80,7 +97,7 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
               <button
                 key={lang}
                 className={`code-snippets-filter-btn ${filterLang === lang ? 'active' : ''}`}
-                onClick={() => setFilterLang(lang)}
+                onClick={() => handleSelectLang(lang)}
                 aria-label={`${lang} 필터`}
               >
                 {lang}
@@ -113,10 +130,7 @@ const CodeSnippetsInner: React.FC<CodeSnippetsProps> = ({
                 </span>
                 <button
                   className="code-snippet-nav-btn"
-                  onClick={() => {
-                    onNavigateToMessage(code.messageIndex);
-                    onClose();
-                  }}
+                  onClick={() => handleNavigate(code.messageIndex)}
                   aria-label={S.SNIPPETS_NAV_LABEL}
                   title={S.SNIPPETS_NAV_LABEL}
                 >

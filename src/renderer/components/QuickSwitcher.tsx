@@ -74,13 +74,22 @@ const QuickSwitcherInner: React.FC<QuickSwitcherProps> = ({
     }
   }, [filtered, selectedIndex, handleSelect, onClose]);
 
+  const handleQueryChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+    setSelectedIndex(0);
+  }, []);
+
+  const handlePanelClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
   if (!isOpen) return null;
 
   return (
     <div className="quick-switcher-overlay" onClick={onClose} role="dialog" aria-label={S.QS_LABEL}>
       <div
         className="quick-switcher"
-        onClick={e => e.stopPropagation()}
+        onClick={handlePanelClick}
         onKeyDown={handleKeyDown}
       >
         <input
@@ -89,10 +98,7 @@ const QuickSwitcherInner: React.FC<QuickSwitcherProps> = ({
           type="text"
           value={query}
           aria-label={S.QS_SEARCH_LABEL}
-          onChange={e => {
-            setQuery(e.target.value);
-            setSelectedIndex(0);
-          }}
+          onChange={handleQueryChange}
           placeholder={S.QS_PLACEHOLDER}
         />
         <div className="quick-switcher-list" ref={listRef} role="listbox" aria-label={S.QS_LIST_LABEL}>
