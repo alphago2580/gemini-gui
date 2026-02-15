@@ -1,0 +1,102 @@
+/* ScrollSpy Navigation */
+.scrollspy-nav {
+  position: sticky;
+  top: 1rem;
+}
+
+.scrollspy-nav-vertical .scrollspy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 2px solid var(--border-color, #404040);
+}
+
+.scrollspy-nav-horizontal .scrollspy-list {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 2px solid var(--border-color, #404040);
+}
+
+.scrollspy-item {
+  position: relative;
+}
+
+.scrollspy-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #aaa);
+  font-size: 0.8125rem;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+  border-radius: 0;
+  line-height: 1.4;
+}
+
+.scrollspy-nav-vertical .scrollspy-link {
+  padding-left: 1rem;
+  margin-left: -2px;
+  border-left: 2px solid transparent;
+}
+
+.scrollspy-nav-horizontal .scrollspy-link {
+  padding: 0.5rem 1rem;
+  margin-bottom: -2px;
+  border-bottom: 2px solid transparent;
+}
+
+.scrollspy-link:hover {
+  color: var(--text-primary, #e0e0e0);
+  background: var(--hover-bg, rgba(255, 255, 255, 0.05));
+}
+
+.scrollspy-link-active {
+  color: var(--accent-primary, #4a90d9);
+  font-weight: 600;
+}
+
+.scrollspy-nav-vertical .scrollspy-link-active {
+  border-left-color: var(--accent-primary, #4a90d9);
+}
+
+.scrollspy-nav-horizontal .scrollspy-link-active {
+  border-bottom-color: var(--accent-primary, #4a90d9);
+}
+
+.scrollspy-indicator {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: transparent;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.scrollspy-link-active .scrollspy-indicator {
+  background: var(--accent-primary, #4a90d9);
+}
+
+.scrollspy-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Focus visible */
+.scrollspy-link:focus-visible {
+  outline: 2px solid var(--accent-primary, #4a90d9);
+  outline-offset: -2px;
+}
