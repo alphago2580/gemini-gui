@@ -30,6 +30,7 @@ export function useScreenWakeLock(options: UseScreenWakeLockOptions = {}): UseSc
   const [error, setError] = useState<Error | null>(null);
 
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const releaseHandlerRef = useRef<(() => void) | null>(null);
   const onAcquireRef = useRef(onAcquire);
   onAcquireRef.current = onAcquire;
   const onReleaseRef = useRef(onRelease);
@@ -39,6 +40,22 @@ export function useScreenWakeLock(options: UseScreenWakeLockOptions = {}): UseSc
 
   const isSupported =
     typeof navigator !== 'undefined' && 'wakeLock' in navigator;
+
+  const attachReleaseHandler = useCallback((sentinel: WakeLockSentinel) => {
+    // Remove previous listener if any
+    if (wakeLockRef.current && releaseHandlerRef.current) {
+      wakeLockRef.current.removeEventListener('release', releaseHandlerRef.current);
+    }
+
+    const handleRelease = () => {
+      wakeLockRef.current = null;
+      releaseHandlerRef.current = null;
+      setIsActive(false);
+      onReleaseRef.current?.();
+    };
+    releaseHandlerRef.current = handleRelease;
+    sentinel.addEventListener('release', handleRelease);
+  }, []);
 
   const request = useCallback(async () => {
     if (!isSupported) {
@@ -55,17 +72,13 @@ export function useScreenWakeLock(options: UseScreenWakeLockOptions = {}): UseSc
       setError(null);
       onAcquireRef.current?.();
 
-      sentinel.addEventListener('release', () => {
-        wakeLockRef.current = null;
-        setIsActive(false);
-        onReleaseRef.current?.();
-      });
+      attachReleaseHandler(sentinel);
     } catch (err) {
       const lockError = err instanceof Error ? err : new Error(String(err));
       setError(lockError);
       onErrorRef.current?.(lockError);
     }
-  }, [isSupported]);
+  }, [isSupported, attachReleaseHandler]);
 
   const release = useCallback(async () => {
     if (wakeLockRef.current) {
@@ -90,11 +103,7 @@ export function useScreenWakeLock(options: UseScreenWakeLockOptions = {}): UseSc
         try {
           const sentinel = await navigator.wakeLock.request('screen');
           wakeLockRef.current = sentinel;
-          sentinel.addEventListener('release', () => {
-            wakeLockRef.current = null;
-            setIsActive(false);
-            onReleaseRef.current?.();
-          });
+          attachReleaseHandler(sentinel);
         } catch {
           // Silent fail on re-acquire
         }
@@ -105,7 +114,7 @@ export function useScreenWakeLock(options: UseScreenWakeLockOptions = {}): UseSc
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [isSupported, isActive]);
+  }, [isSupported, isActive, attachReleaseHandler]);
 
   // Auto request
   useEffect(() => {
@@ -118,6 +127,10 @@ export function useScreenWakeLock(options: UseScreenWakeLockOptions = {}): UseSc
   useEffect(() => {
     return () => {
       if (wakeLockRef.current) {
+        if (releaseHandlerRef.current) {
+          wakeLockRef.current.removeEventListener('release', releaseHandlerRef.current);
+          releaseHandlerRef.current = null;
+        }
         wakeLockRef.current.release().catch(() => {});
       }
     };
