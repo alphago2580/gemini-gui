@@ -1,1 +1,1 @@
-Fixing useEffect cleanup issues: useWakeLock, useScreenWakeLock listener cleanup + InfiniteScroll, MessageList missing dependency arrays
+Fixing TypeScript errors in useWakeLock and useScreenWakeLock test files

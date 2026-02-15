@@ -5,6 +5,7 @@ let mockWakeLockRequest: ReturnType<typeof vi.fn>;
 let mockSentinel: {
   release: ReturnType<typeof vi.fn>;
   addEventListener: ReturnType<typeof vi.fn>;
+  removeEventListener: ReturnType<typeof vi.fn>;
   released: boolean;
   releaseHandler: (() => void) | null;
 };
@@ -204,7 +205,7 @@ describe('useScreenWakeLock', () => {
     });
 
     const handler = mockSentinel.addEventListener.mock.calls.find(
-      (call: [string, () => void]) => call[0] === 'release'
+      (call) => call[0] === 'release'
     )?.[1];
 
     unmount();
