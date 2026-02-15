@@ -735,3 +735,6 @@ export const INPUT_HISTORY_PLACEHOLDER = '메시지를 입력하세요... (↑�
 export const INPUT_HISTORY_ARIA_LABEL = '메시지 입력 (히스토리 탐색 가능)';
 export const INPUT_HISTORY_ICON = '↕';
 export const INPUT_HISTORY_POSITION = (current: number, total: number) => `히스토리 ${current}/${total}`;
+
+// BarChart
+export const BAR_CHART_ARIA = '막대 차트';
