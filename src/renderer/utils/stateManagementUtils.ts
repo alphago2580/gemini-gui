@@ -94,10 +94,13 @@ export function loggerMiddleware<S, A extends { type: string }>(): Middleware<S,
 }
 
 // Thunk middleware — allows dispatching functions
+export type Thunk<S> = (getState: () => S) => void;
+
 export function thunkMiddleware<S, A>(): Middleware<S, A> {
   return (state: S, action: A, next: (action: A) => S): S => {
     if (typeof action === 'function') {
-      (action as unknown as (getState: () => S) => void)(() => state);
+      const thunk = action as Thunk<S>;
+      thunk(() => state);
       return state;
     }
     return next(action);
@@ -141,17 +144,19 @@ export function createSelector<S>(
 }
 
 // Action creator helper
-type ActionCreator<P> = P extends void
-  ? (() => { type: string }) & { type: string }
-  : ((payload: P) => { type: string; payload: P }) & { type: string };
+type ActionCreatorVoid = (() => { type: string }) & { type: string };
+type ActionCreatorPayload<P> = ((payload: P) => { type: string; payload: P }) & { type: string };
+type ActionCreator<P> = P extends void ? ActionCreatorVoid : ActionCreatorPayload<P>;
 
+export function createAction(type: string): ActionCreatorVoid;
+export function createAction<P>(type: string): ActionCreatorPayload<P>;
 export function createAction<P = void>(type: string): ActionCreator<P> {
-  const actionCreator = (payload?: P) => {
+  const actionCreator = (payload?: P): { type: string; payload?: P } => {
     if (payload !== undefined) {
       return { type, payload };
     }
     return { type };
   };
   actionCreator.type = type;
-  return actionCreator as unknown as ActionCreator<P>;
+  return actionCreator as ActionCreator<P>;
 }

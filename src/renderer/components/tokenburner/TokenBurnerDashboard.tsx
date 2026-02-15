@@ -63,28 +63,26 @@ const TokenBurnerDashboard: React.FC<TokenBurnerDashboardProps> = ({ initialData
   useEffect(() => {
     if (initialData) return;
 
-    const api = (window as unknown as Record<string, unknown>).electronAPI as
-      | { tokenburner?: { getDashboard?: () => Promise<DashboardData>; onEvent?: (cb: (data: DashboardData) => void) => void; removeAllListeners?: () => void } }
-      | undefined;
+    const tokenburner = window.electronAPI?.tokenburner;
 
-    if (!api?.tokenburner?.getDashboard) {
+    if (!tokenburner?.getDashboard) {
       setLoading(false);
       return;
     }
 
-    api.tokenburner.getDashboard().then((d) => {
-      setData(d);
+    tokenburner.getDashboard().then((d) => {
+      setData(d as DashboardData);
       setLoading(false);
     }).catch(() => {
       setLoading(false);
     });
 
-    if (api.tokenburner.onEvent) {
-      api.tokenburner.onEvent((d) => setData(d));
+    if (tokenburner.onEvent) {
+      tokenburner.onEvent((d) => setData(d as DashboardData));
     }
 
     return () => {
-      api?.tokenburner?.removeAllListeners?.();
+      tokenburner?.removeAllListeners?.();
     };
   }, [initialData]);
 
