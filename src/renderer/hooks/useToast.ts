@@ -7,7 +7,14 @@ export interface AddToastOptions {
   duration?: number;
 }
 
-export function useToast() {
+export interface UseToastReturn {
+  toasts: ToastMessage[];
+  addToast: (type: ToastMessage['type'], message: string, options?: AddToastOptions) => void;
+  dismissToast: (id: string) => void;
+  dismissAll: () => void;
+}
+
+export function useToast(): UseToastReturn {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const addToast = useCallback((type: ToastMessage['type'], message: string, options?: AddToastOptions) => {

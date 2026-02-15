@@ -14,7 +14,14 @@ function makeKey(conversationId: string, messageIndex: number): string {
   return `${conversationId}:${messageIndex}`;
 }
 
-export function useReactions() {
+export interface UseReactionsReturn {
+  reactions: ReactionsStore;
+  toggleReaction: (conversationId: string, messageIndex: number, emoji: string) => void;
+  getReactions: (conversationId: string, messageIndex: number) => ReactionMap;
+  hasReaction: (conversationId: string, messageIndex: number, emoji: string) => boolean;
+}
+
+export function useReactions(): UseReactionsReturn {
   const [reactions, setReactions] = useLocalStorage<ReactionsStore>(STORAGE_KEY_REACTIONS, {});
 
   const toggleReaction = useCallback((conversationId: string, messageIndex: number, emoji: string) => {

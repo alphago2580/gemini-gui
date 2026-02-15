@@ -13,7 +13,12 @@ const DEFAULT_SETTINGS: AppSettings = {
   fontSize: 14,
 };
 
-export function useSettings() {
+export interface UseSettingsReturn {
+  settings: AppSettings;
+  handleSettingsSave: (newSettings: AppSettings) => void;
+}
+
+export function useSettings(): UseSettingsReturn {
   const [settings, setSettings] = useState<AppSettings>(() => {
     try {
       const saved = localStorage.getItem(S.STORAGE_KEY_SETTINGS);
