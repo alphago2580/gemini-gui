@@ -16,7 +16,17 @@ function makeKey(conversationId: string, messageIndex: number): string {
   return `${conversationId}:${messageIndex}`;
 }
 
-export function useEmojiReactions() {
+export interface UseEmojiReactionsReturn {
+  reactions: MessageReactions;
+  addReaction: (conversationId: string, messageIndex: number, emoji: string) => void;
+  removeReaction: (conversationId: string, messageIndex: number, emoji: string) => void;
+  toggleReaction: (conversationId: string, messageIndex: number, emoji: string) => void;
+  getReactions: (conversationId: string, messageIndex: number) => EmojiReaction[];
+  clearReactions: (conversationId: string, messageIndex: number) => void;
+  clearAllReactions: () => void;
+}
+
+export function useEmojiReactions(): UseEmojiReactionsReturn {
   const [reactions, setReactions] = useLocalStorage<MessageReactions>(STORAGE_KEY_REACTIONS, {});
 
   const addReaction = useCallback((conversationId: string, messageIndex: number, emoji: string) => {

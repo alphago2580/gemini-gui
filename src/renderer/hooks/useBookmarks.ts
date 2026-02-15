@@ -12,7 +12,17 @@ export interface BookmarkedMessage {
   timestamp: Date;
 }
 
-export function useBookmarks() {
+export interface UseBookmarksReturn {
+  bookmarks: BookmarkedMessage[];
+  addBookmark: (bookmark: BookmarkedMessage) => void;
+  removeBookmark: (conversationId: string, messageIndex: number) => void;
+  toggleBookmark: (bookmark: BookmarkedMessage) => void;
+  isBookmarked: (conversationId: string, messageIndex: number) => boolean;
+  clearBookmarks: () => void;
+  getBookmarksForConversation: (conversationId: string) => BookmarkedMessage[];
+}
+
+export function useBookmarks(): UseBookmarksReturn {
   const [bookmarks, setBookmarks] = useLocalStorage<BookmarkedMessage[]>(STORAGE_KEY_BOOKMARKS, []);
 
   const addBookmark = useCallback((bookmark: BookmarkedMessage) => {

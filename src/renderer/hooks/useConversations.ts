@@ -1,9 +1,23 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, type Dispatch, type SetStateAction } from 'react';
 import { generateConversationTitle, generateMessageId, generateUniqueId } from '../utils/format';
 import type { Message, Conversation } from '../../preload/types';
 import * as S from '../constants/strings';
 
-export function useConversations() {
+export interface UseConversationsReturn {
+  conversations: Conversation[];
+  currentConversationId: string | null;
+  messages: Message[];
+  setMessages: Dispatch<SetStateAction<Message[]>>;
+  handleNewChat: () => void;
+  handleSelectConversation: (id: string) => void;
+  updateCurrentConversation: (updatedMessages: Message[]) => void;
+  deleteMessage: (index: number) => void;
+  editMessage: (index: number, newContent: string) => void;
+  deleteConversation: (id: string) => void;
+  forkConversation: (messageIndex: number) => string | null;
+}
+
+export function useConversations(): UseConversationsReturn {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);

@@ -4,7 +4,49 @@ import { useState, useCallback, useMemo } from 'react';
  * Manages all dialog/panel open states for App.tsx.
  * Consolidates 10+ useState boolean calls into a single hook.
  */
-export function useDialogs() {
+export interface UseDialogsReturn {
+  isSettingsOpen: boolean;
+  openSettings: () => void;
+  closeSettings: () => void;
+  toggleSettings: () => void;
+  isCommandPaletteOpen: boolean;
+  toggleCommandPalette: () => void;
+  closeCommandPalette: () => void;
+  isQuickSwitcherOpen: boolean;
+  toggleQuickSwitcher: () => void;
+  closeQuickSwitcher: () => void;
+  isCodeSnippetsOpen: boolean;
+  openCodeSnippets: () => void;
+  closeCodeSnippets: () => void;
+  isShortcutHelpOpen: boolean;
+  toggleShortcutHelp: () => void;
+  closeShortcutHelp: () => void;
+  isLinkCollectionOpen: boolean;
+  openLinkCollection: () => void;
+  closeLinkCollection: () => void;
+  isStatsOpen: boolean;
+  openStats: () => void;
+  closeStats: () => void;
+  isBookmarksOpen: boolean;
+  openBookmarks: () => void;
+  closeBookmarks: () => void;
+  isPerfPanelOpen: boolean;
+  openPerfPanel: () => void;
+  closePerfPanel: () => void;
+  isMessageSearchOpen: boolean;
+  openMessageSearch: () => void;
+  closeMessageSearch: () => void;
+  isInputPreviewVisible: boolean;
+  toggleInputPreview: () => void;
+  isBookmarkDrawerOpen: boolean;
+  openBookmarkDrawer: () => void;
+  closeBookmarkDrawer: () => void;
+  imageViewerState: { open: boolean; src: string; alt: string };
+  openImageViewer: (src: string, alt?: string) => void;
+  closeImageViewer: () => void;
+}
+
+export function useDialogs(): UseDialogsReturn {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isQuickSwitcherOpen, setIsQuickSwitcherOpen] = useState(false);

@@ -10,7 +10,14 @@ const DEFAULT_TEMPLATES: PromptTemplate[] = [
   { id: 'default-3', name: S.DEFAULT_TEMPLATE_SUMMARY, content: S.DEFAULT_TEMPLATE_SUMMARY_CONTENT },
 ];
 
-export function usePromptTemplates() {
+export interface UsePromptTemplatesReturn {
+  templates: PromptTemplate[];
+  addTemplate: (name: string, content: string) => PromptTemplate;
+  deleteTemplate: (id: string) => void;
+  updateTemplate: (id: string, name: string, content: string) => void;
+}
+
+export function usePromptTemplates(): UsePromptTemplatesReturn {
   const [templates, setTemplates] = useLocalStorage<PromptTemplate[]>(S.STORAGE_KEY_PROMPT_TEMPLATES, DEFAULT_TEMPLATES);
 
   const addTemplate = useCallback((name: string, content: string) => {

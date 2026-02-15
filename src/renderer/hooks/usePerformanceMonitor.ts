@@ -23,7 +23,22 @@ export interface PerformanceData {
 
 const MAX_RECENT_RENDERS = 50;
 
-export function usePerformanceMonitor() {
+export interface UsePerformanceMonitorReturn {
+  isEnabled: boolean;
+  toggle: () => void;
+  onRender: (
+    id: string,
+    phase: 'mount' | 'update',
+    actualDuration: number,
+    baseDuration: number,
+    startTime: number,
+    commitTime: number
+  ) => void;
+  getData: (messageCount: number, conversationCount: number) => PerformanceData;
+  reset: () => void;
+}
+
+export function usePerformanceMonitor(): UsePerformanceMonitorReturn {
   const [isEnabled, setIsEnabled] = useState(false);
   const renderCountRef = useRef(0);
   const totalRenderTimeRef = useRef(0);
