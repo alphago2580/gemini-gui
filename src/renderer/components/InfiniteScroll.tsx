@@ -51,13 +51,14 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
     }
   }, [isLoading, hasMore, error, onLoadMore]);
 
-  // Initial load
+  // Initial load — only fires once when initialLoad is set
+  const initialLoadDone = useRef(false);
   useEffect(() => {
-    if (initialLoad && hasMore && !isLoading && !error) {
+    if (initialLoad && !initialLoadDone.current && hasMore && !isLoading && !error) {
+      initialLoadDone.current = true;
       triggerLoad();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialLoad]);
+  }, [initialLoad, hasMore, isLoading, error, triggerLoad]);
 
   // Preserve scroll position when loading up
   useEffect(() => {

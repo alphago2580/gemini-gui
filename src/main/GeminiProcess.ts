@@ -148,8 +148,7 @@ export class GeminiProcess extends EventEmitter {
                     const json = JSON.parse(trimmed);
                     this.emit('json', json);
                 } else {
-                    // Log non-JSON output (prompts, echoes)
-                    // console.log('[CLI Raw]', trimmed);
+                    // Non-JSON output (prompts, echoes) — ignored
                 }
             } catch (e) {
                 // Not a JSON line, process logic (like interactive questions) might go here

@@ -61,8 +61,6 @@ export function useGeolocation(options: UseGeolocationOptions = {}): Geolocation
     setState(prev => ({ ...prev, error, loading: false }));
   }, []);
 
-  const geoOptions: PositionOptions = { enableHighAccuracy, timeout, maximumAge };
-
   const requestPosition = useCallback(() => {
     if (!navigator.geolocation) {
       setState(prev => ({
@@ -73,16 +71,15 @@ export function useGeolocation(options: UseGeolocationOptions = {}): Geolocation
       return;
     }
     setState(prev => ({ ...prev, loading: true }));
-    navigator.geolocation.getCurrentPosition(handleSuccess, handleError, geoOptions);
+    navigator.geolocation.getCurrentPosition(handleSuccess, handleError, { enableHighAccuracy, timeout, maximumAge });
   }, [handleSuccess, handleError, enableHighAccuracy, timeout, maximumAge]);
 
   useEffect(() => {
     if (!watch) return;
     if (!navigator.geolocation) return;
     setState(prev => ({ ...prev, loading: true }));
-    const watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, geoOptions);
+    const watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, { enableHighAccuracy, timeout, maximumAge });
     return () => navigator.geolocation.clearWatch(watchId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch, handleSuccess, handleError, enableHighAccuracy, timeout, maximumAge]);
 
   return { ...state, requestPosition };
