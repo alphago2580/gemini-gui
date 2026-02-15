@@ -1,0 +1,84 @@
+/* BarChart — Vertical/Horizontal bar chart visualization */
+.bar-chart {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bar-chart-svg {
+  overflow: visible;
+}
+
+/* Bars */
+.bar-chart-bar {
+  fill: var(--accent-color, #4a90d9);
+  transition: none;
+}
+
+.bar-chart--animated .bar-chart-bar {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Axis lines */
+.bar-chart-axis {
+  stroke: var(--border-color, #404040);
+  stroke-width: 1;
+}
+
+/* Grid lines */
+.bar-chart-grid {
+  stroke: var(--border-color, #404040);
+  stroke-width: 0.5;
+  stroke-dasharray: 4 4;
+  opacity: 0.4;
+}
+
+/* Grid value labels */
+.bar-chart-grid-label {
+  fill: var(--text-secondary, #aaa);
+  font-size: 9px;
+  font-family: inherit;
+  user-select: none;
+}
+
+/* Value labels on bars */
+.bar-chart-value {
+  fill: var(--text-color, #e0e0e0);
+  font-size: 10px;
+  font-family: inherit;
+  font-weight: 600;
+  user-select: none;
+}
+
+/* Axis labels */
+.bar-chart-label {
+  fill: var(--text-secondary, #aaa);
+  font-size: 10px;
+  font-family: inherit;
+  user-select: none;
+}
+
+/* Size variants — font scaling */
+.bar-chart--small .bar-chart-value {
+  font-size: 8px;
+}
+
+.bar-chart--small .bar-chart-label {
+  font-size: 8px;
+}
+
+.bar-chart--small .bar-chart-grid-label {
+  font-size: 7px;
+}
+
+.bar-chart--large .bar-chart-value {
+  font-size: 12px;
+}
+
+.bar-chart--large .bar-chart-label {
+  font-size: 12px;
+}
+
+.bar-chart--large .bar-chart-grid-label {
+  font-size: 11px;
+}
