@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TokenBurnerEngine } from './engine';
+import type { EngineEvent } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -84,7 +85,7 @@ describe('TokenBurnerEngine', () => {
       await engine.init(tmpDir);
       await engine.launch(1);
       expect(events.length).toBeGreaterThan(0);
-      expect(events.some((e: any) => e.type === 'engine-started')).toBe(true);
+      expect(events.some((e) => (e as EngineEvent).type === 'engine-started')).toBe(true);
     });
   });
 

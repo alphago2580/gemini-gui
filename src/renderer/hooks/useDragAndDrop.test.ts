@@ -15,17 +15,18 @@ function createDragEvent(overrides: Partial<React.DragEvent> = {}): React.DragEv
 }
 
 function createFileList(files: File[]): FileList {
-  const list = {
+  const indexed: Record<number, File> = {};
+  for (let i = 0; i < files.length; i++) {
+    indexed[i] = files[i];
+  }
+  return {
+    ...indexed,
     length: files.length,
     item: (i: number) => files[i] || null,
     [Symbol.iterator]: function* () {
       for (const f of files) yield f;
     },
   } as unknown as FileList;
-  for (let i = 0; i < files.length; i++) {
-    (list as any)[i] = files[i];
-  }
-  return list;
 }
 
 describe('useDragAndDrop', () => {

@@ -1,1 +1,1 @@
-Fixing TypeScript errors in useWakeLock and useScreenWakeLock test files
+fix-test-any-types — 테스트 파일 any 타입 제거
