@@ -184,7 +184,7 @@ describe('useWakeLock', () => {
     });
 
     const handler = mockSentinel.addEventListener.mock.calls.find(
-      (call: [string, () => void]) => call[0] === 'release'
+      (call) => call[0] === 'release'
     )?.[1];
 
     unmount();
