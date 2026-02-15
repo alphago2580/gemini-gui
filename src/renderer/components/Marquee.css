@@ -1,0 +1,35 @@
+.marquee {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.marquee-track {
+  display: flex;
+  will-change: transform;
+}
+
+.marquee-track--horizontal {
+  flex-direction: row;
+  width: max-content;
+}
+
+.marquee-track--vertical {
+  flex-direction: column;
+  height: max-content;
+}
+
+.marquee-content {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.marquee--up,
+.marquee--down {
+  height: 200px;
+}
+
+.marquee--up .marquee-content,
+.marquee--down .marquee-content {
+  white-space: normal;
+}
