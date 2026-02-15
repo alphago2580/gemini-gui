@@ -1,0 +1,109 @@
+/* GaugeChart — Semi-circular gauge visualization */
+.gauge-chart {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.gauge-chart-svg {
+  overflow: visible;
+}
+
+/* Track (background arc) */
+.gauge-chart-track {
+  stroke: var(--border-color, #404040);
+  opacity: 0.3;
+}
+
+/* Zone arcs override track color */
+.gauge-chart-zone {
+  pointer-events: none;
+}
+
+/* Tick marks */
+.gauge-chart-tick {
+  stroke: var(--text-secondary, #aaa);
+  stroke-width: 1.5;
+}
+
+.gauge-chart-tick-label {
+  fill: var(--text-secondary, #aaa);
+  font-size: 9px;
+  font-family: inherit;
+  user-select: none;
+}
+
+/* Needle */
+.gauge-chart-needle {
+  fill: var(--text-color, #e0e0e0);
+  transition: none;
+}
+
+.gauge-chart--animated .gauge-chart-needle {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gauge-chart-needle-center {
+  fill: var(--text-color, #e0e0e0);
+}
+
+/* Value display */
+.gauge-chart-value {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin-top: -2px;
+}
+
+.gauge-chart-value-number {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color, #e0e0e0);
+  line-height: 1;
+}
+
+.gauge-chart-value-unit {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #aaa);
+  font-weight: 500;
+}
+
+.gauge-chart-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #aaa);
+  text-align: center;
+}
+
+/* Size variants — value font scaling */
+.gauge-chart--small .gauge-chart-value-number {
+  font-size: 0.875rem;
+}
+
+.gauge-chart--small .gauge-chart-value-unit {
+  font-size: 0.625rem;
+}
+
+.gauge-chart--small .gauge-chart-label {
+  font-size: 0.625rem;
+}
+
+.gauge-chart--small .gauge-chart-tick-label {
+  font-size: 7px;
+}
+
+.gauge-chart--large .gauge-chart-value-number {
+  font-size: 1.75rem;
+}
+
+.gauge-chart--large .gauge-chart-value-unit {
+  font-size: 0.875rem;
+}
+
+.gauge-chart--large .gauge-chart-label {
+  font-size: 0.875rem;
+}
+
+.gauge-chart--large .gauge-chart-tick-label {
+  font-size: 11px;
+}
