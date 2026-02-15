@@ -51,7 +51,7 @@ export function useLongPress(options: LongPressOptions): LongPressHandlers {
     longPressedRef.current = false;
   }, [onClick, onEnd]);
 
-  const leave = useCallback(() => {
+  const leave = useCallback((_e: React.MouseEvent) => {
     if (timerRef.current !== null) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -72,7 +72,7 @@ export function useLongPress(options: LongPressOptions): LongPressHandlers {
   return {
     onMouseDown: start as (e: React.MouseEvent) => void,
     onMouseUp: cancel as (e: React.MouseEvent) => void,
-    onMouseLeave: leave as unknown as (e: React.MouseEvent) => void,
+    onMouseLeave: leave,
     onTouchStart: start as (e: React.TouchEvent) => void,
     onTouchEnd: cancel as (e: React.TouchEvent) => void,
   };

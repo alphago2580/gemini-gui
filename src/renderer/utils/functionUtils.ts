@@ -3,8 +3,9 @@
  */
 
 /** No-op function that does nothing. */
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-export function noop(): void {}
+export function noop(): void {
+  return;
+}
 
 /** Identity function — returns its argument unchanged. */
 export function identity<T>(value: T): T {
@@ -43,16 +44,17 @@ export function memoize<T extends (...args: never[]) => unknown>(
   fn: T,
   keyResolver?: (...args: Parameters<T>) => string,
 ): T {
-  const cache = new Map<string, unknown>();
-  return ((...args: Parameters<T>) => {
+  const cache = new Map<string, ReturnType<T>>();
+  const memoized = (...args: Parameters<T>): ReturnType<T> => {
     const key = keyResolver
       ? keyResolver(...args)
       : JSON.stringify(args);
-    if (cache.has(key)) return cache.get(key);
-    const result = fn(...args);
+    if (cache.has(key)) return cache.get(key) as ReturnType<T>;
+    const result = fn(...args) as ReturnType<T>;
     cache.set(key, result);
     return result;
-  }) as unknown as T;
+  };
+  return memoized as T;
 }
 
 /**
