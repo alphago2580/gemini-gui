@@ -1,0 +1,144 @@
+.stat-card {
+  --stat-card-accent: var(--accent-color, #4a9eff);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--bg-secondary, #f5f5f5);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+/* Variants */
+.stat-card--outlined {
+  background: transparent;
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.stat-card--elevated {
+  background: var(--bg-secondary, #f5f5f5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card--elevated:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Sizes */
+.stat-card--small {
+  padding: 10px;
+  gap: 8px;
+}
+
+.stat-card--large {
+  padding: 20px;
+  gap: 16px;
+}
+
+/* Icon */
+.stat-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--stat-card-accent) 12%, transparent);
+  color: var(--stat-card-accent);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.stat-card--small .stat-card-icon {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  border-radius: 6px;
+}
+
+.stat-card--large .stat-card-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  border-radius: 10px;
+}
+
+/* Content */
+.stat-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Label */
+.stat-card-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary, #888);
+  line-height: 1.4;
+}
+
+.stat-card--small .stat-card-label {
+  font-size: 11px;
+}
+
+.stat-card--large .stat-card-label {
+  font-size: 14px;
+}
+
+/* Value */
+.stat-card-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary, #222);
+  line-height: 1.2;
+}
+
+.stat-card--small .stat-card-value {
+  font-size: 18px;
+}
+
+.stat-card--large .stat-card-value {
+  font-size: 32px;
+}
+
+/* Trend */
+.stat-card-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary, #888);
+  margin-top: 2px;
+}
+
+.stat-card-trend--up {
+  color: var(--success-color, #38a169);
+}
+
+.stat-card-trend--down {
+  color: var(--error-color, #e53e3e);
+}
+
+.stat-card-trend--neutral {
+  color: var(--text-secondary, #888);
+}
+
+.stat-card-trend-arrow {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Description */
+.stat-card-description {
+  font-size: 11px;
+  color: var(--text-tertiary, #aaa);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.stat-card--large .stat-card-description {
+  font-size: 13px;
+}
