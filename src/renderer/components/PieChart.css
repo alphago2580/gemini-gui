@@ -1,0 +1,83 @@
+/* PieChart Styles */
+.pie-chart {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.pie-chart-svg {
+  display: block;
+}
+
+.pie-chart-slice {
+  transition: opacity 0.15s;
+}
+
+.pie-chart-slice:hover {
+  opacity: 0.85;
+}
+
+.pie-chart-donut-hole {
+  pointer-events: none;
+}
+
+.pie-chart-value {
+  font-size: 11px;
+  font-weight: 600;
+  fill: #fff;
+  pointer-events: none;
+}
+
+/* Animation */
+.pie-chart--animated .pie-chart-svg {
+  animation: pie-chart-spin-in 0.6s ease-out;
+}
+
+@keyframes pie-chart-spin-in {
+  from {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+/* Legend */
+.pie-chart-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: center;
+  max-width: 320px;
+}
+
+.pie-chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary, #aaa);
+}
+
+.pie-chart-legend-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.pie-chart-legend-label {
+  color: var(--text-primary, #e0e0e0);
+}
+
+.pie-chart-legend-value {
+  color: var(--text-secondary, #aaa);
+  font-variant-numeric: tabular-nums;
+}

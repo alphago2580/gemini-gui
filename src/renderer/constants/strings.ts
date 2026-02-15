@@ -738,3 +738,7 @@ export const INPUT_HISTORY_POSITION = (current: number, total: number) => `히�
 
 // BarChart
 export const BAR_CHART_ARIA = '막대 차트';
+
+// PieChart
+export const PIE_CHART_ARIA = '파이 차트';
+export const PIE_CHART_LEGEND_ARIA = '차트 범례';
