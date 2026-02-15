@@ -1,0 +1,25 @@
+.relative-timestamp {
+  display: inline;
+  color: var(--text-secondary, #888);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: default;
+}
+
+/* Sizes */
+.relative-timestamp--small {
+  font-size: 11px;
+}
+
+.relative-timestamp--medium {
+  font-size: 13px;
+}
+
+.relative-timestamp--large {
+  font-size: 15px;
+}
+
+/* Hover — subtle highlight when tooltip is available */
+.relative-timestamp[title]:hover {
+  color: var(--text-primary, #ccc);
+}
