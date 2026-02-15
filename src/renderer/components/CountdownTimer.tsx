@@ -69,7 +69,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
   }, []);
 
   useEffect(() => {
-    if (isRunning && remaining > 0) {
+    if (isRunning) {
       intervalRef.current = setInterval(() => {
         setRemaining(prev => {
           const next = prev - 1;
@@ -85,7 +85,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
       }, 1000);
       return clearTimer;
     }
-  }, [isRunning, remaining, clearTimer]);
+  }, [isRunning, clearTimer]);
 
   const start = useCallback(() => {
     if (remaining > 0 && !isComplete) {

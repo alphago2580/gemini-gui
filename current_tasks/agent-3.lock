@@ -1,1 +1,1 @@
-fix-virtualizedlist-test-types — VirtualizedList.test.tsx TypeScript 타입 수정
+fix-raf-cleanup — requestAnimationFrame 및 useEffect 클린업 누락 수정
