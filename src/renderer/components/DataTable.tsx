@@ -102,6 +102,13 @@ function DataTableInner<T extends Record<string, unknown>>({
     return sortDirection === 'asc' ? ' ▲' : ' ▼';
   }, [sortKey, sortDirection]);
 
+  const handleRowKeyDown = useCallback((e: React.KeyboardEvent, row: T, rowIndex: number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onRowClick?.(row, rowIndex);
+    }
+  }, [onRowClick]);
+
   const className = [
     'data-table',
     `data-table--${size}`,
@@ -184,12 +191,7 @@ function DataTableInner<T extends Record<string, unknown>>({
                   aria-selected={isSelected}
                   onClick={onRowClick ? () => onRowClick(row, rowIndex) : undefined}
                   tabIndex={onRowClick ? 0 : undefined}
-                  onKeyDown={onRowClick ? (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onRowClick(row, rowIndex);
-                    }
-                  } : undefined}
+                  onKeyDown={onRowClick ? (e) => handleRowKeyDown(e, row, rowIndex) : undefined}
                 >
                   {columns.map(col => (
                     <td key={col.key} className="data-table-td" role="cell">

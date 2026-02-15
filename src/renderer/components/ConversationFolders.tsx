@@ -94,13 +94,62 @@ const ConversationFolders: React.FC<ConversationFoldersProps> = ({
     onDeleteFolder(folderId);
   }, [onDeleteFolder]);
 
+  const handleStartCreating = useCallback(() => {
+    setIsCreating(true);
+  }, []);
+
+  const handleSelectAllFolders = useCallback(() => {
+    onSelectFolder(null);
+  }, [onSelectFolder]);
+
+  const handleSelectAllKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelectFolder(null);
+    }
+  }, [onSelectFolder]);
+
+  const handleFolderKeyDown = useCallback((e: React.KeyboardEvent, folderId: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelectFolder(folderId);
+    }
+  }, [onSelectFolder]);
+
+  const handleUncategorizedClick = useCallback(() => {
+    onSelectFolder('__uncategorized__');
+  }, [onSelectFolder]);
+
+  const handleUncategorizedKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelectFolder('__uncategorized__');
+    }
+  }, [onSelectFolder]);
+
+  const handleActionsClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  const handleRenameInputClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  const handleNewFolderNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewFolderName(e.target.value);
+  }, []);
+
+  const handleRenameValueChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setRenameValue(e.target.value);
+  }, []);
+
   return (
     <div className="conversation-folders" role="listbox" aria-label={S.FOLDER_SECTION_LABEL}>
       <div className="folder-header">
         <h4 className="folder-section-title">{S.FOLDER_SECTION_LABEL}</h4>
         <button
           className="folder-create-btn"
-          onClick={() => setIsCreating(true)}
+          onClick={handleStartCreating}
           aria-label={S.FOLDER_CREATE_ARIA}
           title={S.FOLDER_CREATE}
         >
@@ -110,11 +159,11 @@ const ConversationFolders: React.FC<ConversationFoldersProps> = ({
 
       <div
         className={`folder-item ${selectedFolderId === null ? 'folder-item--active' : ''}`}
-        onClick={() => onSelectFolder(null)}
+        onClick={handleSelectAllFolders}
         role="option"
         aria-selected={selectedFolderId === null}
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectFolder(null); } }}
+        onKeyDown={handleSelectAllKeyDown}
       >
         <span className="folder-icon" aria-hidden="true">📁</span>
         <span className="folder-name">{S.FOLDER_ALL_CONVERSATIONS}</span>
@@ -130,7 +179,7 @@ const ConversationFolders: React.FC<ConversationFoldersProps> = ({
           aria-selected={selectedFolderId === folder.id}
           aria-label={`${S.FOLDER_TOGGLE_ARIA}: ${folder.name}`}
           tabIndex={0}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectFolder(folder.id); } }}
+          onKeyDown={(e) => handleFolderKeyDown(e, folder.id)}
         >
           <span
             className="folder-color-dot"
@@ -142,17 +191,17 @@ const ConversationFolders: React.FC<ConversationFoldersProps> = ({
               ref={renameInputRef}
               className="folder-rename-input"
               value={renameValue}
-              onChange={(e) => setRenameValue(e.target.value)}
+              onChange={handleRenameValueChange}
               onBlur={handleRenameSubmit}
               onKeyDown={handleRenameKeyDown}
               aria-label={S.FOLDER_RENAME_ARIA}
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleRenameInputClick}
             />
           ) : (
             <>
               <span className="folder-name">{folder.name}</span>
               <span className="folder-count">{folderConversationCounts[folder.id] || 0}</span>
-              <div className="folder-actions" onClick={(e) => e.stopPropagation()}>
+              <div className="folder-actions" onClick={handleActionsClick}>
                 <button
                   className="folder-action-btn"
                   onClick={(e) => startRename(folder, e)}
@@ -178,11 +227,11 @@ const ConversationFolders: React.FC<ConversationFoldersProps> = ({
       {folders.length > 0 && (
         <div
           className={`folder-item folder-item--uncategorized ${selectedFolderId === '__uncategorized__' ? 'folder-item--active' : ''}`}
-          onClick={() => onSelectFolder('__uncategorized__')}
+          onClick={handleUncategorizedClick}
           role="option"
           aria-selected={selectedFolderId === '__uncategorized__'}
           tabIndex={0}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectFolder('__uncategorized__'); } }}
+          onKeyDown={handleUncategorizedKeyDown}
         >
           <span className="folder-icon" aria-hidden="true">📄</span>
           <span className="folder-name">{S.FOLDER_UNCATEGORIZED}</span>
@@ -196,7 +245,7 @@ const ConversationFolders: React.FC<ConversationFoldersProps> = ({
             ref={createInputRef}
             className="folder-create-input"
             value={newFolderName}
-            onChange={(e) => setNewFolderName(e.target.value)}
+            onChange={handleNewFolderNameChange}
             onBlur={handleCreateSubmit}
             onKeyDown={handleCreateKeyDown}
             placeholder={S.FOLDER_CREATE_PLACEHOLDER}

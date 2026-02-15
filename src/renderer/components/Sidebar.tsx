@@ -144,6 +144,29 @@ const Sidebar: React.FC<SidebarProps> = ({
     handleDragEnd();
   }, [dragIndex, conversations, onReorderConversations, handleDragEnd]);
 
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  }, []);
+
+  const handleConversationKeyDown = useCallback((e: React.KeyboardEvent, convId: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelectConversation(convId);
+    }
+  }, [onSelectConversation]);
+
+  const handleActionsClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  const handleMenuClose = useCallback(() => {
+    setOpenMenuId(null);
+  }, []);
+
+  const handleMenuToggle = useCallback((convId: string) => {
+    setOpenMenuId(prev => prev === convId ? null : convId);
+  }, []);
+
   const folderFilteredConversations = useMemo(() => {
     if (selectedFolderId === null) return conversations;
     if (selectedFolderId === '__uncategorized__') {
@@ -208,7 +231,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               type="text"
               placeholder={S.SEARCH_PLACEHOLDER}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               aria-label={S.SEARCH_LABEL}
             />
           </div>
@@ -257,12 +280,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   onDragEnd={handleDragEnd}
                   onDrop={(e) => handleDrop(index, e)}
                   title={canDrag ? S.CONV_DRAG_LABEL : undefined}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onSelectConversation(conv.id);
-                    }
-                  }}
+                  onKeyDown={(e) => handleConversationKeyDown(e, conv.id)}
                 >
                   <div className="conversation-title">{conv.title}</div>
                   <div className="conversation-meta">
@@ -277,11 +295,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                       />
                     )}
                   </div>
-                  <div className="conversation-actions" onClick={(e) => e.stopPropagation()}>
+                  <div className="conversation-actions" onClick={handleActionsClick}>
                     <DropdownMenu
                       isOpen={openMenuId === conv.id}
-                      onClose={() => setOpenMenuId(null)}
-                      onToggle={() => setOpenMenuId(prev => prev === conv.id ? null : conv.id)}
+                      onClose={handleMenuClose}
+                      onToggle={() => handleMenuToggle(conv.id)}
                       items={getConversationMenuItems(conv.id)}
                       trigger={<span aria-hidden="true">⋮</span>}
                       position="bottom-right"

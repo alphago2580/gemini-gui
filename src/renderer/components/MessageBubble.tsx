@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
 import EmojiReactionPicker from './EmojiReactionPicker';
 import UserAvatar from './UserAvatar';
@@ -46,23 +46,56 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
   const [editContent, setEditContent] = useState('');
   const [isReactionPickerOpen, setIsReactionPickerOpen] = useState(false);
 
-  const handleStartEdit = () => {
+  const handleStartEdit = useCallback(() => {
     setIsEditing(true);
     setEditContent(message.content);
-  };
+  }, [message.content]);
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = useCallback(() => {
     if (editContent.trim()) {
       onEdit(index, editContent);
     }
     setIsEditing(false);
     setEditContent('');
-  };
+  }, [editContent, onEdit, index]);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setIsEditing(false);
     setEditContent('');
-  };
+  }, []);
+
+  const handleToggleBookmark = useCallback(() => {
+    onToggleBookmark?.(index);
+  }, [onToggleBookmark, index]);
+
+  const handleToggleReactionPicker = useCallback(() => {
+    setIsReactionPickerOpen(prev => !prev);
+  }, []);
+
+  const handleReactionSelect = useCallback((emoji: string) => {
+    onToggleReaction?.(index, emoji);
+    setIsReactionPickerOpen(false);
+  }, [onToggleReaction, index]);
+
+  const handleReactionPickerClose = useCallback(() => {
+    setIsReactionPickerOpen(false);
+  }, []);
+
+  const handleFork = useCallback(() => {
+    onFork?.(index);
+  }, [onFork, index]);
+
+  const handleDelete = useCallback(() => {
+    onDelete(index);
+  }, [onDelete, index]);
+
+  const handleEditContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setEditContent(e.target.value);
+  }, []);
+
+  const handleReactionChipClick = useCallback((emoji: string) => {
+    onToggleReaction?.(index, emoji);
+  }, [onToggleReaction, index]);
 
   const showStreamingCursor = isStreaming && message.role === 'assistant' && isLastAssistant;
   const roleLabel = message.role === 'user' ? S.ROLE_USER : S.ROLE_ASSISTANT;
@@ -92,7 +125,7 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
         {onToggleBookmark && (
           <button
             className={`bookmark-message-btn${isBookmarked ? ' bookmarked' : ''}`}
-            onClick={() => onToggleBookmark(index)}
+            onClick={handleToggleBookmark}
             aria-label={isBookmarked ? S.ARIA_UNBOOKMARK : S.ARIA_BOOKMARK}
             title={isBookmarked ? S.TITLE_UNBOOKMARK : S.TITLE_BOOKMARK}
           >
@@ -103,7 +136,7 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
           <div className="reaction-btn-wrapper">
             <button
               className="reaction-add-btn"
-              onClick={() => setIsReactionPickerOpen(prev => !prev)}
+              onClick={handleToggleReactionPicker}
               aria-label={S.ARIA_ADD_REACTION}
               title={S.TITLE_ADD_REACTION}
             >
@@ -111,18 +144,15 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
             </button>
             <EmojiReactionPicker
               isOpen={isReactionPickerOpen}
-              onSelect={(emoji) => {
-                onToggleReaction(index, emoji);
-                setIsReactionPickerOpen(false);
-              }}
-              onClose={() => setIsReactionPickerOpen(false)}
+              onSelect={handleReactionSelect}
+              onClose={handleReactionPickerClose}
             />
           </div>
         )}
         {onFork && (
           <button
             className="fork-message-btn"
-            onClick={() => onFork(index)}
+            onClick={handleFork}
             aria-label={S.ARIA_FORK}
             title={S.TITLE_FORK}
           >
@@ -131,7 +161,7 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
         )}
         <button
           className="delete-message-btn"
-          onClick={() => onDelete(index)}
+          onClick={handleDelete}
           aria-label={S.ARIA_DELETE_MESSAGE}
           title={S.TITLE_DELETE_MESSAGE}
         >
@@ -144,7 +174,7 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
             <textarea
               className="edit-message-input"
               value={editContent}
-              onChange={e => setEditContent(e.target.value)}
+              onChange={handleEditContentChange}
               aria-label={S.ARIA_EDIT_INPUT}
               rows={3}
             />
@@ -175,7 +205,7 @@ const MessageBubbleInner: React.FC<MessageBubbleProps> = ({
             <button
               key={emoji}
               className="reaction-chip"
-              onClick={() => onToggleReaction(index, emoji)}
+              onClick={() => handleReactionChipClick(emoji)}
               aria-label={`${emoji} ${count}`}
             >
               {emoji} {count}
