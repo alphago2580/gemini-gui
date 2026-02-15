@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 /**
  * Observes DOM mutations on a target element using MutationObserver.
@@ -12,6 +12,12 @@ export function useMutationObserver(
   const callbackRef = useRef(callback);
   callbackRef.current = callback;
 
+  const serializedOptions = JSON.stringify(options);
+  const stableOptions = useMemo<MutationObserverInit>(
+    () => JSON.parse(serializedOptions) as MutationObserverInit,
+    [serializedOptions],
+  );
+
   useEffect(() => {
     const target = targetRef.current;
     if (!target) return;
@@ -20,12 +26,10 @@ export function useMutationObserver(
       callbackRef.current(mutations);
     });
 
-    observer.observe(target, options);
+    observer.observe(target, stableOptions);
 
     return () => {
       observer.disconnect();
     };
-    // Stringify options for stable dependency comparison
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetRef, JSON.stringify(options)]);
+  }, [targetRef, stableOptions]);
 }

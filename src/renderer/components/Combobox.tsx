@@ -102,7 +102,7 @@ const Combobox: React.FC<ComboboxProps> = ({
     } else {
       setActiveIndex(-1);
     }
-  }, [inputValue, actionableItems.length, autoHighlight]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [inputValue, actionableItems, autoHighlight]);
 
   // Scroll active item into view
   useEffect(() => {
