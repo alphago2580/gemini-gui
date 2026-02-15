@@ -749,3 +749,6 @@ export const WORD_CLOUD_ARIA = '워드 클라우드';
 // MasonryGrid
 export const MASONRY_GRID_ARIA = '메이슨리 그리드';
 export const MASONRY_GRID_COLUMN_ARIA = (col: number) => `열 ${col}`;
+
+// AreaChart
+export const AREA_CHART_ARIA = '영역 차트';

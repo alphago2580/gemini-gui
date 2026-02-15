@@ -1,0 +1,109 @@
+/* AreaChart — SVG area chart visualization */
+.area-chart {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.area-chart-svg {
+  overflow: visible;
+}
+
+/* Area fill */
+.area-chart-area {
+  fill: var(--accent-color, #4a90d9);
+  transition: none;
+}
+
+.area-chart--animated .area-chart-area {
+  transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Line path */
+.area-chart-line {
+  stroke: var(--accent-color, #4a90d9);
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: none;
+}
+
+.area-chart--animated .area-chart-line {
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Data point dots */
+.area-chart-dot {
+  fill: var(--accent-color, #4a90d9);
+  stroke: var(--bg-primary, #1e1e1e);
+  stroke-width: 1.5;
+  transition: none;
+}
+
+.area-chart--animated .area-chart-dot {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Axis lines */
+.area-chart-axis {
+  stroke: var(--border-color, #404040);
+  stroke-width: 1;
+}
+
+/* Grid lines */
+.area-chart-grid {
+  stroke: var(--border-color, #404040);
+  stroke-width: 0.5;
+  stroke-dasharray: 4 4;
+  opacity: 0.4;
+}
+
+/* Grid value labels */
+.area-chart-grid-label {
+  fill: var(--text-secondary, #aaa);
+  font-size: 9px;
+  font-family: inherit;
+  user-select: none;
+}
+
+/* Value labels at data points */
+.area-chart-value {
+  fill: var(--text-color, #e0e0e0);
+  font-size: 10px;
+  font-family: inherit;
+  font-weight: 600;
+  user-select: none;
+}
+
+/* X-axis labels */
+.area-chart-label {
+  fill: var(--text-secondary, #aaa);
+  font-size: 10px;
+  font-family: inherit;
+  user-select: none;
+}
+
+/* Size variants — font scaling */
+.area-chart--small .area-chart-value {
+  font-size: 8px;
+}
+
+.area-chart--small .area-chart-label {
+  font-size: 8px;
+}
+
+.area-chart--small .area-chart-grid-label {
+  font-size: 7px;
+}
+
+.area-chart--large .area-chart-value {
+  font-size: 12px;
+}
+
+.area-chart--large .area-chart-label {
+  font-size: 12px;
+}
+
+.area-chart--large .area-chart-grid-label {
+  font-size: 11px;
+}
