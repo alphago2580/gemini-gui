@@ -222,4 +222,21 @@ describe('useGamepad', () => {
     expect(result.current.isSupported).toBe(false);
     expect(result.current.gamepads).toEqual([]);
   });
+
+  it('cancels previous RAF before scheduling a new one to prevent duplicate chains', () => {
+    const mockGp = createMockGamepad();
+    mockGetGamepads.mockReturnValue([mockGp, null, null, null]);
+
+    renderHook(() => useGamepad());
+
+    // First poll
+    performanceNowValue = 150;
+    act(() => {
+      if (rafCallback) rafCallback(150);
+    });
+
+    // After the poll, cancelAnimationFrame should have been called
+    // before scheduling the next frame
+    expect(mockCancelRAF).toHaveBeenCalled();
+  });
 });

@@ -265,4 +265,24 @@ describe('QuickSwitcher', () => {
     );
     expect(screen.getByText('일치하는 대화가 없습니다')).toBeInTheDocument();
   });
+
+  it('cancels requestAnimationFrame on close', () => {
+    const cancelRAF = vi.fn();
+    vi.stubGlobal('cancelAnimationFrame', cancelRAF);
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(42);
+
+    const { rerender } = render(
+      <QuickSwitcher isOpen={true} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    expect(rafSpy).toHaveBeenCalled();
+
+    // Close the switcher — cleanup should cancel the RAF
+    rerender(
+      <QuickSwitcher isOpen={false} onClose={onClose} conversations={conversations} currentConversationId="1" onSelect={onSelect} />
+    );
+    expect(cancelRAF).toHaveBeenCalledWith(42);
+
+    rafSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
 });
