@@ -38,9 +38,10 @@ const Dialog: React.FC<DialogProps> = ({
     if (open) {
       previousFocusRef.current = document.activeElement as HTMLElement;
       // Focus the dialog after it mounts
-      requestAnimationFrame(() => {
+      const rafId = requestAnimationFrame(() => {
         dialogRef.current?.focus();
       });
+      return () => cancelAnimationFrame(rafId);
     } else {
       previousFocusRef.current?.focus();
     }

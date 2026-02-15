@@ -92,9 +92,10 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
       setQuery('');
       setSelectedIndex(0);
       // Focus input after render
-      requestAnimationFrame(() => {
+      const rafId = requestAnimationFrame(() => {
         inputRef.current?.focus();
       });
+      return () => cancelAnimationFrame(rafId);
     }
   }, [isOpen]);
 

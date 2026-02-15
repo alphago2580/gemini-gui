@@ -59,11 +59,12 @@ const Drawer: React.FC<DrawerProps> = ({
   }, [closeOnEscape, onClose]);
 
   useEffect(() => {
+    let rafId: number | undefined;
     if (open) {
       previousFocusRef.current = document.activeElement as HTMLElement;
       document.addEventListener('keydown', handleKeyDown);
       // Focus the drawer panel
-      requestAnimationFrame(() => {
+      rafId = requestAnimationFrame(() => {
         drawerRef.current?.focus();
       });
       document.body.style.overflow = 'hidden';
@@ -73,6 +74,7 @@ const Drawer: React.FC<DrawerProps> = ({
     }
 
     return () => {
+      if (rafId !== undefined) cancelAnimationFrame(rafId);
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
