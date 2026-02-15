@@ -1,1 +1,1 @@
-Fixing inline event handlers with useCallback in key components
+Fixing useEffect cleanup issues: useWakeLock, useScreenWakeLock listener cleanup + InfiniteScroll, MessageList missing dependency arrays

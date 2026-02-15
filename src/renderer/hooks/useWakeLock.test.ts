@@ -3,7 +3,7 @@ import { renderHook, act } from '@testing-library/react';
 import { useWakeLock } from './useWakeLock';
 
 let mockRelease: ReturnType<typeof vi.fn>;
-let mockSentinel: { release: ReturnType<typeof vi.fn>; addEventListener: ReturnType<typeof vi.fn>; released: boolean; type: string };
+let mockSentinel: { release: ReturnType<typeof vi.fn>; addEventListener: ReturnType<typeof vi.fn>; removeEventListener: ReturnType<typeof vi.fn>; released: boolean; type: string };
 let releaseListener: (() => void) | null;
 
 beforeEach(() => {
@@ -14,6 +14,7 @@ beforeEach(() => {
     addEventListener: vi.fn((event: string, cb: () => void) => {
       if (event === 'release') releaseListener = cb;
     }),
+    removeEventListener: vi.fn(),
     released: false,
     type: 'screen',
   };
@@ -172,6 +173,23 @@ describe('useWakeLock', () => {
     unmount();
 
     expect(mockRelease).toHaveBeenCalled();
+  });
+
+  it('removes release event listener on unmount', async () => {
+    setupWakeLockSupported();
+    const { result, unmount } = renderHook(() => useWakeLock());
+
+    await act(async () => {
+      await result.current.request();
+    });
+
+    const handler = mockSentinel.addEventListener.mock.calls.find(
+      (call: [string, () => void]) => call[0] === 'release'
+    )?.[1];
+
+    unmount();
+
+    expect(mockSentinel.removeEventListener).toHaveBeenCalledWith('release', handler);
   });
 
   it('adds release event listener to sentinel', async () => {

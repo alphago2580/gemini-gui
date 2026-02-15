@@ -20,6 +20,7 @@ function createMockSentinel() {
         sentinel.releaseHandler = handler;
       }
     }),
+    removeEventListener: vi.fn(),
     released: false,
     releaseHandler: null as (() => void) | null,
   };
@@ -193,5 +194,21 @@ describe('useScreenWakeLock', () => {
       await result.current.request();
     });
     expect(result.current.error).toBeNull();
+  });
+
+  it('removes release event listener on unmount', async () => {
+    const { result, unmount } = renderHook(() => useScreenWakeLock());
+
+    await act(async () => {
+      await result.current.request();
+    });
+
+    const handler = mockSentinel.addEventListener.mock.calls.find(
+      (call: [string, () => void]) => call[0] === 'release'
+    )?.[1];
+
+    unmount();
+
+    expect(mockSentinel.removeEventListener).toHaveBeenCalledWith('release', handler);
   });
 });

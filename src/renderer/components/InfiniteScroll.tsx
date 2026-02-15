@@ -37,6 +37,7 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [loadingInternal, setLoadingInternal] = useState(false);
   const prevScrollHeightRef = useRef<number>(0);
+  const isRestoringScroll = useRef(false);
 
   const isLoading = loading || loadingInternal;
 
@@ -60,12 +61,14 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
 
   // Preserve scroll position when loading up
   useEffect(() => {
-    if (direction === 'up' && containerRef.current && prevScrollHeightRef.current > 0) {
+    if (isRestoringScroll.current && direction === 'up' && containerRef.current && prevScrollHeightRef.current > 0) {
       const newScrollHeight = containerRef.current.scrollHeight;
       const diff = newScrollHeight - prevScrollHeightRef.current;
       if (diff > 0) {
         containerRef.current.scrollTop += diff;
       }
+      isRestoringScroll.current = false;
+      prevScrollHeightRef.current = 0;
     }
   });
 
@@ -78,12 +81,14 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
         container.scrollHeight - container.scrollTop - container.clientHeight;
       if (distanceToBottom <= threshold) {
         prevScrollHeightRef.current = container.scrollHeight;
+        isRestoringScroll.current = true;
         triggerLoad();
       }
     } else {
       const distanceToTop = container.scrollTop;
       if (distanceToTop <= threshold) {
         prevScrollHeightRef.current = container.scrollHeight;
+        isRestoringScroll.current = true;
         triggerLoad();
       }
     }
