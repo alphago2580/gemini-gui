@@ -1,1 +1,1 @@
-fix-raf-cleanup — requestAnimationFrame 및 useEffect 클린업 누락 수정
+fix-cleanup-quality-round3

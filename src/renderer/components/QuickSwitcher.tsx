@@ -31,7 +31,8 @@ const QuickSwitcherInner: React.FC<QuickSwitcherProps> = ({
     if (isOpen) {
       setQuery('');
       setSelectedIndex(0);
-      requestAnimationFrame(() => inputRef.current?.focus());
+      const rafId = requestAnimationFrame(() => inputRef.current?.focus());
+      return () => cancelAnimationFrame(rafId);
     }
   }, [isOpen]);
 

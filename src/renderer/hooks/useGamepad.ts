@@ -68,6 +68,10 @@ export function useGamepad(options: UseGamepadOptions = {}): UseGamepadReturn {
       setGamepads(mapped);
     }
 
+    // Cancel any existing frame before scheduling a new one to prevent duplicate chains
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+    }
     rafRef.current = requestAnimationFrame(pollGamepads);
   }, [isSupported, pollInterval]);
 

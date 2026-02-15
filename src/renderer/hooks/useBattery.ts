@@ -38,9 +38,10 @@ export function useBattery(): BatteryState {
     if (!nav.getBattery) return;
 
     let battery: BatteryManager | null = null;
+    let cleaned = false;
 
     const updateState = () => {
-      if (!battery) return;
+      if (!battery || cleaned) return;
       setState({
         isSupported: true,
         charging: battery.charging,
@@ -50,8 +51,16 @@ export function useBattery(): BatteryState {
       });
     };
 
+    const removeListeners = (b: BatteryManager) => {
+      b.removeEventListener('chargingchange', updateState);
+      b.removeEventListener('chargingtimechange', updateState);
+      b.removeEventListener('dischargingtimechange', updateState);
+      b.removeEventListener('levelchange', updateState);
+    };
+
     nav.getBattery().then((b) => {
       battery = b;
+      if (cleaned) return;
       updateState();
 
       b.addEventListener('chargingchange', updateState);
@@ -59,15 +68,15 @@ export function useBattery(): BatteryState {
       b.addEventListener('dischargingtimechange', updateState);
       b.addEventListener('levelchange', updateState);
     }).catch(() => {
-      setState((prev) => ({ ...prev, isSupported: false }));
+      if (!cleaned) {
+        setState((prev) => ({ ...prev, isSupported: false }));
+      }
     });
 
     return () => {
+      cleaned = true;
       if (battery) {
-        battery.removeEventListener('chargingchange', updateState);
-        battery.removeEventListener('chargingtimechange', updateState);
-        battery.removeEventListener('dischargingtimechange', updateState);
-        battery.removeEventListener('levelchange', updateState);
+        removeListeners(battery);
       }
     };
   }, []);

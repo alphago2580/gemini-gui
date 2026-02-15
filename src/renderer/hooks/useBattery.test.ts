@@ -176,4 +176,32 @@ describe('useBattery', () => {
     expect(result.current.level).toBe(1);
     expect(result.current.charging).toBe(false);
   });
+
+  it('does not add listeners if unmounted before getBattery resolves', async () => {
+    // Create a deferred promise so we can control resolution timing
+    let resolveGetBattery!: (value: typeof mockBattery) => void;
+    const getBatteryPromise = new Promise<typeof mockBattery>((resolve) => {
+      resolveGetBattery = resolve;
+    });
+
+    Object.defineProperty(navigator, 'getBattery', {
+      value: vi.fn().mockReturnValue(getBatteryPromise),
+      writable: true,
+      configurable: true,
+    });
+
+    const { unmount } = renderHook(() => useBattery());
+
+    // Unmount before getBattery resolves
+    unmount();
+
+    // Now resolve — listeners should NOT be added
+    resolveGetBattery(mockBattery);
+    await getBatteryPromise;
+
+    // Wait a tick for the .then() callback to run
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(mockBattery.addEventListener).not.toHaveBeenCalled();
+  });
 });
