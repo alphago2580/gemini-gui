@@ -136,9 +136,9 @@ describe('VirtualizedList', () => {
         renderItem={defaultRender}
       />
     );
-    const inner = container.querySelector('.virtualized-list-inner');
+    const inner = container.querySelector('.virtualized-list-inner') as HTMLElement;
     expect(inner).not.toBeNull();
-    expect(inner!.style.height).toBe(`${100 * ITEM_HEIGHT}px`);
+    expect(inner.style.height).toBe(`${100 * ITEM_HEIGHT}px`);
   });
 
   it('renders aria-rowcount equal to total items', () => {
