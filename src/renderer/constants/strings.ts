@@ -742,3 +742,6 @@ export const BAR_CHART_ARIA = '막대 차트';
 // PieChart
 export const PIE_CHART_ARIA = '파이 차트';
 export const PIE_CHART_LEGEND_ARIA = '차트 범례';
+
+// WordCloud
+export const WORD_CLOUD_ARIA = '워드 클라우드';
